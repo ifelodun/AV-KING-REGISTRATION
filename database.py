@@ -13,6 +13,7 @@ def get_db():
     database_url = os.getenv("DATABASE_URL")
 
     if not database_url:
+
         raise RuntimeError(
             "DATABASE_URL is not configured."
         )
@@ -35,32 +36,9 @@ def init_db():
 
         with conn.cursor() as cur:
 
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS shortlisted_at
-                TIMESTAMP
-                """
-            )
-            
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS notification_sent
-                BOOLEAN NOT NULL DEFAULT FALSE
-                """
-            )
-            
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS notification_sent_at
-                TIMESTAMP
-                """
-            )
-            # ------------------------------------------------
+            # =================================================
             # APPLICATIONS
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -131,14 +109,133 @@ def init_db():
 
                     updated_at TIMESTAMP
                         NOT NULL DEFAULT CURRENT_TIMESTAMP
+
                 )
                 """
             )
 
 
-            # ------------------------------------------------
+            # =================================================
+            # APPLICANT LOGIN / PORTAL
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                password_hash TEXT
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                portal_active BOOLEAN
+                NOT NULL DEFAULT TRUE
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                last_login TIMESTAMP
+                """
+            )
+
+
+            # =================================================
+            # SHORTLISTING
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                shortlisted_at TIMESTAMP
+                """
+            )
+
+
+            # =================================================
+            # NOTIFICATION
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                notification_sent BOOLEAN
+                NOT NULL DEFAULT FALSE
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                notification_sent_at TIMESTAMP
+                """
+            )
+
+
+            # =================================================
+            # INTERVIEW
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                interview_date TIMESTAMP
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                interview_location TEXT
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                interview_notes TEXT
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                interview_status VARCHAR(50)
+                """
+            )
+
+
+            # =================================================
             # ADMIN USERS
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -164,14 +261,50 @@ def init_db():
             )
 
 
-            # ------------------------------------------------
+            # =================================================
+            # APPLICANT PORTAL MESSAGES
+            # =================================================
+
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS applicant_messages (
+
+                    id SERIAL PRIMARY KEY,
+
+                    application_id INTEGER
+                        NOT NULL
+                        REFERENCES applications(id)
+                        ON DELETE CASCADE,
+
+                    subject VARCHAR(200)
+                        NOT NULL,
+
+                    message TEXT
+                        NOT NULL,
+
+                    message_type VARCHAR(50)
+                        NOT NULL DEFAULT 'General',
+
+                    is_read BOOLEAN
+                        NOT NULL DEFAULT FALSE,
+
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+                )
+                """
+            )
+
+
+            # =================================================
             # INDEXES
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
                 idx_applications_status
+
                 ON applications(status)
                 """
             )
@@ -181,6 +314,7 @@ def init_db():
                 """
                 CREATE INDEX IF NOT EXISTS
                 idx_applications_submitted_at
+
                 ON applications(submitted_at)
                 """
             )
@@ -190,12 +324,45 @@ def init_db():
                 """
                 CREATE INDEX IF NOT EXISTS
                 idx_applications_phone
+
                 ON applications(phone)
                 """
             )
 
 
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_application
+
+                ON applicant_messages(application_id)
+                """
+            )
+
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_read
+
+                ON applicant_messages(is_read)
+                """
+            )
+
+
+        # =====================================================
+        # COMMIT
+        # =====================================================
+
         conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
 
     finally:
 
