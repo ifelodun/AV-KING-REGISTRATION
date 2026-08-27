@@ -2504,198 +2504,7 @@ def admin_dashboard():
         recent_applications=recent_applications
     )
 
-# ============================================================
-# APPLICANT PORTAL
-# ============================================================
-# ============================================================
-# APPLICANT PORTAL
-# ============================================================
 
-@app.route("/applicant/portal")
-def applicant_portal():
-
-    # ========================================================
-    # SECURITY CHECK
-    # ========================================================
-
-    application_id = session.get("application_id")
-
-    if not application_id:
-
-        flash(
-            "Please log in to access your applicant portal.",
-            "error"
-        )
-
-        return redirect(
-            url_for("applicant_login")
-        )
-
-
-    # ========================================================
-    # DATABASE
-    # ========================================================
-
-    conn = get_db()
-
-    try:
-
-        with conn.cursor() as cur:
-
-            # ------------------------------------------------
-            # GET APPLICATION
-            # ------------------------------------------------
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    application_number,
-
-                    first_name,
-                    middle_name,
-                    last_name,
-
-                    gender,
-                    date_of_birth,
-
-                    phone,
-                    email,
-                    address,
-                    state,
-                    lga,
-
-                    position_applied,
-
-                    highest_qualification,
-                    course_of_study,
-                    institution,
-                    graduation_year,
-
-                    work_experience,
-                    previous_employer,
-                    previous_position,
-
-                    reason_for_applying,
-                    additional_information,
-
-                    passport_filename,
-                    cv_filename,
-                    qualification_filename,
-
-                    status,
-                    admin_notes,
-
-                    submitted_at,
-                    updated_at,
-
-                    shortlisted_at,
-
-                    interview_date,
-                    interview_location,
-                    interview_notes,
-                    interview_status
-
-                FROM applications
-
-                WHERE id = %s
-
-                LIMIT 1
-                """,
-                (application_id,)
-            )
-
-            application = cur.fetchone()
-
-
-            # ------------------------------------------------
-            # APPLICATION NOT FOUND
-            # ------------------------------------------------
-
-            if not application:
-
-                session.clear()
-
-                flash(
-                    "Your application could not be found.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_login")
-                )
-
-
-            # ------------------------------------------------
-            # GET APPLICANT MESSAGES
-            # ------------------------------------------------
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    subject,
-                    message,
-                    message_type,
-                    is_read,
-                    created_at
-
-                FROM applicant_messages
-
-                WHERE application_id = %s
-
-                ORDER BY created_at DESC
-                """,
-                (application_id,)
-            )
-
-            messages = cur.fetchall()
-
-
-            # ------------------------------------------------
-            # UNREAD MESSAGE COUNT
-            # ------------------------------------------------
-
-            cur.execute(
-                """
-                SELECT COUNT(*) AS unread_count
-
-                FROM applicant_messages
-
-                WHERE application_id = %s
-
-                AND is_read = FALSE
-                """,
-                (application_id,)
-            )
-
-            unread_row = cur.fetchone()
-
-            unread_count = (
-                unread_row["unread_count"]
-                if unread_row
-                else 0
-            )
-
-
-    finally:
-
-        conn.close()
-
-
-    # ========================================================
-    # PORTAL
-    # ========================================================
-
-    return render_template(
-        "applicant_portal.html",
-
-        application=application,
-
-        messages=messages,
-
-        unread_count=unread_count
-    )
 
 # ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
@@ -2820,89 +2629,46 @@ def application_success(
     )
 
 # ============================================================
-# APPLICANT LOGIN
+# APPLICANT AUTHENTICATION
 # ============================================================
 
-@app.route(
-    "/applicant/login",
-    methods=["GET", "POST"]
-)
+def applicant_required():
+
+    return bool(
+        session.get("applicant_id")
+    )
+
+# ============================================================
+# APPLICANT PORTAL LOGIN
+# ============================================================
+
+@app.route("/applicant/login", methods=["GET", "POST"])
 def applicant_login():
 
-    # ========================================================
-    # IF ALREADY LOGGED IN
-    # ========================================================
-
-    if session.get("application_id"):
-
-        return redirect(
-            url_for("applicant_portal")
-        )
-
-
-    # ========================================================
-    # DISPLAY LOGIN PAGE
-    # ========================================================
-
     if request.method == "GET":
-
-        return render_template(
-            "applicant_login.html"
-        )
-
-
-    # ========================================================
-    # GET LOGIN DETAILS
-    # ========================================================
+        return render_template("applicant_login.html")
 
     application_number = (
-        request.form.get(
-            "application_number",
-            ""
-        )
+        request.form.get("application_number", "")
         .strip()
         .upper()
     )
 
-    password = (
-        request.form.get(
-            "password",
-            ""
-        )
+    password = request.form.get(
+        "password",
+        ""
     )
 
-
-    # ========================================================
-    # VALIDATION
-    # ========================================================
-
-    if not application_number:
+    if not application_number or not password:
 
         flash(
-            "Please enter your application number.",
+            "Please enter your application number and password.",
             "error"
         )
 
         return render_template(
             "applicant_login.html"
         )
-
-
-    if not password:
-
-        flash(
-            "Please enter your password.",
-            "error"
-        )
-
-        return render_template(
-            "applicant_login.html"
-        )
-
-
-    # ========================================================
-    # DATABASE
-    # ========================================================
 
     conn = get_db()
 
@@ -2913,103 +2679,100 @@ def applicant_login():
             cur.execute(
                 """
                 SELECT
-
                     id,
                     application_number,
                     first_name,
                     last_name,
-
                     password_hash,
                     portal_active,
                     status
-
                 FROM applications
-
                 WHERE application_number = %s
-
                 LIMIT 1
-
                 """,
-                (
-                    application_number,
-                )
+                (application_number,)
             )
 
-            application = cur.fetchone()
+            applicant = cur.fetchone()
 
+    finally:
 
-            # =================================================
-            # APPLICATION NOT FOUND
-            # =================================================
+        conn.close()
 
-            if not application:
+    if not applicant:
 
-                flash(
-                    "Invalid application number or password.",
-                    "error"
-                )
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
 
-                return render_template(
-                    "applicant_login.html"
-                )
+        return render_template(
+            "applicant_login.html"
+        )
 
+    if not applicant["portal_active"]:
 
-            # =================================================
-            # PORTAL DISABLED
-            # =================================================
+        flash(
+            "Your applicant portal has been disabled.",
+            "error"
+        )
 
-            if not application["portal_active"]:
+        return render_template(
+            "applicant_login.html"
+        )
 
-                flash(
-                    "Your applicant portal has been disabled. "
-                    "Please contact recruitment.",
-                    "error"
-                )
+    if not applicant["password_hash"]:
 
-                return render_template(
-                    "applicant_login.html"
-                )
+        flash(
+            "Your applicant portal account has not been activated yet.",
+            "error"
+        )
 
+        return render_template(
+            "applicant_login.html"
+        )
 
-            # =================================================
-            # PASSWORD NOT CREATED
-            # =================================================
+    if not check_password_hash(
+        applicant["password_hash"],
+        password
+    ):
 
-            if not application["password_hash"]:
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
 
-                flash(
-                    "Your applicant portal account has not "
-                    "been activated yet.",
-                    "error"
-                )
+        return render_template(
+            "applicant_login.html"
+        )
 
-                return render_template(
-                    "applicant_login.html"
-                )
+    # --------------------------------------------------------
+    # LOGIN SUCCESS
+    # --------------------------------------------------------
 
+    session.clear()
 
-            # =================================================
-            # CHECK PASSWORD
-            # =================================================
+    session["applicant_id"] = applicant["id"]
 
-            if not check_password_hash(
-                application["password_hash"],
-                password
-            ):
+    session["applicant_application_number"] = (
+        applicant["application_number"]
+    )
 
-                flash(
-                    "Invalid application number or password.",
-                    "error"
-                )
+    session["applicant_name"] = (
+        applicant["first_name"]
+        + " "
+        + applicant["last_name"]
+    )
 
-                return render_template(
-                    "applicant_login.html"
-                )
+    # --------------------------------------------------------
+    # UPDATE LAST LOGIN
+    # --------------------------------------------------------
 
+    conn = get_db()
 
-            # =================================================
-            # UPDATE LAST LOGIN
-            # =================================================
+    try:
+
+        with conn.cursor() as cur:
 
             cur.execute(
                 """
@@ -3021,58 +2784,139 @@ def applicant_login():
 
                 WHERE id = %s
                 """,
-                (
-                    application["id"],
-                )
+                (applicant["id"],)
             )
-
 
         conn.commit()
-
-
-        # ====================================================
-        # CREATE APPLICANT SESSION
-        # ====================================================
-
-        session.clear()
-
-        session["application_id"] = (
-            application["id"]
-        )
-
-        session["applicant_logged_in"] = True
-
-        session["application_number"] = (
-            application["application_number"]
-        )
-
-
-        # ====================================================
-        # SUCCESS
-        # ====================================================
-
-        flash(
-            f"Welcome back, {application['first_name']}.",
-            "success"
-        )
-
-        return redirect(
-            url_for(
-                "applicant_portal"
-            )
-        )
-
 
     except Exception:
 
         conn.rollback()
-
         raise
-
 
     finally:
 
         conn.close()
+
+    return redirect(
+        url_for("applicant_portal")
+    )
+
+
+# ============================================================
+# APPLICANT PORTAL
+# ============================================================
+
+@app.route("/applicant/portal")
+def applicant_portal():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT *
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            application = cur.fetchone()
+
+            if not application:
+
+                session.clear()
+
+                flash(
+                    "Applicant account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+            # ------------------------------------------------
+            # GET APPLICANT MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                ORDER BY created_at DESC
+                """,
+                (applicant_id,)
+            )
+
+            messages = cur.fetchall()
+
+    finally:
+
+        conn.close()
+
+    return render_template(
+        "applicant_portal.html",
+        application=application,
+        messages=messages
+    )
+
+
+# ============================================================
+# APPLICANT LOGOUT
+# ============================================================
+
+@app.route("/applicant/logout")
+def applicant_logout():
+
+    session.pop(
+        "applicant_id",
+        None
+    )
+
+    session.pop(
+        "applicant_application_number",
+        None
+    )
+
+    session.pop(
+        "applicant_name",
+        None
+    )
+
+    flash(
+        "You have been logged out.",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant_login")
+    )
 
 # ============================================================
 # INITIALIZE DATABASE
