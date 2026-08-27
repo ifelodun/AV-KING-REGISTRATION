@@ -353,6 +353,18 @@ def init_db():
                 """
             )
 
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS applicant_messages (
+                    id SERIAL PRIMARY KEY,
+                    application_id INTEGER NOT NULL,
+                    subject VARCHAR(255),
+                    message TEXT NOT NULL,
+                    is_read BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+        
 
             # =================================================
             # INDEXES
