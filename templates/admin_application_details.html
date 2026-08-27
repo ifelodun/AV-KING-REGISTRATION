@@ -643,7 +643,43 @@
                             </option>
 
                         </select>
-
+                        {% if application.status == "Shortlisted" %}
+                        
+                        <div class="whatsapp-notification-box">
+                        
+                            <div class="whatsapp-notification-content">
+                        
+                                <span class="notification-label">
+                                    SHORTLISTED APPLICANT
+                                </span>
+                        
+                                <h3>
+                                    WhatsApp Notification
+                                </h3>
+                        
+                                <p>
+                                    This applicant has been shortlisted.
+                                    You can notify them through WhatsApp.
+                                </p>
+                        
+                            </div>
+                        
+                        
+                            <a
+                                href="{{ url_for(
+                                    'send_application_whatsapp',
+                                    application_id=application.id
+                                ) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="whatsapp-notification-button"
+                            >
+                                Send WhatsApp Notification
+                            </a>
+                        
+                        </div>
+                        
+                        {% endif %}
 
                         <button
                             type="submit"
