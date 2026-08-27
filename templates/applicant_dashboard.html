@@ -1,0 +1,67 @@
+{% if application.status == "Shortlisted" %}
+
+<div class="shortlisted-notice">
+
+    <div class="shortlisted-icon">
+        ✓
+    </div>
+
+    <div>
+
+        <span class="notice-label">
+            RECRUITMENT UPDATE
+        </span>
+
+        <h2>
+            Congratulations, {{ application.first_name }}!
+        </h2>
+
+        <p>
+            You have been shortlisted for the next stage
+            of our recruitment process.
+        </p>
+
+        <p>
+            Please continue checking this portal for
+            interview details and further instructions.
+        </p>
+
+        {% if application.interview_date %}
+
+        <div class="interview-preview">
+
+            <strong>
+                Interview Information
+            </strong>
+
+            <span>
+                {{ application.interview_date }}
+            </span>
+
+            {% if application.interview_location %}
+            <span>
+                {{ application.interview_location }}
+            </span>
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+        <div class="whatsapp-contact">
+
+            <strong>
+                Recruitment enquiries
+            </strong>
+
+            <span>
+                WhatsApp: +234 905 884 2501
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
