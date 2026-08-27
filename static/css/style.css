@@ -2908,3 +2908,188 @@ required {
 
 }
 }
+/* ============================================================
+   NOTIFICATION STATUS
+   ============================================================ */
+
+.notification-status-card {
+    margin-top: 20px;
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e0e6e3;
+    border-radius: 12px;
+}
+
+
+.notification-status-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 15px;
+
+    border-bottom: 1px solid #e7ebe9;
+}
+
+
+.notification-label {
+    display: block;
+
+    color: #2d7950;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+
+.notification-status-header h3 {
+    margin: 5px 0 0;
+
+    color: #183d2d;
+
+    font-size: 17px;
+}
+
+
+.notification-badge {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 12px;
+
+    border-radius: 30px;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+.notification-badge.sent {
+    background: #e8f6ed;
+    color: #267548;
+}
+
+
+.notification-badge.pending {
+    background: #fff5df;
+    color: #996b15;
+}
+
+
+.notification-status-body {
+    padding-top: 16px;
+}
+
+
+.notification-status-body p {
+    margin: 0;
+
+    color: #68756f;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+.notification-date {
+    margin-top: 12px;
+
+    color: #7b8781;
+
+    font-size: 11px;
+}
+
+
+.notification-date strong {
+    color: #344c40;
+}
+
+
+.notification-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-top: 18px;
+}
+
+
+.notification-actions form {
+    margin: 0;
+}
+
+
+.notification-sent-button,
+.secondary-whatsapp-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 11px 16px;
+
+    border-radius: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+
+.notification-sent-button {
+    border: 1px solid #d8dfdc;
+
+    background: #ffffff;
+
+    color: #42554b;
+}
+
+
+.secondary-whatsapp-button {
+    margin-top: 15px;
+
+    background: #eef6f1;
+
+    color: #287548;
+}
+
+
+.notification-sent-button:hover,
+.secondary-whatsapp-button:hover {
+    opacity: .85;
+}
+
+
+@media (max-width: 650px) {
+
+    .notification-status-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+
+    .notification-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+
+    .notification-actions a,
+    .notification-actions button {
+        width: 100%;
+    }
+
+}
