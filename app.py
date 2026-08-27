@@ -10,7 +10,20 @@ from flask import (
     url_for,
     flash
 )
-
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    session,
+    send_from_directory
+)
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 from dotenv import load_dotenv
 
 from werkzeug.utils import secure_filename
@@ -790,7 +803,414 @@ def apply():
         )
     )
 
+# ============================================================
+# CREATE INITIAL ADMIN
+# ============================================================
 
+def create_initial_admin():
+
+    username = os.getenv(
+        "ADMIN_USERNAME"
+    )
+
+    password = os.getenv(
+        "ADMIN_PASSWORD"
+    )
+
+    if not username or not password:
+        return
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT id
+                FROM admin_users
+                WHERE username = %s
+                """,
+                (username,)
+            )
+
+            existing = cur.fetchone()
+
+            if existing:
+                return
+
+
+            password_hash = generate_password_hash(
+                password
+            )
+
+
+            cur.execute(
+                """
+                INSERT INTO admin_users (
+                    username,
+                    password_hash,
+                    full_name
+                )
+
+                VALUES (
+                    %s,
+                    %s,
+                    %s
+                )
+                """,
+                (
+                    username,
+                    password_hash,
+                    "System Administrator"
+                )
+            )
+
+        conn.commit()
+
+    finally:
+
+        conn.close()
+
+# ============================================================
+# ADMIN LOGIN
+# ============================================================
+
+@app.route(
+    "/admin/login",
+    methods=["GET", "POST"]
+)
+def admin_login():
+
+    if session.get("admin_id"):
+
+        return redirect(
+            url_for("admin_dashboard")
+        )
+
+
+    if request.method == "POST":
+
+        username = (
+            request.form.get(
+                "username",
+                ""
+            )
+            .strip()
+        )
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+
+        if not username or not password:
+
+            flash(
+                "Please enter your username and password.",
+                "error"
+            )
+
+            return render_template(
+                "admin_login.html"
+            )
+
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        id,
+                        username,
+                        password_hash,
+                        full_name
+
+                    FROM admin_users
+
+                    WHERE username = %s
+
+                    LIMIT 1
+                    """,
+                    (username,)
+                )
+
+                admin = cur.fetchone()
+
+
+                if not admin:
+
+                    flash(
+                        "Invalid username or password.",
+                        "error"
+                    )
+
+                    return render_template(
+                        "admin_login.html"
+                    )
+
+
+                if not check_password_hash(
+                    admin["password_hash"],
+                    password
+                ):
+
+                    flash(
+                        "Invalid username or password.",
+                        "error"
+                    )
+
+                    return render_template(
+                        "admin_login.html"
+                    )
+
+
+                cur.execute(
+                    """
+                    UPDATE admin_users
+
+                    SET last_login = CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (admin["id"],)
+                )
+
+            conn.commit()
+
+
+        finally:
+
+            conn.close()
+
+
+        session.clear()
+
+        session["admin_id"] = admin["id"]
+
+        session["admin_username"] = admin["username"]
+
+        session["admin_name"] = (
+            admin["full_name"]
+            or admin["username"]
+        )
+
+
+        return redirect(
+            url_for("admin_dashboard")
+        )
+
+
+    return render_template(
+        "admin_login.html"
+    )
+
+# ============================================================
+# ADMIN LOGOUT
+# ============================================================
+
+@app.route("/admin/logout")
+def admin_logout():
+
+    session.clear()
+
+    return redirect(
+        url_for("admin_login")
+    )
+
+# ============================================================
+# ADMIN AUTHENTICATION
+# ============================================================
+
+def admin_required():
+
+    return bool(
+        session.get("admin_id")
+    )
+
+# ============================================================
+# ADMIN DASHBOARD
+# ============================================================
+
+@app.route("/admin")
+@app.route("/admin/dashboard")
+def admin_dashboard():
+
+    if not admin_required():
+
+        return redirect(
+            url_for("admin_login")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ----------------------------------------------
+            # TOTAL APPLICATIONS
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                """
+            )
+
+            total = cur.fetchone()["total"]
+
+
+            # ----------------------------------------------
+            # PENDING
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Pending'
+                """
+            )
+
+            pending = cur.fetchone()["total"]
+
+
+            # ----------------------------------------------
+            # UNDER REVIEW
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Under Review'
+                """
+            )
+
+            under_review = (
+                cur.fetchone()["total"]
+            )
+
+
+            # ----------------------------------------------
+            # SHORTLISTED
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Shortlisted'
+                """
+            )
+
+            shortlisted = (
+                cur.fetchone()["total"]
+            )
+
+
+            # ----------------------------------------------
+            # APPROVED
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Approved'
+                """
+            )
+
+            approved = (
+                cur.fetchone()["total"]
+            )
+
+
+            # ----------------------------------------------
+            # REJECTED
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Rejected'
+                """
+            )
+
+            rejected = (
+                cur.fetchone()["total"]
+            )
+
+
+            # ----------------------------------------------
+            # RECENT APPLICATIONS
+            # ----------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+
+                    id,
+
+                    application_number,
+
+                    first_name,
+
+                    middle_name,
+
+                    last_name,
+
+                    phone,
+
+                    position_applied,
+
+                    status,
+
+                    submitted_at
+
+                FROM applications
+
+                ORDER BY submitted_at DESC
+
+                LIMIT 10
+                """
+            )
+
+            recent_applications = cur.fetchall()
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_dashboard.html",
+
+        total=total,
+
+        pending=pending,
+
+        under_review=under_review,
+
+        shortlisted=shortlisted,
+
+        approved=approved,
+
+        rejected=rejected,
+
+        recent_applications=recent_applications
+    )
 # ============================================================
 # APPLICATION SUCCESS
 # ============================================================
