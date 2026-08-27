@@ -1412,6 +1412,166 @@ def applicant_dashboard():
         "applicant_dashboard.html",
         application=application
     )
+
+# ============================================================
+# SEND WHATSAPP NOTIFICATION
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/whatsapp"
+)
+def send_application_whatsapp(application_id):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    first_name,
+                    last_name,
+                    phone,
+                    application_number,
+                    position_applied,
+                    status
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+
+    # ========================================================
+    # ONLY SHORTLISTED APPLICANTS
+    # ========================================================
+
+    if application["status"] != "Shortlisted":
+
+        flash(
+            "WhatsApp notification is only available "
+            "for shortlisted applicants.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    phone = (
+        application["phone"] or ""
+    ).strip()
+
+
+    if not phone:
+
+        flash(
+            "This applicant does not have a valid phone number.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    # ========================================================
+    # CONVERT NIGERIAN NUMBER TO INTERNATIONAL FORMAT
+    # ========================================================
+
+    whatsapp_phone = phone
+
+    if whatsapp_phone.startswith("0"):
+
+        whatsapp_phone = (
+            "234"
+            + whatsapp_phone[1:]
+        )
+
+    elif whatsapp_phone.startswith("+234"):
+
+        whatsapp_phone = whatsapp_phone[1:]
+
+
+    # ========================================================
+    # MESSAGE
+    # ========================================================
+
+    applicant_name = (
+        f"{application['first_name']} "
+        f"{application['last_name']}"
+    )
+
+
+    message = (
+        f"Dear {applicant_name},\n\n"
+
+        f"Congratulations!\n\n"
+
+        f"We are pleased to inform you that your "
+        f"application for the position of "
+        f"{application['position_applied']} at "
+        f"{COMPANY_NAME} has been shortlisted "
+        f"for the next stage of our recruitment process.\n\n"
+
+        f"Application Number: "
+        f"{application['application_number']}\n\n"
+
+        f"Please log in to your Applicant Portal regularly "
+        f"to check for further recruitment updates and "
+        f"interview information.\n\n"
+
+        f"Regards,\n"
+        f"{COMPANY_NAME}\n"
+        f"{COMPANY_PHONE}"
+    )
+
+
+    # ========================================================
+    # WHATSAPP URL
+    # ========================================================
+
+    whatsapp_url = (
+        "https://wa.me/"
+        + whatsapp_phone
+        + "?text="
+        + quote(message)
+    )
+
+
+    return redirect(whatsapp_url)
 # ============================================================
 # UPDATE APPLICATION STATUS
 # ============================================================
