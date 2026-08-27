@@ -3158,6 +3158,254 @@ def applicant_portal():
             )
 
 # ============================================================
+# APPLICANT MESSAGES
+# ============================================================
+
+@app.route("/applicant/messages")
+def applicant_messages():
+
+    # --------------------------------------------------------
+    # CHECK APPLICANT LOGIN
+    # --------------------------------------------------------
+
+    if not session.get("applicant_logged_in"):
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    application_id = session.get(
+        "applicant_application_id"
+    )
+
+    if not application_id:
+        flash(
+            "Applicant session is invalid. Please login again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET ALL MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+                FROM applicant_messages
+                WHERE application_id = %s
+                ORDER BY created_at DESC
+                """,
+                (application_id,)
+            )
+
+            messages = cur.fetchall()
+
+
+            # ------------------------------------------------
+            # COUNT UNREAD MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS unread_count
+                FROM applicant_messages
+                WHERE application_id = %s
+                  AND is_read = FALSE
+                """,
+                (application_id,)
+            )
+
+            row = cur.fetchone()
+
+            unread_count = (
+                row["unread_count"]
+                if row
+                else 0
+            )
+
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # UPDATE SESSION BADGE
+    # --------------------------------------------------------
+
+    session["applicant_unread_count"] = unread_count
+
+
+    return render_template(
+        "applicant_messages.html",
+        messages=messages,
+        unread_count=unread_count
+    )
+
+# ============================================================
+# VIEW APPLICANT MESSAGE
+# ============================================================
+
+@app.route("/applicant/messages/<int:message_id>")
+def applicant_message(message_id):
+
+    # --------------------------------------------------------
+    # CHECK APPLICANT LOGIN
+    # --------------------------------------------------------
+
+    if not session.get("applicant_logged_in"):
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    application_id = session.get(
+        "applicant_application_id"
+    )
+
+    if not application_id:
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # IMPORTANT:
+            # Make sure the message belongs to THIS applicant
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+                FROM applicant_messages
+                WHERE id = %s
+                  AND application_id = %s
+                LIMIT 1
+                """,
+                (
+                    message_id,
+                    application_id
+                )
+            )
+
+            message = cur.fetchone()
+
+
+            if not message:
+
+                flash(
+                    "Message not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_messages")
+                )
+
+
+            # ------------------------------------------------
+            # MARK MESSAGE AS READ
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                UPDATE applicant_messages
+                SET is_read = TRUE
+                WHERE id = %s
+                  AND application_id = %s
+                """,
+                (
+                    message_id,
+                    application_id
+                )
+            )
+
+
+        conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # UPDATE UNREAD COUNT
+    # --------------------------------------------------------
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS unread_count
+                FROM applicant_messages
+                WHERE application_id = %s
+                  AND is_read = FALSE
+                """,
+                (application_id,)
+            )
+
+            row = cur.fetchone()
+
+            unread_count = (
+                row["unread_count"]
+                if row
+                else 0
+            )
+
+    finally:
+
+        conn.close()
+
+
+    session["applicant_unread_count"] = unread_count
+
+
+    return render_template(
+        "applicant_message.html",
+        message=message,
+        unread_count=unread_count
+                )
+
+# ============================================================
 # ADMIN SETTINGS
 # ============================================================
 
