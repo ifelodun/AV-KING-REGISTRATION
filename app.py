@@ -2064,6 +2064,113 @@ def admin_dashboard():
 
         recent_applications=recent_applications
     )
+
+# ============================================================
+# MARK WHATSAPP NOTIFICATION AS SENT
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/whatsapp-sent",
+    methods=["POST"]
+)
+def mark_whatsapp_notification_sent(application_id):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    status
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+            if not application:
+
+                flash(
+                    "Application not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_applications")
+                )
+
+
+            if application["status"] != "Shortlisted":
+
+                flash(
+                    "Only shortlisted applicants can have "
+                    "a shortlist notification recorded.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for(
+                        "admin_application_details",
+                        application_id=application_id
+                    )
+                )
+
+
+            cur.execute(
+                """
+                UPDATE applications
+
+                SET
+                    notification_sent = TRUE,
+
+                    notification_sent_at =
+                        CURRENT_TIMESTAMP,
+
+                    updated_at =
+                        CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (application_id,)
+            )
+
+
+        conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+        raise
+
+
+    finally:
+
+        conn.close()
+
+
+    flash(
+        "WhatsApp notification marked as sent.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for(
+            "admin_application_details",
+            application_id=application_id
+        )
+    )
 # ============================================================
 # APPLICATION SUCCESS
 # ============================================================
