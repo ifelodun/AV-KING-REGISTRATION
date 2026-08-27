@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Application Submitted | {{ company_name }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="success-page">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            ✓
+        </div>
+
+        <span class="success-label">
+            APPLICATION RECEIVED
+        </span>
+
+        <h2>
+            Application Submitted Successfully
+        </h2>
+
+        <p>
+            Thank you for applying to
+            {{ company_name }}.
+            Your application has been received and will
+            be reviewed by our recruitment team.
+        </p>
+
+
+        <div class="application-number-box">
+
+            <span>
+                YOUR APPLICATION NUMBER
+            </span>
+
+            <strong>
+                {{ application_number }}
+            </strong>
+
+        </div>
+
+
+        <div class="success-notice">
+
+            <strong>
+                Important
+            </strong>
+
+            <p>
+                Please keep your application number safe.
+                You may need it later to check the status
+                of your application.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('home') }}"
+            class="btn btn-primary"
+        >
+            Return to Homepage
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
