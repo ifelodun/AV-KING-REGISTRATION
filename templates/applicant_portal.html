@@ -1,0 +1,1186 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+    /* =====================================================
+       PAGE
+       ===================================================== */
+
+    .portal-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px 20px 60px;
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
+    .portal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+
+    .portal-header-left h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 28px;
+        font-weight: 750;
+    }
+
+
+    .portal-header-left p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+
+    .logout-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 18px;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    .logout-button:hover {
+        background: #f9fafb;
+    }
+
+
+    /* =====================================================
+       APPLICATION NUMBER
+       ===================================================== */
+
+    .application-number-card {
+        background: #111827;
+        color: #ffffff;
+        border-radius: 16px;
+        padding: 22px 25px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+
+    .application-number-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.7;
+    }
+
+
+    .application-number {
+        font-size: 22px;
+        font-weight: 750;
+        margin-top: 5px;
+    }
+
+
+    .application-position {
+        font-size: 14px;
+        opacity: 0.8;
+        text-align: right;
+    }
+
+
+    /* =====================================================
+       STATUS CARD
+       ===================================================== */
+
+    .status-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+
+    .status-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+
+    .status-card-header h2 {
+        margin: 0;
+        font-size: 19px;
+        color: #111827;
+    }
+
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+
+    .status-pending {
+        background: #fff7ed;
+        color: #9a3412;
+    }
+
+
+    .status-review {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+
+    .status-shortlisted {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+
+    .status-approved {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+
+    .status-rejected {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+
+    /* =====================================================
+       TIMELINE
+       ===================================================== */
+
+    .application-timeline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        position: relative;
+        margin-top: 30px;
+    }
+
+
+    .timeline-line {
+        position: absolute;
+        top: 17px;
+        left: 8%;
+        right: 8%;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: 0;
+    }
+
+
+    .timeline-item {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        width: 20%;
+    }
+
+
+    .timeline-dot {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+
+    .timeline-item.active .timeline-dot {
+        background: #111827;
+        color: #ffffff;
+    }
+
+
+    .timeline-item.completed .timeline-dot {
+        background: #059669;
+        color: #ffffff;
+    }
+
+
+    .timeline-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+
+    /* =====================================================
+       SHORTLISTED NOTICE
+       ===================================================== */
+
+    .shortlisted-notice {
+        display: flex;
+        gap: 18px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+
+    .shortlisted-icon {
+        flex: 0 0 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #059669;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        font-weight: 700;
+    }
+
+
+    .notice-label {
+        font-size: 11px;
+        letter-spacing: 1px;
+        font-weight: 800;
+        color: #047857;
+    }
+
+
+    .shortlisted-notice h2 {
+        margin: 5px 0 8px;
+        color: #065f46;
+        font-size: 22px;
+    }
+
+
+    .shortlisted-notice p {
+        margin: 6px 0;
+        color: #065f46;
+        line-height: 1.6;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       INTERVIEW
+       ===================================================== */
+
+    .interview-preview {
+        margin-top: 18px;
+        padding: 18px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #a7f3d0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+
+    .interview-preview strong {
+        color: #064e3b;
+        margin-bottom: 4px;
+    }
+
+
+    .interview-row {
+        display: flex;
+        gap: 10px;
+        font-size: 14px;
+        color: #374151;
+    }
+
+
+    .interview-label {
+        min-width: 110px;
+        font-weight: 700;
+    }
+
+
+    .whatsapp-contact {
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid #a7f3d0;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        color: #065f46;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       GRID
+       ===================================================== */
+
+    .portal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+
+
+    .portal-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 25px;
+    }
+
+
+    .portal-card h2 {
+        margin: 0 0 20px;
+        color: #111827;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+       INFORMATION
+       ===================================================== */
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+
+    .info-label {
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+
+    .info-value {
+        color: #111827;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: right;
+    }
+
+
+    /* =====================================================
+       MESSAGES
+       ===================================================== */
+
+    .message-card {
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+
+    .message-card:last-child {
+        margin-bottom: 0;
+    }
+
+
+    .message-subject {
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 5px;
+    }
+
+
+    .message-text {
+        color: #4b5563;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+
+    .message-date {
+        margin-top: 8px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+
+    .no-messages {
+        color: #9ca3af;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @media (max-width: 800px) {
+
+        .portal-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .application-number-card {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .application-position {
+            text-align: left;
+        }
+
+
+        .portal-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .application-timeline {
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+
+        .timeline-item {
+            min-width: 120px;
+        }
+
+
+        .timeline-line {
+            left: 60px;
+            right: 60px;
+        }
+
+    }
+
+
+    @media (max-width: 500px) {
+
+        .portal-page {
+            padding: 20px 12px 40px;
+        }
+
+
+        .shortlisted-notice {
+            flex-direction: column;
+        }
+
+
+        .status-card,
+        .portal-card {
+            padding: 18px;
+        }
+
+    }
+
+</style>
+
+
+<div class="portal-page">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="portal-header">
+
+        <div class="portal-header-left">
+
+            <h1>
+                Applicant Portal
+            </h1>
+
+            <p>
+                Welcome back,
+                {{ application.first_name }}
+                {{ application.last_name }}.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('applicant_logout') }}"
+            class="logout-button"
+        >
+            Sign Out
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICATION NUMBER
+         ===================================================== -->
+
+    <div class="application-number-card">
+
+        <div>
+
+            <div class="application-number-label">
+                Application Number
+            </div>
+
+            <div class="application-number">
+                {{ application.application_number }}
+            </div>
+
+        </div>
+
+
+        <div class="application-position">
+
+            Position Applied For<br>
+
+            <strong>
+                {{ application.position_applied }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATUS
+         ===================================================== -->
+
+    <div class="status-card">
+
+        <div class="status-card-header">
+
+            <h2>
+                Application Progress
+            </h2>
+
+
+            {% set status_class = "status-pending" %}
+
+            {% if application.status == "Under Review" %}
+
+                {% set status_class = "status-review" %}
+
+            {% elif application.status == "Shortlisted" %}
+
+                {% set status_class = "status-shortlisted" %}
+
+            {% elif application.status == "Approved" %}
+
+                {% set status_class = "status-approved" %}
+
+            {% elif application.status == "Rejected" %}
+
+                {% set status_class = "status-rejected" %}
+
+            {% endif %}
+
+
+            <span
+                class="status-badge {{ status_class }}"
+            >
+                {{ application.status }}
+            </span>
+
+        </div>
+
+
+        <!-- TIMELINE -->
+
+        <div class="application-timeline">
+
+            <div class="timeline-line"></div>
+
+
+            <div class="timeline-item completed">
+
+                <div class="timeline-dot">
+                    ✓
+                </div>
+
+                <div class="timeline-title">
+                    Submitted
+                </div>
+
+            </div>
+
+
+            <div
+                class="timeline-item
+                {% if application.status != 'Pending' %}
+                    completed
+                {% endif %}"
+            >
+
+                <div class="timeline-dot">
+
+                    {% if application.status != "Pending" %}
+                        ✓
+                    {% else %}
+                        2
+                    {% endif %}
+
+                </div>
+
+                <div class="timeline-title">
+                    Review
+                </div>
+
+            </div>
+
+
+            <div
+                class="timeline-item
+                {% if application.status in [
+                    'Shortlisted',
+                    'Approved'
+                ] %}
+                    completed
+                {% endif %}"
+            >
+
+                <div class="timeline-dot">
+
+                    {% if application.status in [
+                        "Shortlisted",
+                        "Approved"
+                    ] %}
+                        ✓
+                    {% else %}
+                        3
+                    {% endif %}
+
+                </div>
+
+                <div class="timeline-title">
+                    Shortlisted
+                </div>
+
+            </div>
+
+
+            <div
+                class="timeline-item
+                {% if application.interview_date %}
+                    completed
+                {% endif %}"
+            >
+
+                <div class="timeline-dot">
+
+                    {% if application.interview_date %}
+                        ✓
+                    {% else %}
+                        4
+                    {% endif %}
+
+                </div>
+
+                <div class="timeline-title">
+                    Interview
+                </div>
+
+            </div>
+
+
+            <div
+                class="timeline-item
+                {% if application.status == 'Approved' %}
+                    completed
+                {% endif %}"
+            >
+
+                <div class="timeline-dot">
+
+                    {% if application.status == "Approved" %}
+                        ✓
+                    {% else %}
+                        5
+                    {% endif %}
+
+                </div>
+
+                <div class="timeline-title">
+                    Final Decision
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SHORTLISTED NOTICE
+         ===================================================== -->
+
+    {% if application.status == "Shortlisted" %}
+
+    <div class="shortlisted-notice">
+
+        <div class="shortlisted-icon">
+            ✓
+        </div>
+
+
+        <div>
+
+            <span class="notice-label">
+                RECRUITMENT UPDATE
+            </span>
+
+
+            <h2>
+                Congratulations,
+                {{ application.first_name }}!
+            </h2>
+
+
+            <p>
+                You have been shortlisted for the next
+                stage of our recruitment process.
+            </p>
+
+
+            <p>
+                Please continue checking this portal for
+                interview details and further instructions.
+            </p>
+
+
+            {% if application.interview_date %}
+
+            <div class="interview-preview">
+
+                <strong>
+                    Interview Information
+                </strong>
+
+
+                <div class="interview-row">
+
+                    <span class="interview-label">
+                        Date & Time:
+                    </span>
+
+                    <span>
+                        {{ application.interview_date }}
+                    </span>
+
+                </div>
+
+
+                {% if application.interview_location %}
+
+                <div class="interview-row">
+
+                    <span class="interview-label">
+                        Location:
+                    </span>
+
+                    <span>
+                        {{ application.interview_location }}
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+
+                {% if application.interview_notes %}
+
+                <div class="interview-row">
+
+                    <span class="interview-label">
+                        Instructions:
+                    </span>
+
+                    <span>
+                        {{ application.interview_notes }}
+                    </span>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endif %}
+
+
+            <div class="whatsapp-contact">
+
+                <strong>
+                    Recruitment Enquiries
+                </strong>
+
+                <span>
+                    WhatsApp: +234 905 884 2501
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         INFORMATION GRID
+         ===================================================== -->
+
+    <div class="portal-grid">
+
+
+        <!-- =================================================
+             PERSONAL INFORMATION
+             ================================================= -->
+
+        <div class="portal-card">
+
+            <h2>
+                Personal Information
+            </h2>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Full Name
+                </span>
+
+                <span class="info-value">
+
+                    {{ application.first_name }}
+
+                    {% if application.middle_name %}
+                        {{ application.middle_name }}
+                    {% endif %}
+
+                    {{ application.last_name }}
+
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Gender
+                </span>
+
+                <span class="info-value">
+                    {{ application.gender or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Phone
+                </span>
+
+                <span class="info-value">
+                    {{ application.phone }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Email
+                </span>
+
+                <span class="info-value">
+                    {{ application.email or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    State
+                </span>
+
+                <span class="info-value">
+                    {{ application.state or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    LGA
+                </span>
+
+                <span class="info-value">
+                    {{ application.lga or "—" }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             EDUCATION
+             ================================================= -->
+
+        <div class="portal-card">
+
+            <h2>
+                Education & Experience
+            </h2>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Qualification
+                </span>
+
+                <span class="info-value">
+                    {{ application.highest_qualification or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Course
+                </span>
+
+                <span class="info-value">
+                    {{ application.course_of_study or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Institution
+                </span>
+
+                <span class="info-value">
+                    {{ application.institution or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Graduation Year
+                </span>
+
+                <span class="info-value">
+                    {{ application.graduation_year or "—" }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Previous Position
+                </span>
+
+                <span class="info-value">
+                    {{ application.previous_position or "—" }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PORTAL MESSAGES
+             ================================================= -->
+
+        <div class="portal-card">
+
+            <h2>
+
+                Recruitment Messages
+
+                {% if unread_count > 0 %}
+
+                    <span
+                        style="
+                            display:inline-flex;
+                            align-items:center;
+                            justify-content:center;
+                            min-width:22px;
+                            height:22px;
+                            padding:0 6px;
+                            border-radius:999px;
+                            background:#dc2626;
+                            color:white;
+                            font-size:11px;
+                            margin-left:5px;
+                        "
+                    >
+                        {{ unread_count }}
+                    </span>
+
+                {% endif %}
+
+            </h2>
+
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="message-card">
+
+                        <div class="message-subject">
+                            {{ message.subject }}
+                        </div>
+
+                        <div class="message-text">
+                            {{ message.message }}
+                        </div>
+
+                        <div class="message-date">
+
+                            {{ message.created_at }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="no-messages">
+                    You currently have no recruitment messages.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- =================================================
+             APPLICATION DETAILS
+             ================================================= -->
+
+        <div class="portal-card">
+
+            <h2>
+                Application Details
+            </h2>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Application Number
+                </span>
+
+                <span class="info-value">
+                    {{ application.application_number }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Position
+                </span>
+
+                <span class="info-value">
+                    {{ application.position_applied }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Submitted
+                </span>
+
+                <span class="info-value">
+                    {{ application.submitted_at }}
+                </span>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span class="info-label">
+                    Current Status
+                </span>
+
+                <span class="info-value">
+                    {{ application.status }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
