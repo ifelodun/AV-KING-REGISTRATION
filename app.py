@@ -2803,89 +2803,6 @@ def applicant_login():
     )
 
 
-# ============================================================
-# APPLICANT PORTAL
-# ============================================================
-
-@app.route("/applicant/portal")
-def applicant_portal():
-
-    applicant_id = session.get(
-        "applicant_id"
-    )
-
-    if not applicant_id:
-
-        return redirect(
-            url_for("applicant_login")
-        )
-
-    conn = get_db()
-
-    try:
-
-        with conn.cursor() as cur:
-
-            cur.execute(
-                """
-                SELECT *
-                FROM applications
-                WHERE id = %s
-                LIMIT 1
-                """,
-                (applicant_id,)
-            )
-
-            application = cur.fetchone()
-
-            if not application:
-
-                session.clear()
-
-                flash(
-                    "Applicant account not found.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_login")
-                )
-
-            # ------------------------------------------------
-            # GET APPLICANT MESSAGES
-            # ------------------------------------------------
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    subject,
-                    message,
-                    message_type,
-                    is_read,
-                    created_at
-
-                FROM applicant_messages
-
-                WHERE application_id = %s
-
-                ORDER BY created_at DESC
-                """,
-                (applicant_id,)
-            )
-
-            messages = cur.fetchall()
-
-    finally:
-
-        conn.close()
-
-    return render_template(
-        "applicant_portal.html",
-        application=application,
-        messages=messages
-    )
-
 
 # ============================================================
 # APPLICANT LOGOUT
@@ -2918,6 +2835,142 @@ def applicant_logout():
         url_for("applicant_login")
     )
 
+# ============================================================
+# APPLICANT PORTAL
+# ============================================================
+
+@app.route("/applicant/portal")
+def applicant_portal():
+
+    # --------------------------------------------------------
+    # CHECK APPLICANT LOGIN
+    # --------------------------------------------------------
+
+    applicant_id = session.get("applicant_id")
+
+    if not applicant_id:
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET APPLICATION
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT *
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            application = cur.fetchone()
+
+            if not application:
+
+                session.pop(
+                    "applicant_id",
+                    None
+                )
+
+                session.pop(
+                    "applicant_application_id",
+                    None
+                )
+
+                flash(
+                    "Application account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # GET APPLICANT MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                ORDER BY created_at DESC
+                """,
+                (applicant_id,)
+            )
+
+            messages = cur.fetchall()
+
+
+            # ------------------------------------------------
+            # COUNT UNREAD MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS unread_count
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                AND is_read = FALSE
+                """,
+                (applicant_id,)
+            )
+
+            unread_row = cur.fetchone()
+
+            unread_count = int(
+                unread_row["unread_count"]
+                if unread_row
+                else 0
+            )
+
+
+    except Exception:
+
+        raise
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # RENDER APPLICANT DASHBOARD
+    # --------------------------------------------------------
+
+    return render_template(
+        "applicant_portal.html",
+
+        application=application,
+
+        messages=messages,
+
+        unread_count=unread_count
+            )
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
