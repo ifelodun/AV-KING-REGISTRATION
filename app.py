@@ -1236,6 +1236,7 @@ with app.app_context():
 
     init_db()
 
+    create_initial_admin()
 
 # ============================================================
 # RUN APPLICATION
