@@ -353,7 +353,7 @@ def init_db():
                 """
             )
 
-            conn.execute("""
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS applicant_messages (
                     id SERIAL PRIMARY KEY,
                     application_id INTEGER NOT NULL,
