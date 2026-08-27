@@ -11,6 +11,10 @@
 
 <div class="admin-layout">
 
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+
     <aside class="admin-sidebar">
 
         <div class="sidebar-brand">
@@ -34,6 +38,7 @@
                 Dashboard
             </a>
 
+
             <a
                 href="{{ url_for('admin_applications') }}"
                 class="active"
@@ -42,17 +47,21 @@
                 Applications
             </a>
 
+
             <a href="#">
                 <span>◷</span>
                 Interviews
             </a>
+
 
             <a href="#">
                 <span>▤</span>
                 Reports
             </a>
 
+
             <div class="nav-divider"></div>
+
 
             <a href="#">
                 <span>⚙</span>
@@ -73,7 +82,7 @@
                 <div>
 
                     <strong>
-                        {{ session.get("admin_name") }}
+                        {{ session.get("admin_name", "Administrator") }}
                     </strong>
 
                     <small>
@@ -83,6 +92,7 @@
                 </div>
 
             </div>
+
 
             <a
                 href="{{ url_for('admin_logout') }}"
@@ -96,7 +106,16 @@
     </aside>
 
 
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+
     <main class="admin-main">
+
+
+        <!-- ========================================================
+             TOP BAR
+             ======================================================== -->
 
         <div class="details-topbar">
 
@@ -109,9 +128,11 @@
                     ← Back to Applications
                 </a>
 
+
                 <span class="page-label">
                     APPLICATION PROFILE
                 </span>
+
 
                 <h1>
 
@@ -124,6 +145,7 @@
                     {{ application.last_name }}
 
                 </h1>
+
 
                 <p>
                     {{ application.application_number }}
@@ -145,17 +167,24 @@
         </div>
 
 
+
+        <!-- ========================================================
+             DETAILS GRID
+             ======================================================== -->
+
         <div class="details-grid">
 
 
-            <!-- =============================================
-                 LEFT
-                 ============================================= -->
+            <!-- ====================================================
+                 LEFT / MAIN
+                 ==================================================== -->
 
             <div class="details-main">
 
 
-                <!-- PERSONAL -->
+                <!-- =================================================
+                     PERSONAL INFORMATION
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -174,8 +203,12 @@
 
                     <div class="details-info-grid">
 
+
                         <div>
-                            <label>Full Name</label>
+
+                            <label>
+                                Full Name
+                            </label>
 
                             <strong>
 
@@ -193,65 +226,93 @@
 
 
                         <div>
-                            <label>Gender</label>
+
+                            <label>
+                                Gender
+                            </label>
 
                             <strong>
                                 {{ application.gender or "—" }}
                             </strong>
+
                         </div>
 
 
                         <div>
-                            <label>Date of Birth</label>
+
+                            <label>
+                                Date of Birth
+                            </label>
 
                             <strong>
                                 {{ application.date_of_birth or "—" }}
                             </strong>
+
                         </div>
 
 
                         <div>
-                            <label>Phone</label>
+
+                            <label>
+                                Phone
+                            </label>
 
                             <strong>
                                 {{ application.phone }}
                             </strong>
+
                         </div>
 
 
                         <div>
-                            <label>Email</label>
+
+                            <label>
+                                Email
+                            </label>
 
                             <strong>
                                 {{ application.email or "—" }}
                             </strong>
+
                         </div>
 
 
                         <div class="full-width">
-                            <label>Address</label>
+
+                            <label>
+                                Address
+                            </label>
 
                             <strong>
                                 {{ application.address or "—" }}
                             </strong>
+
                         </div>
 
 
                         <div>
-                            <label>State</label>
+
+                            <label>
+                                State
+                            </label>
 
                             <strong>
                                 {{ application.state or "—" }}
                             </strong>
+
                         </div>
 
 
                         <div>
-                            <label>LGA</label>
+
+                            <label>
+                                LGA
+                            </label>
 
                             <strong>
                                 {{ application.lga or "—" }}
                             </strong>
+
                         </div>
 
                     </div>
@@ -259,7 +320,41 @@
                 </section>
 
 
-                <!-- EDUCATION -->
+
+                <!-- =================================================
+                     APPLICATION POSITION
+                     ================================================= -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            RECRUITMENT
+                        </span>
+
+                        <h2>
+                            Position Applied For
+                        </h2>
+
+                    </div>
+
+
+                    <div class="position-highlight">
+
+                        <strong>
+                            {{ application.position_applied }}
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     EDUCATION
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -278,6 +373,7 @@
 
                     <div class="details-info-grid">
 
+
                         <div>
 
                             <label>
@@ -285,8 +381,7 @@
                             </label>
 
                             <strong>
-                                {{ application.highest_qualification
-                                or "—" }}
+                                {{ application.highest_qualification or "—" }}
                             </strong>
 
                         </div>
@@ -299,8 +394,7 @@
                             </label>
 
                             <strong>
-                                {{ application.course_of_study
-                                or "—" }}
+                                {{ application.course_of_study or "—" }}
                             </strong>
 
                         </div>
@@ -313,8 +407,7 @@
                             </label>
 
                             <strong>
-                                {{ application.institution
-                                or "—" }}
+                                {{ application.institution or "—" }}
                             </strong>
 
                         </div>
@@ -327,8 +420,7 @@
                             </label>
 
                             <strong>
-                                {{ application.graduation_year
-                                or "—" }}
+                                {{ application.graduation_year or "—" }}
                             </strong>
 
                         </div>
@@ -338,7 +430,10 @@
                 </section>
 
 
-                <!-- EXPERIENCE -->
+
+                <!-- =================================================
+                     EXPERIENCE
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -357,6 +452,7 @@
 
                     <div class="details-info-grid">
 
+
                         <div>
 
                             <label>
@@ -364,8 +460,7 @@
                             </label>
 
                             <strong>
-                                {{ application.previous_employer
-                                or "—" }}
+                                {{ application.previous_employer or "—" }}
                             </strong>
 
                         </div>
@@ -378,8 +473,7 @@
                             </label>
 
                             <strong>
-                                {{ application.previous_position
-                                or "—" }}
+                                {{ application.previous_position or "—" }}
                             </strong>
 
                         </div>
@@ -405,7 +499,10 @@
                 </section>
 
 
-                <!-- MOTIVATION -->
+
+                <!-- =================================================
+                     APPLICANT RESPONSES
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -452,17 +549,248 @@
                 </section>
 
 
+
+                <!-- =================================================
+                     INTERVIEW SCHEDULING
+                     ================================================= -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            INTERVIEW
+                        </span>
+
+                        <h2>
+                            Interview Scheduling
+                        </h2>
+
+                        <p style="
+                            margin:6px 0 0;
+                            color:#6b7280;
+                            font-size:14px;
+                        ">
+                            Schedule or update the applicant's interview.
+                            The details will appear in the applicant portal.
+                        </p>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'update_application_interview',
+                            application_id=application.id
+                        ) }}"
+                    >
+
+
+                        <div class="details-info-grid">
+
+
+                            <!-- DATE -->
+
+                            <div>
+
+                                <label for="interview_date">
+                                    Interview Date & Time
+                                </label>
+
+                                <input
+                                    type="datetime-local"
+                                    id="interview_date"
+                                    name="interview_date"
+
+                                    value="{% if application.interview_date %}{{ application.interview_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+
+                                    style="
+                                        width:100%;
+                                        box-sizing:border-box;
+                                        padding:12px;
+                                        margin-top:7px;
+                                        border:1px solid #d1d5db;
+                                        border-radius:8px;
+                                        background:#fff;
+                                    "
+                                >
+
+                            </div>
+
+
+                            <!-- LOCATION -->
+
+                            <div>
+
+                                <label for="interview_location">
+                                    Interview Location
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="interview_location"
+                                    name="interview_location"
+
+                                    value="{{ application.interview_location or '' }}"
+
+                                    placeholder="e.g. AV KING Head Office"
+
+                                    style="
+                                        width:100%;
+                                        box-sizing:border-box;
+                                        padding:12px;
+                                        margin-top:7px;
+                                        border:1px solid #d1d5db;
+                                        border-radius:8px;
+                                        background:#fff;
+                                    "
+                                >
+
+                            </div>
+
+
+                            <!-- INTERVIEW STATUS -->
+
+                            <div>
+
+                                <label for="interview_status">
+                                    Interview Status
+                                </label>
+
+
+                                {% set current_interview_status =
+                                    application.interview_status
+                                    or "Scheduled"
+                                %}
+
+
+                                <select
+                                    id="interview_status"
+                                    name="interview_status"
+
+                                    style="
+                                        width:100%;
+                                        box-sizing:border-box;
+                                        padding:12px;
+                                        margin-top:7px;
+                                        border:1px solid #d1d5db;
+                                        border-radius:8px;
+                                        background:#fff;
+                                    "
+                                >
+
+                                    <option
+                                        value="Scheduled"
+                                        {% if current_interview_status == "Scheduled" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Scheduled
+                                    </option>
+
+
+                                    <option
+                                        value="Completed"
+                                        {% if current_interview_status == "Completed" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Completed
+                                    </option>
+
+
+                                    <option
+                                        value="Rescheduled"
+                                        {% if current_interview_status == "Rescheduled" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Rescheduled
+                                    </option>
+
+
+                                    <option
+                                        value="Cancelled"
+                                        {% if current_interview_status == "Cancelled" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Cancelled
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- INSTRUCTIONS -->
+
+                            <div class="full-width">
+
+                                <label for="interview_notes">
+                                    Interview Instructions
+                                </label>
+
+
+                                <textarea
+                                    id="interview_notes"
+                                    name="interview_notes"
+                                    rows="5"
+
+                                    placeholder="Enter interview instructions for the applicant..."
+
+                                    style="
+                                        width:100%;
+                                        box-sizing:border-box;
+                                        padding:12px;
+                                        margin-top:7px;
+                                        border:1px solid #d1d5db;
+                                        border-radius:8px;
+                                        resize:vertical;
+                                        font-family:inherit;
+                                    "
+                                >{{ application.interview_notes or '' }}</textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <div style="
+                            margin-top:20px;
+                            display:flex;
+                            justify-content:flex-end;
+                        ">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary details-button"
+                            >
+                                Save Interview Details
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </section>
+
+
             </div>
 
 
-            <!-- =============================================
+
+            <!-- ====================================================
                  RIGHT SIDEBAR
-                 ============================================= -->
+                 ==================================================== -->
 
             <aside class="details-sidebar">
 
 
-                <!-- PASSPORT -->
+                <!-- =================================================
+                     PASSPORT
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -501,7 +829,10 @@
                 </section>
 
 
-                <!-- DOCUMENTS -->
+
+                <!-- =================================================
+                     DOCUMENTS
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -527,8 +858,15 @@
                             ) }}"
                             class="document-link"
                         >
-                            <span>CV</span>
-                            <strong>Download</strong>
+
+                            <span>
+                                CV
+                            </span>
+
+                            <strong>
+                                Download
+                            </strong>
+
                         </a>
 
                     {% endif %}
@@ -543,6 +881,7 @@
                             ) }}"
                             class="document-link"
                         >
+
                             <span>
                                 Qualification / Result
                             </span>
@@ -550,6 +889,7 @@
                             <strong>
                                 Download
                             </strong>
+
                         </a>
 
                     {% endif %}
@@ -567,7 +907,10 @@
                 </section>
 
 
-                <!-- STATUS -->
+
+                <!-- =================================================
+                     APPLICATION STATUS
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -592,6 +935,7 @@
                         ) }}"
                     >
 
+
                         <select
                             name="status"
                             class="status-select"
@@ -600,86 +944,101 @@
                             <option
                                 value="Pending"
                                 {% if application.status == "Pending" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Pending
                             </option>
 
+
                             <option
                                 value="Under Review"
                                 {% if application.status == "Under Review" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Under Review
                             </option>
 
+
                             <option
                                 value="Shortlisted"
                                 {% if application.status == "Shortlisted" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Shortlisted
                             </option>
 
+
                             <option
                                 value="Approved"
                                 {% if application.status == "Approved" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Approved
                             </option>
 
+
                             <option
                                 value="Rejected"
                                 {% if application.status == "Rejected" %}
-                                selected
+                                    selected
                                 {% endif %}
                             >
                                 Rejected
                             </option>
 
                         </select>
+
+
+                        <!-- =================================================
+                             WHATSAPP NOTIFICATION
+                             ================================================= -->
+
                         {% if application.status == "Shortlisted" %}
-                        
-                        <div class="whatsapp-notification-box">
-                        
-                            <div class="whatsapp-notification-content">
-                        
-                                <span class="notification-label">
-                                    SHORTLISTED APPLICANT
-                                </span>
-                        
-                                <h3>
-                                    WhatsApp Notification
-                                </h3>
-                        
-                                <p>
-                                    This applicant has been shortlisted.
-                                    You can notify them through WhatsApp.
-                                </p>
-                        
+
+                            <div class="whatsapp-notification-box">
+
+                                <div class="whatsapp-notification-content">
+
+                                    <span class="notification-label">
+                                        SHORTLISTED APPLICANT
+                                    </span>
+
+
+                                    <h3>
+                                        WhatsApp Notification
+                                    </h3>
+
+
+                                    <p>
+                                        This applicant has been shortlisted.
+                                        You can notify the applicant through
+                                        WhatsApp.
+                                    </p>
+
+                                </div>
+
+
+                                <a
+                                    href="{{ url_for(
+                                        'send_application_whatsapp',
+                                        application_id=application.id
+                                    ) }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+
+                                    class="whatsapp-notification-button"
+                                >
+                                    Send WhatsApp Notification
+                                </a>
+
                             </div>
-                        
-                        
-                            <a
-                                href="{{ url_for(
-                                    'send_application_whatsapp',
-                                    application_id=application.id
-                                ) }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="whatsapp-notification-button"
-                            >
-                                Send WhatsApp Notification
-                            </a>
-                        
-                        </div>
-                        
+
                         {% endif %}
+
 
                         <button
                             type="submit"
@@ -693,7 +1052,10 @@
                 </section>
 
 
-                <!-- NOTES -->
+
+                <!-- =================================================
+                     RECRUITMENT NOTES
+                     ================================================= -->
 
                 <section class="details-card">
 
@@ -738,7 +1100,81 @@
                 </section>
 
 
-                <!-- SUBMISSION -->
+
+                <!-- =================================================
+                     PORTAL STATUS
+                     ================================================= -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            APPLICANT PORTAL
+                        </span>
+
+                        <h2>
+                            Portal Information
+                        </h2>
+
+                    </div>
+
+
+                    <div class="metadata-card">
+
+
+                        <div>
+
+                            <label>
+                                Portal Access
+                            </label>
+
+                            <strong>
+
+                                {% if application.portal_active %}
+                                    Active
+                                {% else %}
+                                    Disabled
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Last Login
+                            </label>
+
+                            <strong>
+
+                                {% if application.last_login %}
+
+                                    {{ application.last_login.strftime(
+                                        "%d %B %Y, %I:%M %p"
+                                    ) }}
+
+                                {% else %}
+
+                                    Never
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SUBMISSION INFORMATION
+                     ================================================= -->
 
                 <section class="details-card metadata-card">
 
@@ -749,9 +1185,19 @@
                         </label>
 
                         <strong>
-                            {{ application.submitted_at.strftime(
-                                "%d %B %Y, %I:%M %p"
-                            ) }}
+
+                            {% if application.submitted_at %}
+
+                                {{ application.submitted_at.strftime(
+                                    "%d %B %Y, %I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
                         </strong>
 
                     </div>
@@ -764,16 +1210,28 @@
                         </label>
 
                         <strong>
-                            {{ application.updated_at.strftime(
-                                "%d %B %Y, %I:%M %p"
-                            ) }}
+
+                            {% if application.updated_at %}
+
+                                {{ application.updated_at.strftime(
+                                    "%d %B %Y, %I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
                         </strong>
 
                     </div>
 
                 </section>
 
+
             </aside>
+
 
         </div>
 
