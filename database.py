@@ -37,7 +37,7 @@ def init_db():
         with conn.cursor() as cur:
 
             # =================================================
-            # APPLICATIONS
+            # APPLICATIONS TABLE
             # =================================================
 
             cur.execute(
@@ -99,13 +99,57 @@ def init_db():
 
                     qualification_filename VARCHAR(255),
 
-                    notification_sent,
-                    notification_sent_at,
+                    -- =========================================
+                    -- APPLICATION STATUS
+                    -- =========================================
 
                     status VARCHAR(50)
                         NOT NULL DEFAULT 'Pending',
 
                     admin_notes TEXT,
+
+                    -- =========================================
+                    -- APPLICANT PORTAL
+                    -- =========================================
+
+                    password_hash TEXT,
+
+                    portal_active BOOLEAN
+                        NOT NULL DEFAULT TRUE,
+
+                    last_login TIMESTAMP,
+
+                    -- =========================================
+                    -- SHORTLISTING
+                    -- =========================================
+
+                    shortlisted_at TIMESTAMP,
+
+                    -- =========================================
+                    -- INTERVIEW
+                    -- =========================================
+
+                    interview_date TIMESTAMP,
+
+                    interview_location TEXT,
+
+                    interview_notes TEXT,
+
+                    interview_status VARCHAR(50)
+                        NOT NULL DEFAULT 'Not Scheduled',
+
+                    -- =========================================
+                    -- WHATSAPP NOTIFICATION
+                    -- =========================================
+
+                    notification_sent BOOLEAN
+                        NOT NULL DEFAULT FALSE,
+
+                    notification_sent_at TIMESTAMP,
+
+                    -- =========================================
+                    -- TIMESTAMPS
+                    -- =========================================
 
                     submitted_at TIMESTAMP
                         NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -119,8 +163,18 @@ def init_db():
 
 
             # =================================================
-            # APPLICANT LOGIN / PORTAL
+            # MIGRATION FOR EXISTING DATABASES
             # =================================================
+            #
+            # These ensure older PostgreSQL databases receive
+            # columns that were added after the first deployment.
+            #
+            # =================================================
+
+
+            # -------------------------------------------------
+            # APPLICANT PORTAL
+            # -------------------------------------------------
 
             cur.execute(
                 """
@@ -153,9 +207,9 @@ def init_db():
             )
 
 
-            # =================================================
+            # -------------------------------------------------
             # SHORTLISTING
-            # =================================================
+            # -------------------------------------------------
 
             cur.execute(
                 """
@@ -166,57 +220,10 @@ def init_db():
                 """
             )
 
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS interview_date
-                TIMESTAMP
-                """
-            )
-            
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS interview_location
-                TEXT
-                """
-            )
-            
-            cur.execute(
-                """
-                ALTER TABLE applications
-                ADD COLUMN IF NOT EXISTS interview_notes
-                TEXT
-                """
-            )
-            # =================================================
-            # NOTIFICATION
-            # =================================================
 
-            cur.execute(
-                """
-                ALTER TABLE applications
-
-                ADD COLUMN IF NOT EXISTS
-                notification_sent BOOLEAN
-                NOT NULL DEFAULT FALSE
-                """
-            )
-
-
-            cur.execute(
-                """
-                ALTER TABLE applications
-
-                ADD COLUMN IF NOT EXISTS
-                notification_sent_at TIMESTAMP
-                """
-            )
-
-
-            # =================================================
+            # -------------------------------------------------
             # INTERVIEW
-            # =================================================
+            # -------------------------------------------------
 
             cur.execute(
                 """
@@ -254,6 +261,32 @@ def init_db():
 
                 ADD COLUMN IF NOT EXISTS
                 interview_status VARCHAR(50)
+                NOT NULL DEFAULT 'Not Scheduled'
+                """
+            )
+
+
+            # -------------------------------------------------
+            # WHATSAPP NOTIFICATION
+            # -------------------------------------------------
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                notification_sent BOOLEAN
+                NOT NULL DEFAULT FALSE
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applications
+
+                ADD COLUMN IF NOT EXISTS
+                notification_sent_at TIMESTAMP
                 """
             )
 
@@ -351,6 +384,16 @@ def init_db():
                 idx_applications_phone
 
                 ON applications(phone)
+                """
+            )
+
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applications_application_number
+
+                ON applications(application_number)
                 """
             )
 
