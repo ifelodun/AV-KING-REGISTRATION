@@ -99,6 +99,9 @@ def init_db():
 
                     qualification_filename VARCHAR(255),
 
+                    notification_sent,
+                    notification_sent_at,
+
                     status VARCHAR(50)
                         NOT NULL DEFAULT 'Pending',
 
