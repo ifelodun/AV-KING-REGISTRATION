@@ -35,6 +35,29 @@ def init_db():
 
         with conn.cursor() as cur:
 
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS shortlisted_at
+                TIMESTAMP
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS notification_sent
+                BOOLEAN NOT NULL DEFAULT FALSE
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS notification_sent_at
+                TIMESTAMP
+                """
+            )
             # ------------------------------------------------
             # APPLICATIONS
             # ------------------------------------------------
