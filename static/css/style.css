@@ -547,3 +547,636 @@ body {
             75px 20px;
     }
 }
+
+/* ============================================================
+   APPLICATION PAGE
+   ============================================================ */
+
+.application-page {
+
+    max-width: 1050px;
+
+    margin: auto;
+
+    padding:
+        60px 20px 90px;
+}
+
+
+.application-header {
+
+    text-align: center;
+
+    max-width: 750px;
+
+    margin:
+        0 auto 45px;
+}
+
+
+.application-header span {
+
+    color: var(--accent);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+
+.application-header h2 {
+
+    margin:
+        10px 0;
+
+    font-size:
+        clamp(32px, 5vw, 46px);
+}
+
+
+.application-header p {
+
+    color: var(--muted);
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.application-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 24px;
+}
+
+
+.form-section {
+
+    background: white;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius);
+
+    padding:
+        32px;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.04);
+}
+
+
+.form-section-heading {
+
+    display: flex;
+
+    gap: 16px;
+
+    align-items: flex-start;
+
+    padding-bottom: 25px;
+
+    margin-bottom: 25px;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+
+.form-section-heading > span {
+
+    min-width: 42px;
+
+    height: 42px;
+
+    border-radius: 8px;
+
+    background: #f4efe2;
+
+    color: var(--primary);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 800;
+}
+
+
+.form-section-heading h3 {
+
+    margin: 0;
+
+    font-size: 21px;
+}
+
+
+.form-section-heading p {
+
+    margin:
+        4px 0 0;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   FORM GRID
+   ============================================================ */
+
+.form-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 22px;
+}
+
+
+.form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+
+.form-group-full {
+
+    grid-column:
+        1 / -1;
+}
+
+
+.form-group label,
+.upload-box label {
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+required {
+
+    color: #c0392b;
+}
+
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+
+    width: 100%;
+
+    border:
+        1px solid #d9dfdc;
+
+    border-radius: 8px;
+
+    padding:
+        13px 14px;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    background: white;
+
+    color: var(--text);
+
+    outline: none;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s;
+}
+
+
+.form-group textarea {
+
+    resize: vertical;
+
+    min-height: 100px;
+}
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+
+    border-color:
+        var(--primary);
+
+    box-shadow:
+        0 0 0 3px rgba(18,55,42,0.08);
+}
+
+
+/* ============================================================
+   UPLOADS
+   ============================================================ */
+
+.upload-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+}
+
+
+.upload-box {
+
+    border:
+        1px dashed #cbd4d0;
+
+    border-radius: 10px;
+
+    padding: 22px;
+
+    background:
+        #fafcfb;
+}
+
+
+.upload-box p {
+
+    margin:
+        6px 0 16px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+
+.upload-box input[type="file"] {
+
+    width: 100%;
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   DECLARATION
+   ============================================================ */
+
+.declaration {
+
+    display: flex;
+
+    gap: 14px;
+
+    align-items: flex-start;
+
+    color: #4e5a55;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+
+.declaration input {
+
+    margin-top: 5px;
+
+    width: 18px;
+
+    height: 18px;
+
+    accent-color: var(--primary);
+}
+
+
+/* ============================================================
+   ALERT
+   ============================================================ */
+
+.alert {
+
+    padding:
+        14px 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.alert-error {
+
+    background: #fff1f0;
+
+    color: #9b2c2c;
+
+    border:
+        1px solid #ffd5d2;
+}
+
+
+/* ============================================================
+   SUBMIT AREA
+   ============================================================ */
+
+.submit-area {
+
+    background:
+        var(--primary);
+
+    border-radius:
+        var(--radius);
+
+    padding:
+        30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.submit-area p {
+
+    color:
+        rgba(255,255,255,0.75);
+
+    margin: 0;
+
+    font-size: 14px;
+
+    max-width: 600px;
+}
+
+
+.submit-button {
+
+    border: none;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   SUCCESS PAGE
+   ============================================================ */
+
+.success-page {
+
+    min-height:
+        70vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding:
+        60px 20px;
+}
+
+
+.success-card {
+
+    background: white;
+
+    max-width: 650px;
+
+    width: 100%;
+
+    text-align: center;
+
+    padding:
+        50px 35px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius);
+
+    box-shadow:
+        var(--shadow);
+}
+
+
+.success-icon {
+
+    width: 70px;
+
+    height: 70px;
+
+    border-radius: 50%;
+
+    background:
+        #edf6f0;
+
+    color:
+        var(--primary);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin:
+        0 auto 20px;
+
+    font-size: 32px;
+
+    font-weight: 800;
+}
+
+
+.success-label {
+
+    color:
+        var(--accent);
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+
+.success-card h2 {
+
+    margin:
+        10px 0;
+
+    font-size: 32px;
+}
+
+
+.success-card > p {
+
+    color: var(--muted);
+
+    max-width: 520px;
+
+    margin:
+        0 auto 25px;
+}
+
+
+.application-number-box {
+
+    background:
+        #f6f8f7;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 22px;
+
+    margin-bottom: 20px;
+}
+
+
+.application-number-box span {
+
+    display: block;
+
+    font-size: 11px;
+
+    letter-spacing: 1.5px;
+
+    font-weight: 800;
+
+    color: var(--muted);
+
+    margin-bottom: 8px;
+}
+
+
+.application-number-box strong {
+
+    font-size: 26px;
+
+    color: var(--primary);
+
+    letter-spacing: 1px;
+}
+
+
+.success-notice {
+
+    text-align: left;
+
+    background:
+        #fffaf0;
+
+    border:
+        1px solid #f2e3bd;
+
+    border-radius: 8px;
+
+    padding: 16px;
+
+    margin-bottom: 25px;
+}
+
+
+.success-notice strong {
+
+    font-size: 14px;
+}
+
+
+.success-notice p {
+
+    margin:
+        4px 0 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+}
+
+
+/* ============================================================
+   RESPONSIVE APPLICATION FORM
+   ============================================================ */
+
+@media (max-width: 800px) {
+
+    .form-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .form-group-full {
+
+        grid-column:
+            auto;
+    }
+
+
+    .upload-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .form-section {
+
+        padding:
+            22px;
+    }
+
+
+    .submit-area {
+
+        flex-direction: column;
+
+        align-items:
+            stretch;
+    }
+
+
+    .submit-button {
+
+        width: 100%;
+    }
+}
