@@ -1035,6 +1035,365 @@ def admin_required():
     )
 
 # ============================================================
+# APPLICATIONS MANAGEMENT
+# ============================================================
+
+@app.route("/admin/applications")
+def admin_applications():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    search = request.args.get("search", "").strip()
+    status = request.args.get("status", "").strip()
+    position = request.args.get("position", "").strip()
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            query = """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    phone,
+                    email,
+                    position_applied,
+                    highest_qualification,
+                    status,
+                    submitted_at
+                FROM applications
+                WHERE 1=1
+            """
+
+            params = []
+
+            # ------------------------------------------------
+            # SEARCH
+            # ------------------------------------------------
+
+            if search:
+
+                query += """
+                    AND (
+                        application_number ILIKE %s
+                        OR first_name ILIKE %s
+                        OR middle_name ILIKE %s
+                        OR last_name ILIKE %s
+                        OR phone ILIKE %s
+                        OR email ILIKE %s
+                    )
+                """
+
+                search_value = f"%{search}%"
+
+                params.extend([
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value
+                ])
+
+            # ------------------------------------------------
+            # STATUS FILTER
+            # ------------------------------------------------
+
+            if status:
+
+                query += """
+                    AND status = %s
+                """
+
+                params.append(status)
+
+            # ------------------------------------------------
+            # POSITION FILTER
+            # ------------------------------------------------
+
+            if position:
+
+                query += """
+                    AND position_applied = %s
+                """
+
+                params.append(position)
+
+            # ------------------------------------------------
+            # ORDER
+            # ------------------------------------------------
+
+            query += """
+                ORDER BY submitted_at DESC
+            """
+
+            cur.execute(
+                query,
+                params
+            )
+
+            applications = cur.fetchall()
+
+    finally:
+
+        conn.close()
+
+    return render_template(
+        "admin_applications.html",
+        applications=applications,
+        search=search,
+        selected_status=status,
+        selected_position=position
+    )
+
+
+# ============================================================
+# VIEW APPLICATION
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>"
+)
+def admin_application_details(application_id):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT *
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+    return render_template(
+        "admin_application_details.html",
+        application=application
+    )
+
+# ============================================================
+# UPDATE ADMIN NOTES
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/notes",
+    methods=["POST"]
+)
+def update_application_notes(application_id):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    notes = (
+        request.form.get(
+            "admin_notes",
+            ""
+        )
+        .strip()
+    )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE applications
+
+                SET
+                    admin_notes = %s,
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    notes,
+                    application_id
+                )
+            )
+
+        conn.commit()
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+    finally:
+
+        conn.close()
+
+    flash(
+        "Recruitment notes saved successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "admin_application_details",
+            application_id=application_id
+        )
+    )
+
+# ============================================================
+# DOWNLOAD APPLICATION DOCUMENT
+# ============================================================
+
+@app.route(
+    "/admin/download-file/<path:filename>"
+)
+def admin_download_file(filename):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    return send_from_directory(
+        app.config["UPLOAD_FOLDER"],
+        filename,
+        as_attachment=True
+    )
+# ============================================================
+# SECURE APPLICATION DOCUMENT
+# ============================================================
+
+@app.route(
+    "/admin/application-file/<path:filename>"
+)
+def admin_application_file(filename):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    return send_from_directory(
+        app.config["UPLOAD_FOLDER"],
+        filename,
+        as_attachment=False
+    )
+# ============================================================
+# UPDATE APPLICATION STATUS
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/status",
+    methods=["POST"]
+)
+def update_application_status(application_id):
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    new_status = (
+        request.form.get(
+            "status",
+            ""
+        )
+        .strip()
+    )
+
+    allowed_statuses = {
+        "Pending",
+        "Under Review",
+        "Shortlisted",
+        "Approved",
+        "Rejected"
+    }
+
+    if new_status not in allowed_statuses:
+
+        flash(
+            "Invalid application status.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE applications
+
+                SET
+                    status = %s,
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    new_status,
+                    application_id
+                )
+            )
+
+        conn.commit()
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+    finally:
+
+        conn.close()
+
+    flash(
+        "Application status updated successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "admin_application_details",
+            application_id=application_id
+        )
+    )
+
+
+# ============================================================
 # ADMIN DASHBOARD
 # ============================================================
 
