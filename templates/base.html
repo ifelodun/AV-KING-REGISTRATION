@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        {{ company_name }} — Careers
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+</head>
+
+<body>
+
+    <header class="site-header">
+
+        <div class="header-container">
+
+            <div class="brand">
+
+                <div class="brand-logo">
+                    AV
+                </div>
+
+                <div class="brand-text">
+
+                    <h1>
+                        AV KING
+                    </h1>
+
+                    <span>
+                        VETERINARY BUSINESS
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div class="header-right">
+
+                <span>
+                    Careers & Recruitment
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
+
+
+    <footer class="site-footer">
+
+        <div class="footer-container">
+
+            <div>
+
+                <strong>
+                    {{ company_name }}
+                </strong>
+
+                <p>
+                    {{ company_motto }}
+                </p>
+
+            </div>
+
+            <div>
+
+                <p>
+                    {{ company_address }}
+                </p>
+
+                <p>
+                    {{ company_email }}
+                    ·
+                    {{ company_phone }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="copyright">
+
+            © {{ 2026 }} {{ company_name }}.
+            All rights reserved.
+
+        </div>
+
+    </footer>
+
+
+    <script
+        src="{{ url_for('static', filename='js/app.js') }}"
+    ></script>
+
+</body>
+
+</html>
