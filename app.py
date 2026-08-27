@@ -2,7 +2,10 @@ import os
 import os
 import requests
 from datetime import datetime
-
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 from flask import (
     Flask,
     render_template,
@@ -226,12 +229,19 @@ def home():
 # ============================================================
 # APPLICATION FORM
 # ============================================================
+# ============================================================
+# APPLICATION FORM
+# ============================================================
 
 @app.route(
     "/apply",
     methods=["GET", "POST"]
 )
 def apply():
+
+    # ========================================================
+    # DISPLAY APPLICATION FORM
+    # ========================================================
 
     if request.method == "GET":
 
@@ -412,6 +422,25 @@ def apply():
 
 
     # ========================================================
+    # APPLICANT PORTAL PASSWORD
+    # ========================================================
+
+    portal_password = (
+        request.form.get(
+            "portal_password",
+            ""
+        ).strip()
+    )
+
+    confirm_portal_password = (
+        request.form.get(
+            "confirm_portal_password",
+            ""
+        ).strip()
+    )
+
+
+    # ========================================================
     # DECLARATION
     # ========================================================
 
@@ -471,6 +500,50 @@ def apply():
             "apply.html"
         )
 
+
+    # ========================================================
+    # PASSWORD VALIDATION
+    # ========================================================
+
+    if not portal_password:
+
+        flash(
+            "Please create a password for your applicant portal.",
+            "error"
+        )
+
+        return render_template(
+            "apply.html"
+        )
+
+
+    if len(portal_password) < 6:
+
+        flash(
+            "Your portal password must contain at least 6 characters.",
+            "error"
+        )
+
+        return render_template(
+            "apply.html"
+        )
+
+
+    if portal_password != confirm_portal_password:
+
+        flash(
+            "The portal passwords do not match.",
+            "error"
+        )
+
+        return render_template(
+            "apply.html"
+        )
+
+
+    # ========================================================
+    # DECLARATION VALIDATION
+    # ========================================================
 
     if not declaration:
 
@@ -584,6 +657,15 @@ def apply():
 
 
     # ========================================================
+    # HASH APPLICANT PASSWORD
+    # ========================================================
+
+    password_hash = generate_password_hash(
+        portal_password
+    )
+
+
+    # ========================================================
     # SAFE FILE NAMES
     # ========================================================
 
@@ -593,6 +675,10 @@ def apply():
 
     qualification_filename = None
 
+
+    # ========================================================
+    # SAVE PASSPORT
+    # ========================================================
 
     if passport and passport.filename:
 
@@ -612,6 +698,10 @@ def apply():
         )
 
 
+    # ========================================================
+    # SAVE CV
+    # ========================================================
+
     if cv and cv.filename:
 
         original = secure_filename(
@@ -629,6 +719,10 @@ def apply():
             )
         )
 
+
+    # ========================================================
+    # SAVE QUALIFICATION
+    # ========================================================
 
     if qualification and qualification.filename:
 
@@ -696,6 +790,10 @@ def apply():
                     cv_filename,
                     qualification_filename,
 
+                    password_hash,
+
+                    portal_active,
+
                     status
 
                 )
@@ -736,9 +834,16 @@ def apply():
                     %s,
                     %s,
 
+                    %s,
+
+                    TRUE,
+
                     'Pending'
 
                 )
+
+                RETURNING id
+
                 """,
 
                 (
@@ -775,18 +880,25 @@ def apply():
 
                     passport_filename,
                     cv_filename,
-                    qualification_filename
+                    qualification_filename,
+
+                    password_hash
 
                 )
             )
 
+            application = cur.fetchone()
+
+
         conn.commit()
+
 
     except Exception:
 
         conn.rollback()
 
         raise
+
 
     finally:
 
@@ -803,6 +915,7 @@ def apply():
             application_number=application_number
         )
     )
+
 
 # ============================================================
 # CREATE INITIAL ADMIN
