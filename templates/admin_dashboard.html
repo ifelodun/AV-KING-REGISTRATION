@@ -284,6 +284,133 @@ Dashboard | {{ company_name }}
 
         </div>
 
+        {% if application.status == "Shortlisted" %}
+
+<div class="notification-status-card">
+
+    <div class="notification-status-header">
+
+        <div>
+
+            <span class="notification-label">
+                APPLICANT NOTIFICATION
+            </span>
+
+            <h3>
+                WhatsApp Notification
+            </h3>
+
+        </div>
+
+
+        {% if application.notification_sent %}
+
+            <span class="notification-badge sent">
+                Sent
+            </span>
+
+        {% else %}
+
+            <span class="notification-badge pending">
+                Not Sent
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="notification-status-body">
+
+        {% if application.notification_sent %}
+
+            <p>
+                The shortlist notification has been
+                recorded as sent to this applicant.
+            </p>
+
+            {% if application.notification_sent_at %}
+
+                <div class="notification-date">
+
+                    Sent on:
+
+                    <strong>
+                        {{
+                            application.notification_sent_at.strftime(
+                                "%d %B %Y at %I:%M %p"
+                            )
+                        }}
+                    </strong>
+
+                </div>
+
+            {% endif %}
+
+
+            <a
+                href="{{ url_for(
+                    'send_application_whatsapp',
+                    application_id=application.id
+                ) }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="secondary-whatsapp-button"
+            >
+                Send Again
+            </a>
+
+
+        {% else %}
+
+            <p>
+                The applicant has been shortlisted but the
+                WhatsApp notification has not yet been
+                recorded as sent.
+            </p>
+
+
+            <div class="notification-actions">
+
+                <a
+                    href="{{ url_for(
+                        'send_application_whatsapp',
+                        application_id=application.id
+                    ) }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="whatsapp-notification-button"
+                >
+                    Open WhatsApp
+                </a>
+
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'mark_whatsapp_notification_sent',
+                        application_id=application.id
+                    ) }}"
+                >
+
+                    <button
+                        type="submit"
+                        class="notification-sent-button"
+                    >
+                        Mark as Sent
+                    </button>
+
+                </form>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endif %}
 
         <!-- =================================================
              RECENT APPLICATIONS
