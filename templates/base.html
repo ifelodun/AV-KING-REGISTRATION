@@ -545,7 +545,7 @@
 
 
             <a
-                href="{{ url_for('admin_settings') }}"
+                href="{{ url_for('admin/settings') }}"
                 class="{% if request.endpoint == 'admin_settings' %}active{% endif %}"
             >
                 Settings
@@ -629,7 +629,7 @@
 
 
             <a
-                href="{{ url_for('index') }}"
+                href="{{ url_for('home') }}"
                 class="{% if request.endpoint == 'index' %}active{% endif %}"
             >
                 Home
