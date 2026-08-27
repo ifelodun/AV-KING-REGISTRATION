@@ -364,7 +364,12 @@ def init_db():
                 )
             """)
 
-        
+            cur.execute("""
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS
+                message_type VARCHAR(50)
+                DEFAULT 'General'
+            """)
 
             # =================================================
             # INDEXES
