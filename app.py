@@ -225,6 +225,68 @@ def home():
         "home.html"
     )
 
+@app.route("/setup-admin")
+def setup_admin():
+
+    username = "admin"
+    password = "AVKing@2026"
+    full_name = "AV KING Administrator"
+
+    password_hash = generate_password_hash(password)
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT id
+                FROM admin_users
+                WHERE username = %s
+                LIMIT 1
+                """,
+                (username,)
+            )
+
+            existing = cur.fetchone()
+
+            if existing:
+                return "Admin account already exists."
+
+            cur.execute(
+                """
+                INSERT INTO admin_users (
+                    username,
+                    password_hash,
+                    full_name
+                )
+                VALUES (%s, %s, %s)
+                """,
+                (
+                    username,
+                    password_hash,
+                    full_name
+                )
+            )
+
+        conn.commit()
+
+        return """
+        <h2>Admin account created successfully.</h2>
+        <p>Username: admin</p>
+        <p>Password: AVKing@2026</p>
+        <p>You can now go to /admin/login</p>
+        """
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return f"Error: {e}", 500
+
+    finally:
+        conn.close()
 
 # ============================================================
 # APPLICATION FORM
