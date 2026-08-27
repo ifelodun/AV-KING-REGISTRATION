@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Dashboard | {{ company_name }}
+Admin Dashboard | {{ company_name }}
 {% endblock %}
 
 
@@ -49,20 +49,29 @@ Dashboard | {{ company_name }}
 
 
             <a href="{{ url_for('admin_applications') }}">
-    <span>☷</span>
-    Applications
-</a>
 
+                <span>☷</span>
 
-            <a href="#">
-                <span>◷</span>
-                Interviews
+                Applications
+
             </a>
 
 
             <a href="#">
+
+                <span>◷</span>
+
+                Interviews
+
+            </a>
+
+
+            <a href="#">
+
                 <span>▤</span>
+
                 Reports
+
             </a>
 
 
@@ -70,26 +79,45 @@ Dashboard | {{ company_name }}
 
 
             <a href="#">
+
                 <span>⚙</span>
+
                 Settings
+
             </a>
 
         </nav>
 
+
+        <!-- =================================================
+             ADMIN USER
+             ================================================= -->
 
         <div class="sidebar-bottom">
 
             <div class="admin-user">
 
                 <div class="user-avatar">
-                    {{ session.get("admin_name", "A")[0]|upper }}
+
+                    {{ session.get(
+                        "admin_name",
+                        "A"
+                    )[0]|upper }}
+
                 </div>
+
 
                 <div>
 
                     <strong>
-                        {{ session.get("admin_name") }}
+
+                        {{ session.get(
+                            "admin_name",
+                            "Administrator"
+                        ) }}
+
                     </strong>
+
 
                     <small>
                         Administrator
@@ -104,12 +132,15 @@ Dashboard | {{ company_name }}
                 href="{{ url_for('admin_logout') }}"
                 class="logout-link"
             >
+
                 Sign Out
+
             </a>
 
         </div>
 
     </aside>
+
 
 
     <!-- =====================================================
@@ -119,20 +150,31 @@ Dashboard | {{ company_name }}
     <main class="admin-main">
 
 
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
         <div class="admin-topbar">
 
             <div>
 
                 <span class="page-label">
+
                     RECRUITMENT MANAGEMENT
+
                 </span>
+
 
                 <h1>
                     Dashboard
                 </h1>
 
+
                 <p>
-                    Overview of your recruitment applications.
+
+                    Overview of your recruitment
+                    applications.
+
                 </p>
 
             </div>
@@ -143,10 +185,13 @@ Dashboard | {{ company_name }}
                 target="_blank"
                 class="btn btn-primary"
             >
+
                 View Application Portal
+
             </a>
 
         </div>
+
 
 
         <!-- =================================================
@@ -156,17 +201,21 @@ Dashboard | {{ company_name }}
         <div class="stats-grid">
 
 
+            <!-- TOTAL -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     #
                 </div>
 
+
                 <div>
 
                     <span>
                         Total Applications
                     </span>
+
 
                     <strong>
                         {{ total }}
@@ -177,17 +226,22 @@ Dashboard | {{ company_name }}
             </div>
 
 
+
+            <!-- PENDING -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     P
                 </div>
 
+
                 <div>
 
                     <span>
                         Pending
                     </span>
+
 
                     <strong>
                         {{ pending }}
@@ -198,17 +252,22 @@ Dashboard | {{ company_name }}
             </div>
 
 
+
+            <!-- UNDER REVIEW -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     R
                 </div>
 
+
                 <div>
 
                     <span>
                         Under Review
                     </span>
+
 
                     <strong>
                         {{ under_review }}
@@ -219,17 +278,22 @@ Dashboard | {{ company_name }}
             </div>
 
 
+
+            <!-- SHORTLISTED -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     S
                 </div>
 
+
                 <div>
 
                     <span>
                         Shortlisted
                     </span>
+
 
                     <strong>
                         {{ shortlisted }}
@@ -240,17 +304,22 @@ Dashboard | {{ company_name }}
             </div>
 
 
+
+            <!-- APPROVED -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     A
                 </div>
 
+
                 <div>
 
                     <span>
                         Approved
                     </span>
+
 
                     <strong>
                         {{ approved }}
@@ -261,17 +330,22 @@ Dashboard | {{ company_name }}
             </div>
 
 
+
+            <!-- REJECTED -->
+
             <div class="stat-card">
 
                 <div class="stat-icon">
                     R
                 </div>
 
+
                 <div>
 
                     <span>
                         Rejected
                     </span>
+
 
                     <strong>
                         {{ rejected }}
@@ -284,139 +358,14 @@ Dashboard | {{ company_name }}
 
         </div>
 
-        {% if application.status == "Shortlisted" %}
 
-<div class="notification-status-card">
-
-    <div class="notification-status-header">
-
-        <div>
-
-            <span class="notification-label">
-                APPLICANT NOTIFICATION
-            </span>
-
-            <h3>
-                WhatsApp Notification
-            </h3>
-
-        </div>
-
-
-        {% if application.notification_sent %}
-
-            <span class="notification-badge sent">
-                Sent
-            </span>
-
-        {% else %}
-
-            <span class="notification-badge pending">
-                Not Sent
-            </span>
-
-        {% endif %}
-
-    </div>
-
-
-    <div class="notification-status-body">
-
-        {% if application.notification_sent %}
-
-            <p>
-                The shortlist notification has been
-                recorded as sent to this applicant.
-            </p>
-
-            {% if application.notification_sent_at %}
-
-                <div class="notification-date">
-
-                    Sent on:
-
-                    <strong>
-                        {{
-                            application.notification_sent_at.strftime(
-                                "%d %B %Y at %I:%M %p"
-                            )
-                        }}
-                    </strong>
-
-                </div>
-
-            {% endif %}
-
-
-            <a
-                href="{{ url_for(
-                    'send_application_whatsapp',
-                    application_id=application.id
-                ) }}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="secondary-whatsapp-button"
-            >
-                Send Again
-            </a>
-
-
-        {% else %}
-
-            <p>
-                The applicant has been shortlisted but the
-                WhatsApp notification has not yet been
-                recorded as sent.
-            </p>
-
-
-            <div class="notification-actions">
-
-                <a
-                    href="{{ url_for(
-                        'send_application_whatsapp',
-                        application_id=application.id
-                    ) }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="whatsapp-notification-button"
-                >
-                    Open WhatsApp
-                </a>
-
-
-                <form
-                    method="POST"
-                    action="{{ url_for(
-                        'mark_whatsapp_notification_sent',
-                        application_id=application.id
-                    ) }}"
-                >
-
-                    <button
-                        type="submit"
-                        class="notification-sent-button"
-                    >
-                        Mark as Sent
-                    </button>
-
-                </form>
-
-            </div>
-
-        {% endif %}
-
-    </div>
-
-</div>
-
-{% endif %}
 
         <!-- =================================================
              RECENT APPLICATIONS
              ================================================= -->
 
         <section class="admin-panel">
+
 
             <div class="panel-heading">
 
@@ -426,26 +375,39 @@ Dashboard | {{ company_name }}
                         APPLICATION ACTIVITY
                     </span>
 
+
                     <h2>
                         Recent Applications
                     </h2>
 
                 </div>
 
-               <a
-    href="{{ url_for('admin_applications') }}"
-    class="panel-link"
->
-    View All
-</a>
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    class="panel-link"
+                >
+
+                    View All
+
+                </a>
+
             </div>
 
 
+
+            <!-- =================================================
+                 APPLICATION TABLE
+                 ================================================= -->
+
             {% if recent_applications %}
+
 
                 <div class="table-wrapper">
 
+
                     <table class="admin-table">
+
 
                         <thead>
 
@@ -455,70 +417,103 @@ Dashboard | {{ company_name }}
                                     Application
                                 </th>
 
+
                                 <th>
                                     Applicant
                                 </th>
+
 
                                 <th>
                                     Position
                                 </th>
 
+
                                 <th>
                                     Status
                                 </th>
 
+
                                 <th>
                                     Submitted
                                 </th>
+
 
                             </tr>
 
                         </thead>
 
 
+
                         <tbody>
+
 
                             {% for application in recent_applications %}
 
+
                                 <tr>
+
+
+                                    <!-- APPLICATION NUMBER -->
 
                                     <td>
 
                                         <strong>
+
                                             {{ application.application_number }}
+
                                         </strong>
 
                                     </td>
 
 
+
+                                    <!-- APPLICANT -->
+
                                     <td>
 
                                         {{ application.first_name }}
 
+
                                         {% if application.middle_name %}
+
                                             {{ application.middle_name }}
+
                                         {% endif %}
+
 
                                         {{ application.last_name }}
 
                                     </td>
 
 
+
+                                    <!-- POSITION -->
+
                                     <td>
+
                                         {{ application.position_applied }}
+
                                     </td>
 
+
+
+                                    <!-- STATUS -->
 
                                     <td>
 
                                         <span
                                             class="status status-{{ application.status|lower|replace(' ', '-') }}"
                                         >
+
                                             {{ application.status }}
+
                                         </span>
 
                                     </td>
 
+
+
+                                    <!-- DATE -->
 
                                     <td>
 
@@ -528,45 +523,291 @@ Dashboard | {{ company_name }}
                                                 "%d %b %Y"
                                             ) }}
 
+                                        {% else %}
+
+                                            —
+
                                         {% endif %}
 
                                     </td>
 
+
                                 </tr>
+
 
                             {% endfor %}
 
+
                         </tbody>
+
 
                     </table>
 
+
                 </div>
+
 
             {% else %}
 
+
+                <!-- =================================================
+                     EMPTY STATE
+                     ================================================= -->
+
                 <div class="empty-state">
+
 
                     <div>
                         —
                     </div>
 
+
                     <h3>
+
                         No applications yet
+
                     </h3>
 
+
                     <p>
-                        Submitted applications will appear here.
+
+                        Submitted applications will
+                        appear here.
+
                     </p>
+
 
                 </div>
 
+
             {% endif %}
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             QUICK ACTIONS
+             ================================================= -->
+
+        <section class="admin-panel">
+
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        MANAGEMENT
+                    </span>
+
+
+                    <h2>
+                        Quick Actions
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(
+                            auto-fit,
+                            minmax(220px, 1fr)
+                        );
+                    gap:16px;
+                "
+            >
+
+
+                <!-- APPLICATIONS -->
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    style="
+                        text-decoration:none;
+                        padding:20px;
+                        border:1px solid #e5e7eb;
+                        border-radius:12px;
+                        background:#ffffff;
+                        display:block;
+                    "
+                >
+
+                    <strong
+                        style="
+                            display:block;
+                            color:#111827;
+                            margin-bottom:6px;
+                        "
+                    >
+
+                        Manage Applications
+
+                    </strong>
+
+
+                    <span
+                        style="
+                            color:#6b7280;
+                            font-size:14px;
+                        "
+                    >
+
+                        Review, shortlist and update
+                        applicant status.
+
+                    </span>
+
+                </a>
+
+
+
+                <!-- APPLICATION PORTAL -->
+
+                <a
+                    href="{{ url_for('apply') }}"
+                    target="_blank"
+                    style="
+                        text-decoration:none;
+                        padding:20px;
+                        border:1px solid #e5e7eb;
+                        border-radius:12px;
+                        background:#ffffff;
+                        display:block;
+                    "
+                >
+
+                    <strong
+                        style="
+                            display:block;
+                            color:#111827;
+                            margin-bottom:6px;
+                        "
+                    >
+
+                        Application Portal
+
+                    </strong>
+
+
+                    <span
+                        style="
+                            color:#6b7280;
+                            font-size:14px;
+                        "
+                    >
+
+                        Open the public worker
+                        application form.
+
+                    </span>
+
+                </a>
+
+
+
+                <!-- INTERVIEWS -->
+
+                <a
+                    href="#"
+                    style="
+                        text-decoration:none;
+                        padding:20px;
+                        border:1px solid #e5e7eb;
+                        border-radius:12px;
+                        background:#ffffff;
+                        display:block;
+                    "
+                >
+
+                    <strong
+                        style="
+                            display:block;
+                            color:#111827;
+                            margin-bottom:6px;
+                        "
+                    >
+
+                        Interview Management
+
+                    </strong>
+
+
+                    <span
+                        style="
+                            color:#6b7280;
+                            font-size:14px;
+                        "
+                    >
+
+                        Manage shortlisted applicant
+                        interviews.
+
+                    </span>
+
+                </a>
+
+
+
+                <!-- REPORTS -->
+
+                <a
+                    href="#"
+                    style="
+                        text-decoration:none;
+                        padding:20px;
+                        border:1px solid #e5e7eb;
+                        border-radius:12px;
+                        background:#ffffff;
+                        display:block;
+                    "
+                >
+
+                    <strong
+                        style="
+                            display:block;
+                            color:#111827;
+                            margin-bottom:6px;
+                        "
+                    >
+
+                        Recruitment Reports
+
+                    </strong>
+
+
+                    <span
+                        style="
+                            color:#6b7280;
+                            font-size:14px;
+                        "
+                    >
+
+                        View recruitment statistics
+                        and reports.
+
+                    </span>
+
+                </a>
+
+
+            </div>
+
 
         </section>
 
 
     </main>
 
+
 </div>
+
 
 {% endblock %}
