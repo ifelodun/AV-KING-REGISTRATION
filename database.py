@@ -433,7 +433,18 @@ def init_db():
                 ON applicant_messages(is_read)
                 """
             )
-
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS company_settings (
+                    id SERIAL PRIMARY KEY,
+                    company_name VARCHAR(255),
+                    company_email VARCHAR(255),
+                    company_phone VARCHAR(100),
+                    company_address TEXT,
+                    company_website VARCHAR(255),
+                    footer_text TEXT,
+                    logo VARCHAR(255)
+                )
+            """)
 
         # =====================================================
         # COMMIT
