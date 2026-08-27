@@ -1481,6 +1481,270 @@ Your Needs, Our Priority
 
     return True
 
+# ============================================================
+# ADMIN - SCHEDULE / UPDATE INTERVIEW
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/interview",
+    methods=["POST"]
+)
+def update_application_interview(application_id):
+
+    # ========================================================
+    # ADMIN SECURITY
+    # ========================================================
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+
+    # ========================================================
+    # GET FORM DATA
+    # ========================================================
+
+    interview_date = (
+        request.form.get(
+            "interview_date",
+            ""
+        ).strip()
+    )
+
+    interview_location = (
+        request.form.get(
+            "interview_location",
+            ""
+        ).strip()
+    )
+
+    interview_notes = (
+        request.form.get(
+            "interview_notes",
+            ""
+        ).strip()
+    )
+
+    interview_status = (
+        request.form.get(
+            "interview_status",
+            "Scheduled"
+        ).strip()
+    )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    allowed_interview_statuses = {
+        "Scheduled",
+        "Completed",
+        "Rescheduled",
+        "Cancelled"
+    }
+
+    if interview_status not in allowed_interview_statuses:
+
+        flash(
+            "Invalid interview status.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    # ========================================================
+    # INTERVIEW DATE VALIDATION
+    # ========================================================
+
+    if interview_date:
+
+        try:
+
+            datetime.strptime(
+                interview_date,
+                "%Y-%m-%dT%H:%M"
+            )
+
+        except ValueError:
+
+            flash(
+                "Invalid interview date and time.",
+                "error"
+            )
+
+            return redirect(
+                url_for(
+                    "admin_application_details",
+                    application_id=application_id
+                )
+            )
+
+
+    # ========================================================
+    # DATABASE
+    # ========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # CHECK APPLICATION
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    first_name,
+                    last_name,
+                    application_number,
+                    status
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+
+            if not application:
+
+                flash(
+                    "Application not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_applications")
+                )
+
+
+            # ------------------------------------------------
+            # SAVE INTERVIEW
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                UPDATE applications
+
+                SET
+
+                    interview_date = %s,
+
+                    interview_location = %s,
+
+                    interview_notes = %s,
+
+                    interview_status = %s,
+
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    interview_date or None,
+                    interview_location or None,
+                    interview_notes or None,
+                    interview_status,
+                    application_id
+                )
+            )
+
+
+            # ------------------------------------------------
+            # CREATE PORTAL MESSAGE
+            # ------------------------------------------------
+
+            if interview_date:
+
+                cur.execute(
+                    """
+                    INSERT INTO applicant_messages (
+
+                        application_id,
+
+                        subject,
+
+                        message,
+
+                        message_type
+
+                    )
+
+                    VALUES (
+
+                        %s,
+
+                        %s,
+
+                        %s,
+
+                        %s
+
+                    )
+                    """,
+                    (
+                        application_id,
+
+                        "Interview Scheduled",
+
+                        (
+                            "Your interview has been scheduled.\n\n"
+                            f"Date & Time: {interview_date}\n"
+                            f"Location: {interview_location or 'To be confirmed'}\n\n"
+                            f"Instructions: "
+                            f"{interview_notes or 'Please check your applicant portal for further updates.'}"
+                        ),
+
+                        "Interview"
+                    )
+                )
+
+
+        conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        conn.close()
+
+
+    # ========================================================
+    # SUCCESS
+    # ========================================================
+
+    flash(
+        "Interview details saved successfully.",
+        "success"
+    )
+
+
+    return redirect(
+        url_for(
+            "admin_application_details",
+            application_id=application_id
+        )
+    )
 @app.route("/applicant/dashboard")
 def applicant_dashboard():
 
