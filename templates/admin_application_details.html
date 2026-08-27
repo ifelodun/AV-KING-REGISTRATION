@@ -1100,6 +1100,158 @@
                 </section>
 
 
+                <!-- =====================================================
+     APPLICANT MESSAGE
+     ===================================================== -->
+
+<section class="details-card">
+
+    <div class="details-card-heading">
+
+        <span>
+            COMMUNICATION
+        </span>
+
+        <h2>
+            Send Applicant Message
+        </h2>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ url_for(
+            'send_applicant_message',
+            application_id=application.id
+        ) }}"
+    >
+
+        <div style="margin-bottom:15px;">
+
+            <label
+                for="message_type"
+                style="
+                    display:block;
+                    margin-bottom:7px;
+                    font-weight:600;
+                "
+            >
+                Message Type
+            </label>
+
+            <select
+                id="message_type"
+                name="message_type"
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:12px;
+                    border:1px solid #d1d5db;
+                    border-radius:8px;
+                    background:#fff;
+                "
+            >
+
+                <option value="General">
+                    General
+                </option>
+
+                <option value="Interview">
+                    Interview
+                </option>
+
+                <option value="Shortlisting">
+                    Shortlisting
+                </option>
+
+                <option value="Application">
+                    Application Update
+                </option>
+
+                <option value="Important">
+                    Important
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div style="margin-bottom:15px;">
+
+            <label
+                for="subject"
+                style="
+                    display:block;
+                    margin-bottom:7px;
+                    font-weight:600;
+                "
+            >
+                Subject
+            </label>
+
+            <input
+                type="text"
+                id="subject"
+                name="subject"
+                placeholder="Enter message subject"
+                required
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:12px;
+                    border:1px solid #d1d5db;
+                    border-radius:8px;
+                "
+            >
+
+        </div>
+
+
+        <div style="margin-bottom:15px;">
+
+            <label
+                for="message"
+                style="
+                    display:block;
+                    margin-bottom:7px;
+                    font-weight:600;
+                "
+            >
+                Message
+            </label>
+
+            <textarea
+                id="message"
+                name="message"
+                rows="7"
+                placeholder="Write your message to the applicant..."
+                required
+                style="
+                    width:100%;
+                    box-sizing:border-box;
+                    padding:12px;
+                    border:1px solid #d1d5db;
+                    border-radius:8px;
+                    resize:vertical;
+                "
+            ></textarea>
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary details-button"
+        >
+            Send Message
+        </button>
+
+    </form>
+
+</section>
+                
 
                 <!-- =================================================
                      PORTAL STATUS
