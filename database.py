@@ -166,7 +166,29 @@ def init_db():
                 """
             )
 
-
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS interview_date
+                TIMESTAMP
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS interview_location
+                TEXT
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS interview_notes
+                TEXT
+                """
+            )
             # =================================================
             # NOTIFICATION
             # =================================================
