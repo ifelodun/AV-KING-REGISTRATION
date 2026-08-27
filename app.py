@@ -3156,6 +3156,192 @@ def applicant_portal():
 
         unread_count=unread_count
             )
+
+# ============================================================
+# ADMIN SETTINGS
+# ============================================================
+
+@app.route("/admin/settings", methods=["GET", "POST"])
+def admin_settings():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ==================================================
+            # GET CURRENT SETTINGS
+            # ==================================================
+
+            cur.execute(
+                """
+                SELECT *
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+
+            # ==================================================
+            # SAVE SETTINGS
+            # ==================================================
+
+            if request.method == "POST":
+
+                company_name = (
+                    request.form.get(
+                        "company_name",
+                        ""
+                    ).strip()
+                )
+
+                company_email = (
+                    request.form.get(
+                        "company_email",
+                        ""
+                    ).strip()
+                )
+
+                company_phone = (
+                    request.form.get(
+                        "company_phone",
+                        ""
+                    ).strip()
+                )
+
+                company_address = (
+                    request.form.get(
+                        "company_address",
+                        ""
+                    ).strip()
+                )
+
+                company_website = (
+                    request.form.get(
+                        "company_website",
+                        ""
+                    ).strip()
+                )
+
+                footer_text = (
+                    request.form.get(
+                        "footer_text",
+                        ""
+                    ).strip()
+                )
+
+
+                # ==============================================
+                # UPDATE EXISTING SETTINGS
+                # ==============================================
+
+                if settings:
+
+                    cur.execute(
+                        """
+                        UPDATE company_settings
+                        SET
+                            company_name = %s,
+                            company_email = %s,
+                            company_phone = %s,
+                            company_address = %s,
+                            company_website = %s,
+                            footer_text = %s
+                        WHERE id = %s
+                        """,
+                        (
+                            company_name,
+                            company_email,
+                            company_phone,
+                            company_address,
+                            company_website,
+                            footer_text,
+                            settings["id"]
+                        )
+                    )
+
+
+                # ==============================================
+                # CREATE SETTINGS IF NONE EXIST
+                # ==============================================
+
+                else:
+
+                    cur.execute(
+                        """
+                        INSERT INTO company_settings
+                        (
+                            company_name,
+                            company_email,
+                            company_phone,
+                            company_address,
+                            company_website,
+                            footer_text
+                        )
+                        VALUES
+                        (
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s
+                        )
+                        """,
+                        (
+                            company_name,
+                            company_email,
+                            company_phone,
+                            company_address,
+                            company_website,
+                            footer_text
+                        )
+                    )
+
+
+                conn.commit()
+
+
+                flash(
+                    "Company settings updated successfully.",
+                    "success"
+                )
+
+
+                return redirect(
+                    url_for("admin_settings")
+                )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error updating company settings"
+        )
+
+        flash(
+            "Unable to update company settings.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_settings.html",
+        settings=settings
+    )
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
