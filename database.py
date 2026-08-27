@@ -353,6 +353,7 @@ def init_db():
                 """
             )
 
+            with conn.cursor() as cur:
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS applicant_messages (
                     id SERIAL PRIMARY KEY,
