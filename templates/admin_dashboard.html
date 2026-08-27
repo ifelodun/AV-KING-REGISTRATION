@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard | {{ company_name }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="admin-layout">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                AV
+            </div>
+
+            <div>
+
+                <strong>
+                    AV KING
+                </strong>
+
+                <small>
+                    RECRUITMENT
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <nav class="admin-nav">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="active"
+            >
+                <span>▣</span>
+                Dashboard
+            </a>
+
+
+            <a href="#">
+                <span>☷</span>
+                Applications
+            </a>
+
+
+            <a href="#">
+                <span>◷</span>
+                Interviews
+            </a>
+
+
+            <a href="#">
+                <span>▤</span>
+                Reports
+            </a>
+
+
+            <div class="nav-divider"></div>
+
+
+            <a href="#">
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="admin-user">
+
+                <div class="user-avatar">
+                    {{ session.get("admin_name", "A")[0]|upper }}
+                </div>
+
+                <div>
+
+                    <strong>
+                        {{ session.get("admin_name") }}
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="logout-link"
+            >
+                Sign Out
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="admin-main">
+
+
+        <div class="admin-topbar">
+
+            <div>
+
+                <span class="page-label">
+                    RECRUITMENT MANAGEMENT
+                </span>
+
+                <h1>
+                    Dashboard
+                </h1>
+
+                <p>
+                    Overview of your recruitment applications.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('apply') }}"
+                target="_blank"
+                class="btn btn-primary"
+            >
+                View Application Portal
+            </a>
+
+        </div>
+
+
+        <!-- =================================================
+             STATISTICS
+             ================================================= -->
+
+        <div class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    #
+                </div>
+
+                <div>
+
+                    <span>
+                        Total Applications
+                    </span>
+
+                    <strong>
+                        {{ total }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    P
+                </div>
+
+                <div>
+
+                    <span>
+                        Pending
+                    </span>
+
+                    <strong>
+                        {{ pending }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    R
+                </div>
+
+                <div>
+
+                    <span>
+                        Under Review
+                    </span>
+
+                    <strong>
+                        {{ under_review }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    S
+                </div>
+
+                <div>
+
+                    <span>
+                        Shortlisted
+                    </span>
+
+                    <strong>
+                        {{ shortlisted }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    A
+                </div>
+
+                <div>
+
+                    <span>
+                        Approved
+                    </span>
+
+                    <strong>
+                        {{ approved }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    R
+                </div>
+
+                <div>
+
+                    <span>
+                        Rejected
+                    </span>
+
+                    <strong>
+                        {{ rejected }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             RECENT APPLICATIONS
+             ================================================= -->
+
+        <section class="admin-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        APPLICATION ACTIVITY
+                    </span>
+
+                    <h2>
+                        Recent Applications
+                    </h2>
+
+                </div>
+
+                <a
+                    href="#"
+                    class="panel-link"
+                >
+                    View All
+                </a>
+
+            </div>
+
+
+            {% if recent_applications %}
+
+                <div class="table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Application
+                                </th>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Submitted
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for application in recent_applications %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ application.application_number }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ application.first_name }}
+
+                                        {% if application.middle_name %}
+                                            {{ application.middle_name }}
+                                        {% endif %}
+
+                                        {{ application.last_name }}
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ application.position_applied }}
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="status status-{{ application.status|lower|replace(' ', '-') }}"
+                                        >
+                                            {{ application.status }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if application.submitted_at %}
+
+                                            {{ application.submitted_at.strftime(
+                                                "%d %b %Y"
+                                            ) }}
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div>
+                        —
+                    </div>
+
+                    <h3>
+                        No applications yet
+                    </h3>
+
+                    <p>
+                        Submitted applications will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+    </main>
+
+</div>
+
+{% endblock %}
