@@ -1379,6 +1379,191 @@ def admin_application_details(application_id):
     )
 
 # ============================================================
+# ADMIN SEND MESSAGE TO APPLICANT
+# ============================================================
+
+@app.route(
+    "/admin/applications/<int:application_id>/message",
+    methods=["POST"]
+)
+def send_applicant_message(application_id):
+
+    # --------------------------------------------------------
+    # CHECK ADMIN LOGIN
+    # --------------------------------------------------------
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+
+    # --------------------------------------------------------
+    # GET FORM DATA
+    # --------------------------------------------------------
+
+    subject = (
+        request.form.get(
+            "subject",
+            ""
+        )
+        .strip()
+    )
+
+    message = (
+        request.form.get(
+            "message",
+            ""
+        )
+        .strip()
+    )
+
+    message_type = (
+        request.form.get(
+            "message_type",
+            "General"
+        )
+        .strip()
+    )
+
+
+    # --------------------------------------------------------
+    # VALIDATION
+    # --------------------------------------------------------
+
+    if not subject:
+
+        flash(
+            "Please enter a message subject.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    if not message:
+
+        flash(
+            "Please enter the message.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # SAVE MESSAGE
+    # --------------------------------------------------------
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # Check applicant exists
+
+            cur.execute(
+                """
+                SELECT id
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+            if not application:
+
+                flash(
+                    "Application not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_applications")
+                )
+
+
+            # Insert message
+
+            cur.execute(
+                """
+                INSERT INTO applicant_messages (
+
+                    application_id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+
+                )
+
+                VALUES (
+
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    FALSE,
+                    CURRENT_TIMESTAMP
+
+                )
+                """,
+
+                (
+                    application_id,
+                    subject,
+                    message,
+                    message_type
+                )
+            )
+
+
+        conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # SUCCESS
+    # --------------------------------------------------------
+
+    flash(
+        "Message sent to applicant successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "admin_application_details",
+            application_id=application_id
+        )
+    )
+# ============================================================
 # UPDATE ADMIN NOTES
 # ============================================================
 
