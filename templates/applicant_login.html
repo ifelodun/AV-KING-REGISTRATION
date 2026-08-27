@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+    .applicant-login-wrapper {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+
+    .applicant-login-card {
+        width: 100%;
+        max-width: 460px;
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 40px;
+        box-shadow:
+            0 12px 40px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+
+
+    .portal-brand {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+
+    .portal-logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+
+
+    .portal-brand h1 {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+
+    .portal-brand p {
+        margin: 8px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+
+    .portal-title {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+
+    .portal-title h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 22px;
+    }
+
+
+    .portal-title p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #374151;
+    }
+
+
+    .form-group input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 13px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s ease;
+    }
+
+
+    .form-group input:focus {
+        border-color: #2563eb;
+        box-shadow:
+            0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+
+    .login-button {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #ffffff;
+        background: #111827;
+        transition: 0.2s ease;
+    }
+
+
+    .login-button:hover {
+        background: #1f2937;
+    }
+
+
+    .login-help {
+        margin-top: 22px;
+        text-align: center;
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+
+    .login-help strong {
+        color: #374151;
+    }
+
+
+    .application-link {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+
+    .application-link a {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+
+    .application-link a:hover {
+        text-decoration: underline;
+    }
+
+
+    .flash-message {
+        padding: 12px 14px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+
+    .flash-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+
+    .flash-success {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+
+    @media (max-width: 600px) {
+
+        .applicant-login-card {
+            padding: 28px 22px;
+        }
+
+        .portal-brand h1 {
+            font-size: 21px;
+        }
+
+    }
+
+</style>
+
+
+<div class="applicant-login-wrapper">
+
+    <div class="applicant-login-card">
+
+
+        <!-- ==================================================
+             BRANDING
+             ================================================== -->
+
+        <div class="portal-brand">
+
+            {% if company_logo %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/' + company_logo
+                    ) }}"
+                    class="portal-logo"
+                    alt="{{ company_name }}"
+                >
+
+            {% endif %}
+
+            <h1>
+                {{ company_name }}
+            </h1>
+
+            <p>
+                {{ company_motto }}
+            </p>
+
+        </div>
+
+
+        <!-- ==================================================
+             TITLE
+             ================================================== -->
+
+        <div class="portal-title">
+
+            <h2>
+                Applicant Portal
+            </h2>
+
+            <p>
+                Sign in to track your recruitment application.
+            </p>
+
+        </div>
+
+
+        <!-- ==================================================
+             FLASH MESSAGES
+             ================================================== -->
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="flash-message
+                        {% if category == 'error' %}
+                            flash-error
+                        {% else %}
+                            flash-success
+                        {% endif %}"
+                    >
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <!-- ==================================================
+             LOGIN FORM
+             ================================================== -->
+
+        <form
+            method="POST"
+            action="{{ url_for('applicant_login') }}"
+        >
+
+
+            <div class="form-group">
+
+                <label
+                    for="application_number"
+                >
+                    Application Number
+                </label>
+
+                <input
+                    type="text"
+                    id="application_number"
+                    name="application_number"
+                    placeholder="e.g. AV-APP-00001"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label
+                    for="password"
+                >
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="login-button"
+            >
+                Sign In
+            </button>
+
+
+        </form>
+
+
+        <!-- ==================================================
+             HELP
+             ================================================== -->
+
+        <div class="login-help">
+
+            Use the
+            <strong>
+                application number
+            </strong>
+            you received after submitting your application
+            and the password you created.
+
+        </div>
+
+
+        <!-- ==================================================
+             NEW APPLICANT
+             ================================================== -->
+
+        <div class="application-link">
+
+            Don't have an application yet?
+
+            <a href="{{ url_for('apply') }}">
+                Apply Now
+            </a>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
