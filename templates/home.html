@@ -27,17 +27,17 @@ Careers | {{ company_name }}
         <div class="hero-actions">
 
             <a
-                href="#"
-                class="btn btn-primary"
-            >
-                Apply Now
+    href="{{ url_for('apply') }}"
+    class="btn btn-primary"
+>
+    Apply Now
             </a>
 
             <a
-                href="#"
-                class="btn btn-secondary"
-            >
-                Check Application Status
+    href="{{ url_for('apply') }}"
+    class="btn btn-light"
+>
+    Start Application
             </a>
 
         </div>
@@ -137,10 +137,10 @@ Careers | {{ company_name }}
     </div>
 
     <a
-        href="#"
-        class="btn btn-light"
-    >
-        Start Application
+    href="{{ url_for('apply') }}"
+    class="btn btn-light"
+>
+    Start Application
     </a>
 
 </section>
