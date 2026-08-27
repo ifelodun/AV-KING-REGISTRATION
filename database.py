@@ -4,6 +4,10 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 
+# ============================================================
+# DATABASE CONNECTION
+# ============================================================
+
 def get_db():
 
     database_url = os.getenv("DATABASE_URL")
@@ -13,13 +17,15 @@ def get_db():
             "DATABASE_URL is not configured."
         )
 
-    conn = psycopg2.connect(
+    return psycopg2.connect(
         database_url,
         cursor_factory=RealDictCursor
     )
 
-    return conn
 
+# ============================================================
+# INITIALIZE DATABASE
+# ============================================================
 
 def init_db():
 
@@ -28,6 +34,10 @@ def init_db():
     try:
 
         with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # APPLICATIONS
+            # ------------------------------------------------
 
             cur.execute(
                 """
@@ -102,6 +112,39 @@ def init_db():
                 """
             )
 
+
+            # ------------------------------------------------
+            # ADMIN USERS
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS admin_users (
+
+                    id SERIAL PRIMARY KEY,
+
+                    username VARCHAR(100)
+                        UNIQUE NOT NULL,
+
+                    password_hash TEXT
+                        NOT NULL,
+
+                    full_name VARCHAR(150),
+
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                    last_login TIMESTAMP
+
+                )
+                """
+            )
+
+
+            # ------------------------------------------------
+            # INDEXES
+            # ------------------------------------------------
+
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -109,6 +152,7 @@ def init_db():
                 ON applications(status)
                 """
             )
+
 
             cur.execute(
                 """
@@ -118,6 +162,7 @@ def init_db():
                 """
             )
 
+
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -125,6 +170,7 @@ def init_db():
                 ON applications(phone)
                 """
             )
+
 
         conn.commit()
 
