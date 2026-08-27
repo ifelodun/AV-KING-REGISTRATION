@@ -1458,6 +1458,10 @@ def update_application_status(application_id):
 
         with conn.cursor() as cur:
 
+            # =================================================
+            # GET APPLICATION
+            # =================================================
+
             cur.execute(
                 """
                 SELECT
@@ -1467,7 +1471,8 @@ def update_application_status(application_id):
                     phone,
                     application_number,
                     position_applied,
-                    status
+                    status,
+                    notification_sent
                 FROM applications
                 WHERE id = %s
                 LIMIT 1
@@ -1476,6 +1481,7 @@ def update_application_status(application_id):
             )
 
             application = cur.fetchone()
+
 
             if not application:
 
@@ -1489,6 +1495,10 @@ def update_application_status(application_id):
                 )
 
 
+            # =================================================
+            # SHORTLISTED
+            # =================================================
+
             if new_status == "Shortlisted":
 
                 cur.execute(
@@ -1497,11 +1507,13 @@ def update_application_status(application_id):
 
                     SET
                         status = %s,
+
                         shortlisted_at =
                             COALESCE(
                                 shortlisted_at,
                                 CURRENT_TIMESTAMP
                             ),
+
                         updated_at =
                             CURRENT_TIMESTAMP
 
@@ -1512,6 +1524,11 @@ def update_application_status(application_id):
                         application_id
                     )
                 )
+
+
+            # =================================================
+            # OTHER STATUSES
+            # =================================================
 
             else:
 
@@ -1521,6 +1538,7 @@ def update_application_status(application_id):
 
                     SET
                         status = %s,
+
                         updated_at =
                             CURRENT_TIMESTAMP
 
@@ -1532,11 +1550,14 @@ def update_application_status(application_id):
                     )
                 )
 
+
         conn.commit()
+
 
     except Exception:
 
         conn.rollback()
+
         raise
 
     finally:
@@ -1544,36 +1565,160 @@ def update_application_status(application_id):
         conn.close()
 
 
+    # =========================================================
+    # SHORTLISTED WHATSAPP NOTIFICATION
+    # =========================================================
+
+    if new_status == "Shortlisted":
+
+        applicant_name = (
+            f"{application['first_name']} "
+            f"{application['last_name']}"
+        )
+
+        phone = (
+            application["phone"]
+            or ""
+        ).strip()
+
+        application_number = (
+            application["application_number"]
+        )
+
+        position = (
+            application["position_applied"]
+        )
+
+
+        # -----------------------------------------------------
+        # NORMALIZE NIGERIAN PHONE NUMBER
+        # -----------------------------------------------------
+
+        whatsapp_phone = phone
+
+        if whatsapp_phone.startswith("0"):
+
+            whatsapp_phone = (
+                "234"
+                + whatsapp_phone[1:]
+            )
+
+        elif whatsapp_phone.startswith("+234"):
+
+            whatsapp_phone = (
+                whatsapp_phone[1:]
+            )
+
+
+        # -----------------------------------------------------
+        # CREATE WHATSAPP MESSAGE
+        # -----------------------------------------------------
+
+        whatsapp_message = (
+            f"Dear {applicant_name},\n\n"
+
+            f"Congratulations!\n\n"
+
+            f"We are pleased to inform you that your "
+            f"application for the position of "
+            f"{position} at {COMPANY_NAME} "
+            f"has been shortlisted for the next stage "
+            f"of our recruitment process.\n\n"
+
+            f"Application Number: "
+            f"{application_number}\n\n"
+
+            f"Please log in to your Applicant Portal "
+            f"regularly to check for further recruitment "
+            f"updates and interview information.\n\n"
+
+            f"Regards,\n"
+            f"{COMPANY_NAME}\n"
+            f"{COMPANY_PHONE}"
+        )
+
+
+        # -----------------------------------------------------
+        # WHATSAPP LINK
+        # -----------------------------------------------------
+
+        from urllib.parse import quote
+
+        whatsapp_url = (
+            f"https://wa.me/"
+            f"{whatsapp_phone}"
+            f"?text="
+            f"{quote(whatsapp_message)}"
+        )
+
+
+        # =====================================================
+        # RECORD NOTIFICATION STATE
+        # =====================================================
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    UPDATE applications
+
+                    SET
+                        notification_sent = TRUE,
+                        notification_sent_at =
+                            CURRENT_TIMESTAMP,
+
+                        updated_at =
+                            CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (application_id,)
+                )
+
+            conn.commit()
+
+        except Exception:
+
+            conn.rollback()
+
+            raise
+
+        finally:
+
+            conn.close()
+
+
+        # =====================================================
+        # SHOW ADMIN WHATSAPP ACTION
+        # =====================================================
+
+        flash(
+            "Applicant shortlisted successfully. "
+            "WhatsApp notification is ready to send.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id,
+                whatsapp_url=whatsapp_url
+            )
+        )
+
+
+    # =========================================================
+    # OTHER STATUS
+    # =========================================================
+
     flash(
         "Application status updated successfully.",
         "success"
     )
-
-
-    # --------------------------------------------------------
-    # SHORTLISTED NOTIFICATION
-    # --------------------------------------------------------
-
-    if new_status == "Shortlisted":
-
-        try:
-
-            send_shortlisted_whatsapp(
-                application
-            )
-
-        except Exception as e:
-
-            app.logger.error(
-                "WhatsApp notification failed: %s",
-                e
-            )
-
-            flash(
-                "Applicant was shortlisted, but the WhatsApp notification could not be sent.",
-                "error"
-            )
-
 
     return redirect(
         url_for(
