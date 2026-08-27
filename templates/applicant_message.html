@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ message.subject or "Message" }} | AV KING Recruitment
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+    .message-page {
+
+        max-width: 850px;
+
+        margin: 0 auto;
+
+        padding: 35px 20px 60px;
+
+    }
+
+
+    .back-link {
+
+        display: inline-flex;
+
+        margin-bottom: 20px;
+
+        color: #4b5563;
+
+        text-decoration: none;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+    }
+
+
+    .back-link:hover {
+
+        color: #111827;
+
+    }
+
+
+    .message-container {
+
+        background: #ffffff;
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 18px;
+
+        padding: 30px;
+
+    }
+
+
+    .message-label {
+
+        font-size: 11px;
+
+        letter-spacing: 1px;
+
+        text-transform: uppercase;
+
+        color: #6b7280;
+
+        font-weight: 800;
+
+    }
+
+
+    .message-title {
+
+        margin: 7px 0 10px;
+
+        color: #111827;
+
+        font-size: 25px;
+
+        line-height: 1.3;
+
+    }
+
+
+    .message-meta {
+
+        display: flex;
+
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        align-items: center;
+
+        margin-bottom: 25px;
+
+        padding-bottom: 20px;
+
+        border-bottom: 1px solid #e5e7eb;
+
+    }
+
+
+    .message-type {
+
+        padding: 6px 10px;
+
+        border-radius: 999px;
+
+        background: #f3f4f6;
+
+        color: #374151;
+
+        font-size: 11px;
+
+        font-weight: 750;
+
+    }
+
+
+    .message-date {
+
+        color: #9ca3af;
+
+        font-size: 12px;
+
+    }
+
+
+    .message-body {
+
+        color: #374151;
+
+        font-size: 15px;
+
+        line-height: 1.8;
+
+        white-space: pre-line;
+
+    }
+
+
+    .message-footer {
+
+        margin-top: 30px;
+
+        padding-top: 20px;
+
+        border-top: 1px solid #f3f4f6;
+
+        color: #6b7280;
+
+        font-size: 13px;
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .message-page {
+
+            padding: 25px 12px 45px;
+
+        }
+
+
+        .message-container {
+
+            padding: 20px;
+
+        }
+
+
+        .message-title {
+
+            font-size: 21px;
+
+        }
+
+    }
+
+</style>
+
+
+<div class="message-page">
+
+
+    <a
+        href="{{ url_for('applicant_messages') }}"
+        class="back-link"
+    >
+        ← Back to Messages
+    </a>
+
+
+    <div class="message-container">
+
+
+        <span class="message-label">
+            Recruitment Message
+        </span>
+
+
+        <h1 class="message-title">
+
+            {{ message.subject or "Message" }}
+
+        </h1>
+
+
+        <div class="message-meta">
+
+
+            <span class="message-type">
+
+                {{ message.message_type or "General" }}
+
+            </span>
+
+
+            {% if message.created_at %}
+
+                <span class="message-date">
+
+                    {{ message.created_at.strftime(
+                        "%d %B %Y at %I:%M %p"
+                    ) }}
+
+                </span>
+
+            {% endif %}
+
+
+        </div>
+
+
+        <div class="message-body">
+
+            {{ message.message }}
+
+        </div>
+
+
+        <div class="message-footer">
+
+            AV KING Recruitment Team
+
+            <br>
+
+            Your needs, Our Priority
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
