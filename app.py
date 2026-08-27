@@ -2066,6 +2066,139 @@ def admin_dashboard():
     )
 
 # ============================================================
+# APPLICANT PORTAL
+# ============================================================
+
+@app.route("/applicant/portal")
+def applicant_portal():
+
+    # --------------------------------------------------------
+    # CHECK APPLICANT LOGIN
+    # --------------------------------------------------------
+
+    application_id = session.get("application_id")
+
+    if not application_id:
+
+        flash(
+            "Please log in to access your applicant portal.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    # --------------------------------------------------------
+    # DATABASE
+    # --------------------------------------------------------
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+
+                    first_name,
+                    middle_name,
+                    last_name,
+
+                    gender,
+                    date_of_birth,
+
+                    phone,
+                    email,
+                    address,
+                    state,
+                    lga,
+
+                    position_applied,
+
+                    highest_qualification,
+                    course_of_study,
+                    institution,
+                    graduation_year,
+
+                    work_experience,
+                    previous_employer,
+                    previous_position,
+
+                    reason_for_applying,
+                    additional_information,
+
+                    passport_filename,
+                    cv_filename,
+                    qualification_filename,
+
+                    status,
+                    admin_notes,
+
+                    submitted_at,
+                    updated_at,
+
+                    shortlisted_at,
+
+                    notification_sent,
+                    notification_sent_at,
+
+                    interview_date,
+                    interview_location,
+                    interview_notes
+
+                FROM applications
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # APPLICATION NOT FOUND
+    # --------------------------------------------------------
+
+    if not application:
+
+        session.pop(
+            "application_id",
+            None
+        )
+
+        flash(
+            "Your application could not be found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    # --------------------------------------------------------
+    # DISPLAY PORTAL
+    # --------------------------------------------------------
+
+    return render_template(
+        "applicant_portal.html",
+        application=application
+    )
+# ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
 # ============================================================
 
