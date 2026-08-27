@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+
+{% block title %}
+Applications | {{ company_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                AV
+            </div>
+
+            <div>
+                <strong>AV KING</strong>
+                <small>RECRUITMENT</small>
+            </div>
+
+        </div>
+
+
+        <nav class="admin-nav">
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                <span>▣</span>
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="active"
+            >
+                <span>☷</span>
+                Applications
+            </a>
+
+            <a href="#">
+                <span>◷</span>
+                Interviews
+            </a>
+
+            <a href="#">
+                <span>▤</span>
+                Reports
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="#">
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="admin-user">
+
+                <div class="user-avatar">
+                    {{ session.get("admin_name", "A")[0]|upper }}
+                </div>
+
+                <div>
+
+                    <strong>
+                        {{ session.get("admin_name") }}
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="logout-link"
+            >
+                Sign Out
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="admin-main">
+
+        <div class="admin-topbar">
+
+            <div>
+
+                <span class="page-label">
+                    RECRUITMENT MANAGEMENT
+                </span>
+
+                <h1>
+                    Applications
+                </h1>
+
+                <p>
+                    Review and manage submitted applications.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- FILTERS -->
+
+        <section class="filter-panel">
+
+            <form
+                method="GET"
+                action="{{ url_for('admin_applications') }}"
+            >
+
+                <div class="filter-grid">
+
+
+                    <div class="filter-field">
+
+                        <label>
+                            Search
+                        </label>
+
+                        <input
+                            type="search"
+                            name="search"
+                            value="{{ search }}"
+                            placeholder="Name, application number, phone..."
+                        >
+
+                    </div>
+
+
+                    <div class="filter-field">
+
+                        <label>
+                            Status
+                        </label>
+
+                        <select name="status">
+
+                            <option value="">
+                                All statuses
+                            </option>
+
+                            <option
+                                value="Pending"
+                                {% if selected_status == "Pending" %}
+                                selected
+                                {% endif %}
+                            >
+                                Pending
+                            </option>
+
+                            <option
+                                value="Under Review"
+                                {% if selected_status == "Under Review" %}
+                                selected
+                                {% endif %}
+                            >
+                                Under Review
+                            </option>
+
+                            <option
+                                value="Shortlisted"
+                                {% if selected_status == "Shortlisted" %}
+                                selected
+                                {% endif %}
+                            >
+                                Shortlisted
+                            </option>
+
+                            <option
+                                value="Approved"
+                                {% if selected_status == "Approved" %}
+                                selected
+                                {% endif %}
+                            >
+                                Approved
+                            </option>
+
+                            <option
+                                value="Rejected"
+                                {% if selected_status == "Rejected" %}
+                                selected
+                                {% endif %}
+                            >
+                                Rejected
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-field">
+
+                        <label>
+                            Position
+                        </label>
+
+                        <select name="position">
+
+                            <option value="">
+                                All positions
+                            </option>
+
+                            {% for position in positions %}
+
+                                <option
+                                    value="{{ position }}"
+                                    {% if selected_position == position %}
+                                    selected
+                                    {% endif %}
+                                >
+                                    {{ position }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter-actions">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Search
+                        </button>
+
+                        <a
+                            href="{{ url_for('admin_applications') }}"
+                            class="clear-filter"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- APPLICATION TABLE -->
+
+        <section class="admin-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        APPLICANT RECORDS
+                    </span>
+
+                    <h2>
+                        {{ applications|length }}
+                        Application{% if applications|length != 1 %}s{% endif %}
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            {% if applications %}
+
+                <div class="table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Application
+                                </th>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Contact
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Qualification
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for application in applications %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ application.application_number }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            {{ application.first_name }}
+                                            {{ application.last_name }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div>
+                                            {{ application.phone }}
+                                        </div>
+
+                                        {% if application.email %}
+
+                                            <small>
+                                                {{ application.email }}
+                                            </small>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+                                        {{ application.position_applied }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ application.highest_qualification
+                                        or "—" }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span
+                                            class="status status-{{ application.status|lower|replace(' ', '-') }}"
+                                        >
+                                            {{ application.status }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if application.submitted_at %}
+
+                                            {{ application.submitted_at.strftime(
+                                                "%d %b %Y"
+                                            ) }}
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin_application_details',
+                                                application_id=application.id
+                                            ) }}"
+                                            class="view-button"
+                                        >
+                                            View
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <div>—</div>
+
+                    <h3>
+                        No applications found
+                    </h3>
+
+                    <p>
+                        Try changing your search or filter criteria.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+{% endblock %}
