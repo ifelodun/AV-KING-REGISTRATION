@@ -2433,6 +2433,260 @@ def application_success(
         application_number=application_number
     )
 
+# ============================================================
+# APPLICANT LOGIN
+# ============================================================
+
+@app.route(
+    "/applicant/login",
+    methods=["GET", "POST"]
+)
+def applicant_login():
+
+    # ========================================================
+    # IF ALREADY LOGGED IN
+    # ========================================================
+
+    if session.get("application_id"):
+
+        return redirect(
+            url_for("applicant_portal")
+        )
+
+
+    # ========================================================
+    # DISPLAY LOGIN PAGE
+    # ========================================================
+
+    if request.method == "GET":
+
+        return render_template(
+            "applicant_login.html"
+        )
+
+
+    # ========================================================
+    # GET LOGIN DETAILS
+    # ========================================================
+
+    application_number = (
+        request.form.get(
+            "application_number",
+            ""
+        )
+        .strip()
+        .upper()
+    )
+
+    password = (
+        request.form.get(
+            "password",
+            ""
+        )
+    )
+
+
+    # ========================================================
+    # VALIDATION
+    # ========================================================
+
+    if not application_number:
+
+        flash(
+            "Please enter your application number.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html"
+        )
+
+
+    if not password:
+
+        flash(
+            "Please enter your password.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html"
+        )
+
+
+    # ========================================================
+    # DATABASE
+    # ========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+
+                    id,
+                    application_number,
+                    first_name,
+                    last_name,
+
+                    password_hash,
+                    portal_active,
+                    status
+
+                FROM applications
+
+                WHERE application_number = %s
+
+                LIMIT 1
+
+                """,
+                (
+                    application_number,
+                )
+            )
+
+            application = cur.fetchone()
+
+
+            # =================================================
+            # APPLICATION NOT FOUND
+            # =================================================
+
+            if not application:
+
+                flash(
+                    "Invalid application number or password.",
+                    "error"
+                )
+
+                return render_template(
+                    "applicant_login.html"
+                )
+
+
+            # =================================================
+            # PORTAL DISABLED
+            # =================================================
+
+            if not application["portal_active"]:
+
+                flash(
+                    "Your applicant portal has been disabled. "
+                    "Please contact recruitment.",
+                    "error"
+                )
+
+                return render_template(
+                    "applicant_login.html"
+                )
+
+
+            # =================================================
+            # PASSWORD NOT CREATED
+            # =================================================
+
+            if not application["password_hash"]:
+
+                flash(
+                    "Your applicant portal account has not "
+                    "been activated yet.",
+                    "error"
+                )
+
+                return render_template(
+                    "applicant_login.html"
+                )
+
+
+            # =================================================
+            # CHECK PASSWORD
+            # =================================================
+
+            if not check_password_hash(
+                application["password_hash"],
+                password
+            ):
+
+                flash(
+                    "Invalid application number or password.",
+                    "error"
+                )
+
+                return render_template(
+                    "applicant_login.html"
+                )
+
+
+            # =================================================
+            # UPDATE LAST LOGIN
+            # =================================================
+
+            cur.execute(
+                """
+                UPDATE applications
+
+                SET
+                    last_login = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    application["id"],
+                )
+            )
+
+
+        conn.commit()
+
+
+        # ====================================================
+        # CREATE APPLICANT SESSION
+        # ====================================================
+
+        session.clear()
+
+        session["application_id"] = (
+            application["id"]
+        )
+
+        session["applicant_logged_in"] = True
+
+        session["application_number"] = (
+            application["application_number"]
+        )
+
+
+        # ====================================================
+        # SUCCESS
+        # ====================================================
+
+        flash(
+            f"Welcome back, {application['first_name']}.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "applicant_portal"
+            )
+        )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        conn.close()
 
 # ============================================================
 # INITIALIZE DATABASE
