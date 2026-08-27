@@ -1,5 +1,6 @@
 import os
-
+import os
+import requests
 from datetime import datetime
 
 from flask import (
@@ -1303,6 +1304,114 @@ def admin_application_file(filename):
         filename,
         as_attachment=False
     )
+
+def send_shortlisted_whatsapp(application):
+
+    phone = (
+        application["phone"]
+        or ""
+    ).strip()
+
+    if not phone:
+        raise ValueError(
+            "Applicant has no phone number."
+        )
+
+
+    # --------------------------------------------------------
+    # COMPANY WHATSAPP NUMBER
+    # --------------------------------------------------------
+
+    company_whatsapp = os.getenv(
+        "COMPANY_WHATSAPP",
+        "2349058842501"
+    )
+
+
+    # --------------------------------------------------------
+    # MESSAGE
+    # --------------------------------------------------------
+
+    message = f"""
+Dear {application["first_name"]},
+
+Congratulations!
+
+We are pleased to inform you that you have been shortlisted for the next stage of the recruitment process at AV KING VET DRUG VENTURE.
+
+Application Number:
+{application["application_number"]}
+
+Position:
+{application["position_applied"]}
+
+Please monitor your applicant portal for further information regarding the interview.
+
+For enquiries, please contact us on WhatsApp:
++{company_whatsapp}
+
+Thank you.
+
+AV KING VET DRUG VENTURE
+Your Needs, Our Priority
+""".strip()
+
+
+    # --------------------------------------------------------
+    # TEMPORARY DEVELOPMENT MODE
+    # --------------------------------------------------------
+
+    app.logger.info(
+        "SHORTLISTED WHATSAPP MESSAGE:\n%s",
+        message
+    )
+
+    return True
+
+@app.route("/applicant/dashboard")
+def applicant_dashboard():
+
+    if not session.get("applicant_id"):
+        return redirect(url_for("applicant_login"))
+
+    applicant_id = session["applicant_id"]
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT *
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            application = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+
+    if not application:
+
+        session.clear()
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    return render_template(
+        "applicant_dashboard.html",
+        application=application
+    )
 # ============================================================
 # UPDATE APPLICATION STATUS
 # ============================================================
@@ -1317,10 +1426,7 @@ def update_application_status(application_id):
         return redirect(url_for("admin_login"))
 
     new_status = (
-        request.form.get(
-            "status",
-            ""
-        )
+        request.form.get("status", "")
         .strip()
     )
 
@@ -1354,36 +1460,120 @@ def update_application_status(application_id):
 
             cur.execute(
                 """
-                UPDATE applications
-
-                SET
-                    status = %s,
-                    updated_at = CURRENT_TIMESTAMP
-
+                SELECT
+                    id,
+                    first_name,
+                    last_name,
+                    phone,
+                    application_number,
+                    position_applied,
+                    status
+                FROM applications
                 WHERE id = %s
+                LIMIT 1
                 """,
-                (
-                    new_status,
-                    application_id
-                )
+                (application_id,)
             )
+
+            application = cur.fetchone()
+
+            if not application:
+
+                flash(
+                    "Application not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_applications")
+                )
+
+
+            if new_status == "Shortlisted":
+
+                cur.execute(
+                    """
+                    UPDATE applications
+
+                    SET
+                        status = %s,
+                        shortlisted_at =
+                            COALESCE(
+                                shortlisted_at,
+                                CURRENT_TIMESTAMP
+                            ),
+                        updated_at =
+                            CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (
+                        new_status,
+                        application_id
+                    )
+                )
+
+            else:
+
+                cur.execute(
+                    """
+                    UPDATE applications
+
+                    SET
+                        status = %s,
+                        updated_at =
+                            CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (
+                        new_status,
+                        application_id
+                    )
+                )
 
         conn.commit()
 
     except Exception:
 
         conn.rollback()
-
         raise
 
     finally:
 
         conn.close()
 
+
     flash(
         "Application status updated successfully.",
         "success"
     )
+
+
+    # --------------------------------------------------------
+    # SHORTLISTED NOTIFICATION
+    # --------------------------------------------------------
+
+    if new_status == "Shortlisted":
+
+        try:
+
+            send_shortlisted_whatsapp(
+                application
+            )
+
+        except Exception as e:
+
+            app.logger.error(
+                "WhatsApp notification failed: %s",
+                e
+            )
+
+            flash(
+                "Applicant was shortlisted, but the WhatsApp notification could not be sent.",
+                "error"
+            )
+
 
     return redirect(
         url_for(
@@ -1391,7 +1581,6 @@ def update_application_status(application_id):
             application_id=application_id
         )
     )
-
 
 # ============================================================
 # ADMIN DASHBOARD
