@@ -48,10 +48,10 @@ Dashboard | {{ company_name }}
             </a>
 
 
-            <a href="#">
-                <span>☷</span>
-                Applications
-            </a>
+            <a href="{{ url_for('admin_applications') }}">
+    <span>☷</span>
+    Applications
+</a>
 
 
             <a href="#">
@@ -305,13 +305,12 @@ Dashboard | {{ company_name }}
 
                 </div>
 
-                <a
-                    href="#"
-                    class="panel-link"
-                >
-                    View All
-                </a>
-
+               <a
+    href="{{ url_for('admin_applications') }}"
+    class="panel-link"
+>
+    View All
+</a>
             </div>
 
 
