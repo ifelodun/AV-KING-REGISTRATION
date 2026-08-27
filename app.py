@@ -2181,13 +2181,16 @@ def admin_dashboard():
 # ============================================================
 # APPLICANT PORTAL
 # ============================================================
+# ============================================================
+# APPLICANT PORTAL
+# ============================================================
 
 @app.route("/applicant/portal")
 def applicant_portal():
 
-    # --------------------------------------------------------
-    # CHECK APPLICANT LOGIN
-    # --------------------------------------------------------
+    # ========================================================
+    # SECURITY CHECK
+    # ========================================================
 
     application_id = session.get("application_id")
 
@@ -2203,15 +2206,19 @@ def applicant_portal():
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # DATABASE
-    # --------------------------------------------------------
+    # ========================================================
 
     conn = get_db()
 
     try:
 
         with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET APPLICATION
+            # ------------------------------------------------
 
             cur.execute(
                 """
@@ -2258,12 +2265,10 @@ def applicant_portal():
 
                     shortlisted_at,
 
-                    notification_sent,
-                    notification_sent_at,
-
                     interview_date,
                     interview_location,
-                    interview_notes
+                    interview_notes,
+                    interview_status
 
                 FROM applications
 
@@ -2277,40 +2282,95 @@ def applicant_portal():
             application = cur.fetchone()
 
 
+            # ------------------------------------------------
+            # APPLICATION NOT FOUND
+            # ------------------------------------------------
+
+            if not application:
+
+                session.clear()
+
+                flash(
+                    "Your application could not be found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # GET APPLICANT MESSAGES
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    subject,
+                    message,
+                    message_type,
+                    is_read,
+                    created_at
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                ORDER BY created_at DESC
+                """,
+                (application_id,)
+            )
+
+            messages = cur.fetchall()
+
+
+            # ------------------------------------------------
+            # UNREAD MESSAGE COUNT
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS unread_count
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                AND is_read = FALSE
+                """,
+                (application_id,)
+            )
+
+            unread_row = cur.fetchone()
+
+            unread_count = (
+                unread_row["unread_count"]
+                if unread_row
+                else 0
+            )
+
+
     finally:
 
         conn.close()
 
 
-    # --------------------------------------------------------
-    # APPLICATION NOT FOUND
-    # --------------------------------------------------------
-
-    if not application:
-
-        session.pop(
-            "application_id",
-            None
-        )
-
-        flash(
-            "Your application could not be found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("applicant_login")
-        )
-
-
-    # --------------------------------------------------------
-    # DISPLAY PORTAL
-    # --------------------------------------------------------
+    # ========================================================
+    # PORTAL
+    # ========================================================
 
     return render_template(
         "applicant_portal.html",
-        application=application
+
+        application=application,
+
+        messages=messages,
+
+        unread_count=unread_count
     )
+
 # ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
 # ============================================================
