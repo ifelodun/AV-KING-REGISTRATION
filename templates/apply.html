@@ -1,0 +1,741 @@
+{% extends "base.html" %}
+
+{% block title %}
+Job Application | {{ company_name }}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="application-page">
+
+    <div class="application-header">
+
+        <span>
+            CAREER APPLICATION
+        </span>
+
+        <h2>
+            Submit Your Application
+        </h2>
+
+        <p>
+            Please provide accurate information below.
+            Your application will be carefully reviewed by
+            our recruitment team.
+        </p>
+
+    </div>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            {% for category, message in messages %}
+
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        class="application-form"
+    >
+
+
+        <!-- =================================================
+             SECTION 1
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    01
+                </span>
+
+                <div>
+
+                    <h3>
+                        Personal Information
+                    </h3>
+
+                    <p>
+                        Tell us about yourself.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        First Name
+                        <required>*</required>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="first_name"
+                        placeholder="Enter your first name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Middle Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="middle_name"
+                        placeholder="Enter your middle name"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Last Name
+                        <required>*</required>
+                    </label>
+
+                    <input
+                        type="text"
+                        name="last_name"
+                        placeholder="Enter your last name"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Gender
+                    </label>
+
+                    <select name="gender">
+
+                        <option value="">
+                            Select gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Date of Birth
+                    </label>
+
+                    <input
+                        type="date"
+                        name="date_of_birth"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 2
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    02
+                </span>
+
+                <div>
+
+                    <h3>
+                        Contact Information
+                    </h3>
+
+                    <p>
+                        How can we reach you?
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Phone Number
+                        <required>*</required>
+                    </label>
+
+                    <input
+                        type="tel"
+                        name="phone"
+                        placeholder="e.g. 08012345678"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="example@email.com"
+                    >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                    <label>
+                        Residential Address
+                    </label>
+
+                    <textarea
+                        name="address"
+                        rows="3"
+                        placeholder="Enter your full residential address"
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        State
+                    </label>
+
+                    <input
+                        type="text"
+                        name="state"
+                        placeholder="State"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Local Government Area
+                    </label>
+
+                    <input
+                        type="text"
+                        name="lga"
+                        placeholder="LGA"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 3
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    03
+                </span>
+
+                <div>
+
+                    <h3>
+                        Position Applied For
+                    </h3>
+
+                    <p>
+                        Select the position you are interested in.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Position
+                    <required>*</required>
+                </label>
+
+                <select
+                    name="position_applied"
+                    required
+                >
+
+                    <option value="">
+                        Select a position
+                    </option>
+
+                    {% for position in positions %}
+
+                        <option value="{{ position }}">
+                            {{ position }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 4
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    04
+                </span>
+
+                <div>
+
+                    <h3>
+                        Education
+                    </h3>
+
+                    <p>
+                        Provide your highest educational qualification.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Highest Qualification
+                    </label>
+
+                    <input
+                        type="text"
+                        name="highest_qualification"
+                        placeholder="e.g. B.Sc, OND, HND, SSCE"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Course / Field of Study
+                    </label>
+
+                    <input
+                        type="text"
+                        name="course_of_study"
+                        placeholder="e.g. Animal Science"
+                    >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                    <label>
+                        Institution
+                    </label>
+
+                    <input
+                        type="text"
+                        name="institution"
+                        placeholder="Name of institution"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Graduation Year
+                    </label>
+
+                    <input
+                        type="text"
+                        name="graduation_year"
+                        placeholder="e.g. 2024"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 5
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    05
+                </span>
+
+                <div>
+
+                    <h3>
+                        Work Experience
+                    </h3>
+
+                    <p>
+                        Tell us about your previous experience.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label>
+                        Previous Employer
+                    </label>
+
+                    <input
+                        type="text"
+                        name="previous_employer"
+                        placeholder="Company / organization"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Previous Position
+                    </label>
+
+                    <input
+                        type="text"
+                        name="previous_position"
+                        placeholder="Position held"
+                    >
+
+                </div>
+
+
+                <div class="form-group form-group-full">
+
+                    <label>
+                        Work Experience
+                    </label>
+
+                    <textarea
+                        name="work_experience"
+                        rows="6"
+                        placeholder="Briefly describe your previous work experience..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 6
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    06
+                </span>
+
+                <div>
+
+                    <h3>
+                        Supporting Information
+                    </h3>
+
+                    <p>
+                        Help us understand your interest in this position.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Why do you want to work with us?
+                </label>
+
+                <textarea
+                    name="reason_for_applying"
+                    rows="6"
+                    placeholder="Tell us why you are interested in this opportunity..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Additional Information
+                </label>
+
+                <textarea
+                    name="additional_information"
+                    rows="5"
+                    placeholder="Anything else you would like us to know?"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 7
+             ================================================= -->
+
+        <div class="form-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    07
+                </span>
+
+                <div>
+
+                    <h3>
+                        Documents
+                    </h3>
+
+                    <p>
+                        Upload the required supporting documents.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="upload-grid">
+
+
+                <div class="upload-box">
+
+                    <label>
+                        Passport Photograph
+                        <required>*</required>
+                    </label>
+
+                    <p>
+                        JPG, JPEG, PNG or WEBP
+                    </p>
+
+                    <input
+                        type="file"
+                        name="passport"
+                        accept=".jpg,.jpeg,.png,.webp"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="upload-box">
+
+                    <label>
+                        Curriculum Vitae
+                    </label>
+
+                    <p>
+                        PDF, DOC or DOCX
+                    </p>
+
+                    <input
+                        type="file"
+                        name="cv"
+                        accept=".pdf,.doc,.docx"
+                    >
+
+                </div>
+
+
+                <div class="upload-box">
+
+                    <label>
+                        Qualification / Result
+                    </label>
+
+                    <p>
+                        PDF, DOC or DOCX
+                    </p>
+
+                    <input
+                        type="file"
+                        name="qualification"
+                        accept=".pdf,.doc,.docx"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             SECTION 8
+             ================================================= -->
+
+        <div class="form-section declaration-section">
+
+            <div class="form-section-heading">
+
+                <span>
+                    08
+                </span>
+
+                <div>
+
+                    <h3>
+                        Declaration
+                    </h3>
+
+                </div>
+
+            </div>
+
+
+            <label class="declaration">
+
+                <input
+                    type="checkbox"
+                    name="declaration"
+                    value="accepted"
+                    required
+                >
+
+                <span>
+
+                    I declare that the information provided in
+                    this application is true and accurate to the
+                    best of my knowledge. I understand that any
+                    false or misleading information may result
+                    in my application being disqualified.
+
+                </span>
+
+            </label>
+
+        </div>
+
+
+        <!-- =================================================
+             SUBMIT
+             ================================================= -->
+
+        <div class="submit-area">
+
+            <p>
+                Please review your information carefully
+                before submitting your application.
+            </p>
+
+            <button
+                type="submit"
+                class="btn btn-primary submit-button"
+            >
+                Submit Application
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+{% endblock %}
