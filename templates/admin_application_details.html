@@ -1,0 +1,748 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ application.first_name }}
+{{ application.last_name }}
+| Application
+{% endblock %}
+
+
+{% block content %}
+
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+                AV
+            </div>
+
+            <div>
+                <strong>AV KING</strong>
+                <small>RECRUITMENT</small>
+            </div>
+
+        </div>
+
+
+        <nav class="admin-nav">
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                <span>▣</span>
+                Dashboard
+            </a>
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="active"
+            >
+                <span>☷</span>
+                Applications
+            </a>
+
+            <a href="#">
+                <span>◷</span>
+                Interviews
+            </a>
+
+            <a href="#">
+                <span>▤</span>
+                Reports
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="#">
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="admin-user">
+
+                <div class="user-avatar">
+                    {{ session.get("admin_name", "A")[0]|upper }}
+                </div>
+
+                <div>
+
+                    <strong>
+                        {{ session.get("admin_name") }}
+                    </strong>
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
+
+            </div>
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="logout-link"
+            >
+                Sign Out
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <div class="details-topbar">
+
+            <div>
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    class="back-link"
+                >
+                    ← Back to Applications
+                </a>
+
+                <span class="page-label">
+                    APPLICATION PROFILE
+                </span>
+
+                <h1>
+
+                    {{ application.first_name }}
+
+                    {% if application.middle_name %}
+                        {{ application.middle_name }}
+                    {% endif %}
+
+                    {{ application.last_name }}
+
+                </h1>
+
+                <p>
+                    {{ application.application_number }}
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <span
+                    class="status status-{{ application.status|lower|replace(' ', '-') }}"
+                >
+                    {{ application.status }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="details-grid">
+
+
+            <!-- =============================================
+                 LEFT
+                 ============================================= -->
+
+            <div class="details-main">
+
+
+                <!-- PERSONAL -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            PERSONAL INFORMATION
+                        </span>
+
+                        <h2>
+                            Applicant Details
+                        </h2>
+
+                    </div>
+
+
+                    <div class="details-info-grid">
+
+                        <div>
+                            <label>Full Name</label>
+
+                            <strong>
+
+                                {{ application.first_name }}
+
+                                {% if application.middle_name %}
+                                    {{ application.middle_name }}
+                                {% endif %}
+
+                                {{ application.last_name }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+                            <label>Gender</label>
+
+                            <strong>
+                                {{ application.gender or "—" }}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <label>Date of Birth</label>
+
+                            <strong>
+                                {{ application.date_of_birth or "—" }}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <label>Phone</label>
+
+                            <strong>
+                                {{ application.phone }}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <label>Email</label>
+
+                            <strong>
+                                {{ application.email or "—" }}
+                            </strong>
+                        </div>
+
+
+                        <div class="full-width">
+                            <label>Address</label>
+
+                            <strong>
+                                {{ application.address or "—" }}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <label>State</label>
+
+                            <strong>
+                                {{ application.state or "—" }}
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <label>LGA</label>
+
+                            <strong>
+                                {{ application.lga or "—" }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- EDUCATION -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            EDUCATION
+                        </span>
+
+                        <h2>
+                            Academic Background
+                        </h2>
+
+                    </div>
+
+
+                    <div class="details-info-grid">
+
+                        <div>
+
+                            <label>
+                                Highest Qualification
+                            </label>
+
+                            <strong>
+                                {{ application.highest_qualification
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Course / Field
+                            </label>
+
+                            <strong>
+                                {{ application.course_of_study
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="full-width">
+
+                            <label>
+                                Institution
+                            </label>
+
+                            <strong>
+                                {{ application.institution
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Graduation Year
+                            </label>
+
+                            <strong>
+                                {{ application.graduation_year
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- EXPERIENCE -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            EXPERIENCE
+                        </span>
+
+                        <h2>
+                            Work History
+                        </h2>
+
+                    </div>
+
+
+                    <div class="details-info-grid">
+
+                        <div>
+
+                            <label>
+                                Previous Employer
+                            </label>
+
+                            <strong>
+                                {{ application.previous_employer
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Previous Position
+                            </label>
+
+                            <strong>
+                                {{ application.previous_position
+                                or "—" }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="full-width">
+
+                            <label>
+                                Work Experience
+                            </label>
+
+                            <div class="text-content">
+
+                                {{ application.work_experience
+                                or "No experience provided." }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- MOTIVATION -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            APPLICATION
+                        </span>
+
+                        <h2>
+                            Applicant Responses
+                        </h2>
+
+                    </div>
+
+
+                    <div class="response-block">
+
+                        <label>
+                            Why do you want to work with us?
+                        </label>
+
+                        <p>
+                            {{ application.reason_for_applying
+                            or "No response provided." }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="response-block">
+
+                        <label>
+                            Additional Information
+                        </label>
+
+                        <p>
+                            {{ application.additional_information
+                            or "No additional information provided." }}
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+            </div>
+
+
+            <!-- =============================================
+                 RIGHT SIDEBAR
+                 ============================================= -->
+
+            <aside class="details-sidebar">
+
+
+                <!-- PASSPORT -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            APPLICANT
+                        </span>
+
+                        <h2>
+                            Passport
+                        </h2>
+
+                    </div>
+
+
+                    {% if application.passport_filename %}
+
+                        <img
+                            src="{{ url_for(
+                                'admin_application_file',
+                                filename=application.passport_filename
+                            ) }}"
+                            class="passport-preview"
+                            alt="Applicant passport"
+                        >
+
+                    {% else %}
+
+                        <div class="document-empty">
+                            No passport uploaded.
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- DOCUMENTS -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            DOCUMENTS
+                        </span>
+
+                        <h2>
+                            Attachments
+                        </h2>
+
+                    </div>
+
+
+                    {% if application.cv_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                filename=application.cv_filename
+                            ) }}"
+                            class="document-link"
+                        >
+                            <span>CV</span>
+                            <strong>Download</strong>
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if application.qualification_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                filename=application.qualification_filename
+                            ) }}"
+                            class="document-link"
+                        >
+                            <span>
+                                Qualification / Result
+                            </span>
+
+                            <strong>
+                                Download
+                            </strong>
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if not application.cv_filename
+                        and not application.qualification_filename %}
+
+                        <div class="document-empty">
+                            No additional documents uploaded.
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- STATUS -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            RECRUITMENT
+                        </span>
+
+                        <h2>
+                            Application Status
+                        </h2>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'update_application_status',
+                            application_id=application.id
+                        ) }}"
+                    >
+
+                        <select
+                            name="status"
+                            class="status-select"
+                        >
+
+                            <option
+                                value="Pending"
+                                {% if application.status == "Pending" %}
+                                selected
+                                {% endif %}
+                            >
+                                Pending
+                            </option>
+
+                            <option
+                                value="Under Review"
+                                {% if application.status == "Under Review" %}
+                                selected
+                                {% endif %}
+                            >
+                                Under Review
+                            </option>
+
+                            <option
+                                value="Shortlisted"
+                                {% if application.status == "Shortlisted" %}
+                                selected
+                                {% endif %}
+                            >
+                                Shortlisted
+                            </option>
+
+                            <option
+                                value="Approved"
+                                {% if application.status == "Approved" %}
+                                selected
+                                {% endif %}
+                            >
+                                Approved
+                            </option>
+
+                            <option
+                                value="Rejected"
+                                {% if application.status == "Rejected" %}
+                                selected
+                                {% endif %}
+                            >
+                                Rejected
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary details-button"
+                        >
+                            Update Status
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <!-- NOTES -->
+
+                <section class="details-card">
+
+                    <div class="details-card-heading">
+
+                        <span>
+                            INTERNAL
+                        </span>
+
+                        <h2>
+                            Recruitment Notes
+                        </h2>
+
+                    </div>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'update_application_notes',
+                            application_id=application.id
+                        ) }}"
+                    >
+
+                        <textarea
+                            name="admin_notes"
+                            class="notes-textarea"
+                            rows="7"
+                            placeholder="Add internal recruitment notes..."
+                        >{{ application.admin_notes or "" }}</textarea>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary details-button"
+                        >
+                            Save Notes
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+                <!-- SUBMISSION -->
+
+                <section class="details-card metadata-card">
+
+                    <div>
+
+                        <label>
+                            Submitted
+                        </label>
+
+                        <strong>
+                            {{ application.submitted_at.strftime(
+                                "%d %B %Y, %I:%M %p"
+                            ) }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            Last Updated
+                        </label>
+
+                        <strong>
+                            {{ application.updated_at.strftime(
+                                "%d %B %Y, %I:%M %p"
+                            ) }}
+                        </strong>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+</div>
+
+{% endblock %}
