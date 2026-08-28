@@ -1632,17 +1632,17 @@ def admin_required():
 @app.route("/admin/applications")
 def admin_applications():
 
-    # =========================================================
-    # ADMIN ACCESS
-    # =========================================================
+    # ============================================================
+    # ADMIN LOGIN CHECK
+    # ============================================================
 
     if not admin_required():
         return redirect(url_for("admin_login"))
 
 
-    # =========================================================
+    # ============================================================
     # FILTERS
-    # =========================================================
+    # ============================================================
 
     search = request.args.get(
         "search",
@@ -1660,43 +1660,54 @@ def admin_applications():
     ).strip()
 
 
+    # ============================================================
+    # DATABASE CONNECTION
+    # ============================================================
+
     conn = get_db()
 
     try:
 
         with conn.cursor() as cur:
 
-            # =================================================
-            # APPLICATIONS
-            # =================================================
+            # ====================================================
+            # APPLICATION QUERY
+            # ====================================================
 
             query = """
                 SELECT
                     id,
                     application_number,
+
                     first_name,
                     middle_name,
                     last_name,
+
                     phone,
                     email,
+
                     position_applied,
                     highest_qualification,
+
                     status,
-                    submitted_at,
-                    created_at,
+
                     passport_filename,
                     cv_filename,
-                    qualification_filename
+                    qualification_filename,
+
+                    submitted_at
+
                 FROM applications
-                WHERE 1 = 1
+
+                WHERE 1=1
             """
 
             params = []
 
 
-            # =================================================
+            # ====================================================
             # SEARCH
-            # =================================================
+            # ====================================================
 
             if search:
 
@@ -1708,7 +1719,6 @@ def admin_applications():
                         OR last_name ILIKE %s
                         OR phone ILIKE %s
                         OR email ILIKE %s
-                        OR position_applied ILIKE %s
                     )
                 """
 
@@ -1720,14 +1730,13 @@ def admin_applications():
                     search_value,
                     search_value,
                     search_value,
-                    search_value,
                     search_value
                 ])
 
 
-            # =================================================
+            # ====================================================
             # STATUS FILTER
-            # =================================================
+            # ====================================================
 
             if status:
 
@@ -1738,29 +1747,35 @@ def admin_applications():
                 params.append(status)
 
 
-            # =================================================
+            # ====================================================
             # POSITION FILTER
-            # =================================================
+            # ====================================================
 
             if position:
 
                 query += """
-                    AND position_applied = %s
+                    AND position_applied ILIKE %s
                 """
 
-                params.append(position)
+                params.append(
+                    f"%{position}%"
+                )
 
 
-            # =================================================
-            # ORDER
-            # =================================================
+            # ====================================================
+            # ORDER BY APPLICATION DATE
+            # ====================================================
 
             query += """
                 ORDER BY
-                    COALESCE(submitted_at, created_at) DESC,
+                    submitted_at DESC NULLS LAST,
                     id DESC
             """
 
+
+            # ====================================================
+            # EXECUTE
+            # ====================================================
 
             cur.execute(
                 query,
@@ -1770,9 +1785,9 @@ def admin_applications():
             applications = cur.fetchall()
 
 
-            # =================================================
-            # APPLICATION STATISTICS
-            # =================================================
+            # ====================================================
+            # SUMMARY COUNTS
+            # ====================================================
 
             cur.execute(
                 """
@@ -1784,40 +1799,35 @@ def admin_applications():
                     ) AS pending,
 
                     COUNT(*) FILTER (
+                        WHERE status = 'Under Review'
+                    ) AS under_review,
+
+                    COUNT(*) FILTER (
+                        WHERE status = 'Shortlisted'
+                    ) AS shortlisted,
+
+                    COUNT(*) FILTER (
                         WHERE status = 'Approved'
                     ) AS approved,
 
                     COUNT(*) FILTER (
                         WHERE status = 'Rejected'
-                    ) AS rejected,
-
-                    COUNT(*) FILTER (
-                        WHERE status = 'Interview'
-                    ) AS interview
+                    ) AS rejected
 
                 FROM applications
                 """
             )
 
-            statistics = cur.fetchone()
+            summary = cur.fetchone()
 
 
-            # =================================================
-            # AVAILABLE POSITIONS
-            # =================================================
+    except Exception:
 
-            cur.execute(
-                """
-                SELECT DISTINCT
-                    position_applied
-                FROM applications
-                WHERE position_applied IS NOT NULL
-                  AND TRIM(position_applied) <> ''
-                ORDER BY position_applied ASC
-                """
-            )
+        app.logger.exception(
+            "Error loading admin applications"
+        )
 
-            positions = cur.fetchall()
+        raise
 
 
     finally:
@@ -1825,25 +1835,68 @@ def admin_applications():
         conn.close()
 
 
-    # =========================================================
+    # ============================================================
+    # SUMMARY VALUES
+    # ============================================================
+
+    total = (
+        summary["total"]
+        if summary
+        else 0
+    )
+
+    pending = (
+        summary["pending"]
+        if summary
+        else 0
+    )
+
+    under_review = (
+        summary["under_review"]
+        if summary
+        else 0
+    )
+
+    shortlisted = (
+        summary["shortlisted"]
+        if summary
+        else 0
+    )
+
+    approved = (
+        summary["approved"]
+        if summary
+        else 0
+    )
+
+    rejected = (
+        summary["rejected"]
+        if summary
+        else 0
+    )
+
+
+    # ============================================================
     # RENDER
-    # =========================================================
+    # ============================================================
 
     return render_template(
         "admin_applications.html",
 
         applications=applications,
 
+        total=total,
+        pending=pending,
+        under_review=under_review,
+        shortlisted=shortlisted,
+        approved=approved,
+        rejected=rejected,
+
         search=search,
-
         selected_status=status,
-
-        selected_position=position,
-
-        statistics=statistics,
-
-        positions=positions
+        selected_position=position
     )
+```
 
 
 # ============================================================
