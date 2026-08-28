@@ -432,7 +432,6 @@ def apply():
     application_status = "Closed"
     application_deadline = None
 
-
     if settings:
 
         application_status = (
@@ -488,10 +487,7 @@ def apply():
                 deadline_date = application_deadline
 
 
-            today = datetime.now().date()
-
-
-            if today > deadline_date:
+            if datetime.now().date() > deadline_date:
 
                 return render_template(
                     "applications_closed.html"
@@ -546,6 +542,7 @@ def apply():
 
             conn.close()
 
+
         return render_template(
             "apply.html",
             positions=positions
@@ -556,190 +553,145 @@ def apply():
     # POST APPLICATION
     # ========================================================
 
-    first_name = (
-        request.form.get(
-            "first_name",
-            ""
-        ).strip()
-    )
+    first_name = request.form.get(
+        "first_name",
+        ""
+    ).strip()
 
-    middle_name = (
-        request.form.get(
-            "middle_name",
-            ""
-        ).strip()
-    )
+    middle_name = request.form.get(
+        "middle_name",
+        ""
+    ).strip()
 
-    last_name = (
-        request.form.get(
-            "last_name",
-            ""
-        ).strip()
-    )
+    last_name = request.form.get(
+        "last_name",
+        ""
+    ).strip()
 
-    gender = (
-        request.form.get(
-            "gender",
-            ""
-        ).strip()
-    )
+    gender = request.form.get(
+        "gender",
+        ""
+    ).strip()
 
-    date_of_birth = (
-        request.form.get(
-            "date_of_birth",
-            ""
-        ).strip()
-    )
+    date_of_birth = request.form.get(
+        "date_of_birth",
+        ""
+    ).strip()
 
 
     # ========================================================
     # CONTACT INFORMATION
     # ========================================================
 
-    phone = (
-        request.form.get(
-            "phone",
-            ""
-        ).strip()
-    )
+    phone = request.form.get(
+        "phone",
+        ""
+    ).strip()
 
-    email = (
-        request.form.get(
-            "email",
-            ""
-        ).strip()
-        .lower()
-    )
+    email = request.form.get(
+        "email",
+        ""
+    ).strip().lower()
 
-    address = (
-        request.form.get(
-            "address",
-            ""
-        ).strip()
-    )
+    address = request.form.get(
+        "address",
+        ""
+    ).strip()
 
-    state = (
-        request.form.get(
-            "state",
-            ""
-        ).strip()
-    )
+    state = request.form.get(
+        "state",
+        ""
+    ).strip()
 
-    lga = (
-        request.form.get(
-            "lga",
-            ""
-        ).strip()
-    )
+    lga = request.form.get(
+        "lga",
+        ""
+    ).strip()
 
 
     # ========================================================
     # APPLICATION INFORMATION
     # ========================================================
 
-    position_applied = (
-        request.form.get(
-            "position_applied",
-            ""
-        ).strip()
-    )
+    position_applied = request.form.get(
+        "position_applied",
+        ""
+    ).strip()
 
 
     # ========================================================
     # EDUCATION
     # ========================================================
 
-    highest_qualification = (
-        request.form.get(
-            "highest_qualification",
-            ""
-        ).strip()
-    )
+    highest_qualification = request.form.get(
+        "highest_qualification",
+        ""
+    ).strip()
 
-    course_of_study = (
-        request.form.get(
-            "course_of_study",
-            ""
-        ).strip()
-    )
+    course_of_study = request.form.get(
+        "course_of_study",
+        ""
+    ).strip()
 
-    institution = (
-        request.form.get(
-            "institution",
-            ""
-        ).strip()
-    )
+    institution = request.form.get(
+        "institution",
+        ""
+    ).strip()
 
-    graduation_year = (
-        request.form.get(
-            "graduation_year",
-            ""
-        ).strip()
-    )
+    graduation_year = request.form.get(
+        "graduation_year",
+        ""
+    ).strip()
 
 
     # ========================================================
     # WORK EXPERIENCE
     # ========================================================
 
-    work_experience = (
-        request.form.get(
-            "work_experience",
-            ""
-        ).strip()
-    )
+    work_experience = request.form.get(
+        "work_experience",
+        ""
+    ).strip()
 
-    previous_employer = (
-        request.form.get(
-            "previous_employer",
-            ""
-        ).strip()
-    )
+    previous_employer = request.form.get(
+        "previous_employer",
+        ""
+    ).strip()
 
-    previous_position = (
-        request.form.get(
-            "previous_position",
-            ""
-        ).strip()
-    )
+    previous_position = request.form.get(
+        "previous_position",
+        ""
+    ).strip()
 
 
     # ========================================================
     # ADDITIONAL INFORMATION
     # ========================================================
 
-    reason_for_applying = (
-        request.form.get(
-            "reason_for_applying",
-            ""
-        ).strip()
-    )
+    reason_for_applying = request.form.get(
+        "reason_for_applying",
+        ""
+    ).strip()
 
-    additional_information = (
-        request.form.get(
-            "additional_information",
-            ""
-        ).strip()
-    )
+    additional_information = request.form.get(
+        "additional_information",
+        ""
+    ).strip()
 
 
     # ========================================================
     # APPLICANT PORTAL PASSWORD
     # ========================================================
 
-    portal_password = (
-        request.form.get(
-            "portal_password",
-            ""
-        ).strip()
-    )
+    portal_password = request.form.get(
+        "portal_password",
+        ""
+    ).strip()
 
-    confirm_portal_password = (
-        request.form.get(
-            "confirm_portal_password",
-            ""
-        ).strip()
-    )
+    confirm_portal_password = request.form.get(
+        "confirm_portal_password",
+        ""
+    ).strip()
 
 
     # ========================================================
@@ -769,7 +721,7 @@ def apply():
 
 
     # ========================================================
-    # VALIDATION
+    # BASIC VALIDATION
     # ========================================================
 
     if not first_name:
@@ -820,6 +772,10 @@ def apply():
         )
 
 
+    # ========================================================
+    # PASSWORD VALIDATION
+    # ========================================================
+
     if not portal_password:
 
         flash(
@@ -855,6 +811,10 @@ def apply():
             "apply.html"
         )
 
+
+    # ========================================================
+    # DECLARATION VALIDATION
+    # ========================================================
 
     if not declaration:
 
@@ -902,61 +862,45 @@ def apply():
     # ========================================================
     # CV VALIDATION
     # ========================================================
-    # ========================================================
-    # SAVE CV
-    # ========================================================
-    
+
     if cv and cv.filename:
-    
-        original = secure_filename(
-            cv.filename
-        )
-    
-        cv_filename = (
-            f"{application_number}_cv_{original}"
-        )
-    
-        cv_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            cv_filename
-        )
-    
-        cv.save(cv_path)
-    
-        app.logger.info(
-            "CV SAVED SUCCESSFULLY: %s",
-            cv_path
-        )
+
+        if not allowed_file(
+            cv.filename,
+            ALLOWED_DOCUMENT_EXTENSIONS
+        ):
+
+            flash(
+                "CV must be PDF, DOC or DOCX.",
+                "error"
+            )
+
+            return render_template(
+                "apply.html"
+            )
+
+
     # ========================================================
     # QUALIFICATION VALIDATION
     # ========================================================
-    # ========================================================
-    # SAVE QUALIFICATION
-    # ========================================================
-    
+
     if qualification and qualification.filename:
-    
-        original = secure_filename(
-            qualification.filename
-        )
-    
-        qualification_filename = (
-            f"{application_number}_qualification_{original}"
-        )
-    
-        qualification_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            qualification_filename
-        )
-    
-        qualification.save(
-            qualification_path
-        )
-    
-        app.logger.info(
-            "QUALIFICATION SAVED SUCCESSFULLY: %s",
-            qualification_path
-        )
+
+        if not allowed_file(
+            qualification.filename,
+            ALLOWED_DOCUMENT_EXTENSIONS
+        ):
+
+            flash(
+                "Qualification document must be PDF, DOC or DOCX.",
+                "error"
+            )
+
+            return render_template(
+                "apply.html"
+            )
+
+
     # ========================================================
     # DATABASE CONNECTION
     # ========================================================
@@ -985,10 +929,6 @@ def apply():
             current_settings = cur.fetchone()
 
 
-            # ==================================================
-            # SETTINGS MUST EXIST
-            # ==================================================
-
             if not current_settings:
 
                 conn.rollback()
@@ -999,7 +939,7 @@ def apply():
 
 
             # ==================================================
-            # CHECK CURRENT STATUS
+            # FINAL STATUS CHECK
             # ==================================================
 
             current_status = (
@@ -1018,7 +958,7 @@ def apply():
 
 
             # ==================================================
-            # CHECK CURRENT DEADLINE
+            # FINAL DEADLINE CHECK
             # ==================================================
 
             current_deadline = (
@@ -1028,50 +968,35 @@ def apply():
 
             if current_deadline:
 
-                try:
+                if hasattr(
+                    current_deadline,
+                    "date"
+                ):
 
-                    if hasattr(
-                        current_deadline,
-                        "date"
-                    ):
-
-                        current_deadline_date = (
-                            current_deadline.date()
-                        )
-
-                    elif isinstance(
-                        current_deadline,
-                        str
-                    ):
-
-                        current_deadline_date = (
-                            datetime.strptime(
-                                current_deadline,
-                                "%Y-%m-%d"
-                            ).date()
-                        )
-
-                    else:
-
-                        current_deadline_date = (
-                            current_deadline
-                        )
-
-
-                    if datetime.now().date() > current_deadline_date:
-
-                        conn.rollback()
-
-                        return render_template(
-                            "applications_closed.html"
-                        ), 403
-
-
-                except Exception:
-
-                    app.logger.exception(
-                        "Error checking current application deadline"
+                    current_deadline_date = (
+                        current_deadline.date()
                     )
+
+                elif isinstance(
+                    current_deadline,
+                    str
+                ):
+
+                    current_deadline_date = (
+                        datetime.strptime(
+                            current_deadline,
+                            "%Y-%m-%d"
+                        ).date()
+                    )
+
+                else:
+
+                    current_deadline_date = (
+                        current_deadline
+                    )
+
+
+                if datetime.now().date() > current_deadline_date:
 
                     conn.rollback()
 
@@ -1081,11 +1006,17 @@ def apply():
 
 
             # ==================================================
-            # APPLICATION NUMBER
+            # GENERATE APPLICATION NUMBER FIRST
             # ==================================================
 
             application_number = (
                 generate_application_number(conn)
+            )
+
+
+            app.logger.info(
+                "Generated application number: %s",
+                application_number
             )
 
 
@@ -1099,12 +1030,22 @@ def apply():
 
 
             # ==================================================
-            # FILE NAMES
+            # INITIALIZE FILE NAMES
             # ==================================================
 
             passport_filename = None
             cv_filename = None
             qualification_filename = None
+
+
+            # ==================================================
+            # ENSURE UPLOAD DIRECTORY EXISTS
+            # ==================================================
+
+            os.makedirs(
+                app.config["UPLOAD_FOLDER"],
+                exist_ok=True
+            )
 
 
             # ==================================================
@@ -1121,11 +1062,18 @@ def apply():
                     f"{application_number}_passport_{original}"
                 )
 
+                passport_path = os.path.join(
+                    app.config["UPLOAD_FOLDER"],
+                    passport_filename
+                )
+
                 passport.save(
-                    os.path.join(
-                        UPLOAD_FOLDER,
-                        passport_filename
-                    )
+                    passport_path
+                )
+
+                app.logger.info(
+                    "PASSPORT SAVED: %s",
+                    passport_path
                 )
 
 
@@ -1143,11 +1091,18 @@ def apply():
                     f"{application_number}_cv_{original}"
                 )
 
+                cv_path = os.path.join(
+                    app.config["UPLOAD_FOLDER"],
+                    cv_filename
+                )
+
                 cv.save(
-                    os.path.join(
-                        UPLOAD_FOLDER,
-                        cv_filename
-                    )
+                    cv_path
+                )
+
+                app.logger.info(
+                    "CV SAVED: %s",
+                    cv_path
                 )
 
 
@@ -1165,11 +1120,18 @@ def apply():
                     f"{application_number}_qualification_{original}"
                 )
 
+                qualification_path = os.path.join(
+                    app.config["UPLOAD_FOLDER"],
+                    qualification_filename
+                )
+
                 qualification.save(
-                    os.path.join(
-                        UPLOAD_FOLDER,
-                        qualification_filename
-                    )
+                    qualification_path
+                )
+
+                app.logger.info(
+                    "QUALIFICATION SAVED: %s",
+                    qualification_path
                 )
 
 
@@ -1317,6 +1279,12 @@ def apply():
         # ====================================================
 
         conn.commit()
+
+
+        app.logger.info(
+            "APPLICATION SUBMITTED SUCCESSFULLY: %s",
+            application_number
+        )
 
 
     except Exception:
