@@ -571,35 +571,48 @@
 
                                 {% if application.cv_filename %}
 
-                                <a
+<a
     href="{{ url_for(
         'admin_download_file',
-        application_id=application.id,
-        file_type='cv'
+        filename=application.cv_filename
     ) }}"
     class="document-link"
 >
     📄 Download CV
-                                </a>
+</a>
+
 
                                 {% endif %}
 
 
                                 {% if application.passport_filename %}
 
-                                <a
+<a
     href="{{ url_for(
         'admin_download_file',
-        application_id=application.id,
-        file_type='passport'
+        filename=application.passport_filename
     ) }}"
     class="document-link"
 >
-    🖼 Download Photo
-                                </a>
+    🖼 Download Passport
+</a>
+
+
                                 {% endif %}
 
+{% if application.qualification_filename %}
 
+<a
+    href="{{ url_for(
+        'admin_download_file',
+        filename=application.qualification_filename
+    ) }}"
+    class="document-link"
+>
+    📄 Download Qualification
+</a>
+
+{% endif %}
                                 {% if not application.cv_filename
                                       and not application.passport_filename %}
 
@@ -834,35 +847,46 @@
 
                         {% if application.cv_filename %}
 
-                        <a
+<a
     href="{{ url_for(
         'admin_download_file',
-        application_id=application.id,
-        file_type='cv'
+        filename=application.cv_filename
     ) }}"
     class="document-link"
 >
     📄 Download CV
-                        </a>
+</a>
+
                         
                         {% endif %}
 
 
                         {% if application.passport_filename %}
 
-                        <a
+<a
     href="{{ url_for(
         'admin_download_file',
-        application_id=application.id,
-        file_type='passport'
+        filename=application.passport_filename
     ) }}"
     class="document-link"
 >
-    🖼 Download Photo
-                        </a>
+    🖼 Download Passport
+</a>
 
                         {% endif %}
+{% if application.qualification_filename %}
 
+<a
+    href="{{ url_for(
+        'admin_download_file',
+        filename=application.qualification_filename
+    ) }}"
+    class="document-link"
+>
+    📄 Download Qualification
+</a>
+
+{% endif %}
 
                         {% if not application.cv_filename
                               and not application.passport_filename %}
