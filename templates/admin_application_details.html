@@ -893,7 +893,15 @@
 
                     {% endif %}
 
-
+<a
+    href="{{ url_for(
+        'download_applicant_biodata',
+        application_id=application.id
+    ) }}"
+    class="btn btn-primary"
+>
+    Download Applicant Biodata
+</a>
                     {% if not application.cv_filename
                         and not application.qualification_filename %}
 
