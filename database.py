@@ -666,6 +666,49 @@ def init_db():
                 """
             )
 
+            # =========================================================
+            # ADVANCED ATTENDANCE SETTINGS
+            # =========================================================
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS late_grace_minutes
+                INTEGER DEFAULT 15
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS working_days
+                VARCHAR(50) DEFAULT 'Monday,Tuesday,Wednesday,Thursday,Friday'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS require_location_for_clock_in
+                BOOLEAN DEFAULT TRUE
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS require_location_for_clock_out
+                BOOLEAN DEFAULT TRUE
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS allow_late_clock_in
+                BOOLEAN DEFAULT TRUE
+                """
+            )
 
     # =========================================================
     # SAVE CHANGES
