@@ -509,7 +509,26 @@ def init_db():
                 ALTER TABLE company_settings
                 ADD COLUMN IF NOT EXISTS logo VARCHAR(255)
             """)
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS available_positions (
 
+                    id SERIAL PRIMARY KEY,
+
+                    position_name VARCHAR(150)
+                        UNIQUE NOT NULL,
+
+                    description TEXT,
+
+                    is_active BOOLEAN
+                        DEFAULT TRUE,
+
+                    created_at TIMESTAMP
+                        DEFAULT CURRENT_TIMESTAMP
+
+                )
+                """
+            )
     # =========================================================
     # SAVE CHANGES
     # =========================================================
