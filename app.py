@@ -902,45 +902,61 @@ def apply():
     # ========================================================
     # CV VALIDATION
     # ========================================================
-
+    # ========================================================
+    # SAVE CV
+    # ========================================================
+    
     if cv and cv.filename:
-
-        if not allowed_file(
-            cv.filename,
-            ALLOWED_DOCUMENT_EXTENSIONS
-        ):
-
-            flash(
-                "CV must be PDF, DOC or DOCX.",
-                "error"
-            )
-
-            return render_template(
-                "apply.html"
-            )
-
-
+    
+        original = secure_filename(
+            cv.filename
+        )
+    
+        cv_filename = (
+            f"{application_number}_cv_{original}"
+        )
+    
+        cv_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            cv_filename
+        )
+    
+        cv.save(cv_path)
+    
+        app.logger.info(
+            "CV SAVED SUCCESSFULLY: %s",
+            cv_path
+        )
     # ========================================================
     # QUALIFICATION VALIDATION
     # ========================================================
-
+    # ========================================================
+    # SAVE QUALIFICATION
+    # ========================================================
+    
     if qualification and qualification.filename:
-
-        if not allowed_file(
-            qualification.filename,
-            ALLOWED_DOCUMENT_EXTENSIONS
-        ):
-
-            flash(
-                "Qualification document must be PDF, DOC or DOCX.",
-                "error"
-            )
-
-            return render_template(
-                "apply.html"
-            )
-
-
+    
+        original = secure_filename(
+            qualification.filename
+        )
+    
+        qualification_filename = (
+            f"{application_number}_qualification_{original}"
+        )
+    
+        qualification_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            qualification_filename
+        )
+    
+        qualification.save(
+            qualification_path
+        )
+    
+        app.logger.info(
+            "QUALIFICATION SAVED SUCCESSFULLY: %s",
+            qualification_path
+        )
     # ========================================================
     # DATABASE CONNECTION
     # ========================================================
