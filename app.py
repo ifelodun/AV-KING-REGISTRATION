@@ -1896,8 +1896,6 @@ def admin_applications():
         selected_status=status,
         selected_position=position
     )
-```
-
 
 # ============================================================
 # VIEW APPLICATION
