@@ -3672,9 +3672,10 @@ def admin_attendance():
         or datetime.now().strftime("%Y-%m-%d")
     )
 
-    search = (
-        request.args.get("search", "").strip()
-    )
+    search = request.args.get(
+        "search",
+        ""
+    ).strip()
 
     conn = get_db()
 
@@ -3683,15 +3684,51 @@ def admin_attendance():
     total_staff = 0
     present_count = 0
     absent_count = 0
+    late_count = 0
     incomplete_count = 0
     total_hours = 0
+
+    # Default in case the settings row does not yet contain it
+    clock_in_start = "08:00:00"
 
     try:
 
         with conn.cursor() as cur:
 
             # =================================================
-            # GET APPROVED / ACTIVE WORKERS
+            # GET ATTENDANCE SETTINGS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_enabled,
+                    clock_in_start,
+                    clock_out_end,
+                    attendance_radius,
+                    company_latitude,
+                    company_longitude
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            if settings:
+
+                if settings["clock_in_start"]:
+
+                    clock_in_start = str(
+                        settings["clock_in_start"]
+                    )
+
+            # =================================================
+            # GET APPROVED / ACTIVE APPLICANTS
             # =================================================
 
             worker_query = """
@@ -3705,7 +3742,9 @@ def admin_attendance():
                     email,
                     position_applied,
                     status
+
                 FROM applications
+
                 WHERE
                     status = 'Approved'
                     AND portal_active = TRUE
@@ -3713,9 +3752,9 @@ def admin_attendance():
 
             worker_params = []
 
-            # -------------------------------------------------
+            # =================================================
             # SEARCH
-            # -------------------------------------------------
+            # =================================================
 
             if search:
 
@@ -3743,8 +3782,14 @@ def admin_attendance():
                     search_value
                 ])
 
+            # =================================================
+            # ORDER
+            # =================================================
+
             worker_query += """
-                ORDER BY first_name ASC, last_name ASC
+                ORDER BY
+                    first_name ASC,
+                    last_name ASC
             """
 
             cur.execute(
@@ -3766,6 +3811,7 @@ def admin_attendance():
                     id,
                     worker_id,
                     attendance_date,
+
                     clock_in,
                     clock_out,
 
@@ -3792,7 +3838,7 @@ def admin_attendance():
             attendance_rows = cur.fetchall()
 
             # =================================================
-            # CONVERT TO DICTIONARY
+            # CREATE ATTENDANCE MAP
             # =================================================
 
             attendance_map = {}
@@ -3813,149 +3859,49 @@ def admin_attendance():
                     worker["id"]
                 )
 
-                # -------------------------------------------------
-                # PRESENT
-                # -------------------------------------------------
+                # =================================================
+                # COMMON WORKER INFORMATION
+                # =================================================
 
-                if attendance:
+                base_record = {
 
-                    clock_in = attendance["clock_in"]
-                    clock_out = attendance["clock_out"]
+                    "worker_id":
+                        worker["id"],
 
-                    if clock_in and clock_out:
+                    "application_number":
+                        worker["application_number"],
 
-                        record_status = "Present"
+                    "first_name":
+                        worker["first_name"],
 
-                        present_count += 1
+                    "middle_name":
+                        worker["middle_name"],
 
-                    elif clock_in:
+                    "last_name":
+                        worker["last_name"],
 
-                        record_status = "Incomplete"
+                    "phone":
+                        worker["phone"],
 
-                        incomplete_count += 1
+                    "email":
+                        worker["email"],
 
-                    else:
+                    "position_applied":
+                        worker["position_applied"]
 
-                        record_status = "Absent"
+                }
 
-                        absent_count += 1
+                # =================================================
+                # NO ATTENDANCE = ABSENT
+                # =================================================
 
-                    hours = (
-                        float(
-                            attendance["total_hours"] or 0
-                        )
-                    )
-
-                    total_hours += hours
-
-                    attendance_records.append({
-
-                        "worker_id": worker["id"],
-
-                        "application_number":
-                            worker["application_number"],
-
-                        "first_name":
-                            worker["first_name"],
-
-                        "middle_name":
-                            worker["middle_name"],
-
-                        "last_name":
-                            worker["last_name"],
-
-                        "phone":
-                            worker["phone"],
-
-                        "email":
-                            worker["email"],
-
-                        "position_applied":
-                            worker["position_applied"],
-
-                        "attendance_id":
-                            attendance["id"],
-
-                        "clock_in":
-                            clock_in,
-
-                        "clock_out":
-                            clock_out,
-
-                        "clock_in_latitude":
-                            attendance[
-                                "clock_in_latitude"
-                            ],
-
-                        "clock_in_longitude":
-                            attendance[
-                                "clock_in_longitude"
-                            ],
-
-                        "clock_out_latitude":
-                            attendance[
-                                "clock_out_latitude"
-                            ],
-
-                        "clock_out_longitude":
-                            attendance[
-                                "clock_out_longitude"
-                            ],
-
-                        "clock_in_location_verified":
-                            attendance[
-                                "clock_in_location_verified"
-                            ],
-
-                        "clock_out_location_verified":
-                            attendance[
-                                "clock_out_location_verified"
-                            ],
-
-                        "total_hours":
-                            hours,
-
-                        "status":
-                            record_status,
-
-                        "notes":
-                            attendance["notes"]
-
-                    })
-
-                # -------------------------------------------------
-                # NO ATTENDANCE RECORD = ABSENT
-                # -------------------------------------------------
-
-                else:
+                if not attendance:
 
                     absent_count += 1
 
                     attendance_records.append({
 
-                        "worker_id":
-                            worker["id"],
-
-                        "application_number":
-                            worker["application_number"],
-
-                        "first_name":
-                            worker["first_name"],
-
-                        "middle_name":
-                            worker["middle_name"],
-
-                        "last_name":
-                            worker["last_name"],
-
-                        "phone":
-                            worker["phone"],
-
-                        "email":
-                            worker["email"],
-
-                        "position_applied":
-                            worker["position_applied"],
+                        **base_record,
 
                         "attendance_id":
                             None,
@@ -3995,6 +3941,131 @@ def admin_attendance():
 
                     })
 
+                    continue
+
+                # =================================================
+                # ATTENDANCE EXISTS
+                # =================================================
+
+                clock_in = attendance["clock_in"]
+                clock_out = attendance["clock_out"]
+
+                hours = float(
+                    attendance["total_hours"] or 0
+                )
+
+                total_hours += hours
+
+                # =================================================
+                # DETERMINE STATUS
+                # =================================================
+
+                if clock_in and clock_out:
+
+                    # -------------------------------------------------
+                    # CHECK WHETHER CLOCK-IN WAS LATE
+                    # -------------------------------------------------
+
+                    record_status = "Present"
+
+                    try:
+
+                        if clock_in:
+
+                            configured_time = datetime.strptime(
+                                clock_in_start[:8],
+                                "%H:%M:%S"
+                            ).time()
+
+                            clock_in_time = clock_in.time()
+
+                            if clock_in_time > configured_time:
+
+                                record_status = "Late"
+
+                                late_count += 1
+
+                            else:
+
+                                present_count += 1
+
+                    except Exception:
+
+                        # If time comparison fails,
+                        # keep normal Present status.
+
+                        present_count += 1
+
+                elif clock_in:
+
+                    record_status = "Incomplete"
+
+                    incomplete_count += 1
+
+                else:
+
+                    record_status = "Absent"
+
+                    absent_count += 1
+
+                # =================================================
+                # ADD RECORD
+                # =================================================
+
+                attendance_records.append({
+
+                    **base_record,
+
+                    "attendance_id":
+                        attendance["id"],
+
+                    "clock_in":
+                        clock_in,
+
+                    "clock_out":
+                        clock_out,
+
+                    "clock_in_latitude":
+                        attendance[
+                            "clock_in_latitude"
+                        ],
+
+                    "clock_in_longitude":
+                        attendance[
+                            "clock_in_longitude"
+                        ],
+
+                    "clock_out_latitude":
+                        attendance[
+                            "clock_out_latitude"
+                        ],
+
+                    "clock_out_longitude":
+                        attendance[
+                            "clock_out_longitude"
+                        ],
+
+                    "clock_in_location_verified":
+                        attendance[
+                            "clock_in_location_verified"
+                        ],
+
+                    "clock_out_location_verified":
+                        attendance[
+                            "clock_out_location_verified"
+                        ],
+
+                    "total_hours":
+                        hours,
+
+                    "status":
+                        record_status,
+
+                    "notes":
+                        attendance["notes"]
+
+                })
+
     except Exception:
 
         app.logger.exception(
@@ -4030,12 +4101,16 @@ def admin_attendance():
 
         absent_count=absent_count,
 
+        late_count=late_count,
+
         incomplete_count=incomplete_count,
 
         total_hours=round(
             total_hours,
             2
-        )
+        ),
+
+        clock_in_start=clock_in_start
 
     )
 
