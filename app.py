@@ -5966,6 +5966,309 @@ def export_monthly_attendance_excel():
             "spreadsheetml.sheet"
         )
     )
+
+# =========================================================
+# ATTENDANCE STATUS PROCESSOR
+# =========================================================
+
+def process_attendance_status(
+    attendance_date=None
+):
+    """
+    Automatically creates Absent records for approved active
+    applicants who did not clock in on a working day.
+
+    Also updates existing attendance records to Present/Late/
+    Incomplete according to the company attendance settings.
+    """
+
+    if attendance_date is None:
+        attendance_date = datetime.now().date()
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # GET COMPANY ATTENDANCE SETTINGS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_enabled,
+                    clock_in_end,
+                    clock_out_start,
+                    clock_out_end,
+                    late_after_minutes,
+                    early_before_minutes
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            if not settings:
+                return
+
+            if not settings["attendance_enabled"]:
+                return
+
+            # =================================================
+            # ONLY PROCESS WORKING DAYS
+            # MONDAY = 0
+            # SUNDAY = 6
+            # =================================================
+
+            if attendance_date.weekday() >= 5:
+                return
+
+            # =================================================
+            # GET APPROVED ACTIVE APPLICANTS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    last_name
+
+                FROM applications
+
+                WHERE status = 'Approved'
+                AND portal_active = TRUE
+                """
+            )
+
+            workers = cur.fetchall()
+
+            # =================================================
+            # PROCESS EACH WORKER
+            # =================================================
+
+            for worker in workers:
+
+                worker_id = worker["id"]
+
+                # -------------------------------------------------
+                # GET EXISTING ATTENDANCE
+                # -------------------------------------------------
+
+                cur.execute(
+                    """
+                    SELECT
+                        id,
+                        clock_in,
+                        clock_out,
+                        status,
+                        total_hours
+
+                    FROM attendance
+
+                    WHERE worker_id = %s
+                    AND attendance_date = %s
+
+                    LIMIT 1
+                    """,
+                    (
+                        worker_id,
+                        attendance_date
+                    )
+                )
+
+                attendance = cur.fetchone()
+
+                # =================================================
+                # NO ATTENDANCE = ABSENT
+                # =================================================
+
+                if not attendance:
+
+                    # Only create Absent records for dates that
+                    # have already passed.
+
+                    today = datetime.now().date()
+
+                    if attendance_date < today:
+
+                        cur.execute(
+                            """
+                            INSERT INTO attendance
+                            (
+                                worker_id,
+                                attendance_date,
+                                status,
+                                total_hours,
+                                clock_in_location_verified,
+                                clock_out_location_verified,
+                                created_at,
+                                updated_at
+                            )
+
+                            VALUES
+                            (
+                                %s,
+                                %s,
+                                'Absent',
+                                0,
+                                FALSE,
+                                FALSE,
+                                CURRENT_TIMESTAMP,
+                                CURRENT_TIMESTAMP
+                            )
+
+                            ON CONFLICT
+                            (worker_id, attendance_date)
+                            DO NOTHING
+                            """,
+                            (
+                                worker_id,
+                                attendance_date
+                            )
+                        )
+
+                    continue
+
+                # =================================================
+                # EXISTING ATTENDANCE
+                # =================================================
+
+                clock_in = attendance["clock_in"]
+                clock_out = attendance["clock_out"]
+
+                # -------------------------------------------------
+                # NO CLOCK-IN
+                # -------------------------------------------------
+
+                if not clock_in:
+
+                    cur.execute(
+                        """
+                        UPDATE attendance
+
+                        SET
+                            status = 'Absent',
+                            total_hours = 0,
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = %s
+                        """,
+                        (
+                            attendance["id"],
+                        )
+                    )
+
+                    continue
+
+                # =================================================
+                # CALCULATE WORKING HOURS
+                # =================================================
+
+                total_hours = 0
+
+                if clock_in and clock_out:
+
+                    duration = (
+                        clock_out - clock_in
+                    )
+
+                    total_seconds = (
+                        duration.total_seconds()
+                    )
+
+                    if total_seconds > 0:
+
+                        total_hours = round(
+                            total_seconds / 3600,
+                            2
+                        )
+
+                # =================================================
+                # DETERMINE LATE STATUS
+                # =================================================
+
+                record_status = "Present"
+
+                if settings["clock_in_end"]:
+
+                    clock_in_end = settings[
+                        "clock_in_end"
+                    ]
+
+                    late_after_minutes = int(
+                        settings[
+                            "late_after_minutes"
+                        ] or 0
+                    )
+
+                    allowed_time = (
+                        datetime.combine(
+                            attendance_date,
+                            clock_in_end
+                        )
+                        + timedelta(
+                            minutes=late_after_minutes
+                        )
+                    )
+
+                    if clock_in > allowed_time:
+
+                        record_status = "Late"
+
+                # =================================================
+                # INCOMPLETE
+                # =================================================
+
+                if clock_in and not clock_out:
+
+                    record_status = "Incomplete"
+
+                # =================================================
+                # UPDATE RECORD
+                # =================================================
+
+                cur.execute(
+                    """
+                    UPDATE attendance
+
+                    SET
+                        status = %s,
+                        total_hours = %s,
+                        updated_at = CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (
+                        record_status,
+                        total_hours,
+                        attendance["id"]
+                    )
+                )
+
+        conn.commit()
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error processing attendance status"
+        )
+
+        raise
+
+    finally:
+
+        conn.close()
 # ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
 # ============================================================
