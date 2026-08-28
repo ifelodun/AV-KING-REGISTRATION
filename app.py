@@ -4694,56 +4694,33 @@ def admin_settings():
 @app.route("/admin/download-file/<path:filename>")
 def admin_download_file(filename):
 
-    # ========================================================
-    # ADMIN LOGIN CHECK
-    # ========================================================
-
     if not admin_required():
         return redirect(
             url_for("admin_login")
         )
 
-
-    # ========================================================
-    # UPLOAD DIRECTORY
-    # ========================================================
-
-    upload_folder = os.path.join(
-        app.root_path,
-        "static",
-        "uploads"
-    )
-
-
-    # ========================================================
-    # SECURITY
-    # ========================================================
-
     filename = os.path.basename(
         filename
     )
 
-
-    # ========================================================
-    # FULL FILE PATH
-    # ========================================================
+    upload_folder = app.config[
+        "UPLOAD_FOLDER"
+    ]
 
     file_path = os.path.join(
         upload_folder,
         filename
     )
 
-
-    # ========================================================
-    # CHECK FILE EXISTS
-    # ========================================================
-
-    if not os.path.isfile(
+    app.logger.info(
+        "DOWNLOAD REQUEST: %s",
         file_path
-    ):
+    )
+
+    if not os.path.isfile(file_path):
 
         app.logger.warning(
-            "Requested document not found: %s",
+            "DOCUMENT NOT FOUND: %s",
             file_path
         )
 
@@ -4755,11 +4732,6 @@ def admin_download_file(filename):
         return redirect(
             url_for("admin_applications")
         )
-
-
-    # ========================================================
-    # SEND FILE
-    # ========================================================
 
     return send_from_directory(
         upload_folder,
