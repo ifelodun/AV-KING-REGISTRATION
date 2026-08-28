@@ -1680,19 +1680,6 @@ def update_application_notes(application_id):
 # DOWNLOAD APPLICATION DOCUMENT
 # ============================================================
 
-@app.route(
-    "/admin/download-file/<path:filename>"
-)
-def admin_download_file(filename):
-
-    if not admin_required():
-        return redirect(url_for("admin_login"))
-
-    return send_from_directory(
-        app.config["UPLOAD_FOLDER"],
-        filename,
-        as_attachment=True
-    )
 # ============================================================
 # SECURE APPLICATION DOCUMENT
 # ============================================================
