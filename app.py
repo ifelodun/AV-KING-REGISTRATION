@@ -6,6 +6,21 @@ from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    Image,
+    PageBreak
+)
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.units import mm
 from flask import (
     Flask,
     render_template,
