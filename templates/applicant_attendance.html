@@ -1,0 +1,840 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="attendance-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="attendance-header">
+
+        <div>
+            <span class="attendance-eyebrow">
+                EMPLOYEE ATTENDANCE
+            </span>
+
+            <h1>
+                Attendance
+            </h1>
+
+            <p>
+                Record your daily attendance from the approved
+                company location.
+            </p>
+        </div>
+
+        <div class="attendance-header-date">
+            <span>Today</span>
+            <strong id="currentDate">—</strong>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         LOCATION NOTICE
+         ===================================================== -->
+
+    <div class="attendance-location-notice">
+
+        <div class="location-notice-icon">
+            📍
+        </div>
+
+        <div>
+            <strong>
+                Location Verification Required
+            </strong>
+
+            <p>
+                You must be physically within the company's
+                approved attendance area to clock in or clock out.
+            </p>
+        </div>
+
+    </div>
+
+
+    {% if not attendance_enabled %}
+
+        <!-- =================================================
+             ATTENDANCE DISABLED
+             ================================================= -->
+
+        <div class="attendance-disabled-card">
+
+            <div class="disabled-icon">
+                ⏸
+            </div>
+
+            <h2>
+                Attendance Currently Unavailable
+            </h2>
+
+            <p>
+                {{ attendance_message or
+                   "Attendance has been disabled by the administrator." }}
+            </p>
+
+            <a
+                href="{{ url_for('applicant_portal') }}"
+                class="attendance-secondary-btn"
+            >
+                ← Back to Portal
+            </a>
+
+        </div>
+
+
+    {% else %}
+
+
+        <!-- =================================================
+             MAIN ATTENDANCE CARD
+             ================================================= -->
+
+        <div class="attendance-main-card">
+
+            <!-- PROFILE -->
+
+            <div class="attendance-profile">
+
+                <div class="attendance-avatar">
+
+                    {{
+                        (
+                            applicant.first_name[:1]
+                            ~
+                            applicant.last_name[:1]
+                        )|upper
+                    }}
+
+                </div>
+
+                <div>
+
+                    <span class="profile-label">
+                        Applicant
+                    </span>
+
+                    <h2>
+                        {{ applicant.first_name }}
+
+                        {% if applicant.middle_name %}
+                            {{ applicant.middle_name }}
+                        {% endif %}
+
+                        {{ applicant.last_name }}
+                    </h2>
+
+                    <p>
+                        Application No:
+                        <strong>
+                            {{ applicant.application_number }}
+                        </strong>
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TODAY STATUS
+                 ================================================= -->
+
+            <div class="attendance-status-section">
+
+                <div class="attendance-status-heading">
+
+                    <div>
+                        <span>
+                            TODAY'S ATTENDANCE
+                        </span>
+
+                        <h3>
+                            Daily Attendance Record
+                        </h3>
+                    </div>
+
+                    {% if attendance %}
+
+                        {% if attendance.clock_out %}
+
+                            <span class="attendance-badge completed">
+                                Completed
+                            </span>
+
+                        {% elif attendance.clock_in %}
+
+                            <span class="attendance-badge active">
+                                Clocked In
+                            </span>
+
+                        {% else %}
+
+                            <span class="attendance-badge pending">
+                                Not Started
+                            </span>
+
+                        {% endif %}
+
+                    {% else %}
+
+                        <span class="attendance-badge pending">
+                            Not Started
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =================================================
+                     ATTENDANCE INFORMATION
+                     ================================================= -->
+
+                <div class="attendance-info-grid">
+
+                    <div class="attendance-info-card">
+
+                        <span>
+                            DATE
+                        </span>
+
+                        <strong id="attendanceDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="attendance-info-card">
+
+                        <span>
+                            CLOCK IN
+                        </span>
+
+                        <strong>
+
+                            {% if attendance and attendance.clock_in %}
+
+                                {{ attendance.clock_in.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="attendance-info-card">
+
+                        <span>
+                            CLOCK OUT
+                        </span>
+
+                        <strong>
+
+                            {% if attendance and attendance.clock_out %}
+
+                                {{ attendance.clock_out.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="attendance-info-card">
+
+                        <span>
+                            TOTAL HOURS
+                        </span>
+
+                        <strong>
+
+                            {% if attendance and attendance.total_hours %}
+
+                                {{ attendance.total_hours }} hrs
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     LOCATION STATUS
+                     ================================================= -->
+
+                <div
+                    id="locationStatus"
+                    class="attendance-location-status"
+                >
+
+                    <div class="location-status-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Location Status
+                        </strong>
+
+                        <p id="locationMessage">
+                            Checking your location is required
+                            before attendance can be recorded.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ACTIONS
+                     ================================================= -->
+
+                <div class="attendance-actions">
+
+
+                    {% if not attendance or not attendance.clock_in %}
+
+                        <!-- CLOCK IN -->
+
+                        <form
+                            id="clockInForm"
+                            method="POST"
+                            action="{{ url_for('applicant_clock_in') }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="latitude"
+                                id="clockInLatitude"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="longitude"
+                                id="clockInLongitude"
+                            >
+
+                            <button
+                                type="button"
+                                id="clockInButton"
+                                class="attendance-primary-btn"
+                                onclick="startClockIn()"
+                            >
+                                <span class="button-icon">
+                                    📍
+                                </span>
+
+                                <span>
+                                    Clock In
+                                </span>
+                            </button>
+
+                        </form>
+
+
+                    {% elif not attendance.clock_out %}
+
+                        <!-- CLOCKED IN -->
+
+                        <div class="clocked-in-message">
+
+                            <div class="clocked-in-icon">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    You are currently clocked in
+                                </strong>
+
+                                <span>
+                                    Remember to clock out when
+                                    you finish for the day.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- CLOCK OUT -->
+
+                        <form
+                            id="clockOutForm"
+                            method="POST"
+                            action="{{ url_for('applicant_clock_out') }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="latitude"
+                                id="clockOutLatitude"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="longitude"
+                                id="clockOutLongitude"
+                            >
+
+                            <button
+                                type="button"
+                                id="clockOutButton"
+                                class="attendance-clockout-btn"
+                                onclick="startClockOut()"
+                            >
+                                <span class="button-icon">
+                                    📍
+                                </span>
+
+                                <span>
+                                    Clock Out
+                                </span>
+                            </button>
+
+                        </form>
+
+
+                    {% else %}
+
+                        <!-- COMPLETED -->
+
+                        <div class="attendance-completed">
+
+                            <div class="completed-icon">
+                                ✓
+                            </div>
+
+                            <h3>
+                                Attendance Completed
+                            </h3>
+
+                            <p>
+                                Your attendance for today has
+                                been successfully recorded.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             ATTENDANCE RULES
+             ===================================================== -->
+
+        <div class="attendance-rules-card">
+
+            <div class="rules-heading">
+
+                <span>
+                    ATTENDANCE GUIDELINES
+                </span>
+
+                <h2>
+                    Important Information
+                </h2>
+
+            </div>
+
+
+            <div class="rules-grid">
+
+                <div class="rule-item">
+
+                    <div class="rule-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Company Location
+                        </strong>
+
+                        <p>
+                            Attendance can only be recorded
+                            when you are within the approved
+                            company location.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="rule-item">
+
+                    <div class="rule-icon">
+                        🕐
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Daily Attendance
+                        </strong>
+
+                        <p>
+                            You can clock in and clock out
+                            only once each day.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="rule-item">
+
+                    <div class="rule-icon">
+                        🔐
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Secure Verification
+                        </strong>
+
+                        <p>
+                            Your location is verified before
+                            attendance is recorded.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="rule-item">
+
+                    <div class="rule-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Approved Applicants
+                        </strong>
+
+                        <p>
+                            Attendance is available only to
+                            approved applicants.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+<!-- =========================================================
+     LOCATION JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+function updateCurrentDate() {
+
+    const now = new Date();
+
+    const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    };
+
+    const formatted = now.toLocaleDateString(
+        "en-NG",
+        options
+    );
+
+    const currentDate =
+        document.getElementById("currentDate");
+
+    const attendanceDate =
+        document.getElementById("attendanceDate");
+
+    if (currentDate) {
+        currentDate.textContent = formatted;
+    }
+
+    if (attendanceDate) {
+        attendanceDate.textContent = formatted;
+    }
+}
+
+
+updateCurrentDate();
+
+
+function setLocationStatus(
+    message,
+    type
+) {
+
+    const status =
+        document.getElementById(
+            "locationStatus"
+        );
+
+    const messageElement =
+        document.getElementById(
+            "locationMessage"
+        );
+
+    if (!status || !messageElement) {
+        return;
+    }
+
+    messageElement.textContent = message;
+
+    status.classList.remove(
+        "checking",
+        "success",
+        "error"
+    );
+
+    status.classList.add(type);
+}
+
+
+function getApplicantLocation(
+    successCallback
+) {
+
+    if (!navigator.geolocation) {
+
+        setLocationStatus(
+            "Your browser does not support location services.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    setLocationStatus(
+        "Requesting your current location. Please allow location access.",
+        "checking"
+    );
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+
+            setLocationStatus(
+                "Location detected. Verifying your company location...",
+                "checking"
+            );
+
+
+            successCallback(
+                latitude,
+                longitude
+            );
+
+        },
+
+        function(error) {
+
+            let message =
+                "Unable to determine your location.";
+
+            if (error.code === 1) {
+
+                message =
+                    "Location permission was denied. Please allow location access in your browser.";
+
+            }
+
+            else if (error.code === 2) {
+
+                message =
+                    "Your location is currently unavailable. Please try again.";
+
+            }
+
+            else if (error.code === 3) {
+
+                message =
+                    "Location request timed out. Please try again.";
+
+            }
+
+
+            setLocationStatus(
+                message,
+                "error"
+            );
+
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+
+function startClockIn() {
+
+    const button =
+        document.getElementById(
+            "clockInButton"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        "<span>📍</span><span>Checking Location...</span>";
+
+
+    getApplicantLocation(
+
+        function(
+            latitude,
+            longitude
+        ) {
+
+            document.getElementById(
+                "clockInLatitude"
+            ).value = latitude;
+
+
+            document.getElementById(
+                "clockInLongitude"
+            ).value = longitude;
+
+
+            setLocationStatus(
+                "Location captured. Submitting clock-in...",
+                "success"
+            );
+
+
+            document.getElementById(
+                "clockInForm"
+            ).submit();
+
+        }
+    );
+}
+
+
+function startClockOut() {
+
+    const button =
+        document.getElementById(
+            "clockOutButton"
+        );
+
+    if (!button) {
+        return;
+    }
+
+
+    button.disabled = true;
+
+    button.innerHTML =
+        "<span>📍</span><span>Checking Location...</span>";
+
+
+    getApplicantLocation(
+
+        function(
+            latitude,
+            longitude
+        ) {
+
+            document.getElementById(
+                "clockOutLatitude"
+            ).value = latitude;
+
+
+            document.getElementById(
+                "clockOutLongitude"
+            ).value = longitude;
+
+
+            setLocationStatus(
+                "Location captured. Submitting clock-out...",
+                "success"
+            );
+
+
+            document.getElementById(
+                "clockOutForm"
+            ).submit();
+
+        }
+    );
+}
+
+</script>
+
+{% endblock %}
