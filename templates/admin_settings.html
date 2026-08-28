@@ -4,9 +4,14 @@
 
 <div class="admin-page">
 
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
     <div class="admin-page-header">
 
         <div>
+
             <span class="page-label">
                 SYSTEM MANAGEMENT
             </span>
@@ -14,9 +19,10 @@
             <h1>Settings</h1>
 
             <p>
-                Manage your company profile, branding and
-                recruitment portal settings.
+                Manage your company profile, branding, recruitment
+                portal, attendance and administrator security settings.
             </p>
+
         </div>
 
         <a
@@ -29,7 +35,9 @@
     </div>
 
 
-    <!-- FLASH MESSAGES -->
+    <!-- =====================================================
+         FLASH MESSAGES
+    ====================================================== -->
 
     {% with messages = get_flashed_messages(with_categories=true) %}
 
@@ -52,7 +60,9 @@
     {% endwith %}
 
 
-    <!-- SETTINGS FORM -->
+    <!-- =====================================================
+         SETTINGS FORM
+    ====================================================== -->
 
     <form
         method="POST"
@@ -60,8 +70,9 @@
         enctype="multipart/form-data"
     >
 
-
-        <!-- COMPANY INFORMATION -->
+        <!-- =================================================
+             COMPANY INFORMATION
+        ================================================== -->
 
         <section class="admin-panel settings-panel">
 
@@ -88,7 +99,6 @@
 
 
             <div class="settings-grid">
-
 
                 <div class="form-group">
 
@@ -195,7 +205,9 @@
         </section>
 
 
-        <!-- COMPANY LOGO -->
+        <!-- =================================================
+             COMPANY LOGO
+        ================================================== -->
 
         <section class="admin-panel settings-panel">
 
@@ -222,7 +234,6 @@
 
 
             <div class="logo-settings">
-
 
                 {% if settings and settings.logo %}
 
@@ -281,193 +292,609 @@
             </div>
 
         </section>
-<!-- APPLICATION SETTINGS -->
-
-<section class="admin-panel settings-panel">
-
-    <div class="panel-heading">
-
-        <div>
-
-            <span>
-                RECRUITMENT
-            </span>
-
-            <h2>
-                Application Settings
-            </h2>
-
-            <p>
-                Control when applicants can access and submit
-                applications through the recruitment portal.
-            </p>
-
-        </div>
-
-    </div>
 
 
-    <div class="settings-grid">
-
-
-        <!-- APPLICATION STATUS -->
-
-        <div class="form-group">
-
-            <label for="application_status">
-                Application Portal Status
-            </label>
-
-            <select
-                id="application_status"
-                name="application_status"
-                required
-            >
-
-                <option
-                    value="Open"
-                    {% if settings
-                       and settings.application_status
-                       and settings.application_status|capitalize == "Open" %}
-                        selected
-                    {% endif %}
-                >
-                    Open
-                </option>
-
-                <option
-                    value="Closed"
-                    {% if not settings
-                       or not settings.application_status
-                       or settings.application_status|capitalize == "Closed" %}
-                        selected
-                    {% endif %}
-                >
-                    Closed
-                </option>
-
-            </select>
-
-            <small>
-                <strong>Open:</strong>
-                Applicants can submit new applications.
-            </small>
-
-            <small>
-                <strong>Closed:</strong>
-                New applications are completely blocked.
-            </small>
-
-        </div>
-
-
-        <!-- APPLICATION DEADLINE -->
-
-        <div class="form-group">
-
-            <label for="application_deadline">
-                Application Deadline
-            </label>
-
-            <input
-                type="date"
-                id="application_deadline"
-                name="application_deadline"
-                value="{% if settings and settings.application_deadline %}{{ settings.application_deadline.strftime('%Y-%m-%d') if settings.application_deadline.strftime is defined else settings.application_deadline }}{% endif %}"
-            >
-
-            <small>
-                Applications will automatically close after this date.
-            </small>
-
-            <small>
-                Leave blank if you do not want an automatic deadline.
-            </small>
-
-        </div>
-
-    </div>
-
-</section>
+        <!-- =================================================
+             RECRUITMENT SETTINGS
+        ================================================== -->
 
         <section class="admin-panel settings-panel">
 
-    <div class="panel-heading">
+            <div class="panel-heading">
 
-        <div>
+                <div>
 
-            <span>SECURITY</span>
+                    <span>
+                        RECRUITMENT
+                    </span>
 
-            <h2>Admin Account</h2>
+                    <h2>
+                        Application Settings
+                    </h2>
 
-            <p>
-                Change the username and password used to access the admin portal.
-            </p>
+                    <p>
+                        Control when applicants can access and submit
+                        applications through the recruitment portal.
+                    </p>
 
-        </div>
+                </div>
 
-    </div>
-
-
-    <div class="settings-grid">
-
-        <div class="form-group">
-
-            <label for="admin_username">
-                Admin Username
-            </label>
-
-            <input
-                type="text"
-                id="admin_username"
-                name="admin_username"
-                value="{{ settings.admin_username or '' }}"
-                placeholder="Enter admin username"
-                autocomplete="username"
-                required
-            >
-
-        </div>
+            </div>
 
 
-        <div class="form-group">
+            <div class="settings-grid">
 
-            <label for="admin_password">
-                New Admin Password
-            </label>
+                <!-- APPLICATION STATUS -->
 
-            <input
-                type="password"
-                id="admin_password"
-                name="admin_password"
-                placeholder="Leave blank to keep current password"
-                autocomplete="new-password"
-            >
+                <div class="form-group">
 
-        </div>
+                    <label for="application_status">
+                        Application Portal Status
+                    </label>
+
+                    <select
+                        id="application_status"
+                        name="application_status"
+                        required
+                    >
+
+                        <option
+                            value="Open"
+                            {% if settings
+                               and settings.application_status
+                               and settings.application_status|capitalize == "Open" %}
+                                selected
+                            {% endif %}
+                        >
+                            Open
+                        </option>
+
+                        <option
+                            value="Closed"
+                            {% if settings
+                               and settings.application_status
+                               and settings.application_status|capitalize == "Closed" %}
+                                selected
+                            {% endif %}
+                        >
+                            Closed
+                        </option>
+
+                    </select>
+
+                    <small>
+                        <strong>Open:</strong>
+                        Applicants can submit new applications.
+                    </small>
+
+                    <small>
+                        <strong>Closed:</strong>
+                        New applications are blocked.
+                    </small>
+
+                </div>
 
 
-        <div class="form-group">
+                <!-- APPLICATION DEADLINE -->
 
-            <label for="confirm_admin_password">
-                Confirm New Password
-            </label>
+                <div class="form-group">
 
-            <input
-                type="password"
-                id="confirm_admin_password"
-                name="confirm_admin_password"
-                placeholder="Confirm new password"
-                autocomplete="new-password"
-            >
+                    <label for="application_deadline">
+                        Application Deadline
+                    </label>
 
-        </div>
+                    <input
+                        type="date"
+                        id="application_deadline"
+                        name="application_deadline"
+                        value="{% if settings and settings.application_deadline %}{{ settings.application_deadline.strftime('%Y-%m-%d') if settings.application_deadline.strftime is defined else settings.application_deadline }}{% endif %}"
+                    >
 
-    </div>
+                    <small>
+                        Applications will automatically close after this date.
+                    </small>
 
-</section>
+                    <small>
+                        Leave blank for no automatic deadline.
+                    </small>
 
-        <!-- ACTIONS -->
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ATTENDANCE SETTINGS
+        ================================================== -->
+
+        <section class="admin-panel settings-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        WORKFORCE MANAGEMENT
+                    </span>
+
+                    <h2>
+                        Attendance Settings
+                    </h2>
+
+                    <p>
+                        Control employee attendance, working hours,
+                        location verification and lateness rules.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ATTENDANCE ENABLED -->
+
+            <div class="attendance-status-card">
+
+                <div>
+
+                    <strong>
+                        Attendance System
+                    </strong>
+
+                    <p>
+                        Allow approved employees to clock in and
+                        clock out from their applicant portal.
+                    </p>
+
+                </div>
+
+
+                <label class="switch">
+
+                    <input
+                        type="checkbox"
+                        name="attendance_enabled"
+                        value="1"
+                        {% if settings
+                           and settings.attendance_enabled %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+
+                <!-- =================================================
+                     COMPANY LOCATION
+                ================================================== -->
+
+                <div class="form-group full-width">
+
+                    <label>
+                        Official Company Attendance Location
+                    </label>
+
+                    <div class="location-card">
+
+                        <div class="location-card-header">
+
+                            <div>
+
+                                <strong>
+                                    📍 Company GPS Location
+                                </strong>
+
+                                <p id="locationStatus">
+
+                                    {% if settings
+                                       and settings.company_latitude is not none
+                                       and settings.company_longitude is not none %}
+
+                                        Company location is configured.
+
+                                    {% else %}
+
+                                        No company attendance location
+                                        has been configured.
+
+                                    {% endif %}
+
+                                </p>
+
+                            </div>
+
+
+                            <button
+                                type="button"
+                                id="useCurrentLocationBtn"
+                                class="btn btn-primary"
+                            >
+                                📍 Use Current Location
+                            </button>
+
+                        </div>
+
+
+                        <div class="gps-fields">
+
+                            <div>
+
+                                <label for="company_latitude">
+                                    Latitude
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="company_latitude"
+                                    name="company_latitude"
+                                    value="{% if settings and settings.company_latitude is not none %}{{ settings.company_latitude }}{% endif %}"
+                                    placeholder="e.g. 7.3775"
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label for="company_longitude">
+                                    Longitude
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="company_longitude"
+                                    name="company_longitude"
+                                    value="{% if settings and settings.company_longitude is not none %}{{ settings.company_longitude }}{% endif %}"
+                                    placeholder="e.g. 3.9470"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="location-help">
+
+                            <strong>
+                                How this works
+                            </strong>
+
+                            <p>
+                                The administrator should be physically
+                                present at the company location when
+                                clicking "Use Current Location".
+                            </p>
+
+                            <p>
+                                Approved employees will only be able
+                                to clock in and out when their device
+                                is within the configured attendance
+                                radius.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ATTENDANCE RADIUS
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="attendance_radius">
+                        Attendance Radius
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            type="number"
+                            id="attendance_radius"
+                            name="attendance_radius"
+                            min="20"
+                            max="5000"
+                            value="{{ settings.attendance_radius if settings and settings.attendance_radius else 200 }}"
+                            required
+                        >
+
+                        <span>
+                            metres
+                        </span>
+
+                    </div>
+
+                    <small>
+                        Employees must be within this distance
+                        of the company location.
+                    </small>
+
+                    <small>
+                        Recommended: 100–300 metres.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     CLOCK-IN START
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="clock_in_start">
+                        Clock-In Window Starts
+                    </label>
+
+                    <input
+                        type="time"
+                        id="clock_in_start"
+                        name="clock_in_start"
+                        value="{{ settings.clock_in_start.strftime('%H:%M') if settings and settings.clock_in_start and settings.clock_in_start.strftime is defined else (settings.clock_in_start if settings and settings.clock_in_start else '06:00') }}"
+                        required
+                    >
+
+                    <small>
+                        Earliest time employees can clock in.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     CLOCK-IN END
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="clock_in_end">
+                        Clock-In Window Ends
+                    </label>
+
+                    <input
+                        type="time"
+                        id="clock_in_end"
+                        name="clock_in_end"
+                        value="{{ settings.clock_in_end.strftime('%H:%M') if settings and settings.clock_in_end and settings.clock_in_end.strftime is defined else (settings.clock_in_end if settings and settings.clock_in_end else '10:00') }}"
+                        required
+                    >
+
+                    <small>
+                        Latest time allowed for clock-in.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     CLOCK-OUT START
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="clock_out_start">
+                        Clock-Out Window Starts
+                    </label>
+
+                    <input
+                        type="time"
+                        id="clock_out_start"
+                        name="clock_out_start"
+                        value="{{ settings.clock_out_start.strftime('%H:%M') if settings and settings.clock_out_start and settings.clock_out_start.strftime is defined else (settings.clock_out_start if settings and settings.clock_out_start else '15:00') }}"
+                        required
+                    >
+
+                    <small>
+                        Earliest time employees can clock out.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     CLOCK-OUT END
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="clock_out_end">
+                        Clock-Out Window Ends
+                    </label>
+
+                    <input
+                        type="time"
+                        id="clock_out_end"
+                        name="clock_out_end"
+                        value="{{ settings.clock_out_end.strftime('%H:%M') if settings and settings.clock_out_end and settings.clock_out_end.strftime is defined else (settings.clock_out_end if settings and settings.clock_out_end else '23:00') }}"
+                        required
+                    >
+
+                    <small>
+                        Latest time allowed for clock-out.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     LATE THRESHOLD
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="late_after_minutes">
+                        Late After
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            type="number"
+                            id="late_after_minutes"
+                            name="late_after_minutes"
+                            min="0"
+                            value="{{ settings.late_after_minutes if settings and settings.late_after_minutes is not none else 15 }}"
+                            required
+                        >
+
+                        <span>
+                            minutes
+                        </span>
+
+                    </div>
+
+                    <small>
+                        Employees clocking in after the configured
+                        threshold will be marked Late.
+                    </small>
+
+                </div>
+
+
+                <!-- =================================================
+                     EARLY CLOCK-OUT
+                ================================================== -->
+
+                <div class="form-group">
+
+                    <label for="early_before_minutes">
+                        Early Clock-Out Threshold
+                    </label>
+
+                    <div class="input-with-unit">
+
+                        <input
+                            type="number"
+                            id="early_before_minutes"
+                            name="early_before_minutes"
+                            min="0"
+                            value="{{ settings.early_before_minutes if settings and settings.early_before_minutes is not none else 15 }}"
+                            required
+                        >
+
+                        <span>
+                            minutes
+                        </span>
+
+                    </div>
+
+                    <small>
+                        Clock-outs before the configured threshold
+                        can be identified as early departures.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ADMIN SECURITY
+        ================================================== -->
+
+        <section class="admin-panel settings-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        SECURITY
+                    </span>
+
+                    <h2>
+                        Admin Account
+                    </h2>
+
+                    <p>
+                        Change the username and password used to
+                        access the administrator portal.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+
+                <div class="form-group">
+
+                    <label for="admin_username">
+                        Admin Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="admin_username"
+                        name="admin_username"
+                        value="{{ settings.admin_username or '' }}"
+                        placeholder="Enter admin username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="admin_password">
+                        New Admin Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="admin_password"
+                        name="admin_password"
+                        placeholder="Leave blank to keep current password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="confirm_admin_password">
+                        Confirm New Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirm_admin_password"
+                        name="confirm_admin_password"
+                        placeholder="Confirm new password"
+                        autocomplete="new-password"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
 
         <div class="settings-actions">
 
@@ -490,5 +917,167 @@
     </form>
 
 </div>
+
+
+<!-- =========================================================
+     GPS LOCATION JAVASCRIPT
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const button =
+            document.getElementById(
+                "useCurrentLocationBtn"
+            );
+
+        const latitudeInput =
+            document.getElementById(
+                "company_latitude"
+            );
+
+        const longitudeInput =
+            document.getElementById(
+                "company_longitude"
+            );
+
+        const locationStatus =
+            document.getElementById(
+                "locationStatus"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                if (!navigator.geolocation) {
+
+                    locationStatus.textContent =
+                        "Geolocation is not supported by this browser.";
+
+                    return;
+                }
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "📍 Detecting Location...";
+
+                locationStatus.textContent =
+                    "Requesting your current location. Please allow location access.";
+
+
+                navigator.geolocation.getCurrentPosition(
+
+                    function (position) {
+
+                        const latitude =
+                            position.coords.latitude;
+
+                        const longitude =
+                            position.coords.longitude;
+
+
+                        latitudeInput.value =
+                            latitude.toFixed(8);
+
+                        longitudeInput.value =
+                            longitude.toFixed(8);
+
+
+                        locationStatus.textContent =
+                            "✓ Company location captured successfully. "
+                            + "Latitude: "
+                            + latitude.toFixed(6)
+                            + " | Longitude: "
+                            + longitude.toFixed(6);
+
+
+                        button.disabled = false;
+
+                        button.textContent =
+                            "✓ Location Captured";
+
+                    },
+
+
+                    function (error) {
+
+                        let message =
+                            "Unable to determine your location.";
+
+
+                        if (
+                            error.code ===
+                            error.PERMISSION_DENIED
+                        ) {
+
+                            message =
+                                "Location permission was denied. "
+                                + "Please allow location access "
+                                + "in your browser and try again.";
+
+                        }
+
+                        else if (
+                            error.code ===
+                            error.POSITION_UNAVAILABLE
+                        ) {
+
+                            message =
+                                "Your location is currently unavailable. "
+                                + "Please try again.";
+
+                        }
+
+                        else if (
+                            error.code ===
+                            error.TIMEOUT
+                        ) {
+
+                            message =
+                                "The location request timed out. "
+                                + "Please try again.";
+
+                        }
+
+
+                        locationStatus.textContent =
+                            message;
+
+
+                        button.disabled = false;
+
+                        button.textContent =
+                            "📍 Use Current Location";
+
+                    },
+
+
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 15000,
+                        maximumAge: 0
+                    }
+
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
 
 {% endblock %}
