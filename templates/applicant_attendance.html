@@ -21,8 +21,8 @@
             </h1>
 
             <p>
-                Record your daily clock-in and clock-out
-                from the company location.
+                Record your daily clock-in and clock-out from
+                the company location.
             </p>
 
         </div>
@@ -67,7 +67,7 @@
 
 
     <!-- =====================================================
-         APPLICANT PROFILE
+         APPLICANT INFORMATION
          ===================================================== -->
 
     <section class="attendance-profile-card">
@@ -75,16 +75,16 @@
         <div class="attendance-profile-avatar">
 
             {% set first_initial = (
-                applicant.first_name[:1]
-                if applicant.first_name
-                else "A"
-            ) %}
+                application.first_name
+                if application.first_name
+                else ''
+            )[:1] %}
 
             {% set last_initial = (
-                applicant.last_name[:1]
-                if applicant.last_name
-                else ""
-            ) %}
+                application.last_name
+                if application.last_name
+                else ''
+            )[:1] %}
 
             {{ (first_initial ~ last_initial)|upper }}
 
@@ -99,22 +99,22 @@
 
             <h2>
 
-                {{ applicant.first_name or "" }}
+                {{ application.first_name or '' }}
 
-                {% if applicant.middle_name %}
-                    {{ applicant.middle_name }}
+                {% if application.middle_name %}
+                    {{ application.middle_name }}
                 {% endif %}
 
-                {{ applicant.last_name or "" }}
+                {{ application.last_name or '' }}
 
             </h2>
 
             <p>
 
-                {{ applicant.application_number or "—" }}
+                {{ application.application_number or 'Staff' }}
 
-                {% if applicant.position_applied %}
-                    · {{ applicant.position_applied }}
+                {% if application.position_applied %}
+                    · {{ application.position_applied }}
                 {% endif %}
 
             </p>
@@ -125,10 +125,15 @@
 
 
     <!-- =====================================================
-         TODAY'S ATTENDANCE
+         ATTENDANCE MAIN CARD
          ===================================================== -->
 
     <section class="attendance-main-card">
+
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
 
         <div class="attendance-card-header">
 
@@ -139,20 +144,7 @@
                 </span>
 
                 <h2 id="attendanceDate">
-
-                    {% if today_attendance
-                          and today_attendance.attendance_date %}
-
-                        {{ today_attendance.attendance_date.strftime(
-                            "%A, %d %B %Y"
-                        ) }}
-
-                    {% else %}
-
-                        Today
-
-                    {% endif %}
-
+                    Today
                 </h2>
 
             </div>
@@ -162,15 +154,7 @@
 
                 <span class="attendance-live-dot"></span>
 
-                {% if settings and settings.attendance_enabled %}
-
-                    Attendance Active
-
-                {% else %}
-
-                    Attendance Inactive
-
-                {% endif %}
+                Attendance Active
 
             </div>
 
@@ -223,17 +207,15 @@
                     CLOCK IN
                 </span>
 
+
                 <div
                     id="clockInTime"
                     class="attendance-time"
                 >
 
-                    {% if today_attendance
-                          and today_attendance.clock_in %}
+                    {% if attendance and attendance.clock_in %}
 
-                        {{ today_attendance.clock_in.strftime(
-                            "%I:%M %p"
-                        ) }}
+                        {{ attendance.clock_in.strftime("%I:%M %p") }}
 
                     {% else %}
 
@@ -249,8 +231,7 @@
                     class="attendance-status-text"
                 >
 
-                    {% if today_attendance
-                          and today_attendance.clock_in %}
+                    {% if attendance and attendance.clock_in %}
 
                         <span class="attendance-complete">
                             ✓ Clock-in recorded
@@ -277,17 +258,15 @@
                     CLOCK OUT
                 </span>
 
+
                 <div
                     id="clockOutTime"
                     class="attendance-time"
                 >
 
-                    {% if today_attendance
-                          and today_attendance.clock_out %}
+                    {% if attendance and attendance.clock_out %}
 
-                        {{ today_attendance.clock_out.strftime(
-                            "%I:%M %p"
-                        ) }}
+                        {{ attendance.clock_out.strftime("%I:%M %p") }}
 
                     {% else %}
 
@@ -303,15 +282,13 @@
                     class="attendance-status-text"
                 >
 
-                    {% if today_attendance
-                          and today_attendance.clock_out %}
+                    {% if attendance and attendance.clock_out %}
 
                         <span class="attendance-complete">
                             ✓ Clock-out recorded
                         </span>
 
-                    {% elif today_attendance
-                            and today_attendance.clock_in %}
+                    {% elif attendance and attendance.clock_in %}
 
                         Ready for clock-out
 
@@ -336,17 +313,15 @@
                     TOTAL HOURS
                 </span>
 
+
                 <div
                     id="totalHours"
                     class="attendance-time"
                 >
 
-                    {% if today_attendance
-                          and today_attendance.total_hours is not none %}
+                    {% if attendance and attendance.total_hours %}
 
-                        {{ "%.2f"|format(
-                            today_attendance.total_hours|float
-                        ) }}
+                        {{ attendance.total_hours }}
 
                     {% else %}
 
@@ -363,15 +338,9 @@
 
                 <div class="attendance-status-text">
 
-                    {% if today_attendance
-                          and today_attendance.clock_out %}
+                    {% if attendance and attendance.clock_out %}
 
                         Completed
-
-                    {% elif today_attendance
-                            and today_attendance.clock_in %}
-
-                        In progress
 
                     {% else %}
 
@@ -394,7 +363,7 @@
 
 
             <!-- =================================================
-                 CLOCK IN
+                 CLOCK IN BUTTON
                  ================================================= -->
 
             <button
@@ -402,8 +371,7 @@
                 id="clockInButton"
                 class="attendance-clock-btn attendance-clock-in-btn"
 
-                {% if today_attendance
-                      and today_attendance.clock_in %}
+                {% if attendance and attendance.clock_in %}
                     disabled
                 {% endif %}
             >
@@ -428,7 +396,7 @@
 
 
             <!-- =================================================
-                 CLOCK OUT
+                 CLOCK OUT BUTTON
                  ================================================= -->
 
             <button
@@ -436,9 +404,7 @@
                 id="clockOutButton"
                 class="attendance-clock-btn attendance-clock-out-btn"
 
-                {% if not today_attendance
-                      or not today_attendance.clock_in
-                      or today_attendance.clock_out %}
+                {% if not attendance or not attendance.clock_in or attendance.clock_out %}
                     disabled
                 {% endif %}
             >
@@ -510,12 +476,9 @@
 
             <strong>
 
-                {% if today_attendance
-                      and today_attendance.attendance_date %}
+                {% if attendance and attendance.attendance_date %}
 
-                    {{ today_attendance.attendance_date.strftime(
-                        "%d %B %Y"
-                    ) }}
+                    {{ attendance.attendance_date.strftime("%d %B %Y") }}
 
                 {% else %}
 
@@ -538,8 +501,7 @@
 
             <strong id="locationStatus">
 
-                {% if today_attendance
-                      and today_attendance.clock_in_location_verified %}
+                {% if attendance and attendance.clock_in_location_verified %}
 
                     ✓ Verified
 
@@ -564,13 +526,11 @@
 
             <strong id="overallStatus">
 
-                {% if today_attendance
-                      and today_attendance.clock_out %}
+                {% if attendance and attendance.clock_out %}
 
                     Completed
 
-                {% elif today_attendance
-                        and today_attendance.clock_in %}
+                {% elif attendance and attendance.clock_in %}
 
                     Clocked In
 
@@ -588,10 +548,12 @@
 
 
     <!-- =====================================================
-         RECENT ATTENDANCE HISTORY
+         ATTENDANCE HISTORY
          ===================================================== -->
 
-    <section class="admin-panel settings-panel">
+    {% if attendance_history %}
+
+    <section class="admin-panel settings-panel attendance-history-panel">
 
         <div class="panel-heading">
 
@@ -602,11 +564,11 @@
                 </span>
 
                 <h2>
-                    Recent Attendance
+                    Previous Attendance
                 </h2>
 
                 <p>
-                    Your most recent attendance records.
+                    Your recent attendance records.
                 </p>
 
             </div>
@@ -616,7 +578,7 @@
 
         <div class="table-responsive">
 
-            <table class="admin-table">
+            <table class="attendance-history-table">
 
                 <thead>
 
@@ -649,107 +611,89 @@
 
                 <tbody>
 
-                    {% if attendance_history %}
+                    {% for record in attendance_history %}
 
-                        {% for record in attendance_history %}
+                    <tr>
 
-                            <tr>
+                        <td>
 
-                                <td>
+                            {% if record.attendance_date %}
 
-                                    {% if record.attendance_date %}
+                                {{ record.attendance_date.strftime("%d %b %Y") }}
 
-                                        {{ record.attendance_date.strftime(
-                                            "%d %b %Y"
-                                        ) }}
+                            {% else %}
 
-                                    {% else %}
+                                —
 
-                                        —
+                            {% endif %}
 
-                                    {% endif %}
-
-                                </td>
+                        </td>
 
 
-                                <td>
+                        <td>
 
-                                    {% if record.clock_in %}
+                            {% if record.clock_in %}
 
-                                        {{ record.clock_in.strftime(
-                                            "%I:%M %p"
-                                        ) }}
+                                {{ record.clock_in.strftime("%I:%M %p") }}
 
-                                    {% else %}
+                            {% else %}
 
-                                        —
+                                —
 
-                                    {% endif %}
+                            {% endif %}
 
-                                </td>
+                        </td>
 
 
-                                <td>
+                        <td>
 
-                                    {% if record.clock_out %}
+                            {% if record.clock_out %}
 
-                                        {{ record.clock_out.strftime(
-                                            "%I:%M %p"
-                                        ) }}
+                                {{ record.clock_out.strftime("%I:%M %p") }}
 
-                                    {% else %}
+                            {% else %}
 
-                                        —
+                                —
 
-                                    {% endif %}
+                            {% endif %}
 
-                                </td>
+                        </td>
 
 
-                                <td>
+                        <td>
 
-                                    {% if record.total_hours is not none %}
+                            {% if record.total_hours is not none %}
 
-                                        {{ "%.2f"|format(
-                                            record.total_hours|float
-                                        ) }}
-                                        hrs
+                                {{ record.total_hours }}
 
-                                    {% else %}
+                                hrs
 
-                                        —
+                            {% else %}
 
-                                    {% endif %}
+                                —
 
-                                </td>
+                            {% endif %}
+
+                        </td>
 
 
-                                <td>
+                        <td>
 
-                                    {{ record.status or "—" }}
+                            {% if record.status %}
 
-                                </td>
+                                {{ record.status }}
 
-                            </tr>
+                            {% else %}
 
-                        {% endfor %}
+                                —
 
-                    {% else %}
+                            {% endif %}
 
-                        <tr>
+                        </td>
 
-                            <td
-                                colspan="5"
-                                style="text-align:center;"
-                            >
+                    </tr>
 
-                                No attendance records found.
-
-                            </td>
-
-                        </tr>
-
-                    {% endif %}
+                    {% endfor %}
 
                 </tbody>
 
@@ -758,6 +702,8 @@
         </div>
 
     </section>
+
+    {% endif %}
 
 </div>
 
@@ -827,6 +773,36 @@ document.addEventListener(
                 "overallStatus"
             );
 
+        const attendanceDate =
+            document.getElementById(
+                "attendanceDate"
+            );
+
+
+        // =====================================================
+        // DISPLAY TODAY'S DATE
+        // =====================================================
+
+        const today =
+            new Date();
+
+        const dateOptions = {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        };
+
+        if (attendanceDate) {
+
+            attendanceDate.textContent =
+                today.toLocaleDateString(
+                    "en-GB",
+                    dateOptions
+                );
+
+        }
+
 
         // =====================================================
         // SHOW LOCATION MESSAGE
@@ -860,6 +836,10 @@ document.addEventListener(
                 icon = "!";
             }
 
+            else if (type === "loading") {
+                icon = "⏳";
+            }
+
 
             locationMessage.innerHTML = `
 
@@ -885,7 +865,7 @@ document.addEventListener(
 
 
         // =====================================================
-        // GET CURRENT GPS LOCATION
+        // GET CURRENT LOCATION
         // =====================================================
 
         function getCurrentLocation() {
@@ -893,7 +873,10 @@ document.addEventListener(
             return new Promise(
                 function (resolve, reject) {
 
-                    if (!navigator.geolocation) {
+
+                    if (
+                        !navigator.geolocation
+                    ) {
 
                         reject(
                             new Error(
@@ -922,7 +905,10 @@ document.addEventListener(
                                     position.coords.latitude,
 
                                 longitude:
-                                    position.coords.longitude
+                                    position.coords.longitude,
+
+                                accuracy:
+                                    position.coords.accuracy
 
                             });
 
@@ -967,7 +953,9 @@ document.addEventListener(
 
 
                             reject(
-                                new Error(message)
+                                new Error(
+                                    message
+                                )
                             );
 
                         },
@@ -975,11 +963,14 @@ document.addEventListener(
 
                         {
 
-                            enableHighAccuracy: true,
+                            enableHighAccuracy:
+                                true,
 
-                            timeout: 20000,
+                            timeout:
+                                15000,
 
-                            maximumAge: 0
+                            maximumAge:
+                                0
 
                         }
 
@@ -1001,6 +992,7 @@ document.addEventListener(
             action
         ) {
 
+
             if (!button) {
                 return;
             }
@@ -1010,23 +1002,24 @@ document.addEventListener(
                 button.innerHTML;
 
 
-            button.disabled = true;
+            button.disabled =
+                true;
 
 
             button.innerHTML = `
 
                 <span class="attendance-button-icon">
-                    ...
+                    ⏳
                 </span>
 
                 <span>
 
                     <strong>
-                        Checking location
+                        Verifying location
                     </strong>
 
                     <small>
-                        Please wait
+                        Please wait...
                     </small>
 
                 </span>
@@ -1037,17 +1030,17 @@ document.addEventListener(
             try {
 
 
-                // =============================================
-                // GET GPS
-                // =============================================
+                // =================================================
+                // GET LOCATION
+                // =================================================
 
                 const location =
                     await getCurrentLocation();
 
 
-                // =============================================
+                // =================================================
                 // CREATE FORM DATA
-                // =============================================
+                // =================================================
 
                 const formData =
                     new FormData();
@@ -1055,57 +1048,52 @@ document.addEventListener(
 
                 formData.append(
                     "latitude",
-                    location.latitude
+                    String(
+                        location.latitude
+                    )
                 );
 
 
                 formData.append(
                     "longitude",
-                    location.longitude
+                    String(
+                        location.longitude
+                    )
                 );
 
 
-                // =============================================
+                // =================================================
                 // SEND REQUEST
-                // =============================================
+                // =================================================
 
                 const response =
                     await fetch(
                         endpoint,
                         {
 
-                            method: "POST",
+                            method:
+                                "POST",
 
-                            body: formData,
+                            body:
+                                formData,
 
-                            credentials: "same-origin",
+                            credentials:
+                                "same-origin",
 
                             headers: {
+
                                 "X-Requested-With":
                                     "XMLHttpRequest"
+
                             }
 
                         }
                     );
 
 
-                // =============================================
-                // CHECK HTTP RESPONSE
-                // =============================================
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Server returned HTTP " +
-                        response.status
-                    );
-
-                }
-
-
-                // =============================================
-                // READ RESPONSE
-                // =============================================
+                // =================================================
+                // CHECK RESPONSE
+                // =================================================
 
                 const contentType =
                     response.headers.get(
@@ -1119,8 +1107,17 @@ document.addEventListener(
                     )
                 ) {
 
+                    const text =
+                        await response.text();
+
+                    console.error(
+                        "Server returned non-JSON response:",
+                        text
+                    );
+
+
                     throw new Error(
-                        "The attendance server did not return a valid JSON response."
+                        "The attendance server returned an unexpected response."
                     );
 
                 }
@@ -1130,32 +1127,39 @@ document.addEventListener(
                     await response.json();
 
 
-                // =============================================
+                // =================================================
                 // SUCCESS
-                // =============================================
+                // =================================================
 
-                if (data.success) {
+                if (
+                    response.ok &&
+                    data.success
+                ) {
 
 
                     showLocationMessage(
                         "Attendance recorded",
                         data.message ||
-                            "Attendance recorded successfully.",
+                            (
+                                action === "clock-in"
+                                ? "Clock-in recorded successfully."
+                                : "Clock-out recorded successfully."
+                            ),
                         "success"
                     );
 
 
-                    // =========================================
+                    // =================================================
                     // CLOCK IN SUCCESS
-                    // =========================================
+                    // =================================================
 
                     if (
-                        action === "clock_in"
+                        action === "clock-in"
                     ) {
+
 
                         if (
                             data.clock_in
-                            && clockInTime
                         ) {
 
                             clockInTime.textContent =
@@ -1164,28 +1168,22 @@ document.addEventListener(
                         }
 
 
-                        if (clockInStatus) {
+                        clockInStatus.innerHTML = `
 
-                            clockInStatus.innerHTML = `
+                            <span class="attendance-complete">
+                                ✓ Clock-in recorded
+                            </span>
 
-                                <span class="attendance-complete">
-                                    ✓ Clock-in recorded
-                                </span>
-
-                            `;
-
-                        }
+                        `;
 
 
-                        if (clockInButton) {
-
-                            clockInButton.disabled =
-                                true;
-
-                        }
+                        clockInButton.disabled =
+                            true;
 
 
-                        if (clockOutButton) {
+                        if (
+                            clockOutButton
+                        ) {
 
                             clockOutButton.disabled =
                                 false;
@@ -1193,7 +1191,9 @@ document.addEventListener(
                         }
 
 
-                        if (locationStatus) {
+                        if (
+                            locationStatus
+                        ) {
 
                             locationStatus.textContent =
                                 "✓ Verified";
@@ -1201,36 +1201,29 @@ document.addEventListener(
                         }
 
 
-                        if (overallStatus) {
+                        if (
+                            overallStatus
+                        ) {
 
                             overallStatus.textContent =
                                 "Clocked In";
 
                         }
 
-
-                        if (clockOutStatus) {
-
-                            clockOutStatus.textContent =
-                                "Ready for clock-out";
-
-                        }
-
                     }
 
 
-                    // =========================================
+                    // =================================================
                     // CLOCK OUT SUCCESS
-                    // =========================================
+                    // =================================================
 
                     if (
-                        action === "clock_out"
+                        action === "clock-out"
                     ) {
 
 
                         if (
                             data.clock_out
-                            && clockOutTime
                         ) {
 
                             clockOutTime.textContent =
@@ -1239,52 +1232,35 @@ document.addEventListener(
                         }
 
 
-                        if (clockOutStatus) {
+                        clockOutStatus.innerHTML = `
 
-                            clockOutStatus.innerHTML = `
+                            <span class="attendance-complete">
+                                ✓ Clock-out recorded
+                            </span>
 
-                                <span class="attendance-complete">
-                                    ✓ Clock-out recorded
-                                </span>
-
-                            `;
-
-                        }
+                        `;
 
 
-                        if (clockOutButton) {
+                        clockOutButton.disabled =
+                            true;
 
-                            clockOutButton.disabled =
-                                true;
+
+                        if (
+                            totalHours &&
+                            data.total_hours !== undefined
+                        ) {
+
+                            totalHours.textContent =
+                                Number(
+                                    data.total_hours
+                                ).toFixed(2);
 
                         }
 
 
                         if (
-                            totalHours
-                            && data.total_hours !== undefined
+                            overallStatus
                         ) {
-
-                            totalHours.innerHTML =
-
-                                Number(
-                                    data.total_hours || 0
-                                ).toFixed(2)
-
-                                +
-
-                                `
-
-                                <small>
-                                    hrs
-                                </small>
-
-                                `;
-
-                        }
-
-
-                        if (overallStatus) {
 
                             overallStatus.textContent =
                                 "Completed";
@@ -1294,14 +1270,29 @@ document.addEventListener(
                     }
 
 
+                    // =================================================
+                    // OPTIONAL PAGE REFRESH
+                    // =================================================
+
+                    setTimeout(
+                        function () {
+
+                            window.location.reload();
+
+                        },
+                        1200
+                    );
+
+
                 }
 
 
-                // =============================================
-                // SERVER-SIDE ERROR
-                // =============================================
+                // =================================================
+                // SERVER ERROR
+                // =================================================
 
                 else {
+
 
                     showLocationMessage(
                         "Attendance not recorded",
@@ -1326,8 +1317,9 @@ document.addEventListener(
 
             catch (error) {
 
+
                 console.error(
-                    "Attendance error:",
+                    "Attendance request error:",
                     error
                 );
 
@@ -1353,7 +1345,7 @@ document.addEventListener(
 
 
         // =====================================================
-        // CLOCK IN BUTTON
+        // CLOCK IN
         // =====================================================
 
         if (clockInButton) {
@@ -1363,13 +1355,9 @@ document.addEventListener(
                 function () {
 
                     submitAttendance(
-
                         "{{ url_for('applicant_clock_in') }}",
-
                         clockInButton,
-
-                        "clock_in"
-
+                        "clock-in"
                     );
 
                 }
@@ -1379,7 +1367,7 @@ document.addEventListener(
 
 
         // =====================================================
-        // CLOCK OUT BUTTON
+        // CLOCK OUT
         // =====================================================
 
         if (clockOutButton) {
@@ -1389,13 +1377,9 @@ document.addEventListener(
                 function () {
 
                     submitAttendance(
-
                         "{{ url_for('applicant_clock_out') }}",
-
                         clockOutButton,
-
-                        "clock_out"
-
+                        "clock-out"
                     );
 
                 }
