@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <!-- PAGE HEADER -->
+    <div class="admin-page-header">
+
+        <div>
+            <span class="page-label">
+                SYSTEM MANAGEMENT
+            </span>
+
+            <h1>
+                Settings
+            </h1>
+
+            <p>
+                Manage your recruitment portal and company information.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-secondary"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- SETTINGS FORM -->
+    <form
+        method="POST"
+        action="{{ url_for('admin_settings') }}"
+        enctype="multipart/form-data"
+    >
+
+        <!-- COMPANY INFORMATION -->
+        <section class="admin-panel settings-panel">
+
+            <div class="panel-heading">
+
+                <div>
+                    <span>
+                        COMPANY PROFILE
+                    </span>
+
+                    <h2>
+                        Company Information
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+                <div class="form-group">
+
+                    <label for="company_name">
+                        Company Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company_name"
+                        name="company_name"
+                        value="{{ settings.company_name or '' }}"
+                        placeholder="AV KING VET DRUG VENTURE"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="company_email">
+                        Company Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="company_email"
+                        name="company_email"
+                        value="{{ settings.company_email or '' }}"
+                        placeholder="company@example.com"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="company_phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company_phone"
+                        name="company_phone"
+                        value="{{ settings.company_phone or '' }}"
+                        placeholder="+234..."
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="company_website">
+                        Website
+                    </label>
+
+                    <input
+                        type="text"
+                        id="company_website"
+                        name="company_website"
+                        value="{{ settings.company_website or '' }}"
+                        placeholder="https://example.com"
+                    >
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="company_address">
+                        Company Address
+                    </label>
+
+                    <textarea
+                        id="company_address"
+                        name="company_address"
+                        rows="3"
+                        placeholder="Enter company address"
+                    >{{ settings.company_address or '' }}</textarea>
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="footer_text">
+                        Footer Text
+                    </label>
+
+                    <input
+                        type="text"
+                        id="footer_text"
+                        name="footer_text"
+                        value="{{ settings.footer_text or '' }}"
+                        placeholder="Your needs, Our Priority"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- LOGO -->
+        <section class="admin-panel settings-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        BRANDING
+                    </span>
+
+                    <h2>
+                        Company Logo
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="logo-settings">
+
+                {% if settings.logo %}
+
+                    <div class="current-logo">
+
+                        <img
+                            src="{{ settings.logo }}"
+                            alt="Company Logo"
+                        >
+
+                    </div>
+
+                {% else %}
+
+                    <div class="no-logo">
+
+                        <span>
+                            AV
+                        </span>
+
+                        <p>
+                            No company logo uploaded
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="logo-upload">
+
+                    <label for="logo">
+                        Upload New Logo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="logo"
+                        name="logo"
+                        accept="image/png,image/jpeg,image/webp"
+                    >
+
+                    <small>
+                        Recommended format: PNG, JPG or WEBP.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- APPLICATION SETTINGS -->
+        <section class="admin-panel settings-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <span>
+                        RECRUITMENT
+                    </span>
+
+                    <h2>
+                        Application Settings
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+                <div class="form-group">
+
+                    <label for="application_status">
+                        Application Portal Status
+                    </label>
+
+                    <select
+                        id="application_status"
+                        name="application_status"
+                    >
+
+                        <option
+                            value="Open"
+                            {% if settings.application_status == "Open" %}
+                                selected
+                            {% endif %}
+                        >
+                            Open
+                        </option>
+
+                        <option
+                            value="Closed"
+                            {% if settings.application_status == "Closed" %}
+                                selected
+                            {% endif %}
+                        >
+                            Closed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="application_deadline">
+                        Application Deadline
+                    </label>
+
+                    <input
+                        type="date"
+                        id="application_deadline"
+                        name="application_deadline"
+                        value="{{ settings.application_deadline or '' }}"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SAVE -->
+        <div class="settings-actions">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="btn btn-secondary"
+            >
+                Cancel
+            </a>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Save Settings
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
