@@ -1,6 +1,8 @@
 import os
 import random
 import os
+import io
+import pandas as pd
 import uuid
 from datetime import datetime
 from urllib.parse import quote
@@ -3911,7 +3913,506 @@ def admin_attendance():
         )
 
     )
-    
+
+@app.route("/admin/attendance/monthly")
+def admin_monthly_attendance():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    month = request.args.get(
+        "month",
+        datetime.now().strftime("%Y-%m")
+    ).strip()
+
+    try:
+
+        report_month = datetime.strptime(
+            month,
+            "%Y-%m"
+        )
+
+    except ValueError:
+
+        month = datetime.now().strftime("%Y-%m")
+
+        report_month = datetime.strptime(
+            month,
+            "%Y-%m"
+        )
+
+
+    start_date = report_month.replace(
+        day=1
+    ).date()
+
+
+    if report_month.month == 12:
+
+        next_month = report_month.replace(
+            year=report_month.year + 1,
+            month=1,
+            day=1
+        )
+
+    else:
+
+        next_month = report_month.replace(
+            month=report_month.month + 1,
+            day=1
+        )
+
+
+    end_date = next_month.date()
+
+
+    conn = get_db()
+
+    employees = []
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # APPROVED EMPLOYEES
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    worker_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied
+
+                FROM applications
+
+                WHERE LOWER(COALESCE(status, ''))
+                    IN ('approved', 'active')
+
+                ORDER BY
+                    first_name,
+                    last_name
+                """
+            )
+
+            workers = cur.fetchall()
+
+
+            # =================================================
+            # ATTENDANCE FOR MONTH
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    worker_id,
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status
+
+                FROM attendance
+
+                WHERE attendance_date >= %s
+                AND attendance_date < %s
+
+                ORDER BY attendance_date ASC
+                """,
+                (
+                    start_date,
+                    end_date
+                )
+            )
+
+            attendance_rows = cur.fetchall()
+
+
+            # =================================================
+            # ORGANIZE ATTENDANCE
+            # =================================================
+
+            attendance_map = {}
+
+            for row in attendance_rows:
+
+                worker_id = row["worker_id"]
+
+                attendance_date = (
+                    row["attendance_date"]
+                )
+
+                attendance_map[
+                    (
+                        worker_id,
+                        attendance_date
+                    )
+                ] = row
+
+
+            # =================================================
+            # BUILD MONTHLY REPORT
+            # =================================================
+
+            for worker in workers:
+
+                present = 0
+                late = 0
+                incomplete = 0
+                absent = 0
+                total_hours = 0
+
+
+                current_date = start_date
+
+
+                while current_date < end_date:
+
+                    # -------------------------------------------------
+                    # WEEKENDS
+                    # -------------------------------------------------
+
+                    if current_date.weekday() < 5:
+
+                        attendance = attendance_map.get(
+                            (
+                                worker["id"],
+                                current_date
+                            )
+                        )
+
+
+                        if not attendance:
+
+                            absent += 1
+
+
+                        else:
+
+                            clock_in = (
+                                attendance["clock_in"]
+                            )
+
+                            clock_out = (
+                                attendance["clock_out"]
+                            )
+
+
+                            if (
+                                clock_in
+                                and not clock_out
+                            ):
+
+                                incomplete += 1
+
+
+                            elif (
+                                clock_in
+                                and clock_out
+                            ):
+
+                                status = "Present"
+
+
+                                # -------------------------------------
+                                # CHECK LATE
+                                # -------------------------------------
+
+                                cur.execute(
+                                    """
+                                    SELECT clock_in_start
+                                    FROM company_settings
+                                    ORDER BY id ASC
+                                    LIMIT 1
+                                    """
+                                )
+
+                                settings_row = (
+                                    cur.fetchone()
+                                )
+
+
+                                if (
+                                    settings_row
+                                    and settings_row[
+                                        "clock_in_start"
+                                    ]
+                                ):
+
+                                    if (
+                                        clock_in.time()
+                                        >
+                                        settings_row[
+                                            "clock_in_start"
+                                        ]
+                                    ):
+
+                                        status = "Late"
+
+
+                                if status == "Late":
+
+                                    late += 1
+
+                                else:
+
+                                    present += 1
+
+
+                                total_hours += float(
+                                    attendance[
+                                        "total_hours"
+                                    ] or 0
+                                )
+
+
+                    current_date += timedelta(
+                        days=1
+                    )
+
+
+                employee = dict(worker)
+
+                employee["present"] = present
+                employee["late"] = late
+                employee["incomplete"] = incomplete
+                employee["absent"] = absent
+                employee["total_hours"] = round(
+                    total_hours,
+                    2
+                )
+
+                employees.append(
+                    employee
+                )
+
+
+    except Exception:
+
+        app.logger.exception(
+            "Error generating monthly attendance report"
+        )
+
+        flash(
+            "Unable to generate monthly attendance report.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_attendance_monthly.html",
+
+        employees=employees,
+
+        selected_month=month
+    )
+
+@app.route("/admin/attendance/export/excel")
+def export_attendance_excel():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    month = request.args.get(
+        "month",
+        datetime.now().strftime("%Y-%m")
+    ).strip()
+
+    try:
+
+        report_month = datetime.strptime(
+            month,
+            "%Y-%m"
+        )
+
+    except ValueError:
+
+        report_month = datetime.now()
+
+        month = report_month.strftime(
+            "%Y-%m"
+        )
+
+
+    start_date = report_month.replace(
+        day=1
+    ).date()
+
+
+    if report_month.month == 12:
+
+        next_month = report_month.replace(
+            year=report_month.year + 1,
+            month=1,
+            day=1
+        )
+
+    else:
+
+        next_month = report_month.replace(
+            month=report_month.month + 1,
+            day=1
+        )
+
+
+    end_date = next_month.date()
+
+
+    conn = get_db()
+
+    rows = []
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+
+                    app.worker_number,
+
+                    app.application_number,
+
+                    app.first_name,
+
+                    app.middle_name,
+
+                    app.last_name,
+
+                    app.position_applied,
+
+                    a.attendance_date,
+
+                    a.clock_in,
+
+                    a.clock_out,
+
+                    a.total_hours,
+
+                    a.status
+
+                FROM applications app
+
+                LEFT JOIN attendance a
+                    ON a.worker_id = app.id
+
+                    AND a.attendance_date >= %s
+                    AND a.attendance_date < %s
+
+                WHERE LOWER(
+                    COALESCE(app.status, '')
+                ) IN (
+                    'approved',
+                    'active'
+                )
+
+                ORDER BY
+                    app.first_name,
+                    app.last_name,
+                    a.attendance_date
+                """,
+                (
+                    start_date,
+                    end_date
+                )
+            )
+
+            attendance_rows = cur.fetchall()
+
+
+            for row in attendance_rows:
+
+                rows.append({
+                    "Worker Number":
+                        row["worker_number"] or "",
+
+                    "Application Number":
+                        row["application_number"] or "",
+
+                    "Employee Name":
+                        " ".join(
+                            filter(
+                                None,
+                                [
+                                    row["first_name"],
+                                    row["middle_name"],
+                                    row["last_name"]
+                                ]
+                            )
+                        ),
+
+                    "Position":
+                        row["position_applied"] or "",
+
+                    "Date":
+                        row["attendance_date"],
+
+                    "Clock In":
+                        row["clock_in"],
+
+                    "Clock Out":
+                        row["clock_out"],
+
+                    "Total Hours":
+                        float(
+                            row["total_hours"] or 0
+                        ),
+
+                    "Status":
+                        row["status"] or "Absent"
+                })
+
+
+    finally:
+
+        conn.close()
+
+
+    df = pd.DataFrame(rows)
+
+
+    output = io.BytesIO()
+
+
+    with pd.ExcelWriter(
+        output,
+        engine="openpyxl"
+    ) as writer:
+
+        df.to_excel(
+            writer,
+            index=False,
+            sheet_name="Attendance"
+        )
+
+
+    output.seek(0)
+
+
+    return send_file(
+        output,
+
+        as_attachment=True,
+
+        download_name=(
+            f"attendance_report_{month}.xlsx"
+        ),
+
+        mimetype=(
+            "application/vnd.openxmlformats-officedocument."
+            "spreadsheetml.sheet"
+        )
+    )
 # ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
 # ============================================================
