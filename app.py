@@ -382,7 +382,6 @@ def admin_interviews():
 # ============================================================
 # APPLICATION FORM
 # ============================================================
-
 @app.route(
     "/apply",
     methods=["GET", "POST"]
@@ -426,7 +425,6 @@ def apply():
 
             conn.close()
 
-
         return render_template(
             "apply.html",
             positions=positions
@@ -435,12 +433,6 @@ def apply():
 
     # ========================================================
     # POST APPLICATION
-    # ========================================================
-
-    # KEEP YOUR EXISTING POST APPLICATION CODE BELOW THIS LINE
-
-    # ========================================================
-    # PERSONAL INFORMATION
     # ========================================================
 
     first_name = (
@@ -639,7 +631,24 @@ def apply():
 
 
     # ========================================================
-    # REQUIRED FIELD VALIDATION
+    # FILES
+    # ========================================================
+
+    passport = request.files.get(
+        "passport"
+    )
+
+    cv = request.files.get(
+        "cv"
+    )
+
+    qualification = request.files.get(
+        "qualification"
+    )
+
+
+    # ========================================================
+    # VALIDATION
     # ========================================================
 
     if not first_name:
@@ -690,10 +699,6 @@ def apply():
         )
 
 
-    # ========================================================
-    # PASSWORD VALIDATION
-    # ========================================================
-
     if not portal_password:
 
         flash(
@@ -730,10 +735,6 @@ def apply():
         )
 
 
-    # ========================================================
-    # DECLARATION VALIDATION
-    # ========================================================
-
     if not declaration:
 
         flash(
@@ -744,23 +745,6 @@ def apply():
         return render_template(
             "apply.html"
         )
-
-
-    # ========================================================
-    # FILES
-    # ========================================================
-
-    passport = request.files.get(
-        "passport"
-    )
-
-    cv = request.files.get(
-        "cv"
-    )
-
-    qualification = request.files.get(
-        "qualification"
-    )
 
 
     # ========================================================
@@ -836,282 +820,281 @@ def apply():
             )
 
 
-# ========================================================
-# DATABASE CONNECTION
-# ========================================================
+    # ========================================================
+    # DATABASE CONNECTION
+    # ========================================================
 
-conn = get_db()
+    conn = get_db()
 
-try:
+    try:
 
-    with conn.cursor() as cur:
+        with conn.cursor() as cur:
 
-        # ========================================================
-        # APPLICATION NUMBER
-        # ========================================================
+            # ==================================================
+            # APPLICATION NUMBER
+            # ==================================================
 
-        application_number = (
-            generate_application_number(conn)
-        )
-
-
-        # ========================================================
-        # HASH APPLICANT PASSWORD
-        # ========================================================
-
-        password_hash = generate_password_hash(
-            portal_password
-        )
-
-
-        # ========================================================
-        # SAFE FILE NAMES
-        # ========================================================
-
-        passport_filename = None
-        cv_filename = None
-        qualification_filename = None
-
-
-        # ========================================================
-        # SAVE PASSPORT
-        # ========================================================
-
-        if passport and passport.filename:
-
-            original = secure_filename(
-                passport.filename
+            application_number = (
+                generate_application_number(conn)
             )
 
-            passport_filename = (
-                f"{application_number}_passport_{original}"
+
+            # ==================================================
+            # HASH PASSWORD
+            # ==================================================
+
+            password_hash = generate_password_hash(
+                portal_password
             )
 
-            passport.save(
-                os.path.join(
-                    UPLOAD_FOLDER,
-                    passport_filename
+
+            # ==================================================
+            # FILE NAMES
+            # ==================================================
+
+            passport_filename = None
+            cv_filename = None
+            qualification_filename = None
+
+
+            # ==================================================
+            # SAVE PASSPORT
+            # ==================================================
+
+            if passport and passport.filename:
+
+                original = secure_filename(
+                    passport.filename
+                )
+
+                passport_filename = (
+                    f"{application_number}_passport_{original}"
+                )
+
+                passport.save(
+                    os.path.join(
+                        UPLOAD_FOLDER,
+                        passport_filename
+                    )
+                )
+
+
+            # ==================================================
+            # SAVE CV
+            # ==================================================
+
+            if cv and cv.filename:
+
+                original = secure_filename(
+                    cv.filename
+                )
+
+                cv_filename = (
+                    f"{application_number}_cv_{original}"
+                )
+
+                cv.save(
+                    os.path.join(
+                        UPLOAD_FOLDER,
+                        cv_filename
+                    )
+                )
+
+
+            # ==================================================
+            # SAVE QUALIFICATION
+            # ==================================================
+
+            if qualification and qualification.filename:
+
+                original = secure_filename(
+                    qualification.filename
+                )
+
+                qualification_filename = (
+                    f"{application_number}_qualification_{original}"
+                )
+
+                qualification.save(
+                    os.path.join(
+                        UPLOAD_FOLDER,
+                        qualification_filename
+                    )
+                )
+
+
+            # ==================================================
+            # INSERT APPLICATION
+            # ==================================================
+
+            cur.execute(
+                """
+                INSERT INTO applications (
+
+                    application_number,
+
+                    first_name,
+                    middle_name,
+                    last_name,
+
+                    gender,
+                    date_of_birth,
+
+                    phone,
+                    email,
+
+                    address,
+                    state,
+                    lga,
+
+                    position_applied,
+
+                    highest_qualification,
+                    course_of_study,
+                    institution,
+                    graduation_year,
+
+                    work_experience,
+                    previous_employer,
+                    previous_position,
+
+                    reason_for_applying,
+                    additional_information,
+
+                    passport_filename,
+                    cv_filename,
+                    qualification_filename,
+
+                    password_hash,
+
+                    portal_active,
+
+                    status
+
+                )
+
+                VALUES (
+
+                    %s,
+
+                    %s,
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+                    %s,
+
+                    %s,
+
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+
+                    %s,
+                    %s,
+                    %s,
+
+                    %s,
+
+                    TRUE,
+
+                    'Pending'
+
+                )
+
+                RETURNING id
+                """,
+
+                (
+                    application_number,
+
+                    first_name,
+                    middle_name,
+                    last_name,
+
+                    gender,
+                    date_of_birth or None,
+
+                    phone,
+                    email or None,
+
+                    address,
+                    state,
+                    lga,
+
+                    position_applied,
+
+                    highest_qualification,
+                    course_of_study,
+                    institution,
+                    graduation_year,
+
+                    work_experience,
+                    previous_employer,
+                    previous_position,
+
+                    reason_for_applying,
+                    additional_information,
+
+                    passport_filename,
+                    cv_filename,
+                    qualification_filename,
+
+                    password_hash
                 )
             )
 
-
-        # ========================================================
-        # SAVE CV
-        # ========================================================
-
-        if cv and cv.filename:
-
-            original = secure_filename(
-                cv.filename
-            )
-
-            cv_filename = (
-                f"{application_number}_cv_{original}"
-            )
-
-            cv.save(
-                os.path.join(
-                    UPLOAD_FOLDER,
-                    cv_filename
-                )
-            )
+            application = cur.fetchone()
 
 
-        # ========================================================
-        # SAVE QUALIFICATION
-        # ========================================================
+        # ====================================================
+        # COMMIT
+        # ====================================================
 
-        if qualification and qualification.filename:
-
-            original = secure_filename(
-                qualification.filename
-            )
-
-            qualification_filename = (
-                f"{application_number}_qualification_{original}"
-            )
-
-            qualification.save(
-                os.path.join(
-                    UPLOAD_FOLDER,
-                    qualification_filename
-                )
-            )
+        conn.commit()
 
 
-        # ========================================================
-        # SAVE APPLICATION
-        # ========================================================
+    except Exception:
 
-        cur.execute(
-            """
-            INSERT INTO applications (
+        conn.rollback()
 
-                application_number,
-
-                first_name,
-                middle_name,
-                last_name,
-
-                gender,
-                date_of_birth,
-
-                phone,
-                email,
-
-                address,
-                state,
-                lga,
-
-                position_applied,
-
-                highest_qualification,
-                course_of_study,
-                institution,
-                graduation_year,
-
-                work_experience,
-                previous_employer,
-                previous_position,
-
-                reason_for_applying,
-                additional_information,
-
-                passport_filename,
-                cv_filename,
-                qualification_filename,
-
-                password_hash,
-
-                portal_active,
-
-                status
-
-            )
-
-            VALUES (
-
-                %s,
-
-                %s,
-                %s,
-                %s,
-
-                %s,
-                %s,
-
-                %s,
-                %s,
-
-                %s,
-                %s,
-                %s,
-
-                %s,
-
-                %s,
-                %s,
-                %s,
-                %s,
-
-                %s,
-                %s,
-                %s,
-
-                %s,
-                %s,
-
-                %s,
-                %s,
-                %s,
-
-                %s,
-
-                TRUE,
-
-                'Pending'
-
-            )
-
-            RETURNING id
-            """,
-
-            (
-                application_number,
-
-                first_name,
-                middle_name,
-                last_name,
-
-                gender,
-                date_of_birth or None,
-
-                phone,
-                email or None,
-
-                address,
-                state,
-                lga,
-
-                position_applied,
-
-                highest_qualification,
-                course_of_study,
-                institution,
-                graduation_year,
-
-                work_experience,
-                previous_employer,
-                previous_position,
-
-                reason_for_applying,
-                additional_information,
-
-                passport_filename,
-                cv_filename,
-                qualification_filename,
-
-                password_hash
-            )
+        app.logger.exception(
+            "Error submitting application"
         )
 
-        application = cur.fetchone()
+        raise
+
+
+    finally:
+
+        conn.close()
 
 
     # ========================================================
-    # COMMIT
+    # SUCCESS
     # ========================================================
 
-    conn.commit()
-
-
-except Exception:
-
-    conn.rollback()
-
-    app.logger.exception(
-        "Error submitting application"
-    )
-
-    raise
-
-
-finally:
-
-    conn.close()
-
-
-# ========================================================
-# SUCCESS
-# ========================================================
-
-return redirect(
-    url_for(
-        "application_success",
-        application_number=application_number
-    )
-    )
-
+    return redirect(
+        url_for(
+            "application_success",
+            application_number=application_number
+        )
+)
 
     
 
