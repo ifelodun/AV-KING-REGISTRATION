@@ -457,6 +457,63 @@ def init_db():
             """)
 
             interviews = cur.fetchall()
+
+        with conn.cursor() as cur:
+
+    # =========================================================
+    # COMPANY SETTINGS COLUMNS
+    # =========================================================
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_name VARCHAR(255)
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_email VARCHAR(255)
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_phone VARCHAR(100)
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_address TEXT
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_website VARCHAR(255)
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS footer_text TEXT
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS application_status VARCHAR(20)
+                DEFAULT 'Open'
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS application_deadline DATE
+            """)
+
+            cur.execute("""
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS logo VARCHAR(255)
+            """)
+
+    # =========================================================
+    # SAVE CHANGES
+    # =========================================================
+
         # =====================================================
         # COMMIT
         # =====================================================
