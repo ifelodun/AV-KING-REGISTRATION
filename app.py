@@ -3526,34 +3526,15 @@ def admin_dashboard():
 # ============================================================
 # ADMIN — ATTENDANCE MANAGEMENT
 # ============================================================
-
 @app.route("/admin/attendance")
 def admin_attendance():
-
-    # --------------------------------------------------------
-    # ADMIN LOGIN CHECK
-    # --------------------------------------------------------
 
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    # --------------------------------------------------------
-    # FILTERS
-    # --------------------------------------------------------
-
     selected_date = (
-        request.args.get("date", "").strip()
+        request.args.get("date")
         or datetime.now().strftime("%Y-%m-%d")
-    )
-
-    search = (
-        request.args.get("search", "")
-        .strip()
-    )
-
-    status = (
-        request.args.get("status", "")
-        .strip()
     )
 
     conn = get_db()
@@ -3562,28 +3543,66 @@ def admin_attendance():
 
         with conn.cursor() as cur:
 
-            # =================================================
+            # =====================================================
             # ATTENDANCE RECORDS
-            # =================================================
+            # =====================================================
 
-            query = """
+            cur.execute(
+                """
                 SELECT
                     a.id,
                     a.worker_id,
                     a.attendance_date,
                     a.clock_in,
                     a.clock_out,
-                    a.total_hours,
-                    a.status,
-
                     a.clock_in_latitude,
                     a.clock_in_longitude,
-
                     a.clock_out_latitude,
                     a.clock_out_longitude,
-
                     a.clock_in_location_verified,
                     a.clock_out_location_verified,
+                    a.total_hours,
+                    a.status,
+                    a.notes,
+
+                    app.application_number,
+                    app.first_name,
+                    app.middle_name,
+                    app.last_name,
+                    app.phone,
+                    app.position_applied
+
+                FROM attendance a
+
+                INNER JOIN applications app
+                    ON app.id = a.worker_id
+
+                WHERE a.attendance_date = %s
+
+                AND app.status = 'Approved'
+
+                ORDER BY
+                    a.clock_in ASC NULLS LAST,
+                    app.first_name ASC
+                """,
+                (selected_date,)
+            )
+
+            attendance_records = cur.fetchall()
+
+
+            # =====================================================
+            # ABSENT STAFF
+            #
+            # Approved applicants who have NO attendance record
+            # for the selected date.
+            # =====================================================
+
+            cur.execute(
+                """
+                SELECT
+
+                    app.id AS worker_id,
 
                     app.application_number,
                     app.first_name,
@@ -3593,170 +3612,90 @@ def admin_attendance():
                     app.email,
                     app.position_applied
 
-                FROM attendance a
+                FROM applications app
 
-                INNER JOIN applications app
-                    ON app.id = a.worker_id
+                LEFT JOIN attendance a
+                    ON a.worker_id = app.id
+                    AND a.attendance_date = %s
 
-                WHERE a.attendance_date = %s
-            """
+                WHERE app.status = 'Approved'
 
-            params = [
-                selected_date
-            ]
+                AND a.id IS NULL
 
-            # =================================================
-            # SEARCH
-            # =================================================
-
-            if search:
-
-                query += """
-                    AND (
-                        app.application_number ILIKE %s
-                        OR app.first_name ILIKE %s
-                        OR app.middle_name ILIKE %s
-                        OR app.last_name ILIKE %s
-                        OR app.phone ILIKE %s
-                        OR app.email ILIKE %s
-                    )
-                """
-
-                search_value = f"%{search}%"
-
-                params.extend([
-                    search_value,
-                    search_value,
-                    search_value,
-                    search_value,
-                    search_value,
-                    search_value
-                ])
-
-            # =================================================
-            # STATUS
-            # =================================================
-
-            if status:
-
-                query += """
-                    AND a.status = %s
-                """
-
-                params.append(status)
-
-            # =================================================
-            # ORDER
-            # =================================================
-
-            query += """
                 ORDER BY
-                    a.clock_in ASC NULLS LAST,
-                    app.first_name ASC
-            """
-
-            cur.execute(
-                query,
-                params
-            )
-
-            attendance_records = cur.fetchall()
-
-
-            # =================================================
-            # TODAY / SELECTED DATE SUMMARY
-            # =================================================
-
-            cur.execute(
-                """
-                SELECT
-                    COUNT(*) AS total_records,
-
-                    COUNT(*) FILTER (
-                        WHERE clock_in IS NOT NULL
-                    ) AS clocked_in,
-
-                    COUNT(*) FILTER (
-                        WHERE clock_out IS NOT NULL
-                    ) AS clocked_out,
-
-                    COALESCE(
-                        SUM(total_hours),
-                        0
-                    ) AS total_hours
-
-                FROM attendance
-
-                WHERE attendance_date = %s
+                    app.first_name ASC,
+                    app.last_name ASC
                 """,
                 (selected_date,)
             )
 
-            summary = cur.fetchone()
+            absent_staff = cur.fetchall()
 
 
-            # =================================================
-            # APPROVED APPLICANTS
-            # =================================================
+            # =====================================================
+            # SUMMARY COUNTS
+            # =====================================================
 
-            cur.execute(
-                """
-                SELECT
-                    COUNT(*) AS approved_workers
-
-                FROM applications
-
-                WHERE status = 'Approved'
-                """
+            total_staff = (
+                len(attendance_records)
+                + len(absent_staff)
             )
 
-            approved_row = cur.fetchone()
+            present_count = len(
+                attendance_records
+            )
 
-            approved_workers = int(
-                approved_row["approved_workers"]
-                or 0
+            absent_count = len(
+                absent_staff
             )
 
 
-            # =================================================
-            # ABSENT COUNT
-            #
-            # Approved applicants who have no attendance
-            # record for the selected date.
-            # =================================================
+            # =====================================================
+            # COMPLETED ATTENDANCE
+            # =====================================================
 
-            absent_count = max(
-                approved_workers
-                - int(summary["clocked_in"] or 0),
-                0
+            completed_count = sum(
+                1
+                for row in attendance_records
+                if row["clock_in"]
+                and row["clock_out"]
             )
 
+
+            # =====================================================
+            # CURRENTLY CLOCKED IN
+            # =====================================================
+
+            clocked_in_count = sum(
+                1
+                for row in attendance_records
+                if row["clock_in"]
+                and not row["clock_out"]
+            )
 
     finally:
 
         conn.close()
 
 
-    # =========================================================
-    # RENDER
-    # =========================================================
-
     return render_template(
         "admin_attendance.html",
 
         attendance_records=attendance_records,
 
+        absent_staff=absent_staff,
+
         selected_date=selected_date,
 
-        search=search,
+        total_staff=total_staff,
 
-        selected_status=status,
+        present_count=present_count,
 
-        summary=summary,
+        absent_count=absent_count,
 
-        approved_workers=approved_workers,
+        completed_count=completed_count,
 
-        absent_count=absent_count
+        clocked_in_count=clocked_in_count
     )
     
 # ============================================================
