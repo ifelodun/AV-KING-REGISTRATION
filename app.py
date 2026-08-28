@@ -5439,198 +5439,528 @@ def admin_monthly_attendance_pdf():
             + ".pdf"
         )
     )
-@app.route("/admin/attendance/export/excel")
-def export_attendance_excel():
+
+@app.route("/admin/attendance/monthly/export/excel")
+def export_monthly_attendance_excel():
+
+    # =========================================================
+    # ADMIN ACCESS
+    # =========================================================
 
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    month = request.args.get(
-        "month",
-        datetime.now().strftime("%Y-%m")
-    ).strip()
+    # =========================================================
+    # FILTERS
+    # =========================================================
+
+    selected_month = (
+        request.args.get("month", "").strip()
+        or datetime.now().strftime("%Y-%m")
+    )
+
+    search = (
+        request.args.get("search", "").strip()
+    )
+
+    # =========================================================
+    # VALIDATE MONTH
+    # =========================================================
 
     try:
 
-        report_month = datetime.strptime(
-            month,
+        month_date = datetime.strptime(
+            selected_month,
             "%Y-%m"
         )
 
     except ValueError:
 
-        report_month = datetime.now()
+        month_date = datetime.now()
 
-        month = report_month.strftime(
+        selected_month = month_date.strftime(
             "%Y-%m"
         )
 
+    # =========================================================
+    # MONTH RANGE
+    # =========================================================
 
-    start_date = report_month.replace(
+    month_start = month_date.replace(
         day=1
-    ).date()
+    )
 
+    if month_date.month == 12:
 
-    if report_month.month == 12:
-
-        next_month = report_month.replace(
-            year=report_month.year + 1,
-            month=1,
-            day=1
+        next_month = datetime(
+            month_date.year + 1,
+            1,
+            1
         )
 
     else:
 
-        next_month = report_month.replace(
-            month=report_month.month + 1,
-            day=1
+        next_month = datetime(
+            month_date.year,
+            month_date.month + 1,
+            1
         )
 
-
-    end_date = next_month.date()
-
-
     conn = get_db()
-
-    rows = []
 
     try:
 
         with conn.cursor() as cur:
 
+            # =================================================
+            # GET COMPANY INFORMATION
+            # =================================================
+
             cur.execute(
                 """
                 SELECT
+                    company_name,
+                    company_email,
+                    company_phone,
+                    company_address
 
-                    app.worker_number,
+                FROM company_settings
 
-                    app.application_number,
+                ORDER BY id ASC
 
-                    app.first_name,
+                LIMIT 1
+                """
+            )
 
-                    app.middle_name,
+            company = cur.fetchone()
 
-                    app.last_name,
+            company_name = (
+                company["company_name"]
+                if company
+                else "AV KING VET DRUG VENTURE"
+            )
 
-                    app.position_applied,
+            company_email = (
+                company["company_email"]
+                if company
+                else ""
+            )
 
-                    a.attendance_date,
+            company_phone = (
+                company["company_phone"]
+                if company
+                else ""
+            )
 
-                    a.clock_in,
+            company_address = (
+                company["company_address"]
+                if company
+                else ""
+            )
 
-                    a.clock_out,
+            # =================================================
+            # GET STAFF
+            # =================================================
 
-                    a.total_hours,
+            worker_query = """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    phone,
+                    email,
+                    position_applied
 
-                    a.status
+                FROM applications
 
-                FROM applications app
+                WHERE
+                    status = 'Approved'
+                    AND portal_active = TRUE
+            """
 
-                LEFT JOIN attendance a
-                    ON a.worker_id = app.id
+            params = []
 
-                    AND a.attendance_date >= %s
-                    AND a.attendance_date < %s
+            if search:
 
-                WHERE LOWER(
-                    COALESCE(app.status, '')
-                ) IN (
-                    'approved',
-                    'active'
-                )
+                worker_query += """
+                    AND (
+                        application_number ILIKE %s
+                        OR first_name ILIKE %s
+                        OR middle_name ILIKE %s
+                        OR last_name ILIKE %s
+                        OR phone ILIKE %s
+                        OR email ILIKE %s
+                        OR position_applied ILIKE %s
+                    )
+                """
 
+                search_value = f"%{search}%"
+
+                params = [
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value
+                ]
+
+            worker_query += """
                 ORDER BY
-                    app.first_name,
-                    app.last_name,
-                    a.attendance_date
+                    first_name ASC,
+                    last_name ASC
+            """
+
+            cur.execute(
+                worker_query,
+                params
+            )
+
+            workers = cur.fetchall()
+
+            # =================================================
+            # GET ATTENDANCE
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    worker_id,
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status
+
+                FROM attendance
+
+                WHERE
+                    attendance_date >= %s
+                    AND attendance_date < %s
+
+                ORDER BY attendance_date ASC
                 """,
                 (
-                    start_date,
-                    end_date
+                    month_start.strftime("%Y-%m-%d"),
+                    next_month.strftime("%Y-%m-%d")
                 )
             )
 
             attendance_rows = cur.fetchall()
 
-
-            for row in attendance_rows:
-
-                rows.append({
-                    "Worker Number":
-                        row["worker_number"] or "",
-
-                    "Application Number":
-                        row["application_number"] or "",
-
-                    "Employee Name":
-                        " ".join(
-                            filter(
-                                None,
-                                [
-                                    row["first_name"],
-                                    row["middle_name"],
-                                    row["last_name"]
-                                ]
-                            )
-                        ),
-
-                    "Position":
-                        row["position_applied"] or "",
-
-                    "Date":
-                        row["attendance_date"],
-
-                    "Clock In":
-                        row["clock_in"],
-
-                    "Clock Out":
-                        row["clock_out"],
-
-                    "Total Hours":
-                        float(
-                            row["total_hours"] or 0
-                        ),
-
-                    "Status":
-                        row["status"] or "Absent"
-                })
-
-
     finally:
 
         conn.close()
 
+    # =========================================================
+    # ORGANIZE ATTENDANCE
+    # =========================================================
 
-    df = pd.DataFrame(rows)
+    attendance_map = {}
 
+    for row in attendance_rows:
 
-    output = io.BytesIO()
+        worker_id = row["worker_id"]
 
+        attendance_map.setdefault(
+            worker_id,
+            []
+        ).append(row)
+
+    # =========================================================
+    # CALCULATE WORKING DAYS
+    # =========================================================
+
+    working_days = 0
+
+    current_day = month_start
+
+    while current_day < next_month:
+
+        if current_day.weekday() < 5:
+            working_days += 1
+
+        current_day += timedelta(days=1)
+
+    # =========================================================
+    # BUILD EXCEL DATA
+    # =========================================================
+
+    excel_rows = []
+
+    for worker in workers:
+
+        records = attendance_map.get(
+            worker["id"],
+            []
+        )
+
+        present_days = 0
+        absent_days = 0
+        late_days = 0
+        incomplete_days = 0
+        total_hours = 0
+
+        for record in records:
+
+            clock_in = record["clock_in"]
+            clock_out = record["clock_out"]
+
+            status = (
+                str(record["status"] or "")
+                .strip()
+                .lower()
+            )
+
+            hours = float(
+                record["total_hours"] or 0
+            )
+
+            total_hours += hours
+
+            if (
+                clock_in
+                and not clock_out
+            ):
+
+                incomplete_days += 1
+
+            elif status == "late":
+
+                late_days += 1
+                present_days += 1
+
+            elif (
+                clock_in
+                and clock_out
+            ):
+
+                present_days += 1
+
+            elif status == "absent":
+
+                absent_days += 1
+
+        # =====================================================
+        # MISSING WORKING DAYS = ABSENT
+        # =====================================================
+
+        absent_days += max(
+            working_days
+            - present_days
+            - incomplete_days
+            - absent_days,
+            0
+        )
+
+        # =====================================================
+        # ATTENDANCE %
+        # =====================================================
+
+        if working_days:
+
+            attendance_percentage = (
+                (
+                    present_days
+                    + incomplete_days
+                )
+                / working_days
+            ) * 100
+
+        else:
+
+            attendance_percentage = 0
+
+        # =====================================================
+        # EMPLOYEE NAME
+        # =====================================================
+
+        full_name = " ".join(
+            part
+            for part in [
+                worker["first_name"],
+                worker["middle_name"],
+                worker["last_name"]
+            ]
+            if part
+        )
+
+        excel_rows.append({
+
+            "Employee Name":
+                full_name,
+
+            "Application Number":
+                worker["application_number"],
+
+            "Position":
+                worker["position_applied"] or "",
+
+            "Phone":
+                worker["phone"] or "",
+
+            "Email":
+                worker["email"] or "",
+
+            "Working Days":
+                working_days,
+
+            "Present Days":
+                present_days,
+
+            "Absent Days":
+                absent_days,
+
+            "Late Days":
+                late_days,
+
+            "Incomplete Days":
+                incomplete_days,
+
+            "Total Hours":
+                round(
+                    total_hours,
+                    2
+                ),
+
+            "Attendance %":
+                round(
+                    attendance_percentage,
+                    1
+                )
+        })
+
+    # =========================================================
+    # DATAFRAME
+    # =========================================================
+
+    df = pd.DataFrame(
+        excel_rows
+    )
+
+    # =========================================================
+    # CREATE EXCEL FILE
+    # =========================================================
+
+    output = BytesIO()
 
     with pd.ExcelWriter(
         output,
         engine="openpyxl"
     ) as writer:
 
+        # ---------------------------------------------
+        # COMPANY HEADER
+        # ---------------------------------------------
+
+        header_data = pd.DataFrame({
+
+            "A": [
+                company_name,
+                company_address,
+                company_phone,
+                company_email,
+                "",
+                f"MONTHLY ATTENDANCE REPORT — {selected_month}"
+            ]
+
+        })
+
+        header_data.to_excel(
+            writer,
+            index=False,
+            header=False,
+            sheet_name="Attendance Report"
+        )
+
+        # ---------------------------------------------
+        # ATTENDANCE TABLE
+        # ---------------------------------------------
+
+        start_row = len(header_data) + 2
+
         df.to_excel(
             writer,
             index=False,
-            sheet_name="Attendance"
+            sheet_name="Attendance Report",
+            startrow=start_row
         )
 
+        worksheet = writer.book[
+            "Attendance Report"
+        ]
+
+        # ---------------------------------------------
+        # COLUMN WIDTHS
+        # ---------------------------------------------
+
+        widths = {
+
+            "A": 28,
+            "B": 20,
+            "C": 25,
+            "D": 18,
+            "E": 32,
+            "F": 16,
+            "G": 16,
+            "H": 16,
+            "I": 14,
+            "J": 18,
+            "K": 16,
+            "L": 16
+
+        }
+
+        for column, width in widths.items():
+
+            worksheet.column_dimensions[
+                column
+            ].width = width
+
+        # ---------------------------------------------
+        # FREEZE TABLE HEADER
+        # ---------------------------------------------
+
+        worksheet.freeze_panes = (
+            f"A{start_row + 2}"
+        )
+
+        # ---------------------------------------------
+        # AUTO FILTER
+        # ---------------------------------------------
+
+        if len(df) > 0:
+
+            first_row = start_row + 1
+
+            last_row = (
+                start_row
+                + len(df)
+                + 1
+            )
+
+            worksheet.auto_filter.ref = (
+                f"A{first_row}:L{last_row}"
+            )
 
     output.seek(0)
 
+    # =========================================================
+    # DOWNLOAD
+    # =========================================================
+
+    filename = (
+        f"monthly_attendance_"
+        f"{selected_month}.xlsx"
+    )
 
     return send_file(
         output,
-
         as_attachment=True,
-
-        download_name=(
-            f"attendance_report_{month}.xlsx"
-        ),
-
+        download_name=filename,
         mimetype=(
             "application/vnd.openxmlformats-officedocument."
             "spreadsheetml.sheet"
