@@ -387,7 +387,7 @@ def admin_interviews():
 def apply():
 
     # ========================================================
-    # CHECK WHETHER APPLICATIONS ARE OPEN
+    # CHECK APPLICATION SETTINGS
     # ========================================================
 
     conn = get_db()
@@ -398,7 +398,9 @@ def apply():
 
             cur.execute(
                 """
-                SELECT applications_open
+                SELECT
+                    application_status,
+                    application_deadline
                 FROM company_settings
                 ORDER BY id ASC
                 LIMIT 1
@@ -407,22 +409,13 @@ def apply():
 
             settings = cur.fetchone()
 
-            if settings:
-                applications_open = bool(
-                    settings["applications_open"]
-                )
-            else:
-                # If no settings record exists,
-                # do not accept applications.
-                applications_open = False
-
     except Exception:
 
         app.logger.exception(
-            "Error checking application status"
+            "Error checking application settings"
         )
 
-        applications_open = False
+        settings = None
 
     finally:
 
@@ -430,14 +423,89 @@ def apply():
 
 
     # ========================================================
-    # APPLICATIONS CLOSED
+    # DEFAULT SETTINGS
     # ========================================================
 
-    if not applications_open:
+    application_status = "Closed"
+    application_deadline = None
+
+
+    if settings:
+
+        application_status = (
+            settings["application_status"]
+            or "Closed"
+        ).strip().capitalize()
+
+        application_deadline = (
+            settings["application_deadline"]
+        )
+
+
+    # ========================================================
+    # APPLICATIONS MANUALLY CLOSED
+    # ========================================================
+
+    if application_status == "Closed":
 
         return render_template(
             "applications_closed.html"
         ), 403
+
+
+    # ========================================================
+    # CHECK APPLICATION DEADLINE
+    # ========================================================
+
+    if application_deadline:
+
+        try:
+
+            if hasattr(
+                application_deadline,
+                "date"
+            ):
+
+                deadline_date = (
+                    application_deadline.date()
+                )
+
+            elif isinstance(
+                application_deadline,
+                str
+            ):
+
+                deadline_date = datetime.strptime(
+                    application_deadline,
+                    "%Y-%m-%d"
+                ).date()
+
+            else:
+
+                deadline_date = (
+                    application_deadline
+                )
+
+
+            today = datetime.now().date()
+
+
+            if today > deadline_date:
+
+                return render_template(
+                    "applications_closed.html"
+                ), 403
+
+
+        except Exception:
+
+            app.logger.exception(
+                "Error checking application deadline"
+            )
+
+            return render_template(
+                "applications_closed.html"
+            ), 403
 
 
     # ========================================================
@@ -887,31 +955,47 @@ def apply():
             # ==================================================
             # This prevents someone from submitting an old
             # application form after the admin has closed it.
-
+            # ==================================================
+            # FINAL APPLICATION STATUS CHECK
+            # ==================================================
+            
             cur.execute(
                 """
-                SELECT applications_open
+                SELECT
+                    application_status,
+                    application_deadline
                 FROM company_settings
                 ORDER BY id ASC
                 LIMIT 1
                 """
             )
-
-            settings = cur.fetchone()
-
-            if (
-                not settings
-                or not bool(
-                    settings["applications_open"]
-                )
-            ):
-
+            
+            current_settings = cur.fetchone()
+            
+            
+            if not current_settings:
+            
                 conn.rollback()
-
+            
                 return render_template(
                     "applications_closed.html"
                 ), 403
-
+            
+            
+            current_status = (
+                current_settings["application_status"]
+                or "Closed"
+            ).strip().capitalize()
+            
+            
+            if current_status == "Closed":
+            
+                conn.rollback()
+            
+                return render_template(
+                    "applications_closed.html"
+                ), 403
+            
 
             # ==================================================
             # APPLICATION NUMBER
