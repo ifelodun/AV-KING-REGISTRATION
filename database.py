@@ -447,6 +447,16 @@ def init_db():
                 )
             """)
 
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT *
+                FROM applications
+                WHERE interview_date IS NOT NULL
+                ORDER BY interview_date ASC
+            """)
+
+            interviews = cur.fetchall()
         # =====================================================
         # COMMIT
         # =====================================================
