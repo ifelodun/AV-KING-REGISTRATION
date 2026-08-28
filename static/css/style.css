@@ -3338,3 +3338,796 @@ required {
     font-size: 15px;
 
 }
+
+/* =========================================================
+   AV KING RECRUITMENT PORTAL
+   GLOBAL STYLESHEET
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #f5f7fb;
+    color: #111827;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    text-decoration: none;
+    color: #111827;
+    flex-shrink: 0;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #111827;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .5px;
+
+    box-shadow: 0 4px 12px rgba(17, 24, 39, .12);
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-text strong {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .4px;
+}
+
+.brand-text span {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+}
+
+
+/* =========================================================
+   PUBLIC HEADER
+   ========================================================= */
+
+.public-header {
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.public-header-inner {
+    max-width: 1250px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.public-nav {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.public-nav a {
+    position: relative;
+
+    padding: 9px 13px;
+
+    color: #4b5563;
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background .2s ease,
+        color .2s ease;
+}
+
+.public-nav a:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.public-nav a:last-child {
+    margin-left: 5px;
+
+    background: #111827;
+    color: #ffffff;
+}
+
+.public-nav a:last-child:hover {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   ADMIN HEADER
+   ========================================================= */
+
+.admin-header {
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.admin-header-inner {
+    max-width: 1400px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.admin-nav {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+}
+
+.admin-nav a {
+    position: relative;
+
+    padding: 10px 13px;
+
+    border-radius: 8px;
+
+    color: #6b7280;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    transition:
+        color .2s ease,
+        background .2s ease;
+}
+
+.admin-nav a:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.admin-nav a.active {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.admin-nav a.active::after {
+    content: "";
+
+    position: absolute;
+
+    left: 13px;
+    right: 13px;
+    bottom: 3px;
+
+    height: 2px;
+
+    background: #111827;
+    border-radius: 99px;
+}
+
+
+/* =========================================================
+   APPLICANT HEADER
+   ========================================================= */
+
+.applicant-header {
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.applicant-header-inner {
+    max-width: 1250px;
+    min-height: 72px;
+    margin: 0 auto;
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.applicant-nav {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+}
+
+.applicant-nav a {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 10px 13px;
+
+    border-radius: 8px;
+
+    color: #6b7280;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    transition:
+        color .2s ease,
+        background .2s ease;
+}
+
+.applicant-nav a:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.applicant-nav a.active {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.applicant-nav a.active::after {
+    content: "";
+
+    position: absolute;
+
+    left: 13px;
+    right: 13px;
+    bottom: 3px;
+
+    height: 2px;
+
+    background: #111827;
+    border-radius: 99px;
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.logout-link {
+    margin-left: auto !important;
+
+    color: #b91c1c !important;
+}
+
+.logout-link:hover {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+}
+
+
+/* =========================================================
+   ACCOUNT AREA
+   ========================================================= */
+
+.header-account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding-left: 18px;
+
+    border-left: 1px solid #e5e7eb;
+}
+
+.account-avatar {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #111827;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.account-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 100px;
+}
+
+.account-info strong {
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-info span {
+    margin-top: 2px;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   NOTIFICATION COUNT
+   ========================================================= */
+
+.notification-count {
+    min-width: 19px;
+    height: 19px;
+
+    padding: 0 5px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+
+.main-content {
+    width: 100%;
+    min-height: calc(100vh - 150px);
+}
+
+
+/* =========================================================
+   FLASH MESSAGES
+   ========================================================= */
+
+.flash-container {
+    position: fixed;
+
+    top: 88px;
+    right: 22px;
+
+    width: min(390px, calc(100vw - 30px));
+
+    z-index: 2000;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    pointer-events: none;
+}
+
+.flash-message {
+    pointer-events: auto;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 50px;
+
+    padding: 13px 16px;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 10px 25px rgba(0, 0, 0, .08),
+        0 3px 8px rgba(0, 0, 0, .04);
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.flash-success {
+    border-left: 4px solid #059669;
+}
+
+.flash-error {
+    border-left: 4px solid #dc2626;
+}
+
+.flash-danger {
+    border-left: 4px solid #dc2626;
+}
+
+.flash-warning {
+    border-left: 4px solid #d97706;
+}
+
+.flash-info {
+    border-left: 4px solid #2563eb;
+}
+
+
+/* =========================================================
+   COMMON BUTTONS
+   ========================================================= */
+
+button,
+.btn {
+    border: none;
+    cursor: pointer;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 17px;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        transform .15s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: #111827;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #1f2937;
+    box-shadow: 0 5px 14px rgba(17, 24, 39, .15);
+}
+
+
+/* =========================================================
+   GENERAL FORM ELEMENTS
+   ========================================================= */
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    color: #111827;
+
+    outline: none;
+
+    font-size: 14px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #6b7280;
+
+    box-shadow:
+        0 0 0 3px rgba(107, 114, 128, .10);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   SITE FOOTER
+   ========================================================= */
+
+.site-footer {
+    background: #ffffff;
+
+    border-top: 1px solid #e5e7eb;
+
+    margin-top: 40px;
+}
+
+.footer-inner {
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 22px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+}
+
+.footer-inner > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.footer-inner strong {
+    color: #374151;
+
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+.footer-inner span {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, .25);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 950px) {
+
+    .admin-header-inner,
+    .applicant-header-inner {
+        flex-wrap: wrap;
+        gap: 12px;
+
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .admin-nav,
+    .applicant-nav {
+        order: 3;
+
+        width: 100%;
+
+        overflow-x: auto;
+
+        padding-bottom: 2px;
+
+        scrollbar-width: thin;
+    }
+
+    .admin-nav a,
+    .applicant-nav a {
+        white-space: nowrap;
+    }
+
+    .header-account {
+        margin-left: auto;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .public-header-inner {
+        min-height: auto;
+
+        padding-top: 13px;
+        padding-bottom: 13px;
+
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .public-nav {
+        width: 100%;
+
+        overflow-x: auto;
+
+        padding-bottom: 2px;
+    }
+
+    .public-nav a {
+        white-space: nowrap;
+    }
+
+    .account-info {
+        display: none;
+    }
+
+    .header-account {
+        padding-left: 10px;
+    }
+
+    .brand-logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .flash-container {
+        top: 15px;
+        right: 15px;
+    }
+
+    .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+
+        padding: 20px 15px;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .public-header-inner,
+    .admin-header-inner,
+    .applicant-header-inner {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .brand-text strong {
+        font-size: 14px;
+    }
+
+    .brand-text span {
+        font-size: 8px;
+    }
+
+    .admin-nav a,
+    .applicant-nav a,
+    .public-nav a {
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    .notification-count {
+        min-width: 17px;
+        height: 17px;
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+        }
