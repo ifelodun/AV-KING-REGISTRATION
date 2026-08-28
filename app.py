@@ -227,11 +227,22 @@ def allowed_file(filename, allowed_extensions):
 # APPLICATION NUMBER
 # ============================================================
 
-def generate_application_number():
+# =========================================================
+# GENERATE RANDOM APPLICATION NUMBER
+# =========================================================
 
-    conn = get_db()
+def generate_application_number(conn):
 
-    try:
+    while True:
+
+        random_number = random.randint(
+            1000,
+            9999
+        )
+
+        application_number = (
+            f"AV-APP-{random_number}"
+        )
 
         with conn.cursor() as cur:
 
@@ -239,26 +250,17 @@ def generate_application_number():
                 """
                 SELECT id
                 FROM applications
-                ORDER BY id DESC
+                WHERE application_number = %s
                 LIMIT 1
-                """
+                """,
+                (application_number,)
             )
 
-            row = cur.fetchone()
+            existing = cur.fetchone()
 
-            if row:
+        if not existing:
 
-                next_number = row["id"] + 1
-
-            else:
-
-                next_number = 1
-
-        return f"AV-APP-{next_number:05d}"
-
-    finally:
-
-        conn.close()
+            return application_number
 
 
 # ============================================================
@@ -800,7 +802,7 @@ def apply():
     # ========================================================
 
     application_number = (
-        generate_application_number()
+        generate_application_number(conn)
     )
 
 
