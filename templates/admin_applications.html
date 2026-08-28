@@ -572,16 +572,14 @@
                                 {% if application.cv_filename %}
 
                                 <a
-                                    href="{{ url_for(
-                                        'admin_download_file',
-                                        application_id=application.id,
-                                        file_type='cv'
-                                    ) }}"
-                                    class="document-link"
-                                    target="_blank"
-                                    title="View CV"
-                                >
-                                    CV
+    href="{{ url_for(
+        'admin_download_file',
+        application_id=application.id,
+        file_type='cv'
+    ) }}"
+    class="document-link"
+>
+    📄 Download CV
                                 </a>
 
                                 {% endif %}
@@ -590,18 +588,15 @@
                                 {% if application.passport_filename %}
 
                                 <a
-                                    href="{{ url_for(
-                                        'admin_download_file',
-                                        application_id=application.id,
-                                        file_type='passport'
-                                    ) }}"
-                                    class="document-link"
-                                    target="_blank"
-                                    title="View passport photograph"
-                                >
-                                    Photo
+    href="{{ url_for(
+        'admin_download_file',
+        application_id=application.id,
+        file_type='passport'
+    ) }}"
+    class="document-link"
+>
+    🖼 Download Photo
                                 </a>
-
                                 {% endif %}
 
 
@@ -840,34 +835,30 @@
                         {% if application.cv_filename %}
 
                         <a
-                            href="{{ url_for(
-                                'admin_download_file',
-                                application_id=application.id,
-                                file_type='cv'
-                            ) }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="document-link"
-                        >
-                            📄 View CV
+    href="{{ url_for(
+        'admin_download_file',
+        application_id=application.id,
+        file_type='cv'
+    ) }}"
+    class="document-link"
+>
+    📄 Download CV
                         </a>
-
+                        
                         {% endif %}
 
 
                         {% if application.passport_filename %}
 
                         <a
-                            href="{{ url_for(
-                                'admin_download_file',
-                                application_id=application.id,
-                                file_type='passport'
-                            ) }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="document-link"
-                        >
-                            🖼 View Photo
+    href="{{ url_for(
+        'admin_download_file',
+        application_id=application.id,
+        file_type='passport'
+    ) }}"
+    class="document-link"
+>
+    🖼 Download Photo
                         </a>
 
                         {% endif %}
