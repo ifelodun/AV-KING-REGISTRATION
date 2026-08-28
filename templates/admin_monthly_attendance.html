@@ -36,6 +36,16 @@
                 ← Daily Attendance
             </a>
 
+            <a
+    href="{{ url_for(
+        'export_monthly_attendance_excel',
+        month=selected_month,
+        search=search
+    ) }}"
+    class="btn btn-primary"
+>
+    Export Excel
+</a>
         </div>
 
     </div>
@@ -124,7 +134,15 @@
                 >
                     Generate Report
                 </button>
-
+<a
+    href="{{ url_for(
+        'admin_monthly_attendance_pdf',
+        month=selected_month
+    ) }}"
+    class="btn btn-secondary"
+>
+    ↓ Export PDF
+</a>
             </div>
 
         </form>
