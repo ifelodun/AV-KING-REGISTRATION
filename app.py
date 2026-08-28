@@ -3524,7 +3524,132 @@ def admin_dashboard():
         recent_applications=recent_applications
     )
 
+# =========================================================
+# ATTENDANCE STATUS HELPER
+# =========================================================
 
+def calculate_attendance_status(
+    attendance,
+    clock_in_start=None
+):
+    """
+    Determine the official attendance status.
+
+    Possible statuses:
+        Present
+        Late
+        Incomplete
+        Absent
+    """
+
+    # -----------------------------------------------------
+    # NO ATTENDANCE RECORD
+    # -----------------------------------------------------
+
+    if not attendance:
+        return "Absent"
+
+
+    clock_in = attendance.get("clock_in")
+    clock_out = attendance.get("clock_out")
+
+
+    # -----------------------------------------------------
+    # CLOCKED IN BUT NOT CLOCKED OUT
+    # -----------------------------------------------------
+
+    if clock_in and not clock_out:
+        return "Incomplete"
+
+
+    # -----------------------------------------------------
+    # NO VALID CLOCK-IN
+    # -----------------------------------------------------
+
+    if not clock_in:
+        return "Absent"
+
+
+    # -----------------------------------------------------
+    # CLOCKED IN + CLOCKED OUT
+    # -----------------------------------------------------
+
+    if clock_in and clock_out:
+
+        # -----------------------------------------------
+        # CHECK LATE
+        # -----------------------------------------------
+
+        if clock_in_start:
+
+            try:
+
+                if clock_in.time() > clock_in_start:
+                    return "Late"
+
+            except Exception:
+
+                pass
+
+
+        return "Present"
+
+
+    # -----------------------------------------------------
+    # FALLBACK
+    # -----------------------------------------------------
+
+    return (
+        attendance.get("status")
+        or "Absent"
+    )
+
+# =========================================================
+# GET ATTENDANCE SETTINGS
+# =========================================================
+
+def get_attendance_settings(conn):
+
+    with conn.cursor() as cur:
+
+        cur.execute(
+            """
+            SELECT
+                attendance_enabled,
+                company_latitude,
+                company_longitude,
+                attendance_radius,
+                clock_in_start,
+                clock_out_end
+
+            FROM company_settings
+
+            ORDER BY id ASC
+
+            LIMIT 1
+            """
+        )
+
+        settings = cur.fetchone()
+
+
+    # -----------------------------------------------------
+    # DEFAULT SETTINGS
+    # -----------------------------------------------------
+
+    if not settings:
+
+        return {
+            "attendance_enabled": True,
+            "company_latitude": None,
+            "company_longitude": None,
+            "attendance_radius": 200,
+            "clock_in_start": None,
+            "clock_out_end": None
+        }
+
+
+    return settings
 # ============================================================
 # ADMIN — ATTENDANCE MANAGEMENT
 # ============================================================
