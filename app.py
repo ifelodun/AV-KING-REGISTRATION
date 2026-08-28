@@ -3480,11 +3480,17 @@ def applicant_message(message_id):
 # ============================================================
 # ADMIN SETTINGS
 # ============================================================
+
 @app.route("/admin/settings", methods=["GET", "POST"])
 def admin_settings():
 
+    # =========================================================
+    # CHECK ADMIN LOGIN
+    # =========================================================
+
     if not admin_required():
         return redirect(url_for("admin_login"))
+
 
     conn = get_db()
 
@@ -3492,50 +3498,102 @@ def admin_settings():
 
         with conn.cursor() as cur:
 
-            # ==================================================
-            # SAVE SETTINGS
-            # ==================================================
+            # =================================================
+            # POST - SAVE SETTINGS
+            # =================================================
 
             if request.method == "POST":
 
+                # -------------------------------------------------
+                # GET FORM VALUES
+                # -------------------------------------------------
+
                 company_name = (
-                    request.form.get("company_name", "")
-                    .strip()
+                    request.form.get(
+                        "company_name",
+                        ""
+                    ).strip()
                 )
 
                 company_email = (
-                    request.form.get("company_email", "")
-                    .strip()
+                    request.form.get(
+                        "company_email",
+                        ""
+                    ).strip()
                 )
 
                 company_phone = (
-                    request.form.get("company_phone", "")
-                    .strip()
+                    request.form.get(
+                        "company_phone",
+                        ""
+                    ).strip()
                 )
 
                 company_address = (
-                    request.form.get("company_address", "")
-                    .strip()
+                    request.form.get(
+                        "company_address",
+                        ""
+                    ).strip()
                 )
 
                 company_website = (
-                    request.form.get("company_website", "")
-                    .strip()
+                    request.form.get(
+                        "company_website",
+                        ""
+                    ).strip()
                 )
 
                 footer_text = (
-                    request.form.get("footer_text", "")
-                    .strip()
+                    request.form.get(
+                        "footer_text",
+                        ""
+                    ).strip()
+                )
+
+                application_status = (
+                    request.form.get(
+                        "application_status",
+                        "Open"
+                    ).strip()
+                )
+
+                application_deadline = (
+                    request.form.get(
+                        "application_deadline",
+                        ""
+                    ).strip()
                 )
 
 
-                # ==================================================
-                # CHECK EXISTING SETTINGS
-                # ==================================================
+                # -------------------------------------------------
+                # VALIDATE APPLICATION STATUS
+                # -------------------------------------------------
+
+                if application_status not in [
+                    "Open",
+                    "Closed"
+                ]:
+
+                    application_status = "Open"
+
+
+                # -------------------------------------------------
+                # CONVERT EMPTY DATE TO NULL
+                # -------------------------------------------------
+
+                if not application_deadline:
+                    application_deadline = None
+
+
+                # =================================================
+                # GET EXISTING SETTINGS
+                # =================================================
 
                 cur.execute(
                     """
-                    SELECT id, logo
+                    SELECT
+                        id,
+                        logo
                     FROM company_settings
                     ORDER BY id ASC
                     LIMIT 1
@@ -3545,13 +3603,13 @@ def admin_settings():
                 existing_settings = cur.fetchone()
 
 
-                # ==================================================
-                # LOGO UPLOAD
-                # ==================================================
-
-                logo_file = request.files.get("logo")
+                # =================================================
+                # LOGO
+                # =================================================
 
                 logo_filename = None
+
+                logo_file = request.files.get("logo")
 
 
                 if logo_file and logo_file.filename:
@@ -3561,9 +3619,9 @@ def admin_settings():
                     )
 
 
-                    # ----------------------------------------------
-                    # ALLOWED IMAGE TYPES
-                    # ----------------------------------------------
+                    # -------------------------------------------------
+                    # ALLOWED EXTENSIONS
+                    # -------------------------------------------------
 
                     allowed_extensions = {
                         "png",
@@ -3573,18 +3631,10 @@ def admin_settings():
                     }
 
 
-                    extension = (
-                        original_filename
-                       .rsplit(".", 1)[-1]
-                        .lower()
-                    )
-
-
-                    if extension not in allowed_extensions:
+                    if "." not in original_filename:
 
                         flash(
-                            "Invalid logo format. "
-                            "Use PNG, JPG, JPEG or WEBP.",
+                            "Invalid logo file.",
                             "error"
                         )
 
@@ -3593,9 +3643,29 @@ def admin_settings():
                         )
 
 
-                    # ----------------------------------------------
+                    extension = (
+                        original_filename
+                        .rsplit(".", 1)[1]
+                        .lower()
+                    )
+
+
+                    if extension not in allowed_extensions:
+
+                        flash(
+                            "Invalid logo format. "
+                            "Please upload PNG, JPG, JPEG or WEBP.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    # =================================================
                     # CREATE UPLOAD DIRECTORY
-                    # ----------------------------------------------
+                    # =================================================
 
                     upload_folder = os.path.join(
                         app.root_path,
@@ -3609,9 +3679,9 @@ def admin_settings():
                     )
 
 
-                    # ----------------------------------------------
-                    # CREATE SAFE UNIQUE FILENAME
-                    # ----------------------------------------------
+                    # =================================================
+                    # CREATE UNIQUE FILE NAME
+                    # =================================================
 
                     import uuid
 
@@ -3629,20 +3699,64 @@ def admin_settings():
                     )
 
 
-                    # ----------------------------------------------
-                    # SAVE FILE
-                    # ----------------------------------------------
+                    # =================================================
+                    # SAVE LOGO FILE
+                    # =================================================
 
                     logo_file.save(
                         logo_path
                     )
 
 
-                # ==================================================
+                    # =================================================
+                    # DELETE OLD LOGO
+                    # =================================================
+
+                    if existing_settings:
+
+                        old_logo = (
+                            existing_settings["logo"]
+                        )
+
+                        if old_logo:
+
+                            old_logo_path = os.path.join(
+                                upload_folder,
+                                old_logo
+                            )
+
+                            try:
+
+                                if os.path.exists(
+                                    old_logo_path
+                                ):
+
+                                    os.remove(
+                                        old_logo_path
+                                    )
+
+                            except Exception:
+
+                                app.logger.warning(
+                                    "Could not delete old company logo.",
+                                    exc_info=True
+                                )
+
+
+                # =================================================
                 # UPDATE EXISTING SETTINGS
-                # ==================================================
+                # =================================================
 
                 if existing_settings:
+
+                    settings_id = (
+                        existing_settings["id"]
+                    )
+
+
+                    # -------------------------------------------------
+                    # UPDATE INCLUDING NEW LOGO
+                    # -------------------------------------------------
 
                     if logo_filename:
 
@@ -3656,6 +3770,8 @@ def admin_settings():
                                 company_address = %s,
                                 company_website = %s,
                                 footer_text = %s,
+                                application_status = %s,
+                                application_deadline = %s,
                                 logo = %s
                             WHERE id = %s
                             """,
@@ -3666,10 +3782,17 @@ def admin_settings():
                                 company_address,
                                 company_website,
                                 footer_text,
+                                application_status,
+                                application_deadline,
                                 logo_filename,
-                                existing_settings["id"]
+                                settings_id
                             )
                         )
+
+
+                    # -------------------------------------------------
+                    # UPDATE WITHOUT CHANGING LOGO
+                    # -------------------------------------------------
 
                     else:
 
@@ -3682,7 +3805,9 @@ def admin_settings():
                                 company_phone = %s,
                                 company_address = %s,
                                 company_website = %s,
-                                footer_text = %s
+                                footer_text = %s,
+                                application_status = %s,
+                                application_deadline = %s
                             WHERE id = %s
                             """,
                             (
@@ -3692,14 +3817,16 @@ def admin_settings():
                                 company_address,
                                 company_website,
                                 footer_text,
-                                existing_settings["id"]
+                                application_status,
+                                application_deadline,
+                                settings_id
                             )
                         )
 
 
-                # ==================================================
-                # CREATE SETTINGS
-                # ==================================================
+                # =================================================
+                # CREATE SETTINGS IF NONE EXIST
+                # =================================================
 
                 else:
 
@@ -3713,10 +3840,14 @@ def admin_settings():
                             company_address,
                             company_website,
                             footer_text,
+                            application_status,
+                            application_deadline,
                             logo
                         )
                         VALUES
                         (
+                            %s,
+                            %s,
                             %s,
                             %s,
                             %s,
@@ -3733,17 +3864,23 @@ def admin_settings():
                             company_address,
                             company_website,
                             footer_text,
+                            application_status,
+                            application_deadline,
                             logo_filename
                         )
                     )
 
 
-                # ==================================================
-                # COMMIT
-                # ==================================================
+                # =================================================
+                # COMMIT TO POSTGRESQL
+                # =================================================
 
                 conn.commit()
 
+
+                # =================================================
+                # SUCCESS
+                # =================================================
 
                 flash(
                     "Company settings updated successfully.",
@@ -3756,9 +3893,9 @@ def admin_settings():
                 )
 
 
-            # ==================================================
-            # GET CURRENT SETTINGS
-            # ==================================================
+            # =================================================
+            # GET - LOAD CURRENT SETTINGS
+            # =================================================
 
             cur.execute(
                 """
@@ -3774,6 +3911,10 @@ def admin_settings():
 
     except Exception:
 
+        # =====================================================
+        # ROLLBACK IF ANYTHING FAILS
+        # =====================================================
+
         conn.rollback()
 
         app.logger.exception(
@@ -3781,19 +3922,30 @@ def admin_settings():
         )
 
         flash(
-            "Unable to update company settings.",
+            "Unable to update company settings. "
+            "Please try again.",
             "error"
         )
+
+        settings = None
+
 
     finally:
 
         conn.close()
 
 
+    # =========================================================
+    # RENDER SETTINGS PAGE
+    # =========================================================
+
     return render_template(
         "admin_settings.html",
         settings=settings
-            )
+    )
+
+
+
 
 @app.route("/admin/download-file/<path:filename>")
 def admin_download_file(filename):
@@ -3859,11 +4011,43 @@ def admin_download_file(filename):
         as_attachment=True
     )
 
+
 @app.route("/admin/reports/export/pdf")
 def export_admin_reports_pdf():
 
+    # =========================================================
+    # CHECK ADMIN LOGIN
+    # =========================================================
+
     if not admin_required():
         return redirect(url_for("admin_login"))
+
+
+    # =========================================================
+    # IMPORT PDF COMPONENTS
+    # =========================================================
+
+    from io import BytesIO
+
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+        Image,
+        PageBreak
+    )
+
+
+    # =========================================================
+    # DATABASE
+    # =========================================================
 
     conn = get_db()
 
@@ -3871,49 +4055,57 @@ def export_admin_reports_pdf():
 
         with conn.cursor() as cur:
 
-            # ==================================================
+            # =====================================================
             # COMPANY SETTINGS
-            # ==================================================
+            # =====================================================
 
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT
                     company_name,
-                    company_address,
-                    company_phone,
                     company_email,
+                    company_phone,
+                    company_address,
+                    company_website,
+                    footer_text,
                     logo
                 FROM company_settings
                 ORDER BY id ASC
                 LIMIT 1
-            """)
+                """
+            )
 
             settings = cur.fetchone()
 
 
-            # ==================================================
-            # APPLICATIONS
-            # ==================================================
+            # =====================================================
+            # APPLICATION REPORT
+            # =====================================================
 
-            cur.execute("""
+            cur.execute(
+                """
                 SELECT
+                    id,
                     application_number,
                     first_name,
                     middle_name,
                     last_name,
-                    position_applied,
+                    gender,
                     phone,
                     email,
-                    gender,
                     state,
                     lga,
+                    position_applied,
                     highest_qualification,
                     status,
-                    submitted_at
+                    created_at
                 FROM applications
-                ORDER BY submitted_at DESC NULLS LAST
-            """)
+                ORDER BY created_at DESC, id DESC
+                """
+            )
 
             applications = cur.fetchall()
+
 
     finally:
 
@@ -3921,185 +4113,188 @@ def export_admin_reports_pdf():
 
 
     # =========================================================
-    # COMPANY INFORMATION
+    # DEFAULT COMPANY INFORMATION
     # =========================================================
 
-    company_name = (
-        settings["company_name"]
-        if settings and settings["company_name"]
-        else "AV KING VET DRUG VENTURE"
-    )
+    if settings:
 
-    company_address = (
-        settings["company_address"]
-        if settings and settings["company_address"]
-        else ""
-    )
+        company_name = (
+            settings["company_name"]
+            or "AV KING VET DRUG VENTURE"
+        )
 
-    company_phone = (
-        settings["company_phone"]
-        if settings and settings["company_phone"]
-        else ""
-    )
+        company_email = (
+            settings["company_email"]
+            or ""
+        )
 
-    company_email = (
-        settings["company_email"]
-        if settings and settings["company_email"]
-        else ""
-    )
+        company_phone = (
+            settings["company_phone"]
+            or ""
+        )
 
-    company_logo = (
-        settings["logo"]
-        if settings and settings["logo"]
-        else None
-    )
+        company_address = (
+            settings["company_address"]
+            or ""
+        )
+
+        company_website = (
+            settings["company_website"]
+            or ""
+        )
+
+        footer_text = (
+            settings["footer_text"]
+            or ""
+        )
+
+        logo_filename = (
+            settings["logo"]
+            or ""
+        )
+
+    else:
+
+        company_name = "AV KING VET DRUG VENTURE"
+        company_email = ""
+        company_phone = ""
+        company_address = ""
+        company_website = ""
+        footer_text = ""
+        logo_filename = ""
 
 
     # =========================================================
     # PDF BUFFER
     # =========================================================
 
-    buffer = io.BytesIO()
+    buffer = BytesIO()
 
+
+    # =========================================================
+    # PDF DOCUMENT
+    # =========================================================
 
     document = SimpleDocTemplate(
-
         buffer,
-
         pagesize=landscape(A4),
-
-        rightMargin=28,
-        leftMargin=28,
-        topMargin=30,
-        bottomMargin=35
+        rightMargin=12 * mm,
+        leftMargin=12 * mm,
+        topMargin=12 * mm,
+        bottomMargin=15 * mm
     )
-
-
-    styles = getSampleStyleSheet()
 
 
     # =========================================================
     # STYLES
     # =========================================================
 
-    company_style = ParagraphStyle(
+    styles = getSampleStyleSheet()
 
+
+    company_name_style = ParagraphStyle(
         "CompanyName",
-
         parent=styles["Normal"],
-
         fontName="Helvetica-Bold",
-
         fontSize=18,
-
         leading=22,
-
         alignment=TA_CENTER,
-
-        textColor=colors.HexColor("#111827")
+        textColor=colors.HexColor("#111827"),
+        spaceAfter=4
     )
 
 
-    address_style = ParagraphStyle(
-
+    company_info_style = ParagraphStyle(
         "CompanyInfo",
-
         parent=styles["Normal"],
-
         fontName="Helvetica",
-
-        fontSize=8.5,
-
-        leading=12,
-
+        fontSize=9,
+        leading=13,
         alignment=TA_CENTER,
-
         textColor=colors.HexColor("#4b5563")
     )
 
 
-    title_style = ParagraphStyle(
-
+    report_title_style = ParagraphStyle(
         "ReportTitle",
-
         parent=styles["Normal"],
-
         fontName="Helvetica-Bold",
-
-        fontSize=15,
-
-        leading=19,
-
+        fontSize=14,
+        leading=18,
         alignment=TA_CENTER,
-
         textColor=colors.HexColor("#111827"),
-
-        spaceBefore=8
+        spaceBefore=8,
+        spaceAfter=4
     )
 
 
-    subtitle_style = ParagraphStyle(
-
-        "ReportSubtitle",
-
+    date_style = ParagraphStyle(
+        "DateStyle",
         parent=styles["Normal"],
-
+        fontName="Helvetica",
         fontSize=8,
-
+        leading=11,
         alignment=TA_CENTER,
-
-        textColor=colors.HexColor("#6b7280")
+        textColor=colors.HexColor("#6b7280"),
+        spaceAfter=12
     )
 
 
-    small_style = ParagraphStyle(
-
-        "Small",
-
+    normal_style = ParagraphStyle(
+        "NormalReport",
         parent=styles["Normal"],
-
-        fontSize=7,
-
-        leading=9,
-
-        textColor=colors.HexColor("#374151")
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10,
+        alignment=TA_LEFT
     )
 
+
+    # =========================================================
+    # STORY
+    # =========================================================
 
     story = []
 
 
     # =========================================================
-    # LOGO
+    # COMPANY LOGO
     # =========================================================
 
-    if company_logo:
+    if logo_filename:
 
-        try:
+        logo_path = os.path.join(
+            app.root_path,
+            "static",
+            "uploads",
+            logo_filename
+        )
 
-            from reportlab.platypus import Image
 
-            logo_path = company_logo
+        if os.path.exists(logo_path):
 
-            if os.path.exists(logo_path):
+            try:
 
                 logo = Image(
                     logo_path,
-                    width=55,
-                    height=55
+                    width=25 * mm,
+                    height=25 * mm,
+                    kind="proportional"
                 )
 
                 logo.hAlign = "CENTER"
 
                 story.append(logo)
-
                 story.append(
-                    Spacer(1, 5)
+                    Spacer(1, 4 * mm)
                 )
 
-        except Exception:
+            except Exception:
 
-            pass
+                app.logger.warning(
+                    "Unable to load company logo for PDF.",
+                    exc_info=True
+                )
 
 
     # =========================================================
@@ -4109,30 +4304,44 @@ def export_admin_reports_pdf():
     story.append(
         Paragraph(
             company_name,
-            company_style
+            company_name_style
         )
     )
 
 
     # =========================================================
-    # COMPANY CONTACT
+    # COMPANY ADDRESS
+    # =========================================================
+
+    if company_address:
+
+        story.append(
+            Paragraph(
+                company_address,
+                company_info_style
+            )
+        )
+
+
+    # =========================================================
+    # PHONE + EMAIL
+    # CENTERED UNDER ADDRESS
     # =========================================================
 
     contact_parts = []
 
-    if company_address:
-        contact_parts.append(
-            str(company_address)
-        )
 
     if company_phone:
+
         contact_parts.append(
-            "Phone: " + str(company_phone)
+            f"Phone: {company_phone}"
         )
 
+
     if company_email:
+
         contact_parts.append(
-            "Email: " + str(company_email)
+            f"Email: {company_email}"
         )
 
 
@@ -4140,14 +4349,30 @@ def export_admin_reports_pdf():
 
         story.append(
             Paragraph(
-                " | ".join(contact_parts),
-                address_style
+                " &nbsp;&nbsp; | &nbsp;&nbsp; ".join(
+                    contact_parts
+                ),
+                company_info_style
+            )
+        )
+
+
+    # =========================================================
+    # WEBSITE
+    # =========================================================
+
+    if company_website:
+
+        story.append(
+            Paragraph(
+                company_website,
+                company_info_style
             )
         )
 
 
     story.append(
-        Spacer(1, 8)
+        Spacer(1, 5 * mm)
     )
 
 
@@ -4157,19 +4382,21 @@ def export_admin_reports_pdf():
 
     divider = Table(
         [[""]],
-        colWidths=[730],
+        colWidths=[260 * mm],
         rowHeights=[1]
     )
 
     divider.setStyle(
-        TableStyle([
-            (
-                "BACKGROUND",
-                (0, 0),
-                (-1, -1),
-                colors.HexColor("#111827")
-            )
-        ])
+        TableStyle(
+            [
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, -1),
+                    colors.HexColor("#d1d5db")
+                )
+            ]
+        )
     )
 
     story.append(divider)
@@ -4182,79 +4409,75 @@ def export_admin_reports_pdf():
     story.append(
         Paragraph(
             "APPLICANT RECRUITMENT REPORT",
-            title_style
+            report_title_style
         )
+    )
+
+
+    # =========================================================
+    # REPORT DATE
+    # =========================================================
+
+    from datetime import datetime
+
+    generated_date = datetime.now().strftime(
+        "%d %B %Y, %I:%M %p"
     )
 
 
     story.append(
         Paragraph(
-            "Complete recruitment application summary",
-            subtitle_style
+            f"Generated on {generated_date}",
+            date_style
         )
     )
 
 
-    story.append(
-        Spacer(1, 5)
+    # =========================================================
+    # SUMMARY
+    # =========================================================
+
+    total_applications = len(
+        applications
     )
 
+    pending_count = 0
+    review_count = 0
+    shortlisted_count = 0
+    approved_count = 0
+    rejected_count = 0
 
-    story.append(
-        Paragraph(
-            "Generated: "
-            + datetime.now().strftime(
-                "%d %B %Y at %I:%M %p"
-            ),
-            subtitle_style
+
+    for application in applications:
+
+        status = (
+            application["status"]
+            or "Pending"
         )
-    )
 
 
-    story.append(
-        Spacer(1, 15)
-    )
+        if status == "Pending":
 
+            pending_count += 1
 
-    # =========================================================
-    # SUMMARY COUNTS
-    # =========================================================
+        elif status == "Under Review":
 
-    total = len(applications)
+            review_count += 1
 
-    pending = sum(
-        1
-        for row in applications
-        if row["status"] == "Pending"
-    )
+        elif status == "Shortlisted":
 
-    under_review = sum(
-        1
-        for row in applications
-        if row["status"] == "Under Review"
-    )
+            shortlisted_count += 1
 
-    shortlisted = sum(
-        1
-        for row in applications
-        if row["status"] == "Shortlisted"
-    )
+        elif status == "Approved":
 
-    approved = sum(
-        1
-        for row in applications
-        if row["status"] == "Approved"
-    )
+            approved_count += 1
 
-    rejected = sum(
-        1
-        for row in applications
-        if row["status"] == "Rejected"
-    )
+        elif status == "Rejected":
+
+            rejected_count += 1
 
 
     summary_data = [
-
         [
             "TOTAL",
             "PENDING",
@@ -4263,107 +4486,128 @@ def export_admin_reports_pdf():
             "APPROVED",
             "REJECTED"
         ],
-
         [
-            str(total),
-            str(pending),
-            str(under_review),
-            str(shortlisted),
-            str(approved),
-            str(rejected)
+            str(total_applications),
+            str(pending_count),
+            str(review_count),
+            str(shortlisted_count),
+            str(approved_count),
+            str(rejected_count)
         ]
     ]
 
 
     summary_table = Table(
-
         summary_data,
-
         colWidths=[
-            115,
-            115,
-            115,
-            115,
-            115,
-            115
+            42 * mm,
+            42 * mm,
+            42 * mm,
+            42 * mm,
+            42 * mm,
+            42 * mm
         ]
     )
 
 
     summary_table.setStyle(
-        TableStyle([
+        TableStyle(
+            [
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor("#111827")
+                ),
 
-            (
-                "BACKGROUND",
-                (0, 0),
-                (-1, 0),
-                colors.HexColor("#111827")
-            ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    colors.white
+                ),
 
-            (
-                "TEXTCOLOR",
-                (0, 0),
-                (-1, 0),
-                colors.white
-            ),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    "Helvetica-Bold"
+                ),
 
-            (
-                "FONTNAME",
-                (0, 0),
-                (-1, 0),
-                "Helvetica-Bold"
-            ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, -1),
+                    8
+                ),
 
-            (
-                "FONTNAME",
-                (0, 1),
-                (-1, 1),
-                "Helvetica-Bold"
-            ),
+                (
+                    "ALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "CENTER"
+                ),
 
-            (
-                "FONTSIZE",
-                (0, 0),
-                (-1, -1),
-                8
-            ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "MIDDLE"
+                ),
 
-            (
-                "ALIGN",
-                (0, 0),
-                (-1, -1),
-                "CENTER"
-            ),
+                (
+                    "BACKGROUND",
+                    (0, 1),
+                    (-1, 1),
+                    colors.HexColor("#f9fafb")
+                ),
 
-            (
-                "TOPPADDING",
-                (0, 0),
-                (-1, -1),
-                8
-            ),
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, 1),
+                    "Helvetica-Bold"
+                ),
 
-            (
-                "BOTTOMPADDING",
-                (0, 0),
-                (-1, -1),
-                8
-            ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, 1),
+                    colors.HexColor("#111827")
+                ),
 
-            (
-                "GRID",
-                (0, 0),
-                (-1, -1),
-                0.4,
-                colors.HexColor("#d1d5db")
-            )
-        ])
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.5,
+                    colors.HexColor("#d1d5db")
+                ),
+
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                ),
+
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                )
+            ]
+        )
     )
 
 
-    story.append(summary_table)
+    story.append(
+        summary_table
+    )
 
     story.append(
-        Spacer(1, 18)
+        Spacer(1, 8 * mm)
     )
 
 
@@ -4372,283 +4616,341 @@ def export_admin_reports_pdf():
     # =========================================================
 
     table_data = [
-
         [
-            "Application",
-            "Applicant",
-            "Position",
-            "Phone",
-            "Email",
-            "Gender",
-            "State",
-            "Qualification",
-            "Status",
-            "Submitted"
+            "S/N",
+            "APPLICATION NO.",
+            "APPLICANT NAME",
+            "GENDER",
+            "PHONE",
+            "EMAIL",
+            "STATE",
+            "LGA",
+            "POSITION",
+            "QUALIFICATION",
+            "STATUS",
+            "DATE"
         ]
     ]
 
 
-    for application in applications:
+    for index, application in enumerate(
+        applications,
+        start=1
+    ):
+
+        first_name = (
+            application["first_name"]
+            or ""
+        )
+
+        middle_name = (
+            application["middle_name"]
+            or ""
+        )
+
+        last_name = (
+            application["last_name"]
+            or ""
+        )
+
 
         full_name = " ".join(
-
             part
-
             for part in [
-
-                application["first_name"],
-                application["middle_name"],
-                application["last_name"]
-
+                first_name,
+                middle_name,
+                last_name
             ]
-
             if part
         )
 
 
-        submitted = ""
-
-        if application["submitted_at"]:
-
-            submitted = application[
-                "submitted_at"
-            ].strftime("%d/%m/%Y")
+        created_at = (
+            application["created_at"]
+        )
 
 
-        table_data.append([
+        if created_at:
 
-            Paragraph(
-                str(
-                    application[
-                        "application_number"
-                    ] or "—"
-                ),
-                small_style
-            ),
+            try:
 
-            Paragraph(
+                created_at = created_at.strftime(
+                    "%d/%m/%Y"
+                )
+
+            except Exception:
+
+                created_at = str(
+                    created_at
+                )[:10]
+
+        else:
+
+            created_at = "—"
+
+
+        table_data.append(
+            [
+                str(index),
+
+                application["application_number"]
+                or "—",
+
                 full_name or "—",
-                small_style
-            ),
 
-            Paragraph(
-                str(
-                    application[
-                        "position_applied"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["gender"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "phone"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["phone"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "email"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["email"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "gender"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["state"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "state"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["lga"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "highest_qualification"
-                    ] or "—"
-                ),
-                small_style
-            ),
+                application["position_applied"]
+                or "—",
 
-            Paragraph(
-                str(
-                    application[
-                        "status"
-                    ] or "Pending"
-                ),
-                small_style
-            ),
+                application["highest_qualification"]
+                or "—",
 
-            Paragraph(
-                submitted or "—",
-                small_style
-            )
-        ])
+                application["status"]
+                or "Pending",
 
+                created_at
+            ]
+        )
+
+
+    # =========================================================
+    # CONVERT CELLS TO PARAGRAPHS
+    # =========================================================
+
+    formatted_table_data = []
+
+
+    for row_index, row in enumerate(
+        table_data
+    ):
+
+        formatted_row = []
+
+
+        for value in row:
+
+            if row_index == 0:
+
+                formatted_row.append(
+                    Paragraph(
+                        str(value),
+                        ParagraphStyle(
+                            "HeaderCell",
+                            parent=normal_style,
+                            fontName="Helvetica-Bold",
+                            fontSize=7,
+                            leading=8,
+                            alignment=TA_CENTER,
+                            textColor=colors.white
+                        )
+                    )
+                )
+
+            else:
+
+                formatted_row.append(
+                    Paragraph(
+                        str(value),
+                        ParagraphStyle(
+                            "BodyCell",
+                            parent=normal_style,
+                            fontSize=6.5,
+                            leading=8,
+                            alignment=TA_LEFT
+                        )
+                    )
+                )
+
+
+        formatted_table_data.append(
+            formatted_row
+        )
+
+
+    # =========================================================
+    # APPLICATION TABLE
+    # =========================================================
 
     application_table = Table(
-
-        table_data,
-
+        formatted_table_data,
         repeatRows=1,
-
         colWidths=[
-            68,
-            105,
-            82,
-            70,
-            112,
-            42,
-            52,
-            82,
-            65,
-            55
+            9 * mm,    # S/N
+            25 * mm,   # Application
+            38 * mm,   # Name
+            16 * mm,   # Gender
+            25 * mm,   # Phone
+            38 * mm,   # Email
+            20 * mm,   # State
+            20 * mm,   # LGA
+            28 * mm,   # Position
+            28 * mm,   # Qualification
+            23 * mm,   # Status
+            20 * mm    # Date
         ]
     )
 
 
     application_table.setStyle(
-        TableStyle([
+        TableStyle(
+            [
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor("#111827")
+                ),
 
-            (
-                "BACKGROUND",
-                (0, 0),
-                (-1, 0),
-                colors.HexColor("#111827")
-            ),
+                (
+                    "TEXTCOLOR",
+                    (0, 0),
+                    (-1, 0),
+                    colors.white
+                ),
 
-            (
-                "TEXTCOLOR",
-                (0, 0),
-                (-1, 0),
-                colors.white
-            ),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    "Helvetica-Bold"
+                ),
 
-            (
-                "FONTNAME",
-                (0, 0),
-                (-1, 0),
-                "Helvetica-Bold"
-            ),
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "MIDDLE"
+                ),
 
-            (
-                "FONTSIZE",
-                (0, 0),
-                (-1, 0),
-                7
-            ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.35,
+                    colors.HexColor("#d1d5db")
+                ),
 
-            (
-                "ALIGN",
-                (0, 0),
-                (-1, 0),
-                "CENTER"
-            ),
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor("#f9fafb")
+                    ]
+                ),
 
-            (
-                "VALIGN",
-                (0, 0),
-                (-1, -1),
-                "MIDDLE"
-            ),
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
 
-            (
-                "GRID",
-                (0, 0),
-                (-1, -1),
-                0.35,
-                colors.HexColor("#d1d5db")
-            ),
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    4
+                ),
 
-            (
-                "ROWBACKGROUNDS",
-                (0, 1),
-                (-1, -1),
-                [
-                    colors.white,
-                    colors.HexColor("#f9fafb")
-                ]
-            ),
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                ),
 
-            (
-                "TOPPADDING",
-                (0, 0),
-                (-1, -1),
-                5
-            ),
-
-            (
-                "BOTTOMPADDING",
-                (0, 0),
-                (-1, -1),
-                5
-            )
-        ])
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    5
+                )
+            ]
+        )
     )
 
 
-    story.append(application_table)
+    story.append(
+        application_table
+    )
 
 
     # =========================================================
     # FOOTER
     # =========================================================
 
-    story.append(
-        Spacer(1, 18)
-    )
+    if footer_text:
 
+        story.append(
+            Spacer(1, 7 * mm)
+        )
 
-    story.append(
-        Paragraph(
-            "Confidential Recruitment Document",
-            ParagraphStyle(
-                "Footer",
-                parent=styles["Normal"],
-                fontSize=7,
-                alignment=TA_CENTER,
-                textColor=colors.HexColor("#6b7280")
+        story.append(
+            Paragraph(
+                footer_text,
+                company_info_style
             )
         )
+
+
+    # =========================================================
+    # BUILD PDF
+    # =========================================================
+
+    # =========================================================
+    # BUILD PDF
+    # =========================================================
+
+    document.build(
+        story
     )
 
 
     # =========================================================
-    # BUILD
+    # PREPARE PDF FOR DOWNLOAD
     # =========================================================
-
-    document.build(story)
 
     buffer.seek(0)
 
 
-    return send_file(
+    # =========================================================
+    # PDF FILE NAME
+    # =========================================================
 
-        buffer,
-
-        as_attachment=True,
-
-        download_name=(
-            "Applicant_Recruitment_Report.pdf"
-        ),
-
-        mimetype="application/pdf"
+    filename = (
+        "applicant_recruitment_report_"
+        + datetime.now().strftime("%Y%m%d_%H%M%S")
+        + ".pdf"
     )
+
+
+    # =========================================================
+    # RETURN PDF
+    # =========================================================
+
+    return send_file(
+        buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=filename
+    )
+
 
 @app.route("/admin/reports/export/excel")
 def export_admin_reports_excel():
