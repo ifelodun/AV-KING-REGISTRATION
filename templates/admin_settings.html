@@ -281,99 +281,114 @@
             </div>
 
         </section>
+<!-- APPLICATION SETTINGS -->
+
+<section class="admin-panel settings-panel">
+
+    <div class="panel-heading">
+
+        <div>
+
+            <span>
+                RECRUITMENT
+            </span>
+
+            <h2>
+                Application Settings
+            </h2>
+
+            <p>
+                Control when applicants can access and submit
+                applications through the recruitment portal.
+            </p>
+
+        </div>
+
+    </div>
 
 
-        <!-- APPLICATION SETTINGS -->
-
-        <section class="admin-panel settings-panel">
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <span>
-                        RECRUITMENT
-                    </span>
-
-                    <h2>
-                        Application Settings
-                    </h2>
-
-                    <p>
-                        Control the availability of the applicant
-                        registration portal.
-                    </p>
-
-                </div>
-
-            </div>
+    <div class="settings-grid">
 
 
-            <div class="settings-grid">
+        <!-- APPLICATION STATUS -->
+
+        <div class="form-group">
+
+            <label for="application_status">
+                Application Portal Status
+            </label>
+
+            <select
+                id="application_status"
+                name="application_status"
+                required
+            >
+
+                <option
+                    value="Open"
+                    {% if settings
+                       and settings.application_status
+                       and settings.application_status|capitalize == "Open" %}
+                        selected
+                    {% endif %}
+                >
+                    Open
+                </option>
+
+                <option
+                    value="Closed"
+                    {% if not settings
+                       or not settings.application_status
+                       or settings.application_status|capitalize == "Closed" %}
+                        selected
+                    {% endif %}
+                >
+                    Closed
+                </option>
+
+            </select>
+
+            <small>
+                <strong>Open:</strong>
+                Applicants can submit new applications.
+            </small>
+
+            <small>
+                <strong>Closed:</strong>
+                New applications are completely blocked.
+            </small>
+
+        </div>
 
 
-                <div class="form-group">
+        <!-- APPLICATION DEADLINE -->
 
-                    <label for="application_status">
-                        Application Portal Status
-                    </label>
+        <div class="form-group">
 
-                    <select
-                        id="application_status"
-                        name="application_status"
-                    >
+            <label for="application_deadline">
+                Application Deadline
+            </label>
 
-                        <option
-                            value="Open"
-                            {% if settings
-                               and settings.application_status == "Open" %}
-                                selected
-                            {% endif %}
-                        >
-                            Open
-                        </option>
+            <input
+                type="date"
+                id="application_deadline"
+                name="application_deadline"
+                value="{% if settings and settings.application_deadline %}{{ settings.application_deadline.strftime('%Y-%m-%d') if settings.application_deadline.strftime is defined else settings.application_deadline }}{% endif %}"
+            >
 
-                        <option
-                            value="Closed"
-                            {% if settings
-                               and settings.application_status == "Closed" %}
-                                selected
-                            {% endif %}
-                        >
-                            Closed
-                        </option>
+            <small>
+                Applications will automatically close after this date.
+            </small>
 
-                    </select>
+            <small>
+                Leave blank if you do not want an automatic deadline.
+            </small>
 
-                    <small>
-                        Open allows applicants to submit new applications.
-                    </small>
+        </div>
 
-                </div>
+    </div>
 
-
-                <div class="form-group">
-
-                    <label for="application_deadline">
-                        Application Deadline
-                    </label>
-
-                    <input
-                        type="date"
-                        id="application_deadline"
-                        name="application_deadline"
-                        value="{% if settings and settings.application_deadline %}{{ settings.application_deadline }}{% endif %}"
-                    >
-
-                    <small>
-                        Leave blank if there is no deadline.
-                    </small>
-
-                </div>
-
-            </div>
-
-        </section>
+</section>
 
         <section class="admin-panel settings-panel">
 
