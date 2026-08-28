@@ -6,6 +6,7 @@ from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
