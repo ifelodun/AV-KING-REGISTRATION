@@ -850,33 +850,51 @@
                     </div>
 
 
-                    {% if application.cv_filename %}
+                       {% if application.cv_filename %}
 
-                        <a
+<a
     href="{{ url_for(
         'admin_download_file',
         filename=application.cv_filename
     ) }}"
-    class="document-link"
+    class="btn btn-primary"
 >
-    📄 Download CV
-                        </a>
-                    {% endif %}
+    Download CV
+</a>
 
+{% else %}
 
-                    {% if application.qualification_filename %}
+<span>No CV uploaded</span>
 
-                        <a
+{% endif %}
+                
+{% if application.qualification_filename %}
+
+<a
     href="{{ url_for(
         'admin_download_file',
         filename=application.qualification_filename
     ) }}"
-    class="document-link"
+    class="btn btn-primary"
 >
-    📄 Download Qualification
-                        </a>
-                    {% endif %}
+    Download Qualification
+</a>
 
+{% else %}
+
+<span>No qualification document uploaded</span>
+
+{% endif %}
+
+<a
+    href="{{ url_for(
+        'admin_download_file',
+        filename=application.passport_filename
+    ) }}"
+    class="btn btn-primary"
+>
+    Download Passport
+</a>
 <a
     href="{{ url_for(
         'download_applicant_biodata',
