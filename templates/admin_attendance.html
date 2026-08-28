@@ -42,76 +42,172 @@
     </div>
 
 
-    <!-- =========================================================
-         DATE FILTER
-         ========================================================= -->
+   <!-- =========================================================
+     DATE FILTER + EXPORT
+     ========================================================= -->
 
-    <section class="admin-panel attendance-filter-panel">
+<section class="admin-panel attendance-filter-panel">
 
-        <div class="panel-heading">
+    <div class="panel-heading">
+
+        <div>
+
+            <span>
+                ATTENDANCE DATE
+            </span>
+
+            <h2>
+                Daily Attendance
+            </h2>
+
+            <p>
+                Select a date to view attendance records and
+                export the attendance report.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="GET"
+        action="{{ url_for('admin_attendance') }}"
+        class="attendance-filter-form"
+    >
+
+        <div class="filter-field">
+
+            <label for="date">
+                Select Date
+            </label>
+
+            <input
+                type="date"
+                id="date"
+                name="date"
+                value="{{ selected_date }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="filter-actions">
+
+            <button
+                type="submit"
+                class="admin-primary-btn"
+            >
+                View Attendance
+            </button>
+
+
+            <a
+                href="{{ url_for('admin_attendance') }}"
+                class="admin-secondary-btn"
+            >
+                Today
+            </a>
+
+        </div>
+
+    </form>
+
+
+    <!-- =====================================================
+         EXPORT REPORTS
+         ===================================================== -->
+
+    <div class="attendance-export-section">
+
+        <div class="attendance-export-heading">
 
             <div>
 
                 <span>
-                    ATTENDANCE DATE
+                    REPORTS
                 </span>
 
-                <h2>
-                    Daily Attendance
-                </h2>
+                <h3>
+                    Export Attendance
+                </h3>
+
+                <p>
+                    Download the attendance records for
+                    {{ selected_date }}.
+                </p>
 
             </div>
 
         </div>
 
 
-        <form
-            method="GET"
-            action="{{ url_for('admin_attendance') }}"
-            class="attendance-filter-form"
-        >
+        <div class="attendance-export-buttons">
 
-            <div class="filter-field">
+            <!-- PDF -->
 
-                <label for="date">
-                    Select Date
-                </label>
+            <a
+                href="{{ url_for(
+                    'admin_attendance_pdf',
+                    date=selected_date
+                ) }}"
+                class="attendance-export-btn attendance-pdf-btn"
+                target="_blank"
+            >
 
-                <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value="{{ selected_date }}"
-                    required
-                >
+                <span class="export-btn-icon">
+                    📄
+                </span>
 
-            </div>
+                <span>
 
+                    <strong>
+                        Download PDF
+                    </strong>
 
-            <div class="filter-actions">
+                    <small>
+                        Professional attendance report
+                    </small>
 
-                <button
-                    type="submit"
-                    class="admin-primary-btn"
-                >
-                    View Attendance
-                </button>
+                </span>
 
-
-                <a
-                    href="{{ url_for('admin_attendance') }}"
-                    class="admin-secondary-btn"
-                >
-                    Today
-                </a>
-
-            </div>
-
-        </form>
-
-    </section>
+            </a>
 
 
+            <!-- EXCEL -->
+
+            <a
+                href="{{ url_for(
+                    'admin_attendance_excel',
+                    date=selected_date
+                ) }}"
+                class="attendance-export-btn attendance-excel-btn"
+            >
+
+                <span class="export-btn-icon">
+                    📊
+                </span>
+
+                <span>
+
+                    <strong>
+                        Download Excel
+                    </strong>
+
+                    <small>
+                        Attendance spreadsheet
+                    </small>
+
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
     <!-- =========================================================
          ATTENDANCE SUMMARY
          ========================================================= -->
