@@ -1629,21 +1629,46 @@ def admin_required():
 # ============================================================
 # APPLICATIONS MANAGEMENT
 # ============================================================
-
 @app.route("/admin/applications")
 def admin_applications():
+
+    # =========================================================
+    # ADMIN ACCESS
+    # =========================================================
 
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    search = request.args.get("search", "").strip()
-    status = request.args.get("status", "").strip()
-    position = request.args.get("position", "").strip()
+
+    # =========================================================
+    # FILTERS
+    # =========================================================
+
+    search = request.args.get(
+        "search",
+        ""
+    ).strip()
+
+    status = request.args.get(
+        "status",
+        ""
+    ).strip()
+
+    position = request.args.get(
+        "position",
+        ""
+    ).strip()
+
 
     conn = get_db()
 
     try:
+
         with conn.cursor() as cur:
+
+            # =================================================
+            # APPLICATIONS
+            # =================================================
 
             query = """
                 SELECT
@@ -1657,16 +1682,21 @@ def admin_applications():
                     position_applied,
                     highest_qualification,
                     status,
-                    submitted_at
+                    submitted_at,
+                    created_at,
+                    passport_filename,
+                    cv_filename,
+                    qualification_filename
                 FROM applications
-                WHERE 1=1
+                WHERE 1 = 1
             """
 
             params = []
 
-            # ------------------------------------------------
+
+            # =================================================
             # SEARCH
-            # ------------------------------------------------
+            # =================================================
 
             if search:
 
@@ -1678,6 +1708,7 @@ def admin_applications():
                         OR last_name ILIKE %s
                         OR phone ILIKE %s
                         OR email ILIKE %s
+                        OR position_applied ILIKE %s
                     )
                 """
 
@@ -1689,12 +1720,14 @@ def admin_applications():
                     search_value,
                     search_value,
                     search_value,
+                    search_value,
                     search_value
                 ])
 
-            # ------------------------------------------------
+
+            # =================================================
             # STATUS FILTER
-            # ------------------------------------------------
+            # =================================================
 
             if status:
 
@@ -1704,9 +1737,10 @@ def admin_applications():
 
                 params.append(status)
 
-            # ------------------------------------------------
+
+            # =================================================
             # POSITION FILTER
-            # ------------------------------------------------
+            # =================================================
 
             if position:
 
@@ -1716,13 +1750,17 @@ def admin_applications():
 
                 params.append(position)
 
-            # ------------------------------------------------
+
+            # =================================================
             # ORDER
-            # ------------------------------------------------
+            # =================================================
 
             query += """
-                ORDER BY submitted_at DESC
+                ORDER BY
+                    COALESCE(submitted_at, created_at) DESC,
+                    id DESC
             """
+
 
             cur.execute(
                 query,
@@ -1731,16 +1769,80 @@ def admin_applications():
 
             applications = cur.fetchall()
 
+
+            # =================================================
+            # APPLICATION STATISTICS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total,
+
+                    COUNT(*) FILTER (
+                        WHERE status = 'Pending'
+                    ) AS pending,
+
+                    COUNT(*) FILTER (
+                        WHERE status = 'Approved'
+                    ) AS approved,
+
+                    COUNT(*) FILTER (
+                        WHERE status = 'Rejected'
+                    ) AS rejected,
+
+                    COUNT(*) FILTER (
+                        WHERE status = 'Interview'
+                    ) AS interview
+
+                FROM applications
+                """
+            )
+
+            statistics = cur.fetchone()
+
+
+            # =================================================
+            # AVAILABLE POSITIONS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT DISTINCT
+                    position_applied
+                FROM applications
+                WHERE position_applied IS NOT NULL
+                  AND TRIM(position_applied) <> ''
+                ORDER BY position_applied ASC
+                """
+            )
+
+            positions = cur.fetchall()
+
+
     finally:
 
         conn.close()
 
+
+    # =========================================================
+    # RENDER
+    # =========================================================
+
     return render_template(
         "admin_applications.html",
+
         applications=applications,
+
         search=search,
+
         selected_status=status,
-        selected_position=position
+
+        selected_position=position,
+
+        statistics=statistics,
+
+        positions=positions
     )
 
 
