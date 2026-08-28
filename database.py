@@ -541,6 +541,57 @@ def init_db():
                 """
             )
             # =========================================================
+            # ATTENDANCE SETTINGS
+            # =========================================================
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_enabled
+                BOOLEAN DEFAULT TRUE
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_latitude
+                DOUBLE PRECISION
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_longitude
+                DOUBLE PRECISION
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_radius
+                INTEGER DEFAULT 200
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_start_time
+                TIME DEFAULT '08:00:00'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_end_time
+                TIME DEFAULT '17:00:00'
+                """
+            )
+            # =========================================================
             # ATTENDANCE TABLE
             # =========================================================
             
