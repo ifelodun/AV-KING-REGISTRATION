@@ -4241,16 +4241,21 @@ def applicant_message(message_id):
 # ============================================================
 # ADMIN SETTINGS
 # ============================================================
-
-@app.route("/admin/settings", methods=["GET", "POST"])
+@app.route(
+    "/admin/settings",
+    methods=["GET", "POST"]
+)
 def admin_settings():
 
     # =========================================================
-    # CHECK ADMIN LOGIN
+    # ADMIN AUTHENTICATION
     # =========================================================
 
     if not admin_required():
-        return redirect(url_for("admin_login"))
+
+        return redirect(
+            url_for("admin_login")
+        )
 
 
     conn = get_db()
@@ -4276,7 +4281,7 @@ def admin_settings():
 
 
             # =================================================
-            # POST - SAVE SETTINGS
+            # POST
             # =================================================
 
             if request.method == "POST":
@@ -4356,7 +4361,307 @@ def admin_settings():
 
 
                 if not application_deadline:
+
                     application_deadline = None
+
+
+                # =================================================
+                # ATTENDANCE ENABLED
+                # =================================================
+
+                attendance_enabled = (
+                    request.form.get(
+                        "attendance_enabled"
+                    ) == "1"
+                )
+
+
+                # =================================================
+                # COMPANY GPS LOCATION
+                # =================================================
+
+                latitude_raw = (
+                    request.form.get(
+                        "company_latitude",
+                        ""
+                    ).strip()
+                )
+
+                longitude_raw = (
+                    request.form.get(
+                        "company_longitude",
+                        ""
+                    ).strip()
+                )
+
+
+                try:
+
+                    if latitude_raw:
+
+                        company_latitude = float(
+                            latitude_raw
+                        )
+
+                    else:
+
+                        company_latitude = None
+
+
+                    if longitude_raw:
+
+                        company_longitude = float(
+                            longitude_raw
+                        )
+
+                    else:
+
+                        company_longitude = None
+
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    flash(
+                        "Please enter valid company GPS coordinates.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_settings"
+                        )
+                    )
+
+
+                # =================================================
+                # VALIDATE LATITUDE
+                # =================================================
+
+                if company_latitude is not None:
+
+                    if not (
+                        -90
+                        <= company_latitude
+                        <= 90
+                    ):
+
+                        flash(
+                            "Company latitude must be between -90 and 90.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_settings"
+                            )
+                        )
+
+
+                # =================================================
+                # VALIDATE LONGITUDE
+                # =================================================
+
+                if company_longitude is not None:
+
+                    if not (
+                        -180
+                        <= company_longitude
+                        <= 180
+                    ):
+
+                        flash(
+                            "Company longitude must be between -180 and 180.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_settings"
+                            )
+                        )
+
+
+                # =================================================
+                # ATTENDANCE RADIUS
+                # =================================================
+
+                attendance_radius_raw = (
+                    request.form.get(
+                        "attendance_radius",
+                        "100"
+                    ).strip()
+                )
+
+
+                try:
+
+                    attendance_radius = int(
+                        attendance_radius_raw
+                    )
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    flash(
+                        "Attendance radius must be a valid number.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_settings"
+                        )
+                    )
+
+
+                if attendance_radius < 20:
+
+                    attendance_radius = 20
+
+
+                if attendance_radius > 5000:
+
+                    attendance_radius = 5000
+
+
+                # =================================================
+                # WORKING HOURS
+                # =================================================
+
+                clock_in_start = (
+                    request.form.get(
+                        "clock_in_start",
+                        "06:00"
+                    ).strip()
+                )
+
+                clock_in_end = (
+                    request.form.get(
+                        "clock_in_end",
+                        "10:00"
+                    ).strip()
+                )
+
+                clock_out_start = (
+                    request.form.get(
+                        "clock_out_start",
+                        "15:00"
+                    ).strip()
+                )
+
+                clock_out_end = (
+                    request.form.get(
+                        "clock_out_end",
+                        "23:00"
+                    ).strip()
+                )
+
+
+                # =================================================
+                # TIME VALIDATION
+                # =================================================
+
+                try:
+
+                    datetime.strptime(
+                        clock_in_start,
+                        "%H:%M"
+                    )
+
+                    datetime.strptime(
+                        clock_in_end,
+                        "%H:%M"
+                    )
+
+                    datetime.strptime(
+                        clock_out_start,
+                        "%H:%M"
+                    )
+
+                    datetime.strptime(
+                        clock_out_end,
+                        "%H:%M"
+                    )
+
+                except ValueError:
+
+                    flash(
+                        "Please provide valid attendance times.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_settings"
+                        )
+                    )
+
+
+                # =================================================
+                # LATE THRESHOLD
+                # =================================================
+
+                late_after_raw = (
+                    request.form.get(
+                        "late_after_minutes",
+                        "15"
+                    ).strip()
+                )
+
+
+                try:
+
+                    late_after_minutes = int(
+                        late_after_raw
+                    )
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    late_after_minutes = 15
+
+
+                if late_after_minutes < 0:
+
+                    late_after_minutes = 0
+
+
+                # =================================================
+                # EARLY CLOCK-OUT THRESHOLD
+                # =================================================
+
+                early_before_raw = (
+                    request.form.get(
+                        "early_before_minutes",
+                        "15"
+                    ).strip()
+                )
+
+
+                try:
+
+                    early_before_minutes = int(
+                        early_before_raw
+                    )
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    early_before_minutes = 15
+
+
+                if early_before_minutes < 0:
+
+                    early_before_minutes = 0
 
 
                 # =================================================
@@ -4397,7 +4702,9 @@ def admin_settings():
                     )
 
                     return redirect(
-                        url_for("admin_settings")
+                        url_for(
+                            "admin_settings"
+                        )
                     )
 
 
@@ -4406,6 +4713,7 @@ def admin_settings():
                 # =================================================
 
                 admin_password_hash = None
+
 
                 if admin_password:
 
@@ -4417,7 +4725,9 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for("admin_settings")
+                            url_for(
+                                "admin_settings"
+                            )
                         )
 
 
@@ -4432,7 +4742,9 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for("admin_settings")
+                            url_for(
+                                "admin_settings"
+                            )
                         )
 
 
@@ -4460,7 +4772,9 @@ def admin_settings():
                 ):
 
                     original_filename = (
-                        logo_file.filename.strip()
+                        secure_filename(
+                            logo_file.filename
+                        )
                     )
 
 
@@ -4476,7 +4790,10 @@ def admin_settings():
                     }
 
 
-                    if "." not in original_filename:
+                    if (
+                        "."
+                        not in original_filename
+                    ):
 
                         flash(
                             "Invalid logo file.",
@@ -4484,18 +4801,26 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for("admin_settings")
+                            url_for(
+                                "admin_settings"
+                            )
                         )
 
 
                     extension = (
                         original_filename
-                        .rsplit(".", 1)[1]
+                        .rsplit(
+                            ".",
+                            1
+                        )[1]
                         .lower()
                     )
 
 
-                    if extension not in allowed_extensions:
+                    if (
+                        extension
+                        not in allowed_extensions
+                    ):
 
                         flash(
                             "Invalid logo format. "
@@ -4504,7 +4829,9 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for("admin_settings")
+                            url_for(
+                                "admin_settings"
+                            )
                         )
 
 
@@ -4526,7 +4853,7 @@ def admin_settings():
 
 
                     # =================================================
-                    # UNIQUE LOGO NAME
+                    # UNIQUE FILE NAME
                     # =================================================
 
                     logo_filename = (
@@ -4544,7 +4871,7 @@ def admin_settings():
 
 
                     # =================================================
-                    # SAVE NEW LOGO
+                    # SAVE LOGO
                     # =================================================
 
                     logo_file.save(
@@ -4562,12 +4889,14 @@ def admin_settings():
                             existing_settings["logo"]
                         )
 
+
                         if old_logo:
 
                             old_logo_path = os.path.join(
                                 upload_folder,
                                 old_logo
                             )
+
 
                             try:
 
@@ -4588,14 +4917,10 @@ def admin_settings():
 
 
                 # =================================================
-                # CREATE SETTINGS IF NONE EXIST
+                # CREATE SETTINGS
                 # =================================================
 
                 if not existing_settings:
-
-                    # -------------------------------------------------
-                    # CREATE NEW SETTINGS
-                    # -------------------------------------------------
 
                     cur.execute(
                         """
@@ -4607,12 +4932,32 @@ def admin_settings():
                             company_address,
                             company_website,
                             footer_text,
+
                             application_status,
                             application_deadline,
+
                             logo,
+
                             admin_username,
-                            admin_password_hash
+                            admin_password_hash,
+
+                            attendance_enabled,
+
+                            company_latitude,
+                            company_longitude,
+
+                            attendance_radius,
+
+                            clock_in_start,
+                            clock_in_end,
+
+                            clock_out_start,
+                            clock_out_end,
+
+                            late_after_minutes,
+                            early_before_minutes
                         )
+
                         VALUES
                         (
                             %s,
@@ -4621,9 +4966,28 @@ def admin_settings():
                             %s,
                             %s,
                             %s,
+
                             %s,
                             %s,
+
                             %s,
+
+                            %s,
+                            %s,
+
+                            %s,
+
+                            %s,
+                            %s,
+
+                            %s,
+
+                            %s,
+                            %s,
+
+                            %s,
+                            %s,
+
                             %s,
                             %s
                         )
@@ -4635,11 +4999,30 @@ def admin_settings():
                             company_address,
                             company_website,
                             footer_text,
+
                             application_status,
                             application_deadline,
+
                             logo_filename,
+
                             admin_username,
-                            admin_password_hash
+                            admin_password_hash,
+
+                            attendance_enabled,
+
+                            company_latitude,
+                            company_longitude,
+
+                            attendance_radius,
+
+                            clock_in_start,
+                            clock_in_end,
+
+                            clock_out_start,
+                            clock_out_end,
+
+                            late_after_minutes,
+                            early_before_minutes
                         )
                     )
 
@@ -4655,9 +5038,9 @@ def admin_settings():
                     )
 
 
-                    # -------------------------------------------------
-                    # UPDATE COMPANY INFORMATION
-                    # -------------------------------------------------
+                    # =================================================
+                    # UPDATE COMPANY + ATTENDANCE SETTINGS
+                    # =================================================
 
                     if logo_filename:
 
@@ -4665,16 +5048,37 @@ def admin_settings():
                             """
                             UPDATE company_settings
                             SET
+
                                 company_name = %s,
                                 company_email = %s,
                                 company_phone = %s,
                                 company_address = %s,
                                 company_website = %s,
                                 footer_text = %s,
+
                                 application_status = %s,
                                 application_deadline = %s,
+
                                 logo = %s,
-                                admin_username = %s
+
+                                admin_username = %s,
+
+                                attendance_enabled = %s,
+
+                                company_latitude = %s,
+                                company_longitude = %s,
+
+                                attendance_radius = %s,
+
+                                clock_in_start = %s,
+                                clock_in_end = %s,
+
+                                clock_out_start = %s,
+                                clock_out_end = %s,
+
+                                late_after_minutes = %s,
+                                early_before_minutes = %s
+
                             WHERE id = %s
                             """,
                             (
@@ -4684,13 +5088,34 @@ def admin_settings():
                                 company_address,
                                 company_website,
                                 footer_text,
+
                                 application_status,
                                 application_deadline,
+
                                 logo_filename,
+
                                 admin_username,
+
+                                attendance_enabled,
+
+                                company_latitude,
+                                company_longitude,
+
+                                attendance_radius,
+
+                                clock_in_start,
+                                clock_in_end,
+
+                                clock_out_start,
+                                clock_out_end,
+
+                                late_after_minutes,
+                                early_before_minutes,
+
                                 settings_id
                             )
                         )
+
 
                     else:
 
@@ -4698,15 +5123,35 @@ def admin_settings():
                             """
                             UPDATE company_settings
                             SET
+
                                 company_name = %s,
                                 company_email = %s,
                                 company_phone = %s,
                                 company_address = %s,
                                 company_website = %s,
                                 footer_text = %s,
+
                                 application_status = %s,
                                 application_deadline = %s,
-                                admin_username = %s
+
+                                admin_username = %s,
+
+                                attendance_enabled = %s,
+
+                                company_latitude = %s,
+                                company_longitude = %s,
+
+                                attendance_radius = %s,
+
+                                clock_in_start = %s,
+                                clock_in_end = %s,
+
+                                clock_out_start = %s,
+                                clock_out_end = %s,
+
+                                late_after_minutes = %s,
+                                early_before_minutes = %s
+
                             WHERE id = %s
                             """,
                             (
@@ -4716,24 +5161,46 @@ def admin_settings():
                                 company_address,
                                 company_website,
                                 footer_text,
+
                                 application_status,
                                 application_deadline,
+
                                 admin_username,
+
+                                attendance_enabled,
+
+                                company_latitude,
+                                company_longitude,
+
+                                attendance_radius,
+
+                                clock_in_start,
+                                clock_in_end,
+
+                                clock_out_start,
+                                clock_out_end,
+
+                                late_after_minutes,
+                                early_before_minutes,
+
                                 settings_id
                             )
                         )
 
 
-                    # -------------------------------------------------
-                    # UPDATE PASSWORD ONLY IF NEW PASSWORD ENTERED
-                    # -------------------------------------------------
+                    # =================================================
+                    # UPDATE ADMIN PASSWORD
+                    # =================================================
 
                     if admin_password_hash:
 
                         cur.execute(
                             """
                             UPDATE company_settings
-                            SET admin_password_hash = %s
+
+                            SET
+                                admin_password_hash = %s
+
                             WHERE id = %s
                             """,
                             (
@@ -4761,12 +5228,14 @@ def admin_settings():
 
 
                 return redirect(
-                    url_for("admin_settings")
+                    url_for(
+                        "admin_settings"
+                    )
                 )
 
 
             # =================================================
-            # GET - LOAD SETTINGS
+            # GET CURRENT SETTINGS
             # =================================================
 
             cur.execute(
