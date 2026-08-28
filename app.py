@@ -11725,13 +11725,14 @@ def get_today_attendance(
 # ============================================================
 # APPLICANT ATTENDANCE PAGE
 # ============================================================
-
 @app.route("/applicant/attendance")
 def applicant_attendance():
 
-    applicant_id = session.get(
-        "applicant_id"
-    )
+    # =========================================================
+    # APPLICANT AUTHENTICATION
+    # =========================================================
+
+    applicant_id = session.get("applicant_id")
 
     if not applicant_id:
 
@@ -11745,9 +11746,9 @@ def applicant_attendance():
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
+            # =================================================
             # GET APPLICANT
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -11787,9 +11788,9 @@ def applicant_attendance():
                 )
 
 
-            # ------------------------------------------------
-            # ONLY APPROVED APPLICANTS CAN ATTEND
-            # ------------------------------------------------
+            # =================================================
+            # APPROVAL CHECK
+            # =================================================
 
             if applicant["status"] != "Approved":
 
@@ -11803,9 +11804,9 @@ def applicant_attendance():
                 )
 
 
-            # ------------------------------------------------
-            # CHECK PORTAL
-            # ------------------------------------------------
+            # =================================================
+            # PORTAL CHECK
+            # =================================================
 
             if not applicant["portal_active"]:
 
@@ -11819,19 +11820,28 @@ def applicant_attendance():
                 )
 
 
-            # ------------------------------------------------
-            # GET COMPANY SETTINGS
-            # ------------------------------------------------
+            # =================================================
+            # GET COMPANY ATTENDANCE SETTINGS
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     attendance_enabled,
+
                     company_latitude,
                     company_longitude,
+
                     attendance_radius,
+
                     clock_in_start,
-                    clock_out_end
+                    clock_in_end,
+
+                    clock_out_start,
+                    clock_out_end,
+
+                    late_after_minutes,
+                    early_before_minutes
 
                 FROM company_settings
 
@@ -11844,26 +11854,43 @@ def applicant_attendance():
             settings = cur.fetchone()
 
 
-            # ------------------------------------------------
+            # =================================================
             # GET TODAY'S ATTENDANCE
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
+                    worker_id,
                     attendance_date,
+
                     clock_in,
                     clock_out,
+
                     total_hours,
+
                     status,
+
+                    clock_in_latitude,
+                    clock_in_longitude,
+
+                    clock_out_latitude,
+                    clock_out_longitude,
+
                     clock_in_location_verified,
-                    clock_out_location_verified
+                    clock_out_location_verified,
+
+                    created_at,
+                    updated_at
 
                 FROM attendance
 
                 WHERE worker_id = %s
+
                 AND attendance_date = CURRENT_DATE
+
+                ORDER BY id DESC
 
                 LIMIT 1
                 """,
@@ -11873,25 +11900,33 @@ def applicant_attendance():
             today_attendance = cur.fetchone()
 
 
-            # ------------------------------------------------
-            # RECENT ATTENDANCE
-            # ------------------------------------------------
+            # =================================================
+            # GET RECENT ATTENDANCE HISTORY
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
                     attendance_date,
+
                     clock_in,
                     clock_out,
+
                     total_hours,
-                    status
+
+                    status,
+
+                    clock_in_location_verified,
+                    clock_out_location_verified
 
                 FROM attendance
 
                 WHERE worker_id = %s
 
-                ORDER BY attendance_date DESC
+                ORDER BY
+                    attendance_date DESC,
+                    id DESC
 
                 LIMIT 30
                 """,
@@ -11901,24 +11936,52 @@ def applicant_attendance():
             attendance_history = cur.fetchall()
 
 
+    except Exception:
+
+        app.logger.exception(
+            "Error loading applicant attendance"
+        )
+
+        flash(
+            "Unable to load attendance information. Please try again.",
+            "error"
+        )
+
+        today_attendance = None
+        attendance_history = []
+        settings = None
+
+
     finally:
 
         conn.close()
 
 
+    # =========================================================
+    # RENDER ATTENDANCE PAGE
+    # =========================================================
+
     return render_template(
         "applicant_attendance.html",
 
+        # Applicant information
         application=applicant,
+        applicant=applicant,
 
-        settings=settings,
+        # IMPORTANT:
+        # Your HTML uses "attendance", so we provide it.
+        attendance=today_attendance,
 
+        # Also provide the original variable in case
+        # another part of your template uses it.
         today_attendance=today_attendance,
 
+        # Company attendance settings
+        settings=settings,
+
+        # History
         attendance_history=attendance_history
     )
-
-
 # ============================================================
 # APPLICANT CLOCK IN
 # ============================================================
