@@ -1,0 +1,513 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-reports-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="reports-header">
+
+        <div class="reports-header-text">
+
+            <span class="page-label">
+                RECRUITMENT MANAGEMENT
+            </span>
+
+            <h1>
+                Reports
+            </h1>
+
+            <p>
+                Generate and export professional recruitment
+                reports and applicant records.
+            </p>
+
+        </div>
+
+
+        <div class="reports-header-actions">
+
+            <a
+                href="{{ url_for('export_admin_reports_pdf') }}"
+                class="report-export-btn pdf-btn"
+            >
+                <span class="report-btn-icon">
+                    ▣
+                </span>
+
+                <span>
+                    <strong>
+                        Export PDF
+                    </strong>
+
+                    <small>
+                        Professional PDF report
+                    </small>
+                </span>
+            </a>
+
+
+            <a
+                href="{{ url_for('export_admin_reports_excel') }}"
+                class="report-export-btn excel-btn"
+            >
+                <span class="report-btn-icon">
+                    ▤
+                </span>
+
+                <span>
+                    <strong>
+                        Export Excel
+                    </strong>
+
+                    <small>
+                        Spreadsheet report
+                    </small>
+                </span>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REPORT CARDS
+         ===================================================== -->
+
+    <div class="reports-grid">
+
+        <!-- TOTAL APPLICATIONS -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                #
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Total Applications
+                </span>
+
+                <strong>
+                    {{ total_applications or 0 }}
+                </strong>
+
+                <small>
+                    All submitted applications
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                P
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Pending
+                </span>
+
+                <strong>
+                    {{ pending or 0 }}
+                </strong>
+
+                <small>
+                    Awaiting review
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- UNDER REVIEW -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                R
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Under Review
+                </span>
+
+                <strong>
+                    {{ under_review or 0 }}
+                </strong>
+
+                <small>
+                    Currently being reviewed
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- SHORTLISTED -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                S
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Shortlisted
+                </span>
+
+                <strong>
+                    {{ shortlisted or 0 }}
+                </strong>
+
+                <small>
+                    Selected for next stage
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- APPROVED -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                A
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Approved
+                </span>
+
+                <strong>
+                    {{ approved or 0 }}
+                </strong>
+
+                <small>
+                    Successful applicants
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- REJECTED -->
+
+        <div class="report-card">
+
+            <div class="report-card-icon">
+                R
+            </div>
+
+            <div class="report-card-content">
+
+                <span>
+                    Rejected
+                </span>
+
+                <strong>
+                    {{ rejected or 0 }}
+                </strong>
+
+                <small>
+                    Unsuccessful applications
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         EXPORT SECTION
+         ===================================================== -->
+
+    <section class="report-export-panel">
+
+        <div class="report-panel-heading">
+
+            <div>
+
+                <span>
+                    REPORT GENERATION
+                </span>
+
+                <h2>
+                    Applicant Report
+                </h2>
+
+                <p>
+                    Select the report format you want to
+                    download.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-format-grid">
+
+            <!-- PDF -->
+
+            <div class="report-format-card">
+
+                <div class="format-icon pdf-format-icon">
+                    PDF
+                </div>
+
+                <div class="format-content">
+
+                    <h3>
+                        Recruitment PDF Report
+                    </h3>
+
+                    <p>
+                        Generate a professional PDF containing
+                        applicant information, application
+                        status and recruitment records.
+                    </p>
+
+                    <a
+                        href="{{ url_for('export_admin_reports_pdf') }}"
+                        class="format-button"
+                    >
+                        Generate PDF Report
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- EXCEL -->
+
+            <div class="report-format-card">
+
+                <div class="format-icon excel-format-icon">
+                    XLS
+                </div>
+
+                <div class="format-content">
+
+                    <h3>
+                        Recruitment Excel Report
+                    </h3>
+
+                    <p>
+                        Export applicant records into an
+                        organised Excel spreadsheet for
+                        further analysis and record keeping.
+                    </p>
+
+                    <a
+                        href="{{ url_for('export_admin_reports_excel') }}"
+                        class="format-button"
+                    >
+                        Generate Excel Report
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         REPORT INFORMATION
+         ===================================================== -->
+
+    <section class="report-information-panel">
+
+        <div class="report-information-header">
+
+            <span>
+                REPORT INFORMATION
+            </span>
+
+            <h2>
+                What's Included
+            </h2>
+
+        </div>
+
+
+        <div class="report-information-grid">
+
+            <div class="information-item">
+
+                <div class="information-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Applicant Details
+                    </strong>
+
+                    <p>
+                        Applicant names, contact information,
+                        position applied for and application
+                        number.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="information-item">
+
+                <div class="information-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Application Status
+                    </strong>
+
+                    <p>
+                        Current recruitment status for each
+                        applicant.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="information-item">
+
+                <div class="information-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Submission Date
+                    </strong>
+
+                    <p>
+                        Date and time each application was
+                        submitted.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="information-item">
+
+                <div class="information-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Company Branding
+                    </strong>
+
+                    <p>
+                        Reports use the company name, address,
+                        phone number and logo configured in
+                        Settings.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUICK NAVIGATION
+         ===================================================== -->
+
+    <section class="report-navigation-panel">
+
+        <div>
+
+            <span>
+                QUICK ACCESS
+            </span>
+
+            <h2>
+                Recruitment Management
+            </h2>
+
+        </div>
+
+
+        <div class="report-navigation-links">
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="navigation-link"
+            >
+                <span>☷</span>
+                Applications
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="navigation-link"
+            >
+                <span>▣</span>
+                Dashboard
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="navigation-link"
+            >
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
