@@ -569,9 +569,9 @@ def init_db():
                 ADD COLUMN IF NOT EXISTS early_before_minutes INTEGER DEFAULT 15;
                 """
             )
-            -- =========================================================
-            -- ATTENDANCE TABLE
-            -- =========================================================
+            # =========================================================
+            # ATTENDANCE TABLE
+            # =========================================================
             
             CREATE TABLE IF NOT EXISTS attendance (
             
