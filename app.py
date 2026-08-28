@@ -288,6 +288,34 @@ def setup_admin():
     finally:
         conn.close()
 
+@app.route("/admin/interviews")
+def admin_interviews():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                SELECT *
+                FROM applications
+                WHERE interview_date IS NOT NULL
+                ORDER BY interview_date ASC
+            """)
+
+            interviews = cur.fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "admin_interviews.html",
+        interviews=interviews
+    )
+
 # ============================================================
 # APPLICATION FORM
 # ============================================================
