@@ -3480,7 +3480,6 @@ def applicant_message(message_id):
 # ============================================================
 # ADMIN SETTINGS
 # ============================================================
-
 @app.route("/admin/settings", methods=["GET", "POST"])
 def admin_settings():
 
@@ -3492,6 +3491,270 @@ def admin_settings():
     try:
 
         with conn.cursor() as cur:
+
+            # ==================================================
+            # SAVE SETTINGS
+            # ==================================================
+
+            if request.method == "POST":
+
+                company_name = (
+                    request.form.get("company_name", "")
+                    .strip()
+                )
+
+                company_email = (
+                    request.form.get("company_email", "")
+                    .strip()
+                )
+
+                company_phone = (
+                    request.form.get("company_phone", "")
+                    .strip()
+                )
+
+                company_address = (
+                    request.form.get("company_address", "")
+                    .strip()
+                )
+
+                company_website = (
+                    request.form.get("company_website", "")
+                    .strip()
+                )
+
+                footer_text = (
+                    request.form.get("footer_text", "")
+                    .strip()
+                )
+
+
+                # ==================================================
+                # CHECK EXISTING SETTINGS
+                # ==================================================
+
+                cur.execute(
+                    """
+                    SELECT id, logo
+                    FROM company_settings
+                    ORDER BY id ASC
+                    LIMIT 1
+                    """
+                )
+
+                existing_settings = cur.fetchone()
+
+
+                # ==================================================
+                # LOGO UPLOAD
+                # ==================================================
+
+                logo_file = request.files.get("logo")
+
+                logo_filename = None
+
+
+                if logo_file and logo_file.filename:
+
+                    original_filename = (
+                        logo_file.filename.strip()
+                    )
+
+
+                    # ----------------------------------------------
+                    # ALLOWED IMAGE TYPES
+                    # ----------------------------------------------
+
+                    allowed_extensions = {
+                        "png",
+                        "jpg",
+                        "jpeg",
+                        "webp"
+                    }
+
+
+                    extension = (
+                        original_filename
+                       .rsplit(".", 1)[-1]
+                        .lower()
+                    )
+
+
+                    if extension not in allowed_extensions:
+
+                        flash(
+                            "Invalid logo format. "
+                            "Use PNG, JPG, JPEG or WEBP.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    # ----------------------------------------------
+                    # CREATE UPLOAD DIRECTORY
+                    # ----------------------------------------------
+
+                    upload_folder = os.path.join(
+                        app.root_path,
+                        "static",
+                        "uploads"
+                    )
+
+                    os.makedirs(
+                        upload_folder,
+                        exist_ok=True
+                    )
+
+
+                    # ----------------------------------------------
+                    # CREATE SAFE UNIQUE FILENAME
+                    # ----------------------------------------------
+
+                    import uuid
+
+                    logo_filename = (
+                        "company_logo_"
+                        + uuid.uuid4().hex
+                        + "."
+                        + extension
+                    )
+
+
+                    logo_path = os.path.join(
+                        upload_folder,
+                        logo_filename
+                    )
+
+
+                    # ----------------------------------------------
+                    # SAVE FILE
+                    # ----------------------------------------------
+
+                    logo_file.save(
+                        logo_path
+                    )
+
+
+                # ==================================================
+                # UPDATE EXISTING SETTINGS
+                # ==================================================
+
+                if existing_settings:
+
+                    if logo_filename:
+
+                        cur.execute(
+                            """
+                            UPDATE company_settings
+                            SET
+                                company_name = %s,
+                                company_email = %s,
+                                company_phone = %s,
+                                company_address = %s,
+                                company_website = %s,
+                                footer_text = %s,
+                                logo = %s
+                            WHERE id = %s
+                            """,
+                            (
+                                company_name,
+                                company_email,
+                                company_phone,
+                                company_address,
+                                company_website,
+                                footer_text,
+                                logo_filename,
+                                existing_settings["id"]
+                            )
+                        )
+
+                    else:
+
+                        cur.execute(
+                            """
+                            UPDATE company_settings
+                            SET
+                                company_name = %s,
+                                company_email = %s,
+                                company_phone = %s,
+                                company_address = %s,
+                                company_website = %s,
+                                footer_text = %s
+                            WHERE id = %s
+                            """,
+                            (
+                                company_name,
+                                company_email,
+                                company_phone,
+                                company_address,
+                                company_website,
+                                footer_text,
+                                existing_settings["id"]
+                            )
+                        )
+
+
+                # ==================================================
+                # CREATE SETTINGS
+                # ==================================================
+
+                else:
+
+                    cur.execute(
+                        """
+                        INSERT INTO company_settings
+                        (
+                            company_name,
+                            company_email,
+                            company_phone,
+                            company_address,
+                            company_website,
+                            footer_text,
+                            logo
+                        )
+                        VALUES
+                        (
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s
+                        )
+                        """,
+                        (
+                            company_name,
+                            company_email,
+                            company_phone,
+                            company_address,
+                            company_website,
+                            footer_text,
+                            logo_filename
+                        )
+                    )
+
+
+                # ==================================================
+                # COMMIT
+                # ==================================================
+
+                conn.commit()
+
+
+                flash(
+                    "Company settings updated successfully.",
+                    "success"
+                )
+
+
+                return redirect(
+                    url_for("admin_settings")
+                )
+
 
             # ==================================================
             # GET CURRENT SETTINGS
@@ -3507,137 +3770,6 @@ def admin_settings():
             )
 
             settings = cur.fetchone()
-
-
-            # ==================================================
-            # SAVE SETTINGS
-            # ==================================================
-
-            if request.method == "POST":
-
-                company_name = (
-                    request.form.get(
-                        "company_name",
-                        ""
-                    ).strip()
-                )
-
-                company_email = (
-                    request.form.get(
-                        "company_email",
-                        ""
-                    ).strip()
-                )
-
-                company_phone = (
-                    request.form.get(
-                        "company_phone",
-                        ""
-                    ).strip()
-                )
-
-                company_address = (
-                    request.form.get(
-                        "company_address",
-                        ""
-                    ).strip()
-                )
-
-                company_website = (
-                    request.form.get(
-                        "company_website",
-                        ""
-                    ).strip()
-                )
-
-                footer_text = (
-                    request.form.get(
-                        "footer_text",
-                        ""
-                    ).strip()
-                )
-
-
-                # ==============================================
-                # UPDATE EXISTING SETTINGS
-                # ==============================================
-
-                if settings:
-
-                    cur.execute(
-                        """
-                        UPDATE company_settings
-                        SET
-                            company_name = %s,
-                            company_email = %s,
-                            company_phone = %s,
-                            company_address = %s,
-                            company_website = %s,
-                            footer_text = %s
-                        WHERE id = %s
-                        """,
-                        (
-                            company_name,
-                            company_email,
-                            company_phone,
-                            company_address,
-                            company_website,
-                            footer_text,
-                            settings["id"]
-                        )
-                    )
-
-
-                # ==============================================
-                # CREATE SETTINGS IF NONE EXIST
-                # ==============================================
-
-                else:
-
-                    cur.execute(
-                        """
-                        INSERT INTO company_settings
-                        (
-                            company_name,
-                            company_email,
-                            company_phone,
-                            company_address,
-                            company_website,
-                            footer_text
-                        )
-                        VALUES
-                        (
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s,
-                            %s
-                        )
-                        """,
-                        (
-                            company_name,
-                            company_email,
-                            company_phone,
-                            company_address,
-                            company_website,
-                            footer_text
-                        )
-                    )
-
-
-                conn.commit()
-
-
-                flash(
-                    "Company settings updated successfully.",
-                    "success"
-                )
-
-
-                return redirect(
-                    url_for("admin_settings")
-                )
 
 
     except Exception:
@@ -3661,7 +3793,7 @@ def admin_settings():
     return render_template(
         "admin_settings.html",
         settings=settings
-    )
+            )
 
 @app.route("/admin/download-file/<path:filename>")
 def admin_download_file(filename):
