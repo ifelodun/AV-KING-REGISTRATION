@@ -1,463 +1,959 @@
 {% extends "base.html" %}
 
-{% block title %}
-Applications | {{ company_name }}
-{% endblock %}
-
 {% block content %}
 
-<div class="admin-layout">
+<div class="admin-page">
 
-    <!-- SIDEBAR -->
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
 
-    <aside class="admin-sidebar">
+    <div class="admin-page-header">
 
-        <div class="sidebar-brand">
+        <div>
+            <span class="admin-page-eyebrow">
+                RECRUITMENT MANAGEMENT
+            </span>
 
-            <div class="sidebar-logo">
-                AV
-            </div>
-
-            <div>
-                <strong>AV KING</strong>
-                <small>RECRUITMENT</small>
-            </div>
-
-        </div>
-
-
-        <nav class="admin-nav">
-
-            <a href="{{ url_for('admin_dashboard') }}">
-                <span>▣</span>
-                Dashboard
-            </a>
-
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="active"
-            >
-                <span>☷</span>
+            <h1>
                 Applications
-            </a>
+            </h1>
 
-            <a href="{{ url_for('admin_interviews') }}">
-    <span>◷</span>
-    Interviews
-            </a>
+            <p>
+                Review applicants, check their details, and manage
+                submitted documents.
+            </p>
+        </div>
 
-            <a href="#">
-                <span>▤</span>
-                Reports
-            </a>
-
-            <div class="nav-divider"></div>
-
-            <a href="{{ url_for('admin_settings') }}">
-    <span>⚙</span>
-    Settings
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <div class="admin-user">
-
-                <div class="user-avatar">
-                    {{ session.get("admin_name", "A")[0]|upper }}
-                </div>
-
-                <div>
-
-                    <strong>
-                        {{ session.get("admin_name") }}
-                    </strong>
-
-                    <small>
-                        Administrator
-                    </small>
-
-                </div>
-
-            </div>
+        <div class="admin-header-actions">
 
             <a
-                href="{{ url_for('admin_logout') }}"
-                class="logout-link"
+                href="{{ url_for('admin_dashboard') }}"
+                class="admin-secondary-btn"
             >
-                Sign Out
+                ← Dashboard
             </a>
 
         </div>
 
-    </aside>
+    </div>
 
 
-    <!-- MAIN -->
+    <!-- =====================================================
+         SUMMARY CARDS
+         ===================================================== -->
 
-    <main class="admin-main">
+    <div class="application-summary-grid">
 
-        <div class="admin-topbar">
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                #
+            </div>
+
+            <div>
+                <span>Total Applications</span>
+
+                <strong>
+                    {{ total if total is defined else applications|length }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                P
+            </div>
+
+            <div>
+                <span>Pending</span>
+
+                <strong>
+                    {{ pending if pending is defined else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                R
+            </div>
+
+            <div>
+                <span>Under Review</span>
+
+                <strong>
+                    {{ under_review if under_review is defined else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                S
+            </div>
+
+            <div>
+                <span>Shortlisted</span>
+
+                <strong>
+                    {{ shortlisted if shortlisted is defined else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                A
+            </div>
+
+            <div>
+                <span>Approved</span>
+
+                <strong>
+                    {{ approved if approved is defined else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                R
+            </div>
+
+            <div>
+                <span>Rejected</span>
+
+                <strong>
+                    {{ rejected if rejected is defined else 0 }}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTER PANEL
+         ===================================================== -->
+
+    <section class="admin-panel applications-filter-panel">
+
+        <div class="panel-heading">
 
             <div>
 
-                <span class="page-label">
-                    RECRUITMENT MANAGEMENT
+                <span>
+                    APPLICATION SEARCH
                 </span>
 
-                <h1>
-                    Applications
-                </h1>
-
-                <p>
-                    Review and manage submitted applications.
-                </p>
+                <h2>
+                    Find an Applicant
+                </h2>
 
             </div>
 
         </div>
 
 
-        <!-- FILTERS -->
+        <form
+            method="GET"
+            action="{{ url_for('admin_applications') }}"
+            class="applications-filter-form"
+        >
 
-        <section class="filter-panel">
+            <!-- SEARCH -->
 
-            <form
-                method="GET"
-                action="{{ url_for('admin_applications') }}"
-            >
+            <div class="filter-field search-field">
 
-                <div class="filter-grid">
+                <label for="search">
+                    Search Applicant
+                </label>
 
-
-                    <div class="filter-field">
-
-                        <label>
-                            Search
-                        </label>
-
-                        <input
-                            type="search"
-                            name="search"
-                            value="{{ search }}"
-                            placeholder="Name, application number, phone..."
-                        >
-
-                    </div>
-
-
-                    <div class="filter-field">
-
-                        <label>
-                            Status
-                        </label>
-
-                        <select name="status">
-
-                            <option value="">
-                                All statuses
-                            </option>
-
-                            <option
-                                value="Pending"
-                                {% if selected_status == "Pending" %}
-                                selected
-                                {% endif %}
-                            >
-                                Pending
-                            </option>
-
-                            <option
-                                value="Under Review"
-                                {% if selected_status == "Under Review" %}
-                                selected
-                                {% endif %}
-                            >
-                                Under Review
-                            </option>
-
-                            <option
-                                value="Shortlisted"
-                                {% if selected_status == "Shortlisted" %}
-                                selected
-                                {% endif %}
-                            >
-                                Shortlisted
-                            </option>
-
-                            <option
-                                value="Approved"
-                                {% if selected_status == "Approved" %}
-                                selected
-                                {% endif %}
-                            >
-                                Approved
-                            </option>
-
-                            <option
-                                value="Rejected"
-                                {% if selected_status == "Rejected" %}
-                                selected
-                                {% endif %}
-                            >
-                                Rejected
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="filter-field">
-
-                        <label>
-                            Position
-                        </label>
-
-                        <select name="position">
-
-                            <option value="">
-                                All positions
-                            </option>
-
-                            {% for position in positions %}
-
-                                <option
-                                    value="{{ position }}"
-                                    {% if selected_position == position %}
-                                    selected
-                                    {% endif %}
-                                >
-                                    {{ position }}
-                                </option>
-
-                            {% endfor %}
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="filter-actions">
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-                            Search
-                        </button>
-
-                        <a
-                            href="{{ url_for('admin_applications') }}"
-                            class="clear-filter"
-                        >
-                            Clear
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </form>
-
-        </section>
-
-
-        <!-- APPLICATION TABLE -->
-
-        <section class="admin-panel">
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <span>
-                        APPLICANT RECORDS
-                    </span>
-
-                    <h2>
-                        {{ applications|length }}
-                        Application{% if applications|length != 1 %}s{% endif %}
-                    </h2>
-
-                </div>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ request.args.get('search', '') }}"
+                    placeholder="Name, email, phone or application number"
+                >
 
             </div>
 
 
-            {% if applications %}
+            <!-- STATUS -->
 
-                <div class="table-wrapper">
+            <div class="filter-field">
 
-                    <table class="admin-table">
+                <label for="status">
+                    Status
+                </label>
 
-                        <thead>
+                <select
+                    id="status"
+                    name="status"
+                >
 
-                            <tr>
+                    <option value="">
+                        All Statuses
+                    </option>
 
-                                <th>
-                                    Application
-                                </th>
+                    <option
+                        value="Pending"
+                        {% if request.args.get('status') == 'Pending' %}
+                            selected
+                        {% endif %}
+                    >
+                        Pending
+                    </option>
 
-                                <th>
-                                    Applicant
-                                </th>
+                    <option
+                        value="Under Review"
+                        {% if request.args.get('status') == 'Under Review' %}
+                            selected
+                        {% endif %}
+                    >
+                        Under Review
+                    </option>
 
-                                <th>
-                                    Contact
-                                </th>
+                    <option
+                        value="Shortlisted"
+                        {% if request.args.get('status') == 'Shortlisted' %}
+                            selected
+                        {% endif %}
+                    >
+                        Shortlisted
+                    </option>
 
-                                <th>
-                                    Position
-                                </th>
+                    <option
+                        value="Approved"
+                        {% if request.args.get('status') == 'Approved' %}
+                            selected
+                        {% endif %}
+                    >
+                        Approved
+                    </option>
 
-                                <th>
-                                    Qualification
-                                </th>
+                    <option
+                        value="Rejected"
+                        {% if request.args.get('status') == 'Rejected' %}
+                            selected
+                        {% endif %}
+                    >
+                        Rejected
+                    </option>
 
-                                <th>
-                                    Status
-                                </th>
+                </select>
 
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for application in applications %}
-
-                                <tr>
-
-                                    <td>
-
-                                        <strong>
-                                            {{ application.application_number }}
-                                        </strong>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <strong>
-                                            {{ application.first_name }}
-                                            {{ application.last_name }}
-                                        </strong>
-
-                                    </td>
+            </div>
 
 
-                                    <td>
+            <!-- POSITION -->
 
-                                        <div>
-                                            {{ application.phone }}
-                                        </div>
+            <div class="filter-field">
 
-                                        {% if application.email %}
+                <label for="position">
+                    Position
+                </label>
 
-                                            <small>
-                                                {{ application.email }}
-                                            </small>
+                <input
+                    type="text"
+                    id="position"
+                    name="position"
+                    value="{{ request.args.get('position', '') }}"
+                    placeholder="Position applied for"
+                >
 
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="admin-primary-btn"
+                >
+                    Search Applications
+                </button>
+
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    class="admin-secondary-btn"
+                >
+                    Clear
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         APPLICATION TABLE
+         ===================================================== -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    APPLICANT RECORDS
+                </span>
+
+                <h2>
+                    All Applications
+                </h2>
+
+            </div>
+
+            <div class="application-count">
+
+                {% if applications %}
+                    {{ applications|length }} application{% if applications|length != 1 %}s{% endif %}
+                {% else %}
+                    0 applications
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        {% if applications %}
+
+        <div class="table-wrapper">
+
+            <table class="admin-table applications-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Application
+                        </th>
+
+                        <th>
+                            Applicant
+                        </th>
+
+                        <th>
+                            Contact
+                        </th>
+
+                        <th>
+                            Position
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Submitted
+                        </th>
+
+                        <th>
+                            Documents
+                        </th>
+
+                        <th>
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for application in applications %}
+
+                    <tr>
+
+                        <!-- APPLICATION NUMBER -->
+
+                        <td>
+
+                            <div class="application-number-cell">
+
+                                <strong>
+                                    {{ application.application_number }}
+                                </strong>
+
+                                <small>
+                                    ID #{{ application.id }}
+                                </small>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- APPLICANT -->
+
+                        <td>
+
+                            <div class="applicant-cell">
+
+                                <div class="applicant-avatar">
+
+                                    {{
+                                        (
+                                            application.first_name[:1]
+                                            ~
+                                            application.last_name[:1]
+                                        )|upper
+                                    }}
+
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+
+                                        {{ application.first_name }}
+
+                                        {% if application.middle_name %}
+                                            {{ application.middle_name }}
                                         {% endif %}
 
-                                    </td>
+                                        {{ application.last_name }}
+
+                                    </strong>
+
+                                    {% if application.email %}
+
+                                    <small>
+                                        {{ application.email }}
+                                    </small>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
 
 
-                                    <td>
-                                        {{ application.position_applied }}
-                                    </td>
+                        <!-- CONTACT -->
+
+                        <td>
+
+                            <div class="contact-cell">
+
+                                {% if application.phone %}
+
+                                <span>
+                                    {{ application.phone }}
+                                </span>
+
+                                {% endif %}
+
+                                {% if application.email %}
+
+                                <small>
+                                    {{ application.email }}
+                                </small>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
 
 
-                                    <td>
+                        <!-- POSITION -->
 
-                                        {{ application.highest_qualification
-                                        or "—" }}
+                        <td>
 
-                                    </td>
+                            <span class="position-cell">
 
+                                {{ application.position_applied or "—" }}
 
-                                    <td>
+                            </span>
 
-                                        <span
-                                            class="status status-{{ application.status|lower|replace(' ', '-') }}"
-                                        >
-                                            {{ application.status }}
-                                        </span>
-
-                                    </td>
+                        </td>
 
 
-                                    <td>
+                        <!-- STATUS -->
 
-                                        {% if application.submitted_at %}
+                        <td>
 
-                                            {{ application.submitted_at.strftime(
-                                                "%d %b %Y"
-                                            ) }}
+                            {% set status_class = "pending" %}
 
-                                        {% endif %}
+                            {% if application.status == "Under Review" %}
 
-                                    </td>
+                                {% set status_class = "review" %}
+
+                            {% elif application.status == "Shortlisted" %}
+
+                                {% set status_class = "shortlisted" %}
+
+                            {% elif application.status == "Approved" %}
+
+                                {% set status_class = "approved" %}
+
+                            {% elif application.status == "Rejected" %}
+
+                                {% set status_class = "rejected" %}
+
+                            {% endif %}
 
 
-                                    <td>
+                            <span
+                                class="application-status application-status-{{ status_class }}"
+                            >
+                                {{ application.status or "Pending" }}
+                            </span>
 
-                                        <a
-                                            href="{{ url_for(
-                                                'admin_application_details',
-                                                application_id=application.id
-                                            ) }}"
-                                            class="view-button"
-                                        >
-                                            View
-                                        </a>
+                        </td>
 
-                                    </td>
 
-                                </tr>
+                        <!-- DATE -->
 
-                            {% endfor %}
+                        <td>
 
-                        </tbody>
+                            {% if application.submitted_at %}
 
-                    </table>
+                                <div class="date-cell">
 
-                </div>
+                                    <strong>
+                                        {{ application.submitted_at.strftime("%d %b %Y") }}
+                                    </strong>
 
-            {% else %}
+                                    <small>
+                                        {{ application.submitted_at.strftime("%I:%M %p") }}
+                                    </small>
 
-                <div class="empty-state">
+                                </div>
 
-                    <div>—</div>
+                            {% else %}
 
-                    <h3>
-                        No applications found
-                    </h3>
+                                —
 
-                    <p>
-                        Try changing your search or filter criteria.
-                    </p>
+                            {% endif %}
 
-                </div>
+                        </td>
+
+
+                        <!-- DOCUMENTS -->
+
+                        <td>
+
+                            <div class="document-actions">
+
+                                {% if application.cv_filename %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        application_id=application.id,
+                                        file_type='cv'
+                                    ) }}"
+                                    class="document-link"
+                                    target="_blank"
+                                    title="View CV"
+                                >
+                                    CV
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if application.passport_filename %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        application_id=application.id,
+                                        file_type='passport'
+                                    ) }}"
+                                    class="document-link"
+                                    target="_blank"
+                                    title="View passport photograph"
+                                >
+                                    Photo
+                                </a>
+
+                                {% endif %}
+
+
+                                {% if not application.cv_filename
+                                      and not application.passport_filename %}
+
+                                    <span class="no-document">
+                                        None
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- ACTIONS -->
+
+                        <td>
+
+                            <div class="application-actions">
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_application_details',
+                                        application_id=application.id
+                                    ) }}"
+                                    class="view-application-btn"
+                                >
+                                    View Details
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- =================================================
+             MOBILE APPLICATION CARDS
+             ================================================= -->
+
+        <div class="mobile-applications">
+
+        {% for application in applications %}
+
+            {% set status_class = "pending" %}
+
+            {% if application.status == "Under Review" %}
+
+                {% set status_class = "review" %}
+
+            {% elif application.status == "Shortlisted" %}
+
+                {% set status_class = "shortlisted" %}
+
+            {% elif application.status == "Approved" %}
+
+                {% set status_class = "approved" %}
+
+            {% elif application.status == "Rejected" %}
+
+                {% set status_class = "rejected" %}
 
             {% endif %}
 
-        </section>
 
-    </main>
+            <div class="mobile-application-card">
+
+                <!-- =========================================
+                     MOBILE CARD HEADER
+                     ========================================= -->
+
+                <div class="mobile-application-top">
+
+                    <div class="mobile-applicant">
+
+                        <div class="applicant-avatar">
+
+                            {{
+                                (
+                                    application.first_name[:1]
+                                    ~
+                                    application.last_name[:1]
+                                )|upper
+                            }}
+
+                        </div>
+
+
+                        <div class="mobile-applicant-info">
+
+                            <strong>
+
+                                {{ application.first_name }}
+
+                                {% if application.middle_name %}
+                                    {{ application.middle_name }}
+                                {% endif %}
+
+                                {{ application.last_name }}
+
+                            </strong>
+
+                            <small>
+                                {{ application.application_number }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <span
+                        class="application-status application-status-{{ status_class }}"
+                    >
+                        {{ application.status or "Pending" }}
+                    </span>
+
+                </div>
+
+
+                <!-- =========================================
+                     APPLICANT INFORMATION
+                     ========================================= -->
+
+                <div class="mobile-application-details">
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Position Applied
+                        </span>
+
+                        <strong>
+                            {{ application.position_applied or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Phone Number
+                        </span>
+
+                        <strong>
+                            {{ application.phone or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Email
+                        </span>
+
+                        <strong>
+                            {{ application.email or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Location
+                        </span>
+
+                        <strong>
+
+                            {% if application.state %}
+                                {{ application.state }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Submitted
+                        </span>
+
+                        <strong>
+
+                            {% if application.submitted_at %}
+
+                                {{ application.submitted_at.strftime(
+                                    "%d %b %Y"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     DOCUMENTS
+                     ========================================= -->
+
+                <div class="mobile-documents">
+
+                    <div class="mobile-section-label">
+                        DOCUMENTS
+                    </div>
+
+
+                    <div class="mobile-document-buttons">
+
+                        {% if application.cv_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                application_id=application.id,
+                                file_type='cv'
+                            ) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="document-link"
+                        >
+                            📄 View CV
+                        </a>
+
+                        {% endif %}
+
+
+                        {% if application.passport_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                application_id=application.id,
+                                file_type='passport'
+                            ) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="document-link"
+                        >
+                            🖼 View Photo
+                        </a>
+
+                        {% endif %}
+
+
+                        {% if not application.cv_filename
+                              and not application.passport_filename %}
+
+                            <span class="no-document">
+                                No documents uploaded
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     ACTIONS
+                     ========================================= -->
+
+                <div class="mobile-application-actions">
+
+                    <a
+                        href="{{ url_for(
+                            'admin_application_details',
+                            application_id=application.id
+                        ) }}"
+                        class="view-application-btn"
+                    >
+                        View Applicant Details
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =================================================
+             EMPTY STATE
+             ================================================= -->
+
+        <div class="applications-empty-state">
+
+            <div class="empty-state-icon">
+                ⌕
+            </div>
+
+
+            <h3>
+                No Applications Found
+            </h3>
+
+
+            <p>
+                No applicant records match your current
+                search or filter.
+            </p>
+
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="admin-primary-btn"
+            >
+                View All Applications
+            </a>
+
+        </div>
+
+        {% endif %}
+
+
+    </section>
+
 
 </div>
 
 {% endblock %}
+        
+
