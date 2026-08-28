@@ -2,17 +2,17 @@
 
 {% block content %}
 
-<div class="attendance-page">
+<div class="applicant-attendance-page">
 
     <!-- =====================================================
          PAGE HEADER
          ===================================================== -->
 
-    <div class="attendance-header">
+    <div class="attendance-page-header">
 
         <div>
             <span class="attendance-eyebrow">
-                EMPLOYEE ATTENDANCE
+                STAFF ATTENDANCE
             </span>
 
             <h1>
@@ -20,558 +20,755 @@
             </h1>
 
             <p>
-                Record your daily attendance from the approved
-                company location.
+                Record your daily attendance from the company location.
             </p>
         </div>
 
         <div class="attendance-header-date">
             <span>Today</span>
-            <strong id="currentDate">—</strong>
+            <strong id="currentDate">
+                —
+            </strong>
         </div>
 
     </div>
 
 
     <!-- =====================================================
-         LOCATION NOTICE
+         LOCATION STATUS
          ===================================================== -->
 
-    <div class="attendance-location-notice">
+    <div
+        id="locationStatus"
+        class="attendance-location-status"
+    >
 
-        <div class="location-notice-icon">
+        <div class="location-status-icon">
             📍
         </div>
 
         <div>
+
             <strong>
-                Location Verification Required
+                Checking your location
             </strong>
 
-            <p>
-                You must be physically within the company's
-                approved attendance area to clock in or clock out.
-            </p>
+            <span>
+                Please allow location access when prompted.
+            </span>
+
         </div>
 
     </div>
 
 
-    {% if not attendance_enabled %}
+    <!-- =====================================================
+         TODAY'S ATTENDANCE
+         ===================================================== -->
 
-        <!-- =================================================
-             ATTENDANCE DISABLED
-             ================================================= -->
+    <section class="attendance-main-card">
 
-        <div class="attendance-disabled-card">
+        <div class="attendance-card-header">
 
-            <div class="disabled-icon">
-                ⏸
-            </div>
-
-            <h2>
-                Attendance Currently Unavailable
-            </h2>
-
-            <p>
-                {{ attendance_message or
-                   "Attendance has been disabled by the administrator." }}
-            </p>
-
-            <a
-                href="{{ url_for('applicant_portal') }}"
-                class="attendance-secondary-btn"
-            >
-                ← Back to Portal
-            </a>
-
-        </div>
-
-
-    {% else %}
-
-
-        <!-- =================================================
-             MAIN ATTENDANCE CARD
-             ================================================= -->
-
-        <div class="attendance-main-card">
-
-            <!-- PROFILE -->
-
-            <div class="attendance-profile">
-
-                <div class="attendance-avatar">
-
-                    {{
-                        (
-                            applicant.first_name[:1]
-                            ~
-                            applicant.last_name[:1]
-                        )|upper
-                    }}
-
-                </div>
-
-                <div>
-
-                    <span class="profile-label">
-                        Applicant
-                    </span>
-
-                    <h2>
-                        {{ applicant.first_name }}
-
-                        {% if applicant.middle_name %}
-                            {{ applicant.middle_name }}
-                        {% endif %}
-
-                        {{ applicant.last_name }}
-                    </h2>
-
-                    <p>
-                        Application No:
-                        <strong>
-                            {{ applicant.application_number }}
-                        </strong>
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 TODAY STATUS
-                 ================================================= -->
-
-            <div class="attendance-status-section">
-
-                <div class="attendance-status-heading">
-
-                    <div>
-                        <span>
-                            TODAY'S ATTENDANCE
-                        </span>
-
-                        <h3>
-                            Daily Attendance Record
-                        </h3>
-                    </div>
-
-                    {% if attendance %}
-
-                        {% if attendance.clock_out %}
-
-                            <span class="attendance-badge completed">
-                                Completed
-                            </span>
-
-                        {% elif attendance.clock_in %}
-
-                            <span class="attendance-badge active">
-                                Clocked In
-                            </span>
-
-                        {% else %}
-
-                            <span class="attendance-badge pending">
-                                Not Started
-                            </span>
-
-                        {% endif %}
-
-                    {% else %}
-
-                        <span class="attendance-badge pending">
-                            Not Started
-                        </span>
-
-                    {% endif %}
-
-                </div>
-
-
-                <!-- =================================================
-                     ATTENDANCE INFORMATION
-                     ================================================= -->
-
-                <div class="attendance-info-grid">
-
-                    <div class="attendance-info-card">
-
-                        <span>
-                            DATE
-                        </span>
-
-                        <strong id="attendanceDate">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="attendance-info-card">
-
-                        <span>
-                            CLOCK IN
-                        </span>
-
-                        <strong>
-
-                            {% if attendance and attendance.clock_in %}
-
-                                {{ attendance.clock_in.strftime(
-                                    "%I:%M %p"
-                                ) }}
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="attendance-info-card">
-
-                        <span>
-                            CLOCK OUT
-                        </span>
-
-                        <strong>
-
-                            {% if attendance and attendance.clock_out %}
-
-                                {{ attendance.clock_out.strftime(
-                                    "%I:%M %p"
-                                ) }}
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="attendance-info-card">
-
-                        <span>
-                            TOTAL HOURS
-                        </span>
-
-                        <strong>
-
-                            {% if attendance and attendance.total_hours %}
-
-                                {{ attendance.total_hours }} hrs
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================================
-                     LOCATION STATUS
-                     ================================================= -->
-
-                <div
-                    id="locationStatus"
-                    class="attendance-location-status"
-                >
-
-                    <div class="location-status-icon">
-                        📍
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Location Status
-                        </strong>
-
-                        <p id="locationMessage">
-                            Checking your location is required
-                            before attendance can be recorded.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================================
-                     ACTIONS
-                     ================================================= -->
-
-                <div class="attendance-actions">
-
-
-                    {% if not attendance or not attendance.clock_in %}
-
-                        <!-- CLOCK IN -->
-
-                        <form
-                            id="clockInForm"
-                            method="POST"
-                            action="{{ url_for('applicant_clock_in') }}"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="latitude"
-                                id="clockInLatitude"
-                            >
-
-                            <input
-                                type="hidden"
-                                name="longitude"
-                                id="clockInLongitude"
-                            >
-
-                            <button
-                                type="button"
-                                id="clockInButton"
-                                class="attendance-primary-btn"
-                                onclick="startClockIn()"
-                            >
-                                <span class="button-icon">
-                                    📍
-                                </span>
-
-                                <span>
-                                    Clock In
-                                </span>
-                            </button>
-
-                        </form>
-
-
-                    {% elif not attendance.clock_out %}
-
-                        <!-- CLOCKED IN -->
-
-                        <div class="clocked-in-message">
-
-                            <div class="clocked-in-icon">
-                                ✓
-                            </div>
-
-                            <div>
-
-                                <strong>
-                                    You are currently clocked in
-                                </strong>
-
-                                <span>
-                                    Remember to clock out when
-                                    you finish for the day.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- CLOCK OUT -->
-
-                        <form
-                            id="clockOutForm"
-                            method="POST"
-                            action="{{ url_for('applicant_clock_out') }}"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="latitude"
-                                id="clockOutLatitude"
-                            >
-
-                            <input
-                                type="hidden"
-                                name="longitude"
-                                id="clockOutLongitude"
-                            >
-
-                            <button
-                                type="button"
-                                id="clockOutButton"
-                                class="attendance-clockout-btn"
-                                onclick="startClockOut()"
-                            >
-                                <span class="button-icon">
-                                    📍
-                                </span>
-
-                                <span>
-                                    Clock Out
-                                </span>
-                            </button>
-
-                        </form>
-
-
-                    {% else %}
-
-                        <!-- COMPLETED -->
-
-                        <div class="attendance-completed">
-
-                            <div class="completed-icon">
-                                ✓
-                            </div>
-
-                            <h3>
-                                Attendance Completed
-                            </h3>
-
-                            <p>
-                                Your attendance for today has
-                                been successfully recorded.
-                            </p>
-
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =====================================================
-             ATTENDANCE RULES
-             ===================================================== -->
-
-        <div class="attendance-rules-card">
-
-            <div class="rules-heading">
+            <div>
 
                 <span>
-                    ATTENDANCE GUIDELINES
+                    TODAY'S ATTENDANCE
                 </span>
 
                 <h2>
-                    Important Information
+                    {{ applicant.first_name }}
+                    {{ applicant.last_name }}
                 </h2>
 
             </div>
 
+            <div class="attendance-status-badge">
 
-            <div class="rules-grid">
+                {% if today_attendance and today_attendance.clock_out %}
 
-                <div class="rule-item">
+                    Completed
 
-                    <div class="rule-icon">
-                        📍
-                    </div>
+                {% elif today_attendance and today_attendance.clock_in %}
 
-                    <div>
+                    Clocked In
 
-                        <strong>
-                            Company Location
-                        </strong>
+                {% else %}
 
-                        <p>
-                            Attendance can only be recorded
-                            when you are within the approved
-                            company location.
-                        </p>
+                    Not Clocked In
 
-                    </div>
+                {% endif %}
 
-                </div>
+            </div>
+
+        </div>
 
 
-                <div class="rule-item">
+        <!-- =================================================
+             CLOCK INFORMATION
+             ================================================= -->
 
-                    <div class="rule-icon">
-                        🕐
-                    </div>
+        <div class="attendance-time-grid">
 
-                    <div>
+            <div class="attendance-time-card">
 
-                        <strong>
-                            Daily Attendance
-                        </strong>
+                <span>
+                    CLOCK IN
+                </span>
 
-                        <p>
-                            You can clock in and clock out
-                            only once each day.
-                        </p>
+                <strong>
 
-                    </div>
+                    {% if today_attendance
+                          and today_attendance.clock_in %}
 
-                </div>
+                        {{ today_attendance.clock_in.strftime(
+                            "%I:%M %p"
+                        ) }}
 
+                    {% else %}
 
-                <div class="rule-item">
+                        —
 
-                    <div class="rule-icon">
-                        🔐
-                    </div>
+                    {% endif %}
 
-                    <div>
+                </strong>
 
-                        <strong>
-                            Secure Verification
-                        </strong>
-
-                        <p>
-                            Your location is verified before
-                            attendance is recorded.
-                        </p>
-
-                    </div>
-
-                </div>
+            </div>
 
 
-                <div class="rule-item">
+            <div class="attendance-time-card">
 
-                    <div class="rule-icon">
+                <span>
+                    CLOCK OUT
+                </span>
+
+                <strong>
+
+                    {% if today_attendance
+                          and today_attendance.clock_out %}
+
+                        {{ today_attendance.clock_out.strftime(
+                            "%I:%M %p"
+                        ) }}
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <div class="attendance-time-card">
+
+                <span>
+                    TOTAL HOURS
+                </span>
+
+                <strong>
+
+                    {% if today_attendance
+                          and today_attendance.total_hours %}
+
+                        {{ today_attendance.total_hours }} hrs
+
+                    {% else %}
+
+                        —
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ATTENDANCE ACTIONS
+             ================================================= -->
+
+        <div class="attendance-actions">
+
+
+            <!-- =============================================
+                 CLOCK IN
+                 ============================================= -->
+
+            {% if not today_attendance
+                  or not today_attendance.clock_in %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('applicant_clock_in') }}"
+                    id="clockInForm"
+                >
+
+                    <input
+                        type="hidden"
+                        name="latitude"
+                        id="clockInLatitude"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="longitude"
+                        id="clockInLongitude"
+                    >
+
+                    <button
+                        type="button"
+                        class="attendance-primary-btn"
+                        id="clockInButton"
+                        onclick="getLocationAndSubmit('clockIn')"
+                    >
+
+                        <span class="attendance-button-icon">
+                            ↗
+                        </span>
+
+                        <span>
+                            Clock In
+                        </span>
+
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+
+            <!-- =============================================
+                 CLOCK OUT
+                 ============================================= -->
+
+            {% if today_attendance
+                  and today_attendance.clock_in
+                  and not today_attendance.clock_out %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('applicant_clock_out') }}"
+                    id="clockOutForm"
+                >
+
+                    <input
+                        type="hidden"
+                        name="latitude"
+                        id="clockOutLatitude"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="longitude"
+                        id="clockOutLongitude"
+                    >
+
+                    <button
+                        type="button"
+                        class="attendance-secondary-btn"
+                        id="clockOutButton"
+                        onclick="getLocationAndSubmit('clockOut')"
+                    >
+
+                        <span class="attendance-button-icon">
+                            ↙
+                        </span>
+
+                        <span>
+                            Clock Out
+                        </span>
+
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+
+            <!-- =============================================
+                 COMPLETED
+                 ============================================= -->
+
+            {% if today_attendance
+                  and today_attendance.clock_in
+                  and today_attendance.clock_out %}
+
+                <div class="attendance-completed">
+
+                    <div class="completed-icon">
                         ✓
                     </div>
 
                     <div>
 
                         <strong>
-                            Approved Applicants
+                            Attendance Completed
                         </strong>
 
-                        <p>
-                            Attendance is available only to
-                            approved applicants.
-                        </p>
+                        <span>
+                            You have completed today's attendance.
+                        </span>
 
                     </div>
 
                 </div>
 
-            </div>
+            {% endif %}
 
         </div>
 
 
-    {% endif %}
+        <!-- =================================================
+             LOCATION NOTICE
+             ================================================= -->
 
+        <div class="attendance-location-notice">
+
+            <span>
+                📍
+            </span>
+
+            <div>
+
+                <strong>
+                    Company Location Required
+                </strong>
+
+                <p>
+                    Clock in and clock out are only available
+                    when you are within the company's approved
+                    attendance location.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         APPLICANT INFORMATION
+         ===================================================== -->
+
+    <section class="attendance-info-grid">
+
+        <div class="attendance-info-card">
+
+            <span>
+                APPLICATION NUMBER
+            </span>
+
+            <strong>
+                {{ applicant.application_number }}
+            </strong>
+
+        </div>
+
+
+        <div class="attendance-info-card">
+
+            <span>
+                EMPLOYEE NAME
+            </span>
+
+            <strong>
+                {{ applicant.first_name }}
+                {{ applicant.last_name }}
+            </strong>
+
+        </div>
+
+
+        <div class="attendance-info-card">
+
+            <span>
+                ATTENDANCE STATUS
+            </span>
+
+            <strong>
+
+                {% if settings and settings.attendance_enabled %}
+
+                    Enabled
+
+                {% else %}
+
+                    Disabled
+
+                {% endif %}
+
+            </strong>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         ATTENDANCE HISTORY
+         ===================================================== -->
+
+    <section class="attendance-history-card">
+
+        <div class="attendance-history-header">
+
+            <div>
+
+                <span>
+                    ATTENDANCE RECORD
+                </span>
+
+                <h2>
+                    Recent Attendance
+                </h2>
+
+            </div>
+
+            <span class="attendance-history-count">
+                {{ attendance_history|length }} records
+            </span>
+
+        </div>
+
+
+        {% if attendance_history %}
+
+        <div class="attendance-table-wrapper">
+
+            <table class="attendance-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Clock In
+                        </th>
+
+                        <th>
+                            Clock Out
+                        </th>
+
+                        <th>
+                            Hours
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for record in attendance_history %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                {{ record.attendance_date.strftime(
+                                    "%d %b %Y"
+                                ) }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if record.clock_in %}
+
+                                {{ record.clock_in.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if record.clock_out %}
+
+                                {{ record.clock_out.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if record.total_hours %}
+
+                                {{ record.total_hours }} hrs
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if record.status == "Present" %}
+
+                                <span class="history-status present">
+                                    Present
+                                </span>
+
+                            {% else %}
+
+                                <span class="history-status">
+                                    {{ record.status }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if
+                                record.clock_in_location_verified
+                                and record.clock_out_location_verified
+                            %}
+
+                                <span class="location-verified">
+                                    ✓ Verified
+                                </span>
+
+                            {% elif record.clock_in_location_verified %}
+
+                                <span class="location-partial">
+                                    Clock-in Verified
+                                </span>
+
+                            {% else %}
+
+                                <span class="location-unverified">
+                                    —
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             MOBILE HISTORY
+             ================================================= -->
+
+        <div class="mobile-attendance-history">
+
+        {% for record in attendance_history %}
+
+            <div class="mobile-attendance-record">
+
+                <div class="mobile-attendance-record-header">
+
+                    <strong>
+
+                        {{ record.attendance_date.strftime(
+                            "%d %b %Y"
+                        ) }}
+
+                    </strong>
+
+                    {% if record.status == "Present" %}
+
+                        <span class="history-status present">
+                            Present
+                        </span>
+
+                    {% else %}
+
+                        <span class="history-status">
+                            {{ record.status }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="mobile-attendance-times">
+
+                    <div>
+
+                        <span>
+                            Clock In
+                        </span>
+
+                        <strong>
+
+                            {% if record.clock_in %}
+
+                                {{ record.clock_in.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Clock Out
+                        </span>
+
+                        <strong>
+
+                            {% if record.clock_out %}
+
+                                {{ record.clock_out.strftime(
+                                    "%I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Hours
+                        </span>
+
+                        <strong>
+
+                            {% if record.total_hours %}
+
+                                {{ record.total_hours }} hrs
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                {% if
+                    record.clock_in_location_verified
+                    and record.clock_out_location_verified
+                %}
+
+                    <div class="mobile-location-verified">
+                        ✓ Location verified
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+        <div class="attendance-empty-state">
+
+            <div>
+                ◷
+            </div>
+
+            <h3>
+                No Attendance Records
+            </h3>
+
+            <p>
+                Your attendance history will appear here after
+                you record your first attendance.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         BACK TO PORTAL
+         ===================================================== -->
+
+    <div class="attendance-back">
+
+        <a
+            href="{{ url_for('applicant_portal') }}"
+            class="attendance-back-btn"
+        >
+            ← Back to Applicant Portal
+        </a>
+
+    </div>
 
 </div>
 
@@ -582,42 +779,40 @@
 
 <script>
 
-function updateCurrentDate() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    const now = new Date();
+        const dateElement =
+            document.getElementById("currentDate");
 
-    const options = {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-    };
+        if (dateElement) {
 
-    const formatted = now.toLocaleDateString(
-        "en-NG",
-        options
-    );
+            const today =
+                new Date();
 
-    const currentDate =
-        document.getElementById("currentDate");
+            dateElement.textContent =
+                today.toLocaleDateString(
+                    "en-NG",
+                    {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric"
+                    }
+                );
+        }
 
-    const attendanceDate =
-        document.getElementById("attendanceDate");
-
-    if (currentDate) {
-        currentDate.textContent = formatted;
     }
-
-    if (attendanceDate) {
-        attendanceDate.textContent = formatted;
-    }
-}
+);
 
 
-updateCurrentDate();
-
+// ============================================================
+// LOCATION STATUS
+// ============================================================
 
 function setLocationStatus(
+    title,
     message,
     type
 ) {
@@ -627,51 +822,92 @@ function setLocationStatus(
             "locationStatus"
         );
 
-    const messageElement =
-        document.getElementById(
-            "locationMessage"
-        );
-
-    if (!status || !messageElement) {
+    if (!status) {
         return;
     }
 
-    messageElement.textContent = message;
 
-    status.classList.remove(
-        "checking",
-        "success",
-        "error"
-    );
+    status.className =
+        "attendance-location-status " + type;
 
-    status.classList.add(type);
+
+    status.innerHTML = `
+
+        <div class="location-status-icon">
+            ${type === "success" ? "✓" : "📍"}
+        </div>
+
+        <div>
+
+            <strong>
+                ${title}
+            </strong>
+
+            <span>
+                ${message}
+            </span>
+
+        </div>
+
+    `;
 }
 
 
-function getApplicantLocation(
-    successCallback
+// ============================================================
+// GET DEVICE LOCATION
+// ============================================================
+
+function getLocationAndSubmit(
+    action
 ) {
 
-    if (!navigator.geolocation) {
-
-        setLocationStatus(
-            "Your browser does not support location services.",
-            "error"
+    const button =
+        document.getElementById(
+            action === "clockIn"
+                ? "clockInButton"
+                : "clockOutButton"
         );
 
-        return;
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <span>
+                Checking location...
+            </span>
+        `;
     }
 
 
     setLocationStatus(
-        "Requesting your current location. Please allow location access.",
+        "Checking your location",
+        "Please wait while we verify your company location.",
         "checking"
     );
 
 
+    if (!navigator.geolocation) {
+
+        setLocationStatus(
+            "Location unavailable",
+            "Your browser does not support location services.",
+            "error"
+        );
+
+
+        resetAttendanceButton(
+            action
+        );
+
+        return;
+    }
+
+
     navigator.geolocation.getCurrentPosition(
 
-        function(position) {
+        function (position) {
 
             const latitude =
                 position.coords.latitude;
@@ -681,22 +917,55 @@ function getApplicantLocation(
 
 
             setLocationStatus(
-                "Location detected. Verifying your company location...",
-                "checking"
+                "Location detected",
+                "Your location has been detected. Verifying attendance location...",
+                "success"
             );
 
 
-            successCallback(
-                latitude,
-                longitude
-            );
+            if (action === "clockIn") {
+
+                document.getElementById(
+                    "clockInLatitude"
+                ).value = latitude;
+
+                document.getElementById(
+                    "clockInLongitude"
+                ).value = longitude;
+
+
+                document.getElementById(
+                    "clockInForm"
+                ).submit();
+
+            }
+
+
+            else if (action === "clockOut") {
+
+                document.getElementById(
+                    "clockOutLatitude"
+                ).value = latitude;
+
+                document.getElementById(
+                    "clockOutLongitude"
+                ).value = longitude;
+
+
+                document.getElementById(
+                    "clockOutForm"
+                ).submit();
+
+            }
 
         },
 
-        function(error) {
+
+        function (error) {
 
             let message =
                 "Unable to determine your location.";
+
 
             if (error.code === 1) {
 
@@ -721,8 +990,14 @@ function getApplicantLocation(
 
 
             setLocationStatus(
+                "Location required",
                 message,
                 "error"
+            );
+
+
+            resetAttendanceButton(
+                action
             );
 
         },
@@ -732,107 +1007,64 @@ function getApplicantLocation(
             timeout: 15000,
             maximumAge: 0
         }
+
     );
+
 }
 
 
-function startClockIn() {
+// ============================================================
+// RESET BUTTON
+// ============================================================
+
+function resetAttendanceButton(
+    action
+) {
 
     const button =
         document.getElementById(
-            "clockInButton"
+            action === "clockIn"
+                ? "clockInButton"
+                : "clockOutButton"
         );
+
 
     if (!button) {
         return;
     }
 
 
-    button.disabled = true;
-
-    button.innerHTML =
-        "<span>📍</span><span>Checking Location...</span>";
+    button.disabled = false;
 
 
-    getApplicantLocation(
+    if (action === "clockIn") {
 
-        function(
-            latitude,
-            longitude
-        ) {
+        button.innerHTML = `
+            <span class="attendance-button-icon">
+                ↗
+            </span>
 
-            document.getElementById(
-                "clockInLatitude"
-            ).value = latitude;
+            <span>
+                Clock In
+            </span>
+        `;
 
-
-            document.getElementById(
-                "clockInLongitude"
-            ).value = longitude;
-
-
-            setLocationStatus(
-                "Location captured. Submitting clock-in...",
-                "success"
-            );
-
-
-            document.getElementById(
-                "clockInForm"
-            ).submit();
-
-        }
-    );
-}
-
-
-function startClockOut() {
-
-    const button =
-        document.getElementById(
-            "clockOutButton"
-        );
-
-    if (!button) {
-        return;
     }
 
+    else {
 
-    button.disabled = true;
+        button.innerHTML = `
+            <span class="attendance-button-icon">
+                ↙
+            </span>
 
-    button.innerHTML =
-        "<span>📍</span><span>Checking Location...</span>";
+            <span>
+                Clock Out
+            </span>
+        `;
 
+    }
 
-    getApplicantLocation(
-
-        function(
-            latitude,
-            longitude
-        ) {
-
-            document.getElementById(
-                "clockOutLatitude"
-            ).value = latitude;
-
-
-            document.getElementById(
-                "clockOutLongitude"
-            ).value = longitude;
-
-
-            setLocationStatus(
-                "Location captured. Submitting clock-out...",
-                "success"
-            );
-
-
-            document.getElementById(
-                "clockOutForm"
-            ).submit();
-
-        }
-    );
 }
 
 </script>
