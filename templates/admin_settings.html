@@ -4,7 +4,6 @@
 
 <div class="admin-page">
 
-    <!-- PAGE HEADER -->
     <div class="admin-page-header">
 
         <div>
@@ -12,12 +11,11 @@
                 SYSTEM MANAGEMENT
             </span>
 
-            <h1>
-                Settings
-            </h1>
+            <h1>Settings</h1>
 
             <p>
-                Manage your recruitment portal and company information.
+                Manage your company profile, branding and
+                recruitment portal settings.
             </p>
         </div>
 
@@ -32,6 +30,7 @@
 
 
     <!-- FLASH MESSAGES -->
+
     {% with messages = get_flashed_messages(with_categories=true) %}
 
         {% if messages %}
@@ -54,18 +53,22 @@
 
 
     <!-- SETTINGS FORM -->
+
     <form
         method="POST"
         action="{{ url_for('admin_settings') }}"
         enctype="multipart/form-data"
     >
 
+
         <!-- COMPANY INFORMATION -->
+
         <section class="admin-panel settings-panel">
 
             <div class="panel-heading">
 
                 <div>
+
                     <span>
                         COMPANY PROFILE
                     </span>
@@ -74,12 +77,18 @@
                         Company Information
                     </h2>
 
+                    <p>
+                        Update the official company information
+                        used throughout the system.
+                    </p>
+
                 </div>
 
             </div>
 
 
             <div class="settings-grid">
+
 
                 <div class="form-group">
 
@@ -91,7 +100,7 @@
                         type="text"
                         id="company_name"
                         name="company_name"
-                        value="{{ settings.company_name or '' }}"
+                        value="{{ settings.company_name if settings else '' }}"
                         placeholder="AV KING VET DRUG VENTURE"
                     >
 
@@ -108,7 +117,7 @@
                         type="email"
                         id="company_email"
                         name="company_email"
-                        value="{{ settings.company_email or '' }}"
+                        value="{{ settings.company_email if settings else '' }}"
                         placeholder="company@example.com"
                     >
 
@@ -125,7 +134,7 @@
                         type="text"
                         id="company_phone"
                         name="company_phone"
-                        value="{{ settings.company_phone or '' }}"
+                        value="{{ settings.company_phone if settings else '' }}"
                         placeholder="+234..."
                     >
 
@@ -142,7 +151,7 @@
                         type="text"
                         id="company_website"
                         name="company_website"
-                        value="{{ settings.company_website or '' }}"
+                        value="{{ settings.company_website if settings else '' }}"
                         placeholder="https://example.com"
                     >
 
@@ -160,7 +169,7 @@
                         name="company_address"
                         rows="3"
                         placeholder="Enter company address"
-                    >{{ settings.company_address or '' }}</textarea>
+                    >{{ settings.company_address if settings else '' }}</textarea>
 
                 </div>
 
@@ -175,7 +184,7 @@
                         type="text"
                         id="footer_text"
                         name="footer_text"
-                        value="{{ settings.footer_text or '' }}"
+                        value="{{ settings.footer_text if settings else '' }}"
                         placeholder="Your needs, Our Priority"
                     >
 
@@ -186,7 +195,8 @@
         </section>
 
 
-        <!-- LOGO -->
+        <!-- COMPANY LOGO -->
+
         <section class="admin-panel settings-panel">
 
             <div class="panel-heading">
@@ -201,6 +211,11 @@
                         Company Logo
                     </h2>
 
+                    <p>
+                        Upload the company logo used in the portal
+                        and generated reports.
+                    </p>
+
                 </div>
 
             </div>
@@ -208,12 +223,16 @@
 
             <div class="logo-settings">
 
-                {% if settings.logo %}
+
+                {% if settings and settings.logo %}
 
                     <div class="current-logo">
 
                         <img
-                            src="{{ settings.logo }}"
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' ~ settings.logo
+                            ) }}"
                             alt="Company Logo"
                         >
 
@@ -250,7 +269,11 @@
                     >
 
                     <small>
-                        Recommended format: PNG, JPG or WEBP.
+                        Supported formats: PNG, JPG, JPEG and WEBP.
+                    </small>
+
+                    <small>
+                        Recommended: use a clear, high-resolution logo.
                     </small>
 
                 </div>
@@ -261,6 +284,7 @@
 
 
         <!-- APPLICATION SETTINGS -->
+
         <section class="admin-panel settings-panel">
 
             <div class="panel-heading">
@@ -275,12 +299,18 @@
                         Application Settings
                     </h2>
 
+                    <p>
+                        Control the availability of the applicant
+                        registration portal.
+                    </p>
+
                 </div>
 
             </div>
 
 
             <div class="settings-grid">
+
 
                 <div class="form-group">
 
@@ -295,7 +325,8 @@
 
                         <option
                             value="Open"
-                            {% if settings.application_status == "Open" %}
+                            {% if settings
+                               and settings.application_status == "Open" %}
                                 selected
                             {% endif %}
                         >
@@ -304,7 +335,8 @@
 
                         <option
                             value="Closed"
-                            {% if settings.application_status == "Closed" %}
+                            {% if settings
+                               and settings.application_status == "Closed" %}
                                 selected
                             {% endif %}
                         >
@@ -312,6 +344,10 @@
                         </option>
 
                     </select>
+
+                    <small>
+                        Open allows applicants to submit new applications.
+                    </small>
 
                 </div>
 
@@ -326,8 +362,12 @@
                         type="date"
                         id="application_deadline"
                         name="application_deadline"
-                        value="{{ settings.application_deadline or '' }}"
+                        value="{% if settings and settings.application_deadline %}{{ settings.application_deadline }}{% endif %}"
                     >
+
+                    <small>
+                        Leave blank if there is no deadline.
+                    </small>
 
                 </div>
 
@@ -336,7 +376,8 @@
         </section>
 
 
-        <!-- SAVE -->
+        <!-- ACTIONS -->
+
         <div class="settings-actions">
 
             <a
@@ -345,7 +386,6 @@
             >
                 Cancel
             </a>
-
 
             <button
                 type="submit"
