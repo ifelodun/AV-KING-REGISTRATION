@@ -7053,3 +7053,138 @@ PRINT
 ```
 
 }
+
+/* =========================================================
+   APPLICATION CLOSED PAGE
+   ========================================================= */
+
+.application-closed-page {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+}
+
+
+.application-closed-card {
+    width: 100%;
+    max-width: 650px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 55px 45px;
+    text-align: center;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+}
+
+
+.closed-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    font-size: 30px;
+}
+
+
+.closed-label {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+
+    color: #6b7280;
+}
+
+
+.application-closed-card h1 {
+    margin: 0 0 18px;
+
+    font-size: 32px;
+    line-height: 1.2;
+    font-weight: 750;
+
+    color: #111827;
+}
+
+
+.closed-message {
+    max-width: 520px;
+
+    margin: 0 auto 12px;
+
+    font-size: 16px;
+    line-height: 1.7;
+
+    color: #4b5563;
+}
+
+
+.closed-submessage {
+    max-width: 500px;
+
+    margin: 0 auto;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: #6b7280;
+}
+
+
+.closed-actions {
+    margin-top: 32px;
+}
+
+
+.closed-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+
+    padding: 0 24px;
+
+    border-radius: 9px;
+
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .application-closed-page {
+        padding: 30px 15px;
+    }
+
+    .application-closed-card {
+        padding: 40px 24px;
+        border-radius: 14px;
+    }
+
+    .application-closed-card h1 {
+        font-size: 26px;
+    }
+
+    .closed-message {
+        font-size: 15px;
+    }
+
+}
