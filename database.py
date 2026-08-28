@@ -579,7 +579,7 @@ def init_db():
             cur.execute(
                 """
                 ALTER TABLE company_settings
-                ADD COLUMN IF NOT EXISTS attendance_start_time
+                ADD COLUMN IF NOT EXISTS clock_in_start
                 TIME DEFAULT '08:00:00'
                 """
             )
@@ -587,7 +587,7 @@ def init_db():
             cur.execute(
                 """
                 ALTER TABLE company_settings
-                ADD COLUMN IF NOT EXISTS attendance_end_time
+                ADD COLUMN IF NOT EXISTS clock_out_end
                 TIME DEFAULT '17:00:00'
                 """
             )
