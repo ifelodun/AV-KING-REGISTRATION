@@ -14,6 +14,9 @@ from flask import (
     url_for,
     flash
 )
+
+from flask import send_from_directory
+import os
 from datetime import datetime
 
 current_time = datetime.now()
@@ -3632,6 +3635,162 @@ def admin_settings():
     return render_template(
         "admin_settings.html",
         settings=settings
+    )
+
+@app.route(
+    "/admin/applications/<int:application_id>/download/<file_type>"
+)
+def admin_download_file(application_id, file_type):
+
+    # --------------------------------------------------------
+    # CHECK ADMIN LOGIN
+    # --------------------------------------------------------
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+
+    # --------------------------------------------------------
+    # ALLOWED FILE TYPES
+    # --------------------------------------------------------
+
+    if file_type not in ["cv", "passport"]:
+        flash(
+            "Invalid document requested.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    cv_filename,
+                    passport_filename
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            application = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+
+    # --------------------------------------------------------
+    # APPLICATION NOT FOUND
+    # --------------------------------------------------------
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+
+    # --------------------------------------------------------
+    # GET FILE NAME
+    # --------------------------------------------------------
+
+    if file_type == "cv":
+
+        filename = application["cv_filename"]
+
+    else:
+
+        filename = application["passport_filename"]
+
+
+    # --------------------------------------------------------
+    # FILE DOES NOT EXIST IN DATABASE
+    # --------------------------------------------------------
+
+    if not filename:
+
+        flash(
+            "This applicant has not uploaded this document.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # UPLOAD DIRECTORY
+    # --------------------------------------------------------
+
+    upload_folder = os.path.join(
+        app.root_path,
+        "uploads"
+    )
+
+
+    # --------------------------------------------------------
+    # REMOVE POSSIBLE PATH INFORMATION
+    # --------------------------------------------------------
+
+    filename = os.path.basename(filename)
+
+
+    # --------------------------------------------------------
+    # CHECK ACTUAL FILE
+    # --------------------------------------------------------
+
+    file_path = os.path.join(
+        upload_folder,
+        filename
+    )
+
+    if not os.path.isfile(file_path):
+
+        flash(
+            "The document could not be found on the server.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=application_id
+            )
+        )
+
+
+    # --------------------------------------------------------
+    # DOWNLOAD FILE
+    # --------------------------------------------------------
+
+    return send_from_directory(
+        upload_folder,
+        filename,
+        as_attachment=True
     )
 # ============================================================
 # INITIALIZE DATABASE
