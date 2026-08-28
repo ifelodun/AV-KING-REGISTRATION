@@ -3523,7 +3523,242 @@ def admin_dashboard():
     )
 
 
+# ============================================================
+# ADMIN — ATTENDANCE MANAGEMENT
+# ============================================================
 
+@app.route("/admin/attendance")
+def admin_attendance():
+
+    # --------------------------------------------------------
+    # ADMIN LOGIN CHECK
+    # --------------------------------------------------------
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    # --------------------------------------------------------
+    # FILTERS
+    # --------------------------------------------------------
+
+    selected_date = (
+        request.args.get("date", "").strip()
+        or datetime.now().strftime("%Y-%m-%d")
+    )
+
+    search = (
+        request.args.get("search", "")
+        .strip()
+    )
+
+    status = (
+        request.args.get("status", "")
+        .strip()
+    )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # ATTENDANCE RECORDS
+            # =================================================
+
+            query = """
+                SELECT
+                    a.id,
+                    a.worker_id,
+                    a.attendance_date,
+                    a.clock_in,
+                    a.clock_out,
+                    a.total_hours,
+                    a.status,
+
+                    a.clock_in_latitude,
+                    a.clock_in_longitude,
+
+                    a.clock_out_latitude,
+                    a.clock_out_longitude,
+
+                    a.clock_in_location_verified,
+                    a.clock_out_location_verified,
+
+                    app.application_number,
+                    app.first_name,
+                    app.middle_name,
+                    app.last_name,
+                    app.phone,
+                    app.email,
+                    app.position_applied
+
+                FROM attendance a
+
+                INNER JOIN applications app
+                    ON app.id = a.worker_id
+
+                WHERE a.attendance_date = %s
+            """
+
+            params = [
+                selected_date
+            ]
+
+            # =================================================
+            # SEARCH
+            # =================================================
+
+            if search:
+
+                query += """
+                    AND (
+                        app.application_number ILIKE %s
+                        OR app.first_name ILIKE %s
+                        OR app.middle_name ILIKE %s
+                        OR app.last_name ILIKE %s
+                        OR app.phone ILIKE %s
+                        OR app.email ILIKE %s
+                    )
+                """
+
+                search_value = f"%{search}%"
+
+                params.extend([
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value,
+                    search_value
+                ])
+
+            # =================================================
+            # STATUS
+            # =================================================
+
+            if status:
+
+                query += """
+                    AND a.status = %s
+                """
+
+                params.append(status)
+
+            # =================================================
+            # ORDER
+            # =================================================
+
+            query += """
+                ORDER BY
+                    a.clock_in ASC NULLS LAST,
+                    app.first_name ASC
+            """
+
+            cur.execute(
+                query,
+                params
+            )
+
+            attendance_records = cur.fetchall()
+
+
+            # =================================================
+            # TODAY / SELECTED DATE SUMMARY
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total_records,
+
+                    COUNT(*) FILTER (
+                        WHERE clock_in IS NOT NULL
+                    ) AS clocked_in,
+
+                    COUNT(*) FILTER (
+                        WHERE clock_out IS NOT NULL
+                    ) AS clocked_out,
+
+                    COALESCE(
+                        SUM(total_hours),
+                        0
+                    ) AS total_hours
+
+                FROM attendance
+
+                WHERE attendance_date = %s
+                """,
+                (selected_date,)
+            )
+
+            summary = cur.fetchone()
+
+
+            # =================================================
+            # APPROVED APPLICANTS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS approved_workers
+
+                FROM applications
+
+                WHERE status = 'Approved'
+                """
+            )
+
+            approved_row = cur.fetchone()
+
+            approved_workers = int(
+                approved_row["approved_workers"]
+                or 0
+            )
+
+
+            # =================================================
+            # ABSENT COUNT
+            #
+            # Approved applicants who have no attendance
+            # record for the selected date.
+            # =================================================
+
+            absent_count = max(
+                approved_workers
+                - int(summary["clocked_in"] or 0),
+                0
+            )
+
+
+    finally:
+
+        conn.close()
+
+
+    # =========================================================
+    # RENDER
+    # =========================================================
+
+    return render_template(
+        "admin_attendance.html",
+
+        attendance_records=attendance_records,
+
+        selected_date=selected_date,
+
+        search=search,
+
+        selected_status=status,
+
+        summary=summary,
+
+        approved_workers=approved_workers,
+
+        absent_count=absent_count
+    )
+    
 # ============================================================
 # MARK WHATSAPP NOTIFICATION AS SENT
 # ============================================================
