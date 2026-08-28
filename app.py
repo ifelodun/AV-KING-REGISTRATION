@@ -4043,65 +4043,74 @@ def admin_attendance():
 @app.route("/admin/attendance/monthly")
 def admin_monthly_attendance():
 
+    # =========================================================
+    # ADMIN ACCESS
+    # =========================================================
+
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    month = request.args.get(
-        "month",
-        datetime.now().strftime("%Y-%m")
-    ).strip()
+    # =========================================================
+    # SELECTED MONTH
+    # =========================================================
 
+    selected_month = (
+        request.args.get("month", "").strip()
+        or datetime.now().strftime("%Y-%m")
+    )
+
+    # Validate month
     try:
 
-        report_month = datetime.strptime(
-            month,
+        month_start = datetime.strptime(
+            selected_month,
             "%Y-%m"
-        )
+        ).date()
 
     except ValueError:
 
-        month = datetime.now().strftime("%Y-%m")
+        selected_month = datetime.now().strftime("%Y-%m")
 
-        report_month = datetime.strptime(
-            month,
+        month_start = datetime.strptime(
+            selected_month,
             "%Y-%m"
-        )
+        ).date()
 
+    # First day of next month
+    if month_start.month == 12:
 
-    start_date = report_month.replace(
-        day=1
-    ).date()
-
-
-    if report_month.month == 12:
-
-        next_month = report_month.replace(
-            year=report_month.year + 1,
+        next_month = month_start.replace(
+            year=month_start.year + 1,
             month=1,
             day=1
         )
 
     else:
 
-        next_month = report_month.replace(
-            month=report_month.month + 1,
+        next_month = month_start.replace(
+            month=month_start.month + 1,
             day=1
         )
 
-
-    end_date = next_month.date()
-
+    month_end = next_month - timedelta(days=1)
 
     conn = get_db()
 
-    employees = []
+    attendance_records = []
+
+    total_staff = 0
+    total_present = 0
+    total_absent = 0
+    total_late = 0
+    total_incomplete = 0
+    total_hours = 0
 
     try:
 
         with conn.cursor() as cur:
 
             # =================================================
-            # APPROVED EMPLOYEES
+            # GET APPROVED / ACTIVE STAFF
             # =================================================
 
             cur.execute(
@@ -4109,28 +4118,483 @@ def admin_monthly_attendance():
                 SELECT
                     id,
                     application_number,
-                    worker_number,
                     first_name,
                     middle_name,
                     last_name,
+                    phone,
+                    email,
                     position_applied
 
                 FROM applications
 
-                WHERE LOWER(COALESCE(status, ''))
-                    IN ('approved', 'active')
+                WHERE
+                    status = 'Approved'
+                    AND portal_active = TRUE
 
                 ORDER BY
-                    first_name,
-                    last_name
+                    first_name ASC,
+                    last_name ASC
                 """
             )
 
             workers = cur.fetchall()
 
+            total_staff = len(workers)
 
             # =================================================
-            # ATTENDANCE FOR MONTH
+            # GET ATTENDANCE FOR THE MONTH
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    worker_id,
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status,
+                    clock_in_location_verified,
+                    clock_out_location_verified
+
+                FROM attendance
+
+                WHERE
+                    attendance_date >= %s
+                    AND attendance_date < %s
+
+                ORDER BY
+                    attendance_date ASC
+                """,
+                (
+                    month_start,
+                    next_month
+                )
+            )
+
+            attendance_rows = cur.fetchall()
+
+            # =================================================
+            # ORGANIZE ATTENDANCE
+            # =================================================
+
+            attendance_map = {}
+
+            for row in attendance_rows:
+
+                worker_id = row["worker_id"]
+                attendance_date = row["attendance_date"]
+
+                attendance_map[
+                    (
+                        worker_id,
+                        attendance_date
+                    )
+                ] = row
+
+            # =================================================
+            # WORKING DAYS
+            # =================================================
+
+            working_days = []
+
+            current_date = month_start
+
+            while current_date < next_month:
+
+                # Monday = 0
+                # Sunday = 6
+
+                if current_date.weekday() < 5:
+
+                    working_days.append(
+                        current_date
+                    )
+
+                current_date += timedelta(days=1)
+
+            total_working_days = len(
+                working_days
+            )
+
+            # =================================================
+            # BUILD EMPLOYEE MONTHLY REPORT
+            # =================================================
+
+            for worker in workers:
+
+                worker_present = 0
+                worker_absent = 0
+                worker_late = 0
+                worker_incomplete = 0
+                worker_hours = 0
+
+                daily_records = []
+
+                for attendance_date in working_days:
+
+                    attendance = attendance_map.get(
+                        (
+                            worker["id"],
+                            attendance_date
+                        )
+                    )
+
+                    # -----------------------------------------
+                    # NO RECORD = ABSENT
+                    # -----------------------------------------
+
+                    if not attendance:
+
+                        status = "Absent"
+
+                        worker_absent += 1
+
+                        total_absent += 1
+
+                        daily_records.append({
+
+                            "date": attendance_date,
+
+                            "clock_in": None,
+
+                            "clock_out": None,
+
+                            "total_hours": 0,
+
+                            "status": "Absent"
+
+                        })
+
+                        continue
+
+                    # -----------------------------------------
+                    # GET ATTENDANCE DATA
+                    # -----------------------------------------
+
+                    clock_in = attendance["clock_in"]
+                    clock_out = attendance["clock_out"]
+
+                    hours = float(
+                        attendance["total_hours"] or 0
+                    )
+
+                    worker_hours += hours
+                    total_hours += hours
+
+                    # -----------------------------------------
+                    # DETERMINE STATUS
+                    # -----------------------------------------
+
+                    if clock_in and clock_out:
+
+                        raw_status = (
+                            attendance["status"]
+                            or "Present"
+                        )
+
+                        if raw_status.lower() == "late":
+
+                            status = "Late"
+
+                            worker_late += 1
+                            total_late += 1
+
+                        else:
+
+                            status = "Present"
+
+                            worker_present += 1
+                            total_present += 1
+
+                    elif clock_in:
+
+                        status = "Incomplete"
+
+                        worker_incomplete += 1
+                        total_incomplete += 1
+
+                    else:
+
+                        status = "Absent"
+
+                        worker_absent += 1
+                        total_absent += 1
+
+                    daily_records.append({
+
+                        "date": attendance_date,
+
+                        "clock_in": clock_in,
+
+                        "clock_out": clock_out,
+
+                        "total_hours": hours,
+
+                        "status": status
+
+                    })
+
+                # =================================================
+                # ATTENDANCE PERCENTAGE
+                # =================================================
+
+                if total_working_days > 0:
+
+                    attendance_percentage = (
+                        (
+                            worker_present
+                            + worker_late
+                        )
+                        / total_working_days
+                    ) * 100
+
+                else:
+
+                    attendance_percentage = 0
+
+                # =================================================
+                # ADD EMPLOYEE REPORT
+                # =================================================
+
+                attendance_records.append({
+
+                    "worker_id":
+                        worker["id"],
+
+                    "application_number":
+                        worker["application_number"],
+
+                    "first_name":
+                        worker["first_name"],
+
+                    "middle_name":
+                        worker["middle_name"],
+
+                    "last_name":
+                        worker["last_name"],
+
+                    "phone":
+                        worker["phone"],
+
+                    "email":
+                        worker["email"],
+
+                    "position_applied":
+                        worker["position_applied"],
+
+                    "present":
+                        worker_present,
+
+                    "absent":
+                        worker_absent,
+
+                    "late":
+                        worker_late,
+
+                    "incomplete":
+                        worker_incomplete,
+
+                    "total_hours":
+                        round(
+                            worker_hours,
+                            2
+                        ),
+
+                    "attendance_percentage":
+                        round(
+                            attendance_percentage,
+                            1
+                        ),
+
+                    "daily_records":
+                        daily_records
+
+                })
+
+    except Exception:
+
+        app.logger.exception(
+            "Error loading monthly attendance"
+        )
+
+        flash(
+            "Unable to load monthly attendance report.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+    # =========================================================
+    # RENDER
+    # =========================================================
+
+    return render_template(
+        "admin_monthly_attendance.html",
+
+        attendance_records=attendance_records,
+
+        selected_month=selected_month,
+
+        month_start=month_start,
+
+        month_end=month_end,
+
+        total_working_days=total_working_days,
+
+        total_staff=total_staff,
+
+        total_present=total_present,
+
+        total_absent=total_absent,
+
+        total_late=total_late,
+
+        total_incomplete=total_incomplete,
+
+        total_hours=round(
+            total_hours,
+            2
+        )
+    )
+@app.route("/admin/attendance/monthly/pdf")
+def admin_monthly_attendance_pdf():
+
+    # =========================================================
+    # ADMIN ACCESS
+    # =========================================================
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    # =========================================================
+    # SELECTED MONTH
+    # =========================================================
+
+    selected_month = (
+        request.args.get("month", "").strip()
+        or datetime.now().strftime("%Y-%m")
+    )
+
+    try:
+
+        month_start = datetime.strptime(
+            selected_month,
+            "%Y-%m"
+        ).date()
+
+    except ValueError:
+
+        selected_month = datetime.now().strftime("%Y-%m")
+
+        month_start = datetime.strptime(
+            selected_month,
+            "%Y-%m"
+        ).date()
+
+    # =========================================================
+    # NEXT MONTH
+    # =========================================================
+
+    if month_start.month == 12:
+
+        next_month = month_start.replace(
+            year=month_start.year + 1,
+            month=1,
+            day=1
+        )
+
+    else:
+
+        next_month = month_start.replace(
+            month=month_start.month + 1,
+            day=1
+        )
+
+    month_end = next_month - timedelta(days=1)
+
+    # =========================================================
+    # WORKING DAYS
+    # =========================================================
+
+    working_days = []
+
+    current_date = month_start
+
+    while current_date < next_month:
+
+        if current_date.weekday() < 5:
+
+            working_days.append(current_date)
+
+        current_date += timedelta(days=1)
+
+    total_working_days = len(working_days)
+
+    # =========================================================
+    # DATABASE
+    # =========================================================
+
+    conn = get_db()
+
+    workers = []
+    attendance_rows = []
+    settings = None
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # COMPANY SETTINGS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT *
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            # =================================================
+            # APPROVED STAFF
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    phone,
+                    email,
+                    position_applied
+
+                FROM applications
+
+                WHERE
+                    status = 'Approved'
+                    AND portal_active = TRUE
+
+                ORDER BY
+                    first_name ASC,
+                    last_name ASC
+                """
+            )
+
+            workers = cur.fetchall()
+
+            # =================================================
+            # ATTENDANCE
             # =================================================
 
             cur.execute(
@@ -4145,203 +4609,836 @@ def admin_monthly_attendance():
 
                 FROM attendance
 
-                WHERE attendance_date >= %s
-                AND attendance_date < %s
+                WHERE
+                    attendance_date >= %s
+                    AND attendance_date < %s
 
-                ORDER BY attendance_date ASC
+                ORDER BY
+                    attendance_date ASC
                 """,
                 (
-                    start_date,
-                    end_date
+                    month_start,
+                    next_month
                 )
             )
 
             attendance_rows = cur.fetchall()
 
-
-            # =================================================
-            # ORGANIZE ATTENDANCE
-            # =================================================
-
-            attendance_map = {}
-
-            for row in attendance_rows:
-
-                worker_id = row["worker_id"]
-
-                attendance_date = (
-                    row["attendance_date"]
-                )
-
-                attendance_map[
-                    (
-                        worker_id,
-                        attendance_date
-                    )
-                ] = row
-
-
-            # =================================================
-            # BUILD MONTHLY REPORT
-            # =================================================
-
-            for worker in workers:
-
-                present = 0
-                late = 0
-                incomplete = 0
-                absent = 0
-                total_hours = 0
-
-
-                current_date = start_date
-
-
-                while current_date < end_date:
-
-                    # -------------------------------------------------
-                    # WEEKENDS
-                    # -------------------------------------------------
-
-                    if current_date.weekday() < 5:
-
-                        attendance = attendance_map.get(
-                            (
-                                worker["id"],
-                                current_date
-                            )
-                        )
-
-
-                        if not attendance:
-
-                            absent += 1
-
-
-                        else:
-
-                            clock_in = (
-                                attendance["clock_in"]
-                            )
-
-                            clock_out = (
-                                attendance["clock_out"]
-                            )
-
-
-                            if (
-                                clock_in
-                                and not clock_out
-                            ):
-
-                                incomplete += 1
-
-
-                            elif (
-                                clock_in
-                                and clock_out
-                            ):
-
-                                status = "Present"
-
-
-                                # -------------------------------------
-                                # CHECK LATE
-                                # -------------------------------------
-
-                                cur.execute(
-                                    """
-                                    SELECT clock_in_start
-                                    FROM company_settings
-                                    ORDER BY id ASC
-                                    LIMIT 1
-                                    """
-                                )
-
-                                settings_row = (
-                                    cur.fetchone()
-                                )
-
-
-                                if (
-                                    settings_row
-                                    and settings_row[
-                                        "clock_in_start"
-                                    ]
-                                ):
-
-                                    if (
-                                        clock_in.time()
-                                        >
-                                        settings_row[
-                                            "clock_in_start"
-                                        ]
-                                    ):
-
-                                        status = "Late"
-
-
-                                if status == "Late":
-
-                                    late += 1
-
-                                else:
-
-                                    present += 1
-
-
-                                total_hours += float(
-                                    attendance[
-                                        "total_hours"
-                                    ] or 0
-                                )
-
-
-                    current_date += timedelta(
-                        days=1
-                    )
-
-
-                employee = dict(worker)
-
-                employee["present"] = present
-                employee["late"] = late
-                employee["incomplete"] = incomplete
-                employee["absent"] = absent
-                employee["total_hours"] = round(
-                    total_hours,
-                    2
-                )
-
-                employees.append(
-                    employee
-                )
-
-
     except Exception:
 
         app.logger.exception(
-            "Error generating monthly attendance report"
+            "Error preparing monthly attendance PDF"
         )
 
         flash(
-            "Unable to generate monthly attendance report.",
+            "Unable to generate monthly attendance PDF.",
             "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_monthly_attendance",
+                month=selected_month
+            )
         )
 
     finally:
 
         conn.close()
 
+    # =========================================================
+    # ATTENDANCE MAP
+    # =========================================================
 
-    return render_template(
-        "admin_attendance_monthly.html",
+    attendance_map = {}
 
-        employees=employees,
+    for row in attendance_rows:
 
-        selected_month=month
+        attendance_map[
+            (
+                row["worker_id"],
+                row["attendance_date"]
+            )
+        ] = row
+
+    # =========================================================
+    # BUILD REPORT DATA
+    # =========================================================
+
+    report_rows = []
+
+    total_present = 0
+    total_absent = 0
+    total_late = 0
+    total_incomplete = 0
+    total_hours = 0
+
+    for worker in workers:
+
+        present = 0
+        absent = 0
+        late = 0
+        incomplete = 0
+        worker_hours = 0
+
+        for day in working_days:
+
+            attendance = attendance_map.get(
+                (
+                    worker["id"],
+                    day
+                )
+            )
+
+            if not attendance:
+
+                absent += 1
+                total_absent += 1
+
+                continue
+
+            clock_in = attendance["clock_in"]
+            clock_out = attendance["clock_out"]
+
+            hours = float(
+                attendance["total_hours"] or 0
+            )
+
+            worker_hours += hours
+            total_hours += hours
+
+            if clock_in and clock_out:
+
+                if (
+                    attendance["status"]
+                    and attendance["status"].lower() == "late"
+                ):
+
+                    late += 1
+                    total_late += 1
+
+                else:
+
+                    present += 1
+                    total_present += 1
+
+            elif clock_in:
+
+                incomplete += 1
+                total_incomplete += 1
+
+            else:
+
+                absent += 1
+                total_absent += 1
+
+        # =====================================================
+        # ATTENDANCE %
+        # =====================================================
+
+        if total_working_days:
+
+            attendance_percentage = (
+                (
+                    present
+                    + late
+                )
+                / total_working_days
+            ) * 100
+
+        else:
+
+            attendance_percentage = 0
+
+        report_rows.append({
+
+            "application_number":
+                worker["application_number"],
+
+            "name":
+                " ".join(
+                    filter(
+                        None,
+                        [
+                            worker["first_name"],
+                            worker["middle_name"],
+                            worker["last_name"]
+                        ]
+                    )
+                ),
+
+            "position":
+                worker["position_applied"] or "—",
+
+            "present":
+                present,
+
+            "late":
+                late,
+
+            "absent":
+                absent,
+
+            "incomplete":
+                incomplete,
+
+            "hours":
+                round(
+                    worker_hours,
+                    2
+                ),
+
+            "percentage":
+                round(
+                    attendance_percentage,
+                    1
+                )
+
+        })
+
+    # =========================================================
+    # PDF IMPORTS
+    # =========================================================
+
+    from io import BytesIO
+
+    from reportlab.lib import colors
+
+    from reportlab.lib.pagesizes import A4
+
+    from reportlab.lib.styles import (
+        getSampleStyleSheet,
+        ParagraphStyle
     )
 
+    from reportlab.lib.enums import (
+        TA_CENTER,
+        TA_LEFT
+    )
+
+    from reportlab.lib.units import mm
+
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+        Image
+    )
+
+    # =========================================================
+    # PDF BUFFER
+    # =========================================================
+
+    buffer = BytesIO()
+
+    # =========================================================
+    # DOCUMENT
+    # =========================================================
+
+    doc = SimpleDocTemplate(
+
+        buffer,
+
+        pagesize=A4,
+
+        rightMargin=12 * mm,
+
+        leftMargin=12 * mm,
+
+        topMargin=12 * mm,
+
+        bottomMargin=15 * mm
+
+    )
+
+    # =========================================================
+    # STYLES
+    # =========================================================
+
+    styles = getSampleStyleSheet()
+
+    company_style = ParagraphStyle(
+
+        "CompanyName",
+
+        parent=styles["Heading1"],
+
+        fontSize=16,
+
+        leading=20,
+
+        alignment=TA_CENTER,
+
+        spaceAfter=3
+
+    )
+
+    address_style = ParagraphStyle(
+
+        "CompanyAddress",
+
+        parent=styles["Normal"],
+
+        fontSize=8.5,
+
+        leading=11,
+
+        alignment=TA_CENTER
+
+    )
+
+    title_style = ParagraphStyle(
+
+        "ReportTitle",
+
+        parent=styles["Heading2"],
+
+        fontSize=13,
+
+        leading=16,
+
+        alignment=TA_CENTER,
+
+        spaceBefore=8,
+
+        spaceAfter=3
+
+    )
+
+    subtitle_style = ParagraphStyle(
+
+        "ReportSubtitle",
+
+        parent=styles["Normal"],
+
+        fontSize=8.5,
+
+        leading=11,
+
+        alignment=TA_CENTER,
+
+        spaceAfter=10
+
+    )
+
+    normal_style = ParagraphStyle(
+
+        "NormalSmall",
+
+        parent=styles["Normal"],
+
+        fontSize=7.5,
+
+        leading=9
+
+    )
+
+    # =========================================================
+    # STORY
+    # =========================================================
+
+    story = []
+
+    # =========================================================
+    # LOGO
+    # =========================================================
+
+    logo_path = None
+
+    if settings and settings["logo"]:
+
+        possible_logo = os.path.join(
+
+            app.root_path,
+
+            "static",
+
+            "uploads",
+
+            settings["logo"]
+
+        )
+
+        if os.path.exists(possible_logo):
+
+            logo_path = possible_logo
+
+    if logo_path:
+
+        try:
+
+            logo = Image(
+                logo_path,
+                width=24 * mm,
+                height=24 * mm
+            )
+
+            logo.hAlign = "CENTER"
+
+            story.append(logo)
+
+            story.append(
+                Spacer(
+                    1,
+                    3 * mm
+                )
+            )
+
+        except Exception:
+
+            app.logger.warning(
+                "Unable to load company logo for PDF.",
+                exc_info=True
+            )
+
+    # =========================================================
+    # COMPANY INFORMATION
+    # =========================================================
+
+    company_name = (
+        settings["company_name"]
+        if settings
+        and settings["company_name"]
+        else "AV KING VET DRUG VENTURE"
+    )
+
+    company_address = (
+        settings["company_address"]
+        if settings
+        and settings["company_address"]
+        else ""
+    )
+
+    company_phone = (
+        settings["company_phone"]
+        if settings
+        and settings["company_phone"]
+        else ""
+    )
+
+    company_email = (
+        settings["company_email"]
+        if settings
+        and settings["company_email"]
+        else ""
+    )
+
+    story.append(
+        Paragraph(
+            str(company_name),
+            company_style
+        )
+    )
+
+    contact_line = " | ".join(
+        filter(
+            None,
+            [
+                str(company_address),
+                str(company_phone),
+                str(company_email)
+            ]
+        )
+    )
+
+    if contact_line:
+
+        story.append(
+            Paragraph(
+                contact_line,
+                address_style
+            )
+        )
+
+    # =========================================================
+    # TITLE
+    # =========================================================
+
+    story.append(
+        Paragraph(
+            "MONTHLY ATTENDANCE REPORT",
+            title_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            month_start.strftime("%B %Y"),
+            subtitle_style
+        )
+    )
+
+    # =========================================================
+    # SUMMARY TABLE
+    # =========================================================
+
+    summary_data = [
+
+        [
+            "ACTIVE STAFF",
+            "WORKING DAYS",
+            "PRESENT",
+            "LATE",
+            "ABSENT",
+            "INCOMPLETE",
+            "TOTAL HOURS"
+        ],
+
+        [
+            str(len(workers)),
+            str(total_working_days),
+            str(total_present),
+            str(total_late),
+            str(total_absent),
+            str(total_incomplete),
+            f"{total_hours:.2f}"
+        ]
+
+    ]
+
+    summary_table = Table(
+        summary_data,
+        colWidths=[
+            25 * mm,
+            27 * mm,
+            22 * mm,
+            20 * mm,
+            22 * mm,
+            25 * mm,
+            27 * mm
+        ]
+    )
+
+    summary_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#1f2937")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                7
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.4,
+                colors.HexColor("#d1d5db")
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            )
+
+        ])
+    )
+
+    story.append(summary_table)
+
+    story.append(
+        Spacer(
+            1,
+            7 * mm
+        )
+    )
+
+    # =========================================================
+    # EMPLOYEE TABLE
+    # =========================================================
+
+    table_data = [
+
+        [
+            "#",
+            "Application No.",
+            "Employee",
+            "Position",
+            "Present",
+            "Late",
+            "Absent",
+            "Incomplete",
+            "Hours",
+            "Attendance"
+        ]
+
+    ]
+
+    for index, row in enumerate(
+        report_rows,
+        start=1
+    ):
+
+        table_data.append([
+
+            str(index),
+
+            row["application_number"],
+
+            Paragraph(
+                row["name"],
+                normal_style
+            ),
+
+            Paragraph(
+                row["position"],
+                normal_style
+            ),
+
+            str(row["present"]),
+
+            str(row["late"]),
+
+            str(row["absent"]),
+
+            str(row["incomplete"]),
+
+            f'{row["hours"]:.2f}',
+
+            f'{row["percentage"]:.1f}%'
+
+        ])
+
+    employee_table = Table(
+
+        table_data,
+
+        repeatRows=1,
+
+        colWidths=[
+
+            8 * mm,
+
+            27 * mm,
+
+            37 * mm,
+
+            30 * mm,
+
+            14 * mm,
+
+            12 * mm,
+
+            14 * mm,
+
+            18 * mm,
+
+            17 * mm,
+
+            20 * mm
+
+        ]
+
+    )
+
+    employee_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#111827")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, 0),
+                6.5
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 1),
+                (-1, -1),
+                6.8
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (0, -1),
+                "CENTER"
+            ),
+
+            (
+                "ALIGN",
+                (4, 1),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.35,
+                colors.HexColor("#d1d5db")
+            ),
+
+            (
+                "ROWBACKGROUNDS",
+                (0, 1),
+                (-1, -1),
+                [
+                    colors.white,
+                    colors.HexColor("#f9fafb")
+                ]
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                5
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                5
+            )
+
+        ])
+    )
+
+    story.append(employee_table)
+
+    story.append(
+        Spacer(
+            1,
+            8 * mm
+        )
+    )
+
+    # =========================================================
+    # FOOTER
+    # =========================================================
+
+    footer_text = (
+
+        settings["footer_text"]
+
+        if settings
+        and settings["footer_text"]
+
+        else "Your needs, Our Priority"
+
+    )
+
+    story.append(
+        Paragraph(
+            footer_text,
+            address_style
+        )
+    )
+
+    story.append(
+        Spacer(
+            1,
+            2 * mm
+        )
+    )
+
+    story.append(
+        Paragraph(
+            "Generated on "
+            + datetime.now().strftime(
+                "%d %B %Y at %I:%M %p"
+            ),
+            address_style
+        )
+    )
+
+    # =========================================================
+    # BUILD PDF
+    # =========================================================
+
+    doc.build(story)
+
+    buffer.seek(0)
+
+    # =========================================================
+    # DOWNLOAD
+    # =========================================================
+
+    return send_file(
+
+        buffer,
+
+        mimetype="application/pdf",
+
+        as_attachment=True,
+
+        download_name=(
+            "monthly_attendance_"
+            + selected_month
+            + ".pdf"
+        )
+    )
 @app.route("/admin/attendance/export/excel")
 def export_attendance_excel():
 
@@ -10192,42 +11289,31 @@ def applicant_attendance():
 # ============================================================
 # APPLICANT CLOCK IN
 # ============================================================
+# =========================================================
+# APPLICANT CLOCK-IN
+# =========================================================
+
 @app.route(
     "/applicant/attendance/clock-in",
     methods=["POST"]
 )
 def applicant_clock_in():
 
-    # =========================================================
-    # HELPER - RETURN JSON RESPONSE
-    # =========================================================
-
-    def response(success, message, status_code=200):
-
-        return jsonify({
-            "success": success,
-            "message": message
-        }), status_code
-
-
-    # =========================================================
-    # CHECK APPLICANT LOGIN
-    # =========================================================
+    # =====================================================
+    # APPLICANT LOGIN
+    # =====================================================
 
     applicant_id = session.get("applicant_id")
 
     if not applicant_id:
-
-        return response(
-            False,
-            "Your session has expired. Please log in again.",
-            401
+        return redirect(
+            url_for("applicant_login")
         )
 
 
-    # =========================================================
+    # =====================================================
     # GET GPS LOCATION
-    # =========================================================
+    # =====================================================
 
     try:
 
@@ -10250,27 +11336,45 @@ def applicant_clock_in():
         TypeError
     ):
 
-        return response(
-            False,
+        flash(
             "Unable to determine your location. Please allow location access and try again.",
-            400
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
         )
 
 
-    # =========================================================
-    # BASIC GPS VALIDATION
-    # =========================================================
+    # =====================================================
+    # VALIDATE GPS COORDINATES
+    # =====================================================
 
     if not (
         -90 <= latitude <= 90
-        and
+    ):
+
+        flash(
+            "Invalid latitude received from your device.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
+        )
+
+
+    if not (
         -180 <= longitude <= 180
     ):
 
-        return response(
-            False,
-            "Invalid location information received from your device.",
-            400
+        flash(
+            "Invalid longitude received from your device.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
         )
 
 
@@ -10288,6 +11392,7 @@ def applicant_clock_in():
                 """
                 SELECT
                     id,
+                    application_number,
                     first_name,
                     last_name,
                     status,
@@ -10305,47 +11410,52 @@ def applicant_clock_in():
             applicant = cur.fetchone()
 
 
-            # =================================================
-            # APPLICANT NOT FOUND
-            # =================================================
-
             if not applicant:
 
-                return response(
-                    False,
+                flash(
                     "Applicant account not found.",
-                    404
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
                 )
 
 
             # =================================================
-            # APPROVAL CHECK
+            # APPROVED APPLICANT ONLY
             # =================================================
 
             if applicant["status"] != "Approved":
 
-                return response(
-                    False,
+                flash(
                     "Only approved applicants can clock attendance.",
-                    403
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
                 )
 
 
             # =================================================
-            # PORTAL CHECK
+            # PORTAL ACTIVE
             # =================================================
 
             if not applicant["portal_active"]:
 
-                return response(
-                    False,
+                flash(
                     "Your applicant portal has been disabled.",
-                    403
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
                 )
 
 
             # =================================================
-            # GET COMPANY ATTENDANCE SETTINGS
+            # GET ATTENDANCE SETTINGS
             # =================================================
 
             cur.execute(
@@ -10356,7 +11466,8 @@ def applicant_clock_in():
                     company_longitude,
                     attendance_radius,
                     clock_in_start,
-                    clock_out_end
+                    clock_in_end,
+                    late_after_minutes
 
                 FROM company_settings
 
@@ -10369,16 +11480,15 @@ def applicant_clock_in():
             settings = cur.fetchone()
 
 
-            # =================================================
-            # SETTINGS CHECK
-            # =================================================
-
             if not settings:
 
-                return response(
-                    False,
+                flash(
                     "Attendance settings have not been configured by the administrator.",
-                    500
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
                 )
 
 
@@ -10388,15 +11498,18 @@ def applicant_clock_in():
 
             if not settings["attendance_enabled"]:
 
-                return response(
-                    False,
+                flash(
                     "Attendance is currently disabled by the administrator.",
-                    403
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
                 )
 
 
             # =================================================
-            # COMPANY LOCATION CHECK
+            # COMPANY LOCATION REQUIRED
             # =================================================
 
             if (
@@ -10405,29 +11518,13 @@ def applicant_clock_in():
                 settings["company_longitude"] is None
             ):
 
-                return response(
-                    False,
+                flash(
                     "The company attendance location has not been configured by the administrator.",
-                    500
+                    "error"
                 )
 
-
-            # =================================================
-            # ATTENDANCE RADIUS
-            # =================================================
-
-            radius = int(
-                settings["attendance_radius"]
-                or 200
-            )
-
-
-            if radius <= 0:
-
-                return response(
-                    False,
-                    "The company attendance radius is not configured correctly.",
-                    500
+                return redirect(
+                    url_for("applicant_attendance")
                 )
 
 
@@ -10461,10 +11558,93 @@ def applicant_clock_in():
 
             if existing and existing["clock_in"]:
 
-                return response(
-                    False,
+                flash(
                     "You have already clocked in today.",
-                    409
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # CURRENT SERVER TIME
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT CURRENT_TIME
+                """
+            )
+
+            current_time_row = cur.fetchone()
+
+            current_time = (
+                current_time_row["current_time"]
+            )
+
+
+            # =================================================
+            # GET CONFIGURED CLOCK-IN WINDOW
+            # =================================================
+
+            clock_in_start = (
+                settings["clock_in_start"]
+            )
+
+            clock_in_end = (
+                settings["clock_in_end"]
+            )
+
+
+            if (
+                clock_in_start is None
+                or
+                clock_in_end is None
+            ):
+
+                flash(
+                    "Clock-in hours have not been configured by the administrator.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # CLOCK-IN START CHECK
+            # =================================================
+
+            if current_time < clock_in_start:
+
+                flash(
+                    "Clock-in is not available yet. "
+                    f"Clock-in opens at {clock_in_start.strftime('%H:%M')}.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # CLOCK-IN END CHECK
+            # =================================================
+
+            if current_time > clock_in_end:
+
+                flash(
+                    "The clock-in period has closed for today. "
+                    f"Clock-in closed at {clock_in_end.strftime('%H:%M')}.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
                 )
 
 
@@ -10485,20 +11665,74 @@ def applicant_clock_in():
 
 
             # =================================================
-            # LOCATION ENFORCEMENT
+            # ATTENDANCE RADIUS
+            # =================================================
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
+
+            # =================================================
+            # LOCATION VERIFICATION
             # =================================================
 
             if distance > radius:
 
-                return response(
-                    False,
-                    (
-                        "You are outside the company attendance area. "
-                        f"Your distance is approximately {round(distance)} metres. "
-                        f"The allowed radius is {radius} metres."
-                    ),
-                    403
+                flash(
+                    "You are outside the company attendance area. "
+                    f"Distance: {round(distance)} metres. "
+                    f"Allowed radius: {radius} metres.",
+                    "error"
                 )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # DETERMINE LATE STATUS
+            # =================================================
+
+            late_after_minutes = int(
+                settings["late_after_minutes"]
+                or 15
+            )
+
+
+            # Convert configured clock-in opening time
+            # to minutes since midnight.
+
+            start_minutes = (
+                clock_in_start.hour * 60
+                + clock_in_start.minute
+            )
+
+
+            current_minutes = (
+                current_time.hour * 60
+                + current_time.minute
+            )
+
+
+            minutes_after_start = (
+                current_minutes
+                - start_minutes
+            )
+
+
+            if (
+                minutes_after_start
+                > late_after_minutes
+            ):
+
+                attendance_status = "Late"
+
+            else:
+
+                attendance_status = "Present"
 
 
             # =================================================
@@ -10513,32 +11747,26 @@ def applicant_clock_in():
 
                     SET
                         clock_in = CURRENT_TIMESTAMP,
+
                         clock_in_latitude = %s,
+
                         clock_in_longitude = %s,
+
                         clock_in_location_verified = TRUE,
-                        status = 'Present',
+
+                        status = %s,
+
                         updated_at = CURRENT_TIMESTAMP
 
                     WHERE id = %s
-
-                    AND clock_in IS NULL
                     """,
                     (
                         latitude,
                         longitude,
+                        attendance_status,
                         existing["id"]
                     )
                 )
-
-                if cur.rowcount == 0:
-
-                    conn.rollback()
-
-                    return response(
-                        False,
-                        "You have already clocked in today.",
-                        409
-                    )
 
             else:
 
@@ -10547,80 +11775,70 @@ def applicant_clock_in():
                     INSERT INTO attendance
                     (
                         worker_id,
+
                         attendance_date,
+
                         clock_in,
+
                         clock_in_latitude,
+
                         clock_in_longitude,
+
                         clock_in_location_verified,
+
                         status
                     )
 
                     VALUES
                     (
                         %s,
+
                         CURRENT_DATE,
+
                         CURRENT_TIMESTAMP,
+
                         %s,
+
                         %s,
+
                         TRUE,
-                        'Present'
+
+                        %s
                     )
-
-                    ON CONFLICT (
-                        worker_id,
-                        attendance_date
-                    )
-
-                    DO NOTHING
-
-                    RETURNING id
                     """,
                     (
                         applicant_id,
                         latitude,
-                        longitude
+                        longitude,
+                        attendance_status
                     )
                 )
 
-                inserted = cur.fetchone()
 
-
-                # =================================================
-                # RACE-CONDITION PROTECTION
-                # =================================================
-
-                if not inserted:
-
-                    conn.rollback()
-
-                    return response(
-                        False,
-                        "You have already clocked in today.",
-                        409
-                    )
-
-
-        # =========================================================
+        # =====================================================
         # COMMIT
-        # =========================================================
+        # =====================================================
 
         conn.commit()
 
 
-        # =========================================================
-        # SUCCESS RESPONSE
-        # =========================================================
+        # =====================================================
+        # SUCCESS MESSAGE
+        # =====================================================
 
-        applicant_name = (
-            f"{applicant['first_name']} "
-            f"{applicant['last_name']}"
-        )
+        if attendance_status == "Late":
 
+            flash(
+                "Clock-in recorded successfully. You have been marked Late.",
+                "warning"
+            )
 
-        return response(
-            True,
-            f"Clock-in recorded successfully for {applicant_name}."
-        )
+        else:
+
+            flash(
+                "Clock-in recorded successfully. You have been marked Present.",
+                "success"
+            )
 
 
     except Exception:
@@ -10631,10 +11849,9 @@ def applicant_clock_in():
             "Applicant clock-in error"
         )
 
-        return response(
-            False,
-            "Unable to record your clock-in. Please try again.",
-            500
+        flash(
+            "Unable to record clock-in. Please try again.",
+            "error"
         )
 
 
@@ -10642,9 +11859,17 @@ def applicant_clock_in():
 
         conn.close()
 
+
+    return redirect(
+        url_for("applicant_attendance")
+    )
+
 # ============================================================
 # APPLICANT CLOCK OUT
 # ============================================================
+# =========================================================
+# APPLICANT CLOCK-OUT
+# =========================================================
 
 @app.route(
     "/applicant/attendance/clock-out",
@@ -10652,9 +11877,11 @@ def applicant_clock_in():
 )
 def applicant_clock_out():
 
-    applicant_id = session.get(
-        "applicant_id"
-    )
+    # =====================================================
+    # APPLICANT LOGIN
+    # =====================================================
+
+    applicant_id = session.get("applicant_id")
 
     if not applicant_id:
 
@@ -10663,9 +11890,9 @@ def applicant_clock_out():
         )
 
 
-    # --------------------------------------------------------
+    # =====================================================
     # GET GPS LOCATION
-    # --------------------------------------------------------
+    # =====================================================
 
     try:
 
@@ -10698,15 +11925,113 @@ def applicant_clock_out():
         )
 
 
+    # =====================================================
+    # VALIDATE GPS COORDINATES
+    # =====================================================
+
+    if not -90 <= latitude <= 90:
+
+        flash(
+            "Invalid latitude received from your device.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
+        )
+
+
+    if not -180 <= longitude <= 180:
+
+        flash(
+            "Invalid longitude received from your device.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
+        )
+
+
     conn = get_db()
 
     try:
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # GET SETTINGS
-            # ------------------------------------------------
+            # =================================================
+            # GET APPLICANT
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    last_name,
+                    status,
+                    portal_active
+
+                FROM applications
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            applicant = cur.fetchone()
+
+
+            if not applicant:
+
+                flash(
+                    "Applicant account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # =================================================
+            # APPROVED APPLICANT ONLY
+            # =================================================
+
+            if applicant["status"] != "Approved":
+
+                flash(
+                    "Only approved applicants can record attendance.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # PORTAL ACTIVE
+            # =================================================
+
+            if not applicant["portal_active"]:
+
+                flash(
+                    "Your applicant portal has been disabled.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # =================================================
+            # GET ATTENDANCE SETTINGS
+            # =================================================
 
             cur.execute(
                 """
@@ -10715,7 +12040,7 @@ def applicant_clock_out():
                     company_latitude,
                     company_longitude,
                     attendance_radius,
-                    clock_in_start,
+                    clock_out_start,
                     clock_out_end
 
                 FROM company_settings
@@ -10732,7 +12057,7 @@ def applicant_clock_out():
             if not settings:
 
                 flash(
-                    "Attendance settings have not been configured.",
+                    "Attendance settings have not been configured by the administrator.",
                     "error"
                 )
 
@@ -10740,11 +12065,15 @@ def applicant_clock_out():
                     url_for("applicant_attendance")
                 )
 
+
+            # =================================================
+            # ATTENDANCE ENABLED
+            # =================================================
 
             if not settings["attendance_enabled"]:
 
                 flash(
-                    "Attendance is currently disabled.",
+                    "Attendance is currently disabled by the administrator.",
                     "error"
                 )
 
@@ -10753,20 +12082,42 @@ def applicant_clock_out():
                 )
 
 
-            # ------------------------------------------------
-            # GET TODAY'S RECORD
-            # ------------------------------------------------
+            # =================================================
+            # COMPANY GPS REQUIRED
+            # =================================================
+
+            if (
+                settings["company_latitude"] is None
+                or
+                settings["company_longitude"] is None
+            ):
+
+                flash(
+                    "The company attendance location has not been configured by the administrator.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # GET TODAY'S ATTENDANCE
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
                     clock_in,
-                    clock_out
+                    clock_out,
+                    status
 
                 FROM attendance
 
                 WHERE worker_id = %s
+
                 AND attendance_date = CURRENT_DATE
 
                 LIMIT 1
@@ -10777,10 +12128,14 @@ def applicant_clock_out():
             attendance = cur.fetchone()
 
 
+            # =================================================
+            # NO CLOCK-IN
+            # =================================================
+
             if not attendance:
 
                 flash(
-                    "You have not clocked in today.",
+                    "You cannot clock out because you have not clocked in today.",
                     "error"
                 )
 
@@ -10792,7 +12147,7 @@ def applicant_clock_out():
             if not attendance["clock_in"]:
 
                 flash(
-                    "You must clock in before clocking out.",
+                    "You cannot clock out because your clock-in was not recorded.",
                     "error"
                 )
 
@@ -10800,6 +12155,10 @@ def applicant_clock_out():
                     url_for("applicant_attendance")
                 )
 
+
+            # =================================================
+            # DUPLICATE CLOCK-OUT PROTECTION
+            # =================================================
 
             if attendance["clock_out"]:
 
@@ -10813,18 +12172,44 @@ def applicant_clock_out():
                 )
 
 
-            # ------------------------------------------------
-            # COMPANY LOCATION MUST EXIST
-            # ------------------------------------------------
+            # =================================================
+            # CURRENT SERVER TIME
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT CURRENT_TIME
+                """
+            )
+
+            current_time_row = cur.fetchone()
+
+            current_time = (
+                current_time_row["current_time"]
+            )
+
+
+            # =================================================
+            # CLOCK-OUT WINDOW
+            # =================================================
+
+            clock_out_start = (
+                settings["clock_out_start"]
+            )
+
+            clock_out_end = (
+                settings["clock_out_end"]
+            )
+
 
             if (
-                settings["company_latitude"] is None
+                clock_out_start is None
                 or
-                settings["company_longitude"] is None
+                clock_out_end is None
             ):
 
                 flash(
-                    "Company attendance location has not been configured.",
+                    "Clock-out hours have not been configured by the administrator.",
                     "error"
                 )
 
@@ -10833,17 +12218,64 @@ def applicant_clock_out():
                 )
 
 
-            # ------------------------------------------------
-            # VERIFY LOCATION
-            # ------------------------------------------------
+            # =================================================
+            # TOO EARLY
+            # =================================================
+
+            if current_time < clock_out_start:
+
+                flash(
+                    "Clock-out is not available yet. "
+                    f"Clock-out opens at {clock_out_start.strftime('%H:%M')}.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # TOO LATE
+            # =================================================
+
+            if current_time > clock_out_end:
+
+                flash(
+                    "The clock-out period has closed for today. "
+                    f"Clock-out closed at {clock_out_end.strftime('%H:%M')}.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # =================================================
+            # CALCULATE GPS DISTANCE
+            # =================================================
 
             distance = calculate_distance_meters(
+
                 latitude,
+
                 longitude,
-                settings["company_latitude"],
-                settings["company_longitude"]
+
+                float(
+                    settings["company_latitude"]
+                ),
+
+                float(
+                    settings["company_longitude"]
+                )
+
             )
 
+
+            # =================================================
+            # ATTENDANCE RADIUS
+            # =================================================
 
             radius = int(
                 settings["attendance_radius"]
@@ -10851,10 +12283,14 @@ def applicant_clock_out():
             )
 
 
+            # =================================================
+            # LOCATION VERIFICATION
+            # =================================================
+
             if distance > radius:
 
                 flash(
-                    f"You are outside the company attendance area. "
+                    "You are outside the company attendance area. "
                     f"Distance: {round(distance)} metres. "
                     f"Allowed radius: {radius} metres.",
                     "error"
@@ -10865,40 +12301,84 @@ def applicant_clock_out():
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
             # CALCULATE TOTAL HOURS
-            # ------------------------------------------------
+            # =================================================
 
-            clock_in_time = (
-                attendance["clock_in"]
+            cur.execute(
+                """
+                SELECT
+                    EXTRACT(
+                        EPOCH FROM (
+                            CURRENT_TIMESTAMP - clock_in
+                        )
+                    ) / 3600.0 AS hours
+
+                FROM attendance
+
+                WHERE id = %s
+                """,
+                (
+                    attendance["id"],
+                )
             )
 
-            clock_out_time = datetime.now(
-                clock_in_time.tzinfo
-            ) if clock_in_time.tzinfo else datetime.now()
+            hours_row = cur.fetchone()
 
 
-            total_seconds = (
-                clock_out_time
-                - clock_in_time
-            ).total_seconds()
+            total_hours = float(
+                hours_row["hours"] or 0
+            )
 
+
+            # =================================================
+            # PROTECT AGAINST NEGATIVE HOURS
+            # =================================================
+
+            if total_hours < 0:
+
+                total_hours = 0
+
+
+            # =================================================
+            # ROUND HOURS
+            # =================================================
 
             total_hours = round(
-                max(total_seconds, 0) / 3600,
+                total_hours,
                 2
             )
 
 
-            # ------------------------------------------------
-            # SAVE CLOCK OUT
-            # ------------------------------------------------
+            # =================================================
+            # DETERMINE FINAL STATUS
+            # =================================================
+
+            current_status = (
+                attendance["status"]
+                or "Present"
+            )
+
+
+            if current_status == "Late":
+
+                final_status = "Late"
+
+            else:
+
+                final_status = "Present"
+
+
+            # =================================================
+            # SAVE CLOCK-OUT
+            # =================================================
 
             cur.execute(
                 """
                 UPDATE attendance
 
                 SET
+
                     clock_out = CURRENT_TIMESTAMP,
 
                     clock_out_latitude = %s,
@@ -10909,26 +12389,48 @@ def applicant_clock_out():
 
                     total_hours = %s,
 
-                    status = 'Present',
+                    status = %s,
 
                     updated_at = CURRENT_TIMESTAMP
 
                 WHERE id = %s
+
+                AND clock_out IS NULL
                 """,
                 (
                     latitude,
                     longitude,
                     total_hours,
+                    final_status,
                     attendance["id"]
                 )
             )
 
 
+            # =================================================
+            # VERIFY UPDATE
+            # =================================================
+
+            if cur.rowcount != 1:
+
+                raise Exception(
+                    "Attendance clock-out update failed."
+                )
+
+
+        # =====================================================
+        # COMMIT
+        # =====================================================
+
         conn.commit()
 
 
+        # =====================================================
+        # SUCCESS
+        # =====================================================
+
         flash(
-            f"Clock-out recorded successfully. "
+            "Clock-out recorded successfully. "
             f"Total hours: {total_hours:.2f}.",
             "success"
         )
