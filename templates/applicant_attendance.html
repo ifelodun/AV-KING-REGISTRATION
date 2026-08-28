@@ -42,6 +42,31 @@
 
 
     <!-- =====================================================
+         FLASH MESSAGES
+         ===================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
          APPLICANT INFORMATION
          ===================================================== -->
 
@@ -51,13 +76,14 @@
 
             {{
                 (
-                    application.first_name[:1]
+                    applicant.first_name[:1]
                     ~
-                    application.last_name[:1]
+                    applicant.last_name[:1]
                 )|upper
             }}
 
         </div>
+
 
         <div class="attendance-profile-info">
 
@@ -67,22 +93,22 @@
 
             <h2>
 
-                {{ application.first_name }}
+                {{ applicant.first_name }}
 
-                {% if application.middle_name %}
-                    {{ application.middle_name }}
+                {% if applicant.middle_name %}
+                    {{ applicant.middle_name }}
                 {% endif %}
 
-                {{ application.last_name }}
+                {{ applicant.last_name }}
 
             </h2>
 
             <p>
 
-                {{ application.application_number }}
+                {{ applicant.application_number }}
 
-                {% if application.position_applied %}
-                    · {{ application.position_applied }}
+                {% if applicant.position_applied %}
+                    · {{ applicant.position_applied }}
                 {% endif %}
 
             </p>
@@ -93,7 +119,7 @@
 
 
     <!-- =====================================================
-         ATTENDANCE STATUS
+         TODAY'S ATTENDANCE
          ===================================================== -->
 
     <section class="attendance-main-card">
@@ -107,16 +133,25 @@
                 </span>
 
                 <h2 id="attendanceDate">
-                    {{ now().strftime("%A, %d %B %Y") if now is defined else "" }}
+
+                    {{ today_attendance.attendance_date.strftime("%A, %d %B %Y")
+                       if today_attendance and today_attendance.attendance_date
+                       else "Today" }}
+
                 </h2>
 
             </div>
+
 
             <div class="attendance-live-indicator">
 
                 <span class="attendance-live-dot"></span>
 
-                Attendance Active
+                {% if settings and settings.attendance_enabled %}
+                    Attendance Active
+                {% else %}
+                    Attendance Disabled
+                {% endif %}
 
             </div>
 
@@ -124,7 +159,7 @@
 
 
         <!-- =================================================
-             LOCATION INFORMATION
+             LOCATION MESSAGE
              ================================================= -->
 
         <div
@@ -159,7 +194,9 @@
         <div class="attendance-status-grid">
 
 
-            <!-- CLOCK IN -->
+            <!-- =================================================
+                 CLOCK IN
+                 ================================================= -->
 
             <div class="attendance-status-box">
 
@@ -167,16 +204,15 @@
                     CLOCK IN
                 </span>
 
+
                 <div
                     id="clockInTime"
                     class="attendance-time"
                 >
 
-                    {% if attendance and attendance.clock_in %}
+                    {% if today_attendance and today_attendance.clock_in %}
 
-                        {{ attendance.clock_in.strftime(
-                            "%I:%M %p"
-                        ) }}
+                        {{ today_attendance.clock_in.strftime("%I:%M %p") }}
 
                     {% else %}
 
@@ -186,12 +222,13 @@
 
                 </div>
 
+
                 <div
                     id="clockInStatus"
                     class="attendance-status-text"
                 >
 
-                    {% if attendance and attendance.clock_in %}
+                    {% if today_attendance and today_attendance.clock_in %}
 
                         <span class="attendance-complete">
                             ✓ Clock-in recorded
@@ -208,7 +245,9 @@
             </div>
 
 
-            <!-- CLOCK OUT -->
+            <!-- =================================================
+                 CLOCK OUT
+                 ================================================= -->
 
             <div class="attendance-status-box">
 
@@ -216,16 +255,15 @@
                     CLOCK OUT
                 </span>
 
+
                 <div
                     id="clockOutTime"
                     class="attendance-time"
                 >
 
-                    {% if attendance and attendance.clock_out %}
+                    {% if today_attendance and today_attendance.clock_out %}
 
-                        {{ attendance.clock_out.strftime(
-                            "%I:%M %p"
-                        ) }}
+                        {{ today_attendance.clock_out.strftime("%I:%M %p") }}
 
                     {% else %}
 
@@ -235,18 +273,19 @@
 
                 </div>
 
+
                 <div
                     id="clockOutStatus"
                     class="attendance-status-text"
                 >
 
-                    {% if attendance and attendance.clock_out %}
+                    {% if today_attendance and today_attendance.clock_out %}
 
                         <span class="attendance-complete">
                             ✓ Clock-out recorded
                         </span>
 
-                    {% elif attendance and attendance.clock_in %}
+                    {% elif today_attendance and today_attendance.clock_in %}
 
                         Ready for clock-out
 
@@ -261,7 +300,9 @@
             </div>
 
 
-            <!-- TOTAL HOURS -->
+            <!-- =================================================
+                 TOTAL HOURS
+                 ================================================= -->
 
             <div class="attendance-status-box">
 
@@ -269,14 +310,17 @@
                     TOTAL HOURS
                 </span>
 
+
                 <div
                     id="totalHours"
                     class="attendance-time"
                 >
 
-                    {% if attendance and attendance.total_hours %}
+                    {% if today_attendance and today_attendance.total_hours %}
 
-                        {{ attendance.total_hours }}
+                        {{ "%.2f"|format(
+                            today_attendance.total_hours|float
+                        ) }}
 
                     {% else %}
 
@@ -290,11 +334,16 @@
 
                 </div>
 
+
                 <div class="attendance-status-text">
 
-                    {% if attendance and attendance.clock_out %}
+                    {% if today_attendance and today_attendance.clock_out %}
 
                         Completed
+
+                    {% elif today_attendance and today_attendance.clock_in %}
+
+                        In progress
 
                     {% else %}
 
@@ -316,14 +365,23 @@
         <div class="attendance-actions">
 
 
-            <!-- CLOCK IN -->
+            <!-- =================================================
+                 CLOCK IN BUTTON
+                 ================================================= -->
 
             <button
                 type="button"
                 id="clockInButton"
                 class="attendance-clock-btn attendance-clock-in-btn"
 
-                {% if attendance and attendance.clock_in %}
+                {% if
+                    not settings
+                    or not settings.attendance_enabled
+                    or (
+                        today_attendance
+                        and today_attendance.clock_in
+                    )
+                %}
                     disabled
                 {% endif %}
             >
@@ -347,14 +405,22 @@
             </button>
 
 
-            <!-- CLOCK OUT -->
+            <!-- =================================================
+                 CLOCK OUT BUTTON
+                 ================================================= -->
 
             <button
                 type="button"
                 id="clockOutButton"
                 class="attendance-clock-btn attendance-clock-out-btn"
 
-                {% if not attendance or not attendance.clock_in or attendance.clock_out %}
+                {% if
+                    not settings
+                    or not settings.attendance_enabled
+                    or not today_attendance
+                    or not today_attendance.clock_in
+                    or today_attendance.clock_out
+                %}
                     disabled
                 {% endif %}
             >
@@ -381,7 +447,7 @@
 
 
         <!-- =================================================
-             SECURITY / LOCATION NOTICE
+             SECURITY NOTICE
              ================================================= -->
 
         <div class="attendance-security-notice">
@@ -415,6 +481,9 @@
 
     <section class="attendance-information-grid">
 
+
+        <!-- DATE -->
+
         <div class="attendance-info-card">
 
             <span>
@@ -422,13 +491,18 @@
             </span>
 
             <strong>
-                {{ attendance.attendance_date.strftime("%d %B %Y")
-                   if attendance and attendance.attendance_date
+
+                {{ today_attendance.attendance_date.strftime("%d %B %Y")
+                   if today_attendance
+                   and today_attendance.attendance_date
                    else "Today" }}
+
             </strong>
 
         </div>
 
+
+        <!-- LOCATION -->
 
         <div class="attendance-info-card">
 
@@ -438,7 +512,10 @@
 
             <strong id="locationStatus">
 
-                {% if attendance and attendance.clock_in_location_verified %}
+                {% if
+                    today_attendance
+                    and today_attendance.clock_in_location_verified
+                %}
 
                     ✓ Verified
 
@@ -453,6 +530,8 @@
         </div>
 
 
+        <!-- STATUS -->
+
         <div class="attendance-info-card">
 
             <span>
@@ -461,13 +540,23 @@
 
             <strong id="overallStatus">
 
-                {% if attendance and attendance.clock_out %}
+                {% if
+                    today_attendance
+                    and today_attendance.clock_out
+                %}
 
                     Completed
 
-                {% elif attendance and attendance.clock_in %}
+                {% elif
+                    today_attendance
+                    and today_attendance.clock_in
+                %}
 
-                    Clocked In
+                    {% if today_attendance.status == "Late" %}
+                        Late
+                    {% else %}
+                        Clocked In
+                    {% endif %}
 
                 {% else %}
 
@@ -494,50 +583,64 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
         const clockInButton =
             document.getElementById(
                 "clockInButton"
             );
+
 
         const clockOutButton =
             document.getElementById(
                 "clockOutButton"
             );
 
+
         const locationMessage =
             document.getElementById(
                 "locationMessage"
             );
+
 
         const clockInTime =
             document.getElementById(
                 "clockInTime"
             );
 
+
         const clockOutTime =
             document.getElementById(
                 "clockOutTime"
             );
+
 
         const totalHours =
             document.getElementById(
                 "totalHours"
             );
 
+
         const clockInStatus =
             document.getElementById(
                 "clockInStatus"
             );
+
 
         const clockOutStatus =
             document.getElementById(
                 "clockOutStatus"
             );
 
+
         const locationStatus =
             document.getElementById(
                 "locationStatus"
             );
+
 
         const overallStatus =
             document.getElementById(
@@ -546,7 +649,7 @@ document.addEventListener(
 
 
         // =====================================================
-        // SHOW MESSAGE
+        // SHOW LOCATION MESSAGE
         // =====================================================
 
         function showLocationMessage(
@@ -555,23 +658,37 @@ document.addEventListener(
             type
         ) {
 
+            if (!locationMessage) {
+                return;
+            }
+
+
             locationMessage.className =
                 "attendance-location-message " +
                 "location-" +
                 type;
 
+
+            let icon = "📍";
+
+
+            if (type === "success") {
+
+                icon = "✓";
+
+            }
+
+            else if (type === "error") {
+
+                icon = "!";
+
+            }
+
+
             locationMessage.innerHTML = `
 
                 <div class="location-icon">
-
-                    ${
-                        type === "success"
-                        ? "✓"
-                        : type === "error"
-                        ? "!"
-                        : "📍"
-                    }
-
+                    ${icon}
                 </div>
 
                 <div>
@@ -587,6 +704,7 @@ document.addEventListener(
                 </div>
 
             `;
+
         }
 
 
@@ -594,95 +712,108 @@ document.addEventListener(
         // GET CURRENT LOCATION
         // =====================================================
 
-        function getCurrentLocation(
-            callback
-        ) {
+        function getCurrentLocation() {
 
-            if (!navigator.geolocation) {
-
-                showLocationMessage(
-                    "Location unavailable",
-                    "Your browser does not support location services.",
-                    "error"
-                );
-
-                return;
-            }
+            return new Promise(
+                function (
+                    resolve,
+                    reject
+                ) {
 
 
-            showLocationMessage(
-                "Checking your location",
-                "Please allow location access and remain on this page.",
-                "loading"
-            );
+                    if (!navigator.geolocation) {
 
+                        reject(
+                            new Error(
+                                "Your browser does not support location services."
+                            )
+                        );
 
-            navigator.geolocation.getCurrentPosition(
-
-                function (position) {
-
-                    callback({
-
-                        latitude:
-                            position.coords.latitude,
-
-                        longitude:
-                            position.coords.longitude
-
-                    });
-
-                },
-
-                function (error) {
-
-                    let message =
-                        "Unable to determine your location.";
-
-                    if (
-                        error.code ===
-                        error.PERMISSION_DENIED
-                    ) {
-
-                        message =
-                            "Location permission was denied. Please allow location access in your browser.";
-
-                    }
-
-                    else if (
-                        error.code ===
-                        error.POSITION_UNAVAILABLE
-                    ) {
-
-                        message =
-                            "Your current location could not be determined.";
-
-                    }
-
-                    else if (
-                        error.code ===
-                        error.TIMEOUT
-                    ) {
-
-                        message =
-                            "Location request timed out. Please try again.";
-
+                        return;
                     }
 
 
                     showLocationMessage(
-                        "Location verification failed",
-                        message,
-                        "error"
+                        "Checking your location",
+                        "Please allow location access and remain on this page.",
+                        "loading"
                     );
 
-                },
 
-                {
-                    enableHighAccuracy: true,
+                    navigator.geolocation.getCurrentPosition(
 
-                    timeout: 15000,
+                        function (position) {
 
-                    maximumAge: 0
+                            resolve({
+
+                                latitude:
+                                    position.coords.latitude,
+
+                                longitude:
+                                    position.coords.longitude
+
+                            });
+
+                        },
+
+
+                        function (error) {
+
+                            let message =
+                                "Unable to determine your location.";
+
+
+                            if (
+                                error.code ===
+                                error.PERMISSION_DENIED
+                            ) {
+
+                                message =
+                                    "Location permission was denied. Please allow location access in your browser.";
+
+                            }
+
+
+                            else if (
+                                error.code ===
+                                error.POSITION_UNAVAILABLE
+                            ) {
+
+                                message =
+                                    "Your current location could not be determined.";
+
+                            }
+
+
+                            else if (
+                                error.code ===
+                                error.TIMEOUT
+                            ) {
+
+                                message =
+                                    "Location request timed out. Please try again.";
+
+                            }
+
+
+                            reject(
+                                new Error(message)
+                            );
+
+                        },
+
+
+                        {
+
+                            enableHighAccuracy: true,
+
+                            timeout: 15000,
+
+                            maximumAge: 0
+
+                        }
+
+                    );
 
                 }
             );
@@ -691,7 +822,7 @@ document.addEventListener(
 
 
         // =====================================================
-        // SEND ATTENDANCE REQUEST
+        // SUBMIT ATTENDANCE
         // =====================================================
 
         async function submitAttendance(
@@ -699,10 +830,17 @@ document.addEventListener(
             button
         ) {
 
-            button.disabled = true;
+
+            if (!button) {
+                return;
+            }
+
 
             const originalHTML =
                 button.innerHTML;
+
+
+            button.disabled = true;
 
 
             button.innerHTML = `
@@ -726,150 +864,255 @@ document.addEventListener(
             `;
 
 
-            getCurrentLocation(
-                async function (location) {
-
-                    try {
-
-                        const formData =
-                            new FormData();
-
-                        formData.append(
-                            "latitude",
-                            location.latitude
-                        );
-
-                        formData.append(
-                            "longitude",
-                            location.longitude
-                        );
+            try {
 
 
-                        const response =
-                            await fetch(
-                                endpoint,
-                                {
-                                    method: "POST",
-                                    body: formData,
-                                    credentials: "same-origin"
-                                }
-                            );
+                // =================================================
+                // GET GPS
+                // =================================================
+
+                const location =
+                    await getCurrentLocation();
 
 
-                        const data =
-                            await response.json();
+                // =================================================
+                // SEND REQUEST
+                // =================================================
+
+                const formData =
+                    new FormData();
 
 
-                        if (data.success) {
-
-                            showLocationMessage(
-                                "Attendance recorded",
-                                data.message,
-                                "success"
-                            );
+                formData.append(
+                    "latitude",
+                    location.latitude
+                );
 
 
-                            if (
-                                data.clock_in
-                                && endpoint.includes(
-                                    "clock-in"
-                                )
-                            ) {
-
-                                clockInTime.textContent =
-                                    data.clock_in;
-
-                                clockInStatus.innerHTML =
-                                    `
-                                    <span class="attendance-complete">
-                                        ✓ Clock-in recorded
-                                    </span>
-                                    `;
-
-                                clockInButton.disabled =
-                                    true;
-
-                                clockOutButton.disabled =
-                                    false;
-
-                                locationStatus.textContent =
-                                    "✓ Verified";
-
-                                overallStatus.textContent =
-                                    "Clocked In";
-                            }
+                formData.append(
+                    "longitude",
+                    location.longitude
+                );
 
 
-                            if (
-                                data.clock_out
-                                && endpoint.includes(
-                                    "clock-out"
-                                )
-                            ) {
+                const response =
+                    await fetch(
+                        endpoint,
+                        {
 
-                                clockOutTime.textContent =
-                                    data.clock_out;
+                            method: "POST",
 
-                                clockOutStatus.innerHTML =
-                                    `
-                                    <span class="attendance-complete">
-                                        ✓ Clock-out recorded
-                                    </span>
-                                    `;
+                            body: formData,
 
-                                clockOutButton.disabled =
-                                    true;
+                            credentials: "same-origin",
 
-                                totalHours.textContent =
-                                    Number(
-                                        data.total_hours || 0
-                                    ).toFixed(2);
-
-                                overallStatus.textContent =
-                                    "Completed";
+                            headers: {
+                                "Accept":
+                                    "application/json"
                             }
 
                         }
+                    );
 
-                        else {
 
-                            showLocationMessage(
-                                "Attendance not recorded",
-                                data.message ||
-                                    "Unable to record attendance.",
-                                "error"
-                            );
+                // =================================================
+                // READ RESPONSE
+                // =================================================
 
-                            button.disabled =
-                                false;
+                let data;
 
-                            button.innerHTML =
-                                originalHTML;
-                        }
 
-                    }
+                try {
 
-                    catch (error) {
+                    data =
+                        await response.json();
 
-                        console.error(
-                            error
-                        );
+                }
 
-                        showLocationMessage(
-                            "Connection error",
-                            "Unable to communicate with the attendance server. Please try again.",
-                            "error"
-                        );
+                catch (jsonError) {
 
-                        button.disabled =
+                    throw new Error(
+                        "The attendance server returned an invalid response."
+                    );
+
+                }
+
+
+                // =================================================
+                // SUCCESS
+                // =================================================
+
+                if (
+                    response.ok
+                    &&
+                    data.success
+                ) {
+
+
+                    showLocationMessage(
+                        "Attendance recorded",
+                        data.message ||
+                            "Attendance recorded successfully.",
+                        "success"
+                    );
+
+
+                    // =============================================
+                    // CLOCK IN SUCCESS
+                    // =============================================
+
+                    if (
+                        data.clock_in
+                        &&
+                        endpoint.includes(
+                            "clock-in"
+                        )
+                    ) {
+
+
+                        clockInTime.textContent =
+                            data.clock_in;
+
+
+                        clockInStatus.innerHTML =
+                            `
+                            <span class="attendance-complete">
+                                ✓ Clock-in recorded
+                            </span>
+                            `;
+
+
+                        clockInButton.disabled =
+                            true;
+
+
+                        clockOutButton.disabled =
                             false;
+
+
+                        locationStatus.textContent =
+                            "✓ Verified";
+
+
+                        overallStatus.textContent =
+                            data.status === "Late"
+                            ? "Late"
+                            : "Clocked In";
+
 
                         button.innerHTML =
                             originalHTML;
+
+                    }
+
+
+                    // =============================================
+                    // CLOCK OUT SUCCESS
+                    // =============================================
+
+                    if (
+                        data.clock_out
+                        &&
+                        endpoint.includes(
+                            "clock-out"
+                        )
+                    ) {
+
+
+                        clockOutTime.textContent =
+                            data.clock_out;
+
+
+                        clockOutStatus.innerHTML =
+                            `
+                            <span class="attendance-complete">
+                                ✓ Clock-out recorded
+                            </span>
+                            `;
+
+
+                        clockOutButton.disabled =
+                            true;
+
+
+                        totalHours.innerHTML =
+                            Number(
+                                data.total_hours || 0
+                            ).toFixed(2)
+                            +
+                            `
+                            <small>
+                                hrs
+                            </small>
+                            `;
+
+
+                        overallStatus.textContent =
+                            "Completed";
+
+
+                        button.innerHTML =
+                            originalHTML;
+
                     }
 
                 }
-            );
+
+
+                // =================================================
+                // SERVER ERROR
+                // =================================================
+
+                else {
+
+
+                    showLocationMessage(
+                        "Attendance not recorded",
+                        data.message ||
+                            "Unable to record attendance.",
+                        "error"
+                    );
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.innerHTML =
+                        originalHTML;
+
+                }
+
+
+            }
+
+
+            catch (error) {
+
+
+                console.error(
+                    "Attendance error:",
+                    error
+                );
+
+
+                showLocationMessage(
+                    "Attendance error",
+                    error.message ||
+                        "Unable to communicate with the attendance server. Please try again.",
+                    "error"
+                );
+
+
+                button.disabled =
+                    false;
+
+
+                button.innerHTML =
+                    originalHTML;
+
+            }
+
         }
 
 
