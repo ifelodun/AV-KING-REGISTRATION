@@ -482,9 +482,7 @@ def apply():
 
             else:
 
-                deadline_date = (
-                    application_deadline
-                )
+                deadline_date = application_deadline
 
 
             today = datetime.now().date()
@@ -953,12 +951,7 @@ def apply():
             # ==================================================
             # FINAL APPLICATION STATUS CHECK
             # ==================================================
-            # This prevents someone from submitting an old
-            # application form after the admin has closed it.
-            # ==================================================
-            # FINAL APPLICATION STATUS CHECK
-            # ==================================================
-            
+
             cur.execute(
                 """
                 SELECT
@@ -969,33 +962,104 @@ def apply():
                 LIMIT 1
                 """
             )
-            
+
             current_settings = cur.fetchone()
-            
-            
+
+
+            # ==================================================
+            # SETTINGS MUST EXIST
+            # ==================================================
+
             if not current_settings:
-            
+
                 conn.rollback()
-            
+
                 return render_template(
                     "applications_closed.html"
                 ), 403
-            
-            
+
+
+            # ==================================================
+            # CHECK CURRENT STATUS
+            # ==================================================
+
             current_status = (
                 current_settings["application_status"]
                 or "Closed"
             ).strip().capitalize()
-            
-            
+
+
             if current_status == "Closed":
-            
+
                 conn.rollback()
-            
+
                 return render_template(
                     "applications_closed.html"
                 ), 403
-            
+
+
+            # ==================================================
+            # CHECK CURRENT DEADLINE
+            # ==================================================
+
+            current_deadline = (
+                current_settings["application_deadline"]
+            )
+
+
+            if current_deadline:
+
+                try:
+
+                    if hasattr(
+                        current_deadline,
+                        "date"
+                    ):
+
+                        current_deadline_date = (
+                            current_deadline.date()
+                        )
+
+                    elif isinstance(
+                        current_deadline,
+                        str
+                    ):
+
+                        current_deadline_date = (
+                            datetime.strptime(
+                                current_deadline,
+                                "%Y-%m-%d"
+                            ).date()
+                        )
+
+                    else:
+
+                        current_deadline_date = (
+                            current_deadline
+                        )
+
+
+                    if datetime.now().date() > current_deadline_date:
+
+                        conn.rollback()
+
+                        return render_template(
+                            "applications_closed.html"
+                        ), 403
+
+
+                except Exception:
+
+                    app.logger.exception(
+                        "Error checking current application deadline"
+                    )
+
+                    conn.rollback()
+
+                    return render_template(
+                        "applications_closed.html"
+                    ), 403
+
 
             # ==================================================
             # APPLICATION NUMBER
@@ -1065,6 +1129,7 @@ def apply():
                         UPLOAD_FOLDER,
                         cv_filename
                     )
+                )
 
 
             # ==================================================
@@ -1086,6 +1151,7 @@ def apply():
                         UPLOAD_FOLDER,
                         qualification_filename
                     )
+                )
 
 
             # ==================================================
