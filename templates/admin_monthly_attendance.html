@@ -1,0 +1,791 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="admin-page-header">
+
+        <div>
+
+            <span class="page-label">
+                ATTENDANCE MANAGEMENT
+            </span>
+
+            <h1>
+                Monthly Attendance
+            </h1>
+
+            <p>
+                Review employee attendance, working hours,
+                punctuality and attendance performance.
+            </p>
+
+        </div>
+
+        <div class="header-actions">
+
+            <a
+                href="{{ url_for('admin_attendance') }}"
+                class="btn btn-secondary"
+            >
+                ← Daily Attendance
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FLASH MESSAGES
+    ====================================================== -->
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
+         MONTH FILTER
+    ====================================================== -->
+
+    <section class="admin-panel settings-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    REPORT PERIOD
+                </span>
+
+                <h2>
+                    Attendance Month
+                </h2>
+
+                <p>
+                    Select a month to generate the attendance report.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_monthly_attendance') }}"
+            class="attendance-filter-form"
+        >
+
+            <div class="form-group">
+
+                <label for="month">
+                    Select Month
+                </label>
+
+                <input
+                    type="month"
+                    id="month"
+                    name="month"
+                    value="{{ selected_month }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="filter-action">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <div class="stats-grid attendance-summary-grid">
+
+
+        <!-- TOTAL STAFF -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                👥
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    ACTIVE STAFF
+                </span>
+
+                <strong>
+                    {{ total_staff }}
+                </strong>
+
+                <small>
+                    Approved employees
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- PRESENT -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    PRESENT
+                </span>
+
+                <strong>
+                    {{ total_present }}
+                </strong>
+
+                <small>
+                    Completed attendance
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- ABSENT -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                !
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    ABSENT
+                </span>
+
+                <strong>
+                    {{ total_absent }}
+                </strong>
+
+                <small>
+                    No attendance record
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- LATE -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                ⏱
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    LATE
+                </span>
+
+                <strong>
+                    {{ total_late }}
+                </strong>
+
+                <small>
+                    Late arrivals
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- INCOMPLETE -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                ◐
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    INCOMPLETE
+                </span>
+
+                <strong>
+                    {{ total_incomplete }}
+                </strong>
+
+                <small>
+                    Missing clock-out
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL HOURS -->
+
+        <div class="stat-card">
+
+            <div class="stat-card-icon">
+                ⌚
+            </div>
+
+            <div>
+
+                <span class="stat-label">
+                    TOTAL HOURS
+                </span>
+
+                <strong>
+                    {{ "%.2f"|format(total_hours) }}
+                </strong>
+
+                <small>
+                    Hours recorded
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REPORT INFORMATION
+    ====================================================== -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    MONTHLY REPORT
+                </span>
+
+                <h2>
+                    {{ month_start.strftime("%B %Y") }}
+                </h2>
+
+                <p>
+                    Working days:
+                    <strong>
+                        {{ total_working_days }}
+                    </strong>
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             EMPLOYEE TABLE
+        ================================================== -->
+
+        <div class="table-responsive">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Employee
+                        </th>
+
+                        <th>
+                            Application No.
+                        </th>
+
+                        <th>
+                            Position
+                        </th>
+
+                        <th>
+                            Present
+                        </th>
+
+                        <th>
+                            Late
+                        </th>
+
+                        <th>
+                            Absent
+                        </th>
+
+                        <th>
+                            Incomplete
+                        </th>
+
+                        <th>
+                            Hours
+                        </th>
+
+                        <th>
+                            Attendance
+                        </th>
+
+                        <th>
+                            Details
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% if attendance_records %}
+
+                    {% for employee in attendance_records %}
+
+                    <tr>
+
+
+                        <!-- EMPLOYEE -->
+
+                        <td>
+
+                            <div class="employee-cell">
+
+                                <div class="employee-avatar">
+
+                                    {{ employee.first_name[:1]|upper }}
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+
+                                        {{ employee.first_name }}
+
+                                        {% if employee.middle_name %}
+                                            {{ employee.middle_name }}
+                                        {% endif %}
+
+                                        {{ employee.last_name }}
+
+                                    </strong>
+
+                                    <small>
+
+                                        {{ employee.email or employee.phone or "—" }}
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- APPLICATION NUMBER -->
+
+                        <td>
+
+                            <span class="reference-number">
+
+                                {{ employee.application_number }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- POSITION -->
+
+                        <td>
+
+                            {{ employee.position_applied or "—" }}
+
+                        </td>
+
+
+                        <!-- PRESENT -->
+
+                        <td>
+
+                            <span class="attendance-number present">
+
+                                {{ employee.present }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- LATE -->
+
+                        <td>
+
+                            <span class="attendance-number late">
+
+                                {{ employee.late }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ABSENT -->
+
+                        <td>
+
+                            <span class="attendance-number absent">
+
+                                {{ employee.absent }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- INCOMPLETE -->
+
+                        <td>
+
+                            <span class="attendance-number incomplete">
+
+                                {{ employee.incomplete }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- HOURS -->
+
+                        <td>
+
+                            <strong>
+
+                                {{ "%.2f"|format(employee.total_hours) }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <!-- ATTENDANCE PERCENTAGE -->
+
+                        <td>
+
+                            <div class="attendance-progress">
+
+                                <div class="attendance-progress-top">
+
+                                    <strong>
+                                        {{ employee.attendance_percentage }}%
+                                    </strong>
+
+                                </div>
+
+                                <div class="attendance-progress-bar">
+
+                                    <span
+                                        style="width: {{ employee.attendance_percentage }}%;"
+                                    ></span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- DETAILS -->
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="btn btn-small btn-secondary"
+                                onclick="toggleAttendanceDetails('{{ employee.worker_id }}')"
+                            >
+                                View
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+
+                    <!-- =====================================
+                         DAILY DETAILS
+                    ====================================== -->
+
+                    <tr
+                        id="attendance-details-{{ employee.worker_id }}"
+                        class="attendance-details-row"
+                        style="display:none;"
+                    >
+
+                        <td colspan="10">
+
+                            <div class="attendance-details">
+
+                                <div class="details-header">
+
+                                    <div>
+
+                                        <span>
+                                            DAILY ATTENDANCE
+                                        </span>
+
+                                        <h3>
+
+                                            {{ employee.first_name }}
+
+                                            {% if employee.middle_name %}
+                                                {{ employee.middle_name }}
+                                            {% endif %}
+
+                                            {{ employee.last_name }}
+
+                                        </h3>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="daily-attendance-grid">
+
+                                    {% for day in employee.daily_records %}
+
+                                    <div class="daily-attendance-card">
+
+
+                                        <div class="daily-date">
+
+                                            {{ day.date.strftime("%a") }}
+
+                                            <strong>
+
+                                                {{ day.date.strftime("%d") }}
+
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="daily-times">
+
+                                            <div>
+
+                                                <small>
+                                                    Clock In
+                                                </small>
+
+                                                <strong>
+
+                                                    {% if day.clock_in %}
+
+                                                        {{ day.clock_in.strftime("%I:%M %p") }}
+
+                                                    {% else %}
+
+                                                        —
+
+                                                    {% endif %}
+
+                                                </strong>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <small>
+                                                    Clock Out
+                                                </small>
+
+                                                <strong>
+
+                                                    {% if day.clock_out %}
+
+                                                        {{ day.clock_out.strftime("%I:%M %p") }}
+
+                                                    {% else %}
+
+                                                        —
+
+                                                    {% endif %}
+
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="daily-bottom">
+
+                                            <span class="status-badge {{ day.status|lower }}">
+
+                                                {{ day.status }}
+
+                                            </span>
+
+
+                                            {% if day.total_hours %}
+
+                                                <small>
+
+                                                    {{ "%.2f"|format(day.total_hours) }}
+                                                    hrs
+
+                                                </small>
+
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="10"
+                            class="empty-state"
+                        >
+
+                            <div>
+
+                                <strong>
+                                    No attendance records found
+                                </strong>
+
+                                <p>
+                                    There are no approved active employees
+                                    for this report.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================
+     DETAILS TOGGLE
+========================================================== -->
+
+<script>
+
+function toggleAttendanceDetails(workerId) {
+
+    const row = document.getElementById(
+        "attendance-details-" + workerId
+    );
+
+    if (!row) {
+        return;
+    }
+
+    if (
+        row.style.display === "none"
+        ||
+        row.style.display === ""
+    ) {
+
+        row.style.display = "table-row";
+
+    } else {
+
+        row.style.display = "none";
+
+    }
+
+}
+
+</script>
+
+{% endblock %}
