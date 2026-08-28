@@ -15,6 +15,29 @@ from flask import (
     flash
 )
 
+import io
+import os
+
+from datetime import datetime
+
+from flask import (
+    send_file,
+    redirect,
+    url_for
+)
+
+from openpyxl import Workbook
+from openpyxl.styles import (
+    Font,
+    Alignment,
+    Border,
+    Side,
+    PatternFill
+)
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.page import PageMargins
+
+from openpyxl.drawing.image import Image as XLImage
 from flask import send_from_directory
 import os
 from datetime import datetime
@@ -3687,6 +3710,1839 @@ def admin_download_file(filename):
         filename,
         as_attachment=True
     )
+
+@app.route("/admin/reports/export/pdf")
+def export_admin_reports_pdf():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ==================================================
+            # COMPANY SETTINGS
+            # ==================================================
+
+            cur.execute("""
+                SELECT
+                    company_name,
+                    company_address,
+                    company_phone,
+                    company_email,
+                    logo
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+            """)
+
+            settings = cur.fetchone()
+
+
+            # ==================================================
+            # APPLICATIONS
+            # ==================================================
+
+            cur.execute("""
+                SELECT
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied,
+                    phone,
+                    email,
+                    gender,
+                    state,
+                    lga,
+                    highest_qualification,
+                    status,
+                    submitted_at
+                FROM applications
+                ORDER BY submitted_at DESC NULLS LAST
+            """)
+
+            applications = cur.fetchall()
+
+    finally:
+
+        conn.close()
+
+
+    # =========================================================
+    # COMPANY INFORMATION
+    # =========================================================
+
+    company_name = (
+        settings["company_name"]
+        if settings and settings["company_name"]
+        else "AV KING VET DRUG VENTURE"
+    )
+
+    company_address = (
+        settings["company_address"]
+        if settings and settings["company_address"]
+        else ""
+    )
+
+    company_phone = (
+        settings["company_phone"]
+        if settings and settings["company_phone"]
+        else ""
+    )
+
+    company_email = (
+        settings["company_email"]
+        if settings and settings["company_email"]
+        else ""
+    )
+
+    company_logo = (
+        settings["logo"]
+        if settings and settings["logo"]
+        else None
+    )
+
+
+    # =========================================================
+    # PDF BUFFER
+    # =========================================================
+
+    buffer = io.BytesIO()
+
+
+    document = SimpleDocTemplate(
+
+        buffer,
+
+        pagesize=landscape(A4),
+
+        rightMargin=28,
+        leftMargin=28,
+        topMargin=30,
+        bottomMargin=35
+    )
+
+
+    styles = getSampleStyleSheet()
+
+
+    # =========================================================
+    # STYLES
+    # =========================================================
+
+    company_style = ParagraphStyle(
+
+        "CompanyName",
+
+        parent=styles["Normal"],
+
+        fontName="Helvetica-Bold",
+
+        fontSize=18,
+
+        leading=22,
+
+        alignment=TA_CENTER,
+
+        textColor=colors.HexColor("#111827")
+    )
+
+
+    address_style = ParagraphStyle(
+
+        "CompanyInfo",
+
+        parent=styles["Normal"],
+
+        fontName="Helvetica",
+
+        fontSize=8.5,
+
+        leading=12,
+
+        alignment=TA_CENTER,
+
+        textColor=colors.HexColor("#4b5563")
+    )
+
+
+    title_style = ParagraphStyle(
+
+        "ReportTitle",
+
+        parent=styles["Normal"],
+
+        fontName="Helvetica-Bold",
+
+        fontSize=15,
+
+        leading=19,
+
+        alignment=TA_CENTER,
+
+        textColor=colors.HexColor("#111827"),
+
+        spaceBefore=8
+    )
+
+
+    subtitle_style = ParagraphStyle(
+
+        "ReportSubtitle",
+
+        parent=styles["Normal"],
+
+        fontSize=8,
+
+        alignment=TA_CENTER,
+
+        textColor=colors.HexColor("#6b7280")
+    )
+
+
+    small_style = ParagraphStyle(
+
+        "Small",
+
+        parent=styles["Normal"],
+
+        fontSize=7,
+
+        leading=9,
+
+        textColor=colors.HexColor("#374151")
+    )
+
+
+    story = []
+
+
+    # =========================================================
+    # LOGO
+    # =========================================================
+
+    if company_logo:
+
+        try:
+
+            from reportlab.platypus import Image
+
+            logo_path = company_logo
+
+            if os.path.exists(logo_path):
+
+                logo = Image(
+                    logo_path,
+                    width=55,
+                    height=55
+                )
+
+                logo.hAlign = "CENTER"
+
+                story.append(logo)
+
+                story.append(
+                    Spacer(1, 5)
+                )
+
+        except Exception:
+
+            pass
+
+
+    # =========================================================
+    # COMPANY NAME
+    # =========================================================
+
+    story.append(
+        Paragraph(
+            company_name,
+            company_style
+        )
+    )
+
+
+    # =========================================================
+    # COMPANY CONTACT
+    # =========================================================
+
+    contact_parts = []
+
+    if company_address:
+        contact_parts.append(
+            str(company_address)
+        )
+
+    if company_phone:
+        contact_parts.append(
+            "Phone: " + str(company_phone)
+        )
+
+    if company_email:
+        contact_parts.append(
+            "Email: " + str(company_email)
+        )
+
+
+    if contact_parts:
+
+        story.append(
+            Paragraph(
+                " | ".join(contact_parts),
+                address_style
+            )
+        )
+
+
+    story.append(
+        Spacer(1, 8)
+    )
+
+
+    # =========================================================
+    # DIVIDER
+    # =========================================================
+
+    divider = Table(
+        [[""]],
+        colWidths=[730],
+        rowHeights=[1]
+    )
+
+    divider.setStyle(
+        TableStyle([
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, -1),
+                colors.HexColor("#111827")
+            )
+        ])
+    )
+
+    story.append(divider)
+
+
+    # =========================================================
+    # REPORT TITLE
+    # =========================================================
+
+    story.append(
+        Paragraph(
+            "APPLICANT RECRUITMENT REPORT",
+            title_style
+        )
+    )
+
+
+    story.append(
+        Paragraph(
+            "Complete recruitment application summary",
+            subtitle_style
+        )
+    )
+
+
+    story.append(
+        Spacer(1, 5)
+    )
+
+
+    story.append(
+        Paragraph(
+            "Generated: "
+            + datetime.now().strftime(
+                "%d %B %Y at %I:%M %p"
+            ),
+            subtitle_style
+        )
+    )
+
+
+    story.append(
+        Spacer(1, 15)
+    )
+
+
+    # =========================================================
+    # SUMMARY COUNTS
+    # =========================================================
+
+    total = len(applications)
+
+    pending = sum(
+        1
+        for row in applications
+        if row["status"] == "Pending"
+    )
+
+    under_review = sum(
+        1
+        for row in applications
+        if row["status"] == "Under Review"
+    )
+
+    shortlisted = sum(
+        1
+        for row in applications
+        if row["status"] == "Shortlisted"
+    )
+
+    approved = sum(
+        1
+        for row in applications
+        if row["status"] == "Approved"
+    )
+
+    rejected = sum(
+        1
+        for row in applications
+        if row["status"] == "Rejected"
+    )
+
+
+    summary_data = [
+
+        [
+            "TOTAL",
+            "PENDING",
+            "UNDER REVIEW",
+            "SHORTLISTED",
+            "APPROVED",
+            "REJECTED"
+        ],
+
+        [
+            str(total),
+            str(pending),
+            str(under_review),
+            str(shortlisted),
+            str(approved),
+            str(rejected)
+        ]
+    ]
+
+
+    summary_table = Table(
+
+        summary_data,
+
+        colWidths=[
+            115,
+            115,
+            115,
+            115,
+            115,
+            115
+        ]
+    )
+
+
+    summary_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#111827")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTNAME",
+                (0, 1),
+                (-1, 1),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                8
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                8
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                8
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.4,
+                colors.HexColor("#d1d5db")
+            )
+        ])
+    )
+
+
+    story.append(summary_table)
+
+    story.append(
+        Spacer(1, 18)
+    )
+
+
+    # =========================================================
+    # APPLICATION TABLE
+    # =========================================================
+
+    table_data = [
+
+        [
+            "Application",
+            "Applicant",
+            "Position",
+            "Phone",
+            "Email",
+            "Gender",
+            "State",
+            "Qualification",
+            "Status",
+            "Submitted"
+        ]
+    ]
+
+
+    for application in applications:
+
+        full_name = " ".join(
+
+            part
+
+            for part in [
+
+                application["first_name"],
+                application["middle_name"],
+                application["last_name"]
+
+            ]
+
+            if part
+        )
+
+
+        submitted = ""
+
+        if application["submitted_at"]:
+
+            submitted = application[
+                "submitted_at"
+            ].strftime("%d/%m/%Y")
+
+
+        table_data.append([
+
+            Paragraph(
+                str(
+                    application[
+                        "application_number"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                full_name or "—",
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "position_applied"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "phone"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "email"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "gender"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "state"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "highest_qualification"
+                    ] or "—"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    application[
+                        "status"
+                    ] or "Pending"
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                submitted or "—",
+                small_style
+            )
+        ])
+
+
+    application_table = Table(
+
+        table_data,
+
+        repeatRows=1,
+
+        colWidths=[
+            68,
+            105,
+            82,
+            70,
+            112,
+            42,
+            52,
+            82,
+            65,
+            55
+        ]
+    )
+
+
+    application_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#111827")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, 0),
+                7
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (-1, 0),
+                "CENTER"
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.35,
+                colors.HexColor("#d1d5db")
+            ),
+
+            (
+                "ROWBACKGROUNDS",
+                (0, 1),
+                (-1, -1),
+                [
+                    colors.white,
+                    colors.HexColor("#f9fafb")
+                ]
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                5
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                5
+            )
+        ])
+    )
+
+
+    story.append(application_table)
+
+
+    # =========================================================
+    # FOOTER
+    # =========================================================
+
+    story.append(
+        Spacer(1, 18)
+    )
+
+
+    story.append(
+        Paragraph(
+            "Confidential Recruitment Document",
+            ParagraphStyle(
+                "Footer",
+                parent=styles["Normal"],
+                fontSize=7,
+                alignment=TA_CENTER,
+                textColor=colors.HexColor("#6b7280")
+            )
+        )
+    )
+
+
+    # =========================================================
+    # BUILD
+    # =========================================================
+
+    document.build(story)
+
+    buffer.seek(0)
+
+
+    return send_file(
+
+        buffer,
+
+        as_attachment=True,
+
+        download_name=(
+            "Applicant_Recruitment_Report.pdf"
+        ),
+
+        mimetype="application/pdf"
+    )
+
+@app.route("/admin/reports/export/excel")
+def export_admin_reports_excel():
+
+    # =========================================================
+    # CHECK ADMIN LOGIN
+    # =========================================================
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # COMPANY SETTINGS
+            # =================================================
+
+            cur.execute("""
+                SELECT
+                    company_name,
+                    company_address,
+                    company_phone,
+                    company_email,
+                    logo
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+            """)
+
+            settings = cur.fetchone()
+
+
+            # =================================================
+            # APPLICATIONS
+            # =================================================
+
+            cur.execute("""
+                SELECT
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied,
+                    phone,
+                    email,
+                    gender,
+                    state,
+                    lga,
+                    highest_qualification,
+                    status,
+                    submitted_at
+                FROM applications
+                ORDER BY submitted_at DESC NULLS LAST
+            """)
+
+            applications = cur.fetchall()
+
+    finally:
+
+        conn.close()
+
+
+    # =========================================================
+    # COMPANY INFORMATION
+    # =========================================================
+
+    company_name = (
+        settings["company_name"]
+        if settings and settings["company_name"]
+        else "AV KING VET DRUG VENTURE"
+    )
+
+    company_address = (
+        settings["company_address"]
+        if settings and settings["company_address"]
+        else ""
+    )
+
+    company_phone = (
+        settings["company_phone"]
+        if settings and settings["company_phone"]
+        else ""
+    )
+
+    company_email = (
+        settings["company_email"]
+        if settings and settings["company_email"]
+        else ""
+    )
+
+    company_logo = (
+        settings["logo"]
+        if settings and settings["logo"]
+        else None
+    )
+
+
+    # =========================================================
+    # CREATE WORKBOOK
+    # =========================================================
+
+    workbook = Workbook()
+
+    worksheet = workbook.active
+
+    worksheet.title = "Applicant Report"
+
+
+    # =========================================================
+    # PAGE SETTINGS
+    # =========================================================
+
+    worksheet.page_setup.orientation = "landscape"
+
+    worksheet.page_setup.paperSize = (
+        worksheet.PAPERSIZE_A4
+    )
+
+    worksheet.page_setup.fitToWidth = 1
+
+    worksheet.page_setup.fitToHeight = 0
+
+    worksheet.sheet_properties.pageSetUpPr.fitToPage = True
+
+    worksheet.page_margins = PageMargins(
+
+        left=0.25,
+        right=0.25,
+        top=0.5,
+        bottom=0.5,
+        header=0.2,
+        footer=0.2
+    )
+
+
+    # =========================================================
+    # COLORS
+    # =========================================================
+
+    dark = "111827"
+
+    white = "FFFFFF"
+
+    light_gray = "F3F4F6"
+
+    border_gray = "D1D5DB"
+
+    text_gray = "4B5563"
+
+    green = "059669"
+
+    orange = "EA580C"
+
+    blue = "2563EB"
+
+    red = "DC2626"
+
+
+    # =========================================================
+    # BORDER
+    # =========================================================
+
+    thin_border = Border(
+
+        left=Side(
+            style="thin",
+            color=border_gray
+        ),
+
+        right=Side(
+            style="thin",
+            color=border_gray
+        ),
+
+        top=Side(
+            style="thin",
+            color=border_gray
+        ),
+
+        bottom=Side(
+            style="thin",
+            color=border_gray
+        )
+    )
+
+
+    # =========================================================
+    # LOGO
+    # =========================================================
+
+    current_row = 1
+
+    if company_logo:
+
+        try:
+
+            logo_path = company_logo
+
+            # ---------------------------------------------
+            # Convert relative upload path to filesystem path
+            # ---------------------------------------------
+
+            if not os.path.isabs(logo_path):
+
+                logo_path = os.path.join(
+                    os.getcwd(),
+                    logo_path.lstrip("/")
+                )
+
+
+            if os.path.exists(logo_path):
+
+                logo = XLImage(logo_path)
+
+                logo.width = 75
+
+                logo.height = 75
+
+                worksheet.add_image(
+                    logo,
+                    "A1"
+                )
+
+                current_row = 2
+
+        except Exception:
+
+            pass
+
+
+    # =========================================================
+    # COMPANY NAME
+    # =========================================================
+
+    worksheet.merge_cells(
+        start_row=1,
+        start_column=1,
+        end_row=1,
+        end_column=10
+    )
+
+    company_cell = worksheet.cell(
+        row=1,
+        column=1
+    )
+
+    company_cell.value = company_name
+
+    company_cell.font = Font(
+        name="Calibri",
+        size=20,
+        bold=True,
+        color=dark
+    )
+
+    company_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+
+    worksheet.row_dimensions[1].height = 30
+
+
+    # =========================================================
+    # COMPANY ADDRESS
+    # =========================================================
+
+    worksheet.merge_cells(
+        start_row=2,
+        start_column=1,
+        end_row=2,
+        end_column=10
+    )
+
+    address_cell = worksheet.cell(
+        row=2,
+        column=1
+    )
+
+    contact_text = company_address
+
+
+    if company_phone:
+
+        if contact_text:
+
+            contact_text += "  |  "
+
+        contact_text += (
+            "Phone: "
+            + str(company_phone)
+        )
+
+
+    if company_email:
+
+        if contact_text:
+
+            contact_text += "  |  "
+
+        contact_text += (
+            "Email: "
+            + str(company_email)
+        )
+
+
+    address_cell.value = contact_text
+
+    address_cell.font = Font(
+        name="Calibri",
+        size=10,
+        color=text_gray
+    )
+
+    address_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center",
+        wrap_text=True
+    )
+
+    worksheet.row_dimensions[2].height = 30
+
+
+    # =========================================================
+    # REPORT TITLE
+    # =========================================================
+
+    worksheet.merge_cells(
+        start_row=4,
+        start_column=1,
+        end_row=4,
+        end_column=10
+    )
+
+    title_cell = worksheet.cell(
+        row=4,
+        column=1
+    )
+
+    title_cell.value = (
+        "APPLICANT RECRUITMENT REPORT"
+    )
+
+    title_cell.font = Font(
+        name="Calibri",
+        size=16,
+        bold=True,
+        color=dark
+    )
+
+    title_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+
+    worksheet.row_dimensions[4].height = 26
+
+
+    # =========================================================
+    # REPORT SUBTITLE
+    # =========================================================
+
+    worksheet.merge_cells(
+        start_row=5,
+        start_column=1,
+        end_row=5,
+        end_column=10
+    )
+
+    subtitle_cell = worksheet.cell(
+        row=5,
+        column=1
+    )
+
+    subtitle_cell.value = (
+        "Complete recruitment application summary"
+    )
+
+    subtitle_cell.font = Font(
+        name="Calibri",
+        size=10,
+        italic=True,
+        color=text_gray
+    )
+
+    subtitle_cell.alignment = Alignment(
+        horizontal="center"
+    )
+
+
+    # =========================================================
+    # GENERATED DATE
+    # =========================================================
+
+    worksheet.merge_cells(
+        start_row=6,
+        start_column=1,
+        end_row=6,
+        end_column=10
+    )
+
+    generated_cell = worksheet.cell(
+        row=6,
+        column=1
+    )
+
+    generated_cell.value = (
+        "Generated: "
+        + datetime.now().strftime(
+            "%d %B %Y at %I:%M %p"
+        )
+    )
+
+    generated_cell.font = Font(
+        name="Calibri",
+        size=9,
+        color=text_gray
+    )
+
+    generated_cell.alignment = Alignment(
+        horizontal="center"
+    )
+
+
+    # =========================================================
+    # SUMMARY
+    # =========================================================
+
+    total = len(applications)
+
+    pending = sum(
+        1
+        for row in applications
+        if row["status"] == "Pending"
+    )
+
+    under_review = sum(
+        1
+        for row in applications
+        if row["status"] == "Under Review"
+    )
+
+    shortlisted = sum(
+        1
+        for row in applications
+        if row["status"] == "Shortlisted"
+    )
+
+    approved = sum(
+        1
+        for row in applications
+        if row["status"] == "Approved"
+    )
+
+    rejected = sum(
+        1
+        for row in applications
+        if row["status"] == "Rejected"
+    )
+
+
+    summary_row = 8
+
+
+    summary_headers = [
+
+        "TOTAL",
+        "PENDING",
+        "UNDER REVIEW",
+        "SHORTLISTED",
+        "APPROVED",
+        "REJECTED"
+
+    ]
+
+
+    summary_values = [
+
+        total,
+        pending,
+        under_review,
+        shortlisted,
+        approved,
+        rejected
+
+    ]
+
+
+    summary_columns = [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+    ]
+
+
+    for index, column in enumerate(
+        summary_columns
+    ):
+
+        header = worksheet.cell(
+            row=summary_row,
+            column=column
+        )
+
+        header.value = summary_headers[index]
+
+        header.font = Font(
+            name="Calibri",
+            size=9,
+            bold=True,
+            color=white
+        )
+
+        header.fill = PatternFill(
+            fill_type="solid",
+            fgColor=dark
+        )
+
+        header.alignment = Alignment(
+            horizontal="center",
+            vertical="center"
+        )
+
+        header.border = thin_border
+
+
+        value = worksheet.cell(
+            row=summary_row + 1,
+            column=column
+        )
+
+        value.value = summary_values[index]
+
+        value.font = Font(
+            name="Calibri",
+            size=14,
+            bold=True,
+            color=dark
+        )
+
+        value.alignment = Alignment(
+            horizontal="center",
+            vertical="center"
+        )
+
+        value.border = thin_border
+
+
+    worksheet.row_dimensions[
+        summary_row
+    ].height = 22
+
+    worksheet.row_dimensions[
+        summary_row + 1
+    ].height = 28
+
+
+    # =========================================================
+    # APPLICATION TABLE
+    # =========================================================
+
+    header_row = 11
+
+
+    headers = [
+
+        "Application Number",
+        "Applicant Name",
+        "Position Applied",
+        "Phone",
+        "Email",
+        "Gender",
+        "State",
+        "LGA",
+        "Highest Qualification",
+        "Status"
+
+    ]
+
+
+    for column, header_text in enumerate(
+        headers,
+        start=1
+    ):
+
+        cell = worksheet.cell(
+            row=header_row,
+            column=column
+        )
+
+        cell.value = header_text
+
+        cell.font = Font(
+            name="Calibri",
+            size=10,
+            bold=True,
+            color=white
+        )
+
+        cell.fill = PatternFill(
+            fill_type="solid",
+            fgColor=dark
+        )
+
+        cell.alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
+        )
+
+        cell.border = thin_border
+
+
+    worksheet.row_dimensions[
+        header_row
+    ].height = 32
+
+
+    # =========================================================
+    # APPLICATION DATA
+    # =========================================================
+
+    row_number = header_row + 1
+
+
+    for application in applications:
+
+        full_name = " ".join(
+
+            part
+
+            for part in [
+
+                application["first_name"],
+                application["middle_name"],
+                application["last_name"]
+
+            ]
+
+            if part
+        )
+
+
+        data = [
+
+            application["application_number"]
+            or "—",
+
+            full_name
+            or "—",
+
+            application["position_applied"]
+            or "—",
+
+            application["phone"]
+            or "—",
+
+            application["email"]
+            or "—",
+
+            application["gender"]
+            or "—",
+
+            application["state"]
+            or "—",
+
+            application["lga"]
+            or "—",
+
+            application["highest_qualification"]
+            or "—",
+
+            application["status"]
+            or "Pending"
+
+        ]
+
+
+        for column, value in enumerate(
+            data,
+            start=1
+        ):
+
+            cell = worksheet.cell(
+                row=row_number,
+                column=column
+            )
+
+            cell.value = value
+
+            cell.font = Font(
+                name="Calibri",
+                size=9,
+                color=dark
+            )
+
+            cell.alignment = Alignment(
+                vertical="center",
+                wrap_text=True
+            )
+
+            cell.border = thin_border
+
+
+            # ---------------------------------------------
+            # Status formatting
+            # ---------------------------------------------
+
+            if column == 10:
+
+                cell.alignment = Alignment(
+                    horizontal="center",
+                    vertical="center"
+                )
+
+                status = str(value).lower()
+
+
+                if status == "approved":
+
+                    cell.font = Font(
+                        name="Calibri",
+                        size=9,
+                        bold=True,
+                        color=green
+                    )
+
+
+                elif status == "shortlisted":
+
+                    cell.font = Font(
+                        name="Calibri",
+                        size=9,
+                        bold=True,
+                        color=green
+                    )
+
+
+                elif status == "rejected":
+
+                    cell.font = Font(
+                        name="Calibri",
+                        size=9,
+                        bold=True,
+                        color=red
+                    )
+
+
+                elif status == "under review":
+
+                    cell.font = Font(
+                        name="Calibri",
+                        size=9,
+                        bold=True,
+                        color=blue
+                    )
+
+
+                elif status == "pending":
+
+                    cell.font = Font(
+                        name="Calibri",
+                        size=9,
+                        bold=True,
+                        color=orange
+                    )
+
+
+        # Alternating row background
+
+        if row_number % 2 == 0:
+
+            for column in range(
+                1,
+                len(headers) + 1
+            ):
+
+                worksheet.cell(
+                    row=row_number,
+                    column=column
+                ).fill = PatternFill(
+                    fill_type="solid",
+                    fgColor=light_gray
+                )
+
+
+        worksheet.row_dimensions[
+            row_number
+        ].height = 25
+
+
+        row_number += 1
+
+
+    # =========================================================
+    # FILTER
+    # =========================================================
+
+    if row_number > header_row + 1:
+
+        worksheet.auto_filter.ref = (
+
+            f"A{header_row}:"
+            f"J{row_number - 1}"
+
+        )
+
+
+    # =========================================================
+    # FREEZE HEADER
+    # =========================================================
+
+    worksheet.freeze_panes = (
+        f"A{header_row + 1}"
+    )
+
+
+    # =========================================================
+    # COLUMN WIDTHS
+    # =========================================================
+
+    widths = {
+
+        "A": 21,
+        "B": 28,
+        "C": 23,
+        "D": 17,
+        "E": 30,
+        "F": 12,
+        "G": 18,
+        "H": 20,
+        "I": 25,
+        "J": 18
+
+    }
+
+
+    for column, width in widths.items():
+
+        worksheet.column_dimensions[
+            column
+        ].width = width
+
+
+    # =========================================================
+    # PRINT AREA
+    # =========================================================
+
+    if row_number > header_row:
+
+        worksheet.print_area = (
+            f"A1:J{row_number - 1}"
+        )
+
+
+    # =========================================================
+    # REPEAT HEADER WHEN PRINTING
+    # =========================================================
+
+    worksheet.print_title_rows = (
+        f"1:{header_row}"
+    )
+
+
+    # =========================================================
+    # HEADER / FOOTER
+    # =========================================================
+
+    worksheet.oddHeader.center.text = (
+        "&B" + company_name
+    )
+
+    worksheet.oddFooter.center.text = (
+        "Confidential Recruitment Document"
+    )
+
+    worksheet.oddFooter.right.text = (
+        "Page &P of &N"
+    )
+
+
+    # =========================================================
+    # ACTIVE CELL
+    # =========================================================
+
+    worksheet.sheet_view.selection[0].activeCell = (
+        "A1"
+    )
+
+    worksheet.sheet_view.selection[0].sqref = (
+        "A1"
+    )
+
+
+    # =========================================================
+    # SAVE TO MEMORY
+    # =========================================================
+
+    output = io.BytesIO()
+
+    workbook.save(output)
+
+    output.seek(0)
+
+
+    # =========================================================
+    # DOWNLOAD
+    # =========================================================
+
+    return send_file(
+
+        output,
+
+        as_attachment=True,
+
+        download_name=(
+            "Applicant_Recruitment_Report.xlsx"
+        ),
+
+        mimetype=(
+            "application/vnd.openxmlformats-officedocument"
+            ".spreadsheetml.sheet"
+        )
+    )
+
+@app.route("/admin/reports")
+def admin_reports():
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # Total applications
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+            """)
+            total = cur.fetchone()["total"]
+
+
+            # Pending
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Pending'
+            """)
+            pending = cur.fetchone()["total"]
+
+
+            # Under Review
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Under Review'
+            """)
+            under_review = cur.fetchone()["total"]
+
+
+            # Shortlisted
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Shortlisted'
+            """)
+            shortlisted = cur.fetchone()["total"]
+
+
+            # Approved
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Approved'
+            """)
+            approved = cur.fetchone()["total"]
+
+
+            # Rejected
+            cur.execute("""
+                SELECT COUNT(*) AS total
+                FROM applications
+                WHERE status = 'Rejected'
+            """)
+            rejected = cur.fetchone()["total"]
+
+
+            # Applications by position
+            cur.execute("""
+                SELECT
+                    position_applied,
+                    COUNT(*) AS total
+                FROM applications
+                GROUP BY position_applied
+                ORDER BY total DESC
+            """)
+
+            position_report = cur.fetchall()
+
+
+            # Applications by gender
+            cur.execute("""
+                SELECT
+                    gender,
+                    COUNT(*) AS total
+                FROM applications
+                GROUP BY gender
+                ORDER BY total DESC
+            """)
+
+            gender_report = cur.fetchall()
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_reports.html",
+
+        total=total,
+        pending=pending,
+        under_review=under_review,
+        shortlisted=shortlisted,
+        approved=approved,
+        rejected=rejected,
+
+        position_report=position_report,
+        gender_report=gender_report
+        )
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
