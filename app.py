@@ -8889,6 +8889,1033 @@ def download_applicant_biodata(application_id):
         as_attachment=True,
         download_name=filename
 )
+
+# ============================================================
+# APPLICANT ATTENDANCE
+# Applicant clocks in/out from their own portal
+# Location must be within the company's configured radius
+# ============================================================
+
+from datetime import datetime, date
+import math
+
+
+# ============================================================
+# HELPER: DISTANCE BETWEEN TWO GPS COORDINATES
+# Returns distance in metres
+# ============================================================
+
+def calculate_distance_meters(
+    lat1,
+    lon1,
+    lat2,
+    lon2
+):
+
+    earth_radius = 6371000
+
+    lat1_rad = math.radians(float(lat1))
+    lat2_rad = math.radians(float(lat2))
+
+    delta_lat = math.radians(
+        float(lat2) - float(lat1)
+    )
+
+    delta_lon = math.radians(
+        float(lon2) - float(lon1)
+    )
+
+    a = (
+        math.sin(delta_lat / 2) ** 2
+        +
+        math.cos(lat1_rad)
+        *
+        math.cos(lat2_rad)
+        *
+        math.sin(delta_lon / 2) ** 2
+    )
+
+    c = 2 * math.atan2(
+        math.sqrt(a),
+        math.sqrt(1 - a)
+    )
+
+    return earth_radius * c
+
+
+# ============================================================
+# HELPER: GET TODAY'S ATTENDANCE
+# ============================================================
+
+def get_today_attendance(
+    worker_id
+):
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT *
+                FROM attendance
+
+                WHERE worker_id = %s
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (worker_id,)
+            )
+
+            return cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+
+# ============================================================
+# APPLICANT ATTENDANCE PAGE
+# ============================================================
+
+@app.route("/applicant/attendance")
+def applicant_attendance():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET APPLICANT
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied,
+                    status,
+                    portal_active
+
+                FROM applications
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            applicant = cur.fetchone()
+
+
+            if not applicant:
+
+                session.clear()
+
+                flash(
+                    "Applicant account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # ONLY APPROVED APPLICANTS CAN ATTEND
+            # ------------------------------------------------
+
+            if applicant["status"] != "Approved":
+
+                flash(
+                    "Attendance is available only to approved applicants.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_portal")
+                )
+
+
+            # ------------------------------------------------
+            # CHECK PORTAL
+            # ------------------------------------------------
+
+            if not applicant["portal_active"]:
+
+                flash(
+                    "Your applicant portal has been disabled.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # GET COMPANY SETTINGS
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_enabled,
+                    company_latitude,
+                    company_longitude,
+                    attendance_radius,
+                    clock_in_start,
+                    clock_out_end
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+
+            # ------------------------------------------------
+            # GET TODAY'S ATTENDANCE
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status,
+                    clock_in_location_verified,
+                    clock_out_location_verified
+
+                FROM attendance
+
+                WHERE worker_id = %s
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            today_attendance = cur.fetchone()
+
+
+            # ------------------------------------------------
+            # RECENT ATTENDANCE
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status
+
+                FROM attendance
+
+                WHERE worker_id = %s
+
+                ORDER BY attendance_date DESC
+
+                LIMIT 30
+                """,
+                (applicant_id,)
+            )
+
+            attendance_history = cur.fetchall()
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "applicant_attendance.html",
+
+        applicant=applicant,
+
+        settings=settings,
+
+        today_attendance=today_attendance,
+
+        attendance_history=attendance_history
+    )
+
+
+# ============================================================
+# APPLICANT CLOCK IN
+# ============================================================
+
+@app.route(
+    "/applicant/attendance/clock-in",
+    methods=["POST"]
+)
+def applicant_clock_in():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    # --------------------------------------------------------
+    # GET GPS LOCATION FROM APPLICANT DEVICE
+    # --------------------------------------------------------
+
+    try:
+
+        latitude = float(
+            request.form.get(
+                "latitude",
+                ""
+            )
+        )
+
+        longitude = float(
+            request.form.get(
+                "longitude",
+                ""
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+
+        flash(
+            "Unable to determine your location. Please allow location access and try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET APPLICANT
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    status,
+                    portal_active
+
+                FROM applications
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            applicant = cur.fetchone()
+
+
+            if not applicant:
+
+                flash(
+                    "Applicant account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # APPROVAL CHECK
+            # ------------------------------------------------
+
+            if applicant["status"] != "Approved":
+
+                flash(
+                    "Only approved applicants can clock attendance.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # PORTAL CHECK
+            # ------------------------------------------------
+
+            if not applicant["portal_active"]:
+
+                flash(
+                    "Your applicant portal has been disabled.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ------------------------------------------------
+            # COMPANY SETTINGS
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_enabled,
+                    company_latitude,
+                    company_longitude,
+                    attendance_radius,
+                    clock_in_start,
+                    clock_out_end
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+
+            if not settings:
+
+                flash(
+                    "Attendance settings have not been configured by the administrator.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # ATTENDANCE ENABLED
+            # ------------------------------------------------
+
+            if not settings["attendance_enabled"]:
+
+                flash(
+                    "Attendance is currently disabled by the administrator.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # COMPANY GPS MUST EXIST
+            # ------------------------------------------------
+
+            if (
+                settings["company_latitude"] is None
+                or
+                settings["company_longitude"] is None
+            ):
+
+                flash(
+                    "Company attendance location has not been configured.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # CHECK TODAY'S ATTENDANCE
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    clock_in,
+                    clock_out
+
+                FROM attendance
+
+                WHERE worker_id = %s
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            existing = cur.fetchone()
+
+
+            if existing and existing["clock_in"]:
+
+                flash(
+                    "You have already clocked in today.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # CALCULATE DISTANCE
+            # ------------------------------------------------
+
+            distance = calculate_distance_meters(
+                latitude,
+                longitude,
+                settings["company_latitude"],
+                settings["company_longitude"]
+            )
+
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
+
+            # ------------------------------------------------
+            # LOCATION VERIFICATION
+            # ------------------------------------------------
+
+            if distance > radius:
+
+                flash(
+                    f"You are outside the company attendance area. "
+                    f"Distance: {round(distance)} metres. "
+                    f"Allowed radius: {radius} metres.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # SAVE CLOCK IN
+            # ------------------------------------------------
+
+            if existing:
+
+                cur.execute(
+                    """
+                    UPDATE attendance
+
+                    SET
+                        clock_in = CURRENT_TIMESTAMP,
+                        clock_in_latitude = %s,
+                        clock_in_longitude = %s,
+                        clock_in_location_verified = TRUE,
+                        status = 'Present',
+                        updated_at = CURRENT_TIMESTAMP
+
+                    WHERE id = %s
+                    """,
+                    (
+                        latitude,
+                        longitude,
+                        existing["id"]
+                    )
+                )
+
+            else:
+
+                cur.execute(
+                    """
+                    INSERT INTO attendance
+                    (
+                        worker_id,
+                        attendance_date,
+                        clock_in,
+                        clock_in_latitude,
+                        clock_in_longitude,
+                        clock_in_location_verified,
+                        status
+                    )
+
+                    VALUES
+                    (
+                        %s,
+                        CURRENT_DATE,
+                        CURRENT_TIMESTAMP,
+                        %s,
+                        %s,
+                        TRUE,
+                        'Present'
+                    )
+                    """,
+                    (
+                        applicant_id,
+                        latitude,
+                        longitude
+                    )
+                )
+
+
+        conn.commit()
+
+
+        flash(
+            "Clock-in recorded successfully.",
+            "success"
+        )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Applicant clock-in error"
+        )
+
+        flash(
+            "Unable to record clock-in. Please try again.",
+            "error"
+        )
+
+
+    finally:
+
+        conn.close()
+
+
+    return redirect(
+        url_for("applicant_attendance")
+    )
+
+
+# ============================================================
+# APPLICANT CLOCK OUT
+# ============================================================
+
+@app.route(
+    "/applicant/attendance/clock-out",
+    methods=["POST"]
+)
+def applicant_clock_out():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    # --------------------------------------------------------
+    # GET GPS LOCATION
+    # --------------------------------------------------------
+
+    try:
+
+        latitude = float(
+            request.form.get(
+                "latitude",
+                ""
+            )
+        )
+
+        longitude = float(
+            request.form.get(
+                "longitude",
+                ""
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+
+        flash(
+            "Unable to determine your location. Please allow location access and try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_attendance")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ------------------------------------------------
+            # GET SETTINGS
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_enabled,
+                    company_latitude,
+                    company_longitude,
+                    attendance_radius,
+                    clock_in_start,
+                    clock_out_end
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+
+            if not settings:
+
+                flash(
+                    "Attendance settings have not been configured.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            if not settings["attendance_enabled"]:
+
+                flash(
+                    "Attendance is currently disabled.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # GET TODAY'S RECORD
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    clock_in,
+                    clock_out
+
+                FROM attendance
+
+                WHERE worker_id = %s
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (applicant_id,)
+            )
+
+            attendance = cur.fetchone()
+
+
+            if not attendance:
+
+                flash(
+                    "You have not clocked in today.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            if not attendance["clock_in"]:
+
+                flash(
+                    "You must clock in before clocking out.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            if attendance["clock_out"]:
+
+                flash(
+                    "You have already clocked out today.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # COMPANY LOCATION MUST EXIST
+            # ------------------------------------------------
+
+            if (
+                settings["company_latitude"] is None
+                or
+                settings["company_longitude"] is None
+            ):
+
+                flash(
+                    "Company attendance location has not been configured.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # VERIFY LOCATION
+            # ------------------------------------------------
+
+            distance = calculate_distance_meters(
+                latitude,
+                longitude,
+                settings["company_latitude"],
+                settings["company_longitude"]
+            )
+
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
+
+            if distance > radius:
+
+                flash(
+                    f"You are outside the company attendance area. "
+                    f"Distance: {round(distance)} metres. "
+                    f"Allowed radius: {radius} metres.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_attendance")
+                )
+
+
+            # ------------------------------------------------
+            # CALCULATE TOTAL HOURS
+            # ------------------------------------------------
+
+            clock_in_time = (
+                attendance["clock_in"]
+            )
+
+            clock_out_time = datetime.now(
+                clock_in_time.tzinfo
+            ) if clock_in_time.tzinfo else datetime.now()
+
+
+            total_seconds = (
+                clock_out_time
+                - clock_in_time
+            ).total_seconds()
+
+
+            total_hours = round(
+                max(total_seconds, 0) / 3600,
+                2
+            )
+
+
+            # ------------------------------------------------
+            # SAVE CLOCK OUT
+            # ------------------------------------------------
+
+            cur.execute(
+                """
+                UPDATE attendance
+
+                SET
+                    clock_out = CURRENT_TIMESTAMP,
+
+                    clock_out_latitude = %s,
+
+                    clock_out_longitude = %s,
+
+                    clock_out_location_verified = TRUE,
+
+                    total_hours = %s,
+
+                    status = 'Present',
+
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    latitude,
+                    longitude,
+                    total_hours,
+                    attendance["id"]
+                )
+            )
+
+
+        conn.commit()
+
+
+        flash(
+            f"Clock-out recorded successfully. "
+            f"Total hours: {total_hours:.2f}.",
+            "success"
+        )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Applicant clock-out error"
+        )
+
+        flash(
+            "Unable to record clock-out. Please try again.",
+            "error"
+        )
+
+
+    finally:
+
+        conn.close()
+
+
+    return redirect(
+        url_for("applicant_attendance")
+    )
+
+
+# ============================================================
+# APPLICANT ATTENDANCE HISTORY
+# ============================================================
+
+@app.route("/applicant/attendance/history")
+def applicant_attendance_history():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    attendance_date,
+                    clock_in,
+                    clock_out,
+                    total_hours,
+                    status,
+                    clock_in_location_verified,
+                    clock_out_location_verified
+
+                FROM attendance
+
+                WHERE worker_id = %s
+
+                ORDER BY attendance_date DESC
+
+                """,
+                (applicant_id,)
+            )
+
+            attendance_history = cur.fetchall()
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "applicant_attendance_history.html",
+
+        attendance_history=attendance_history
+    )
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
