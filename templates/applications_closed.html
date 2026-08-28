@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="application-closed-page">
+
+    <div class="application-closed-card">
+
+        <div class="closed-icon">
+            🔒
+        </div>
+
+        <span class="closed-label">
+            RECRUITMENT PORTAL
+        </span>
+
+        <h1>
+            Applications Are Currently Closed
+        </h1>
+
+        <p class="closed-message">
+            Thank you for your interest in joining our team.
+            The application portal is not currently accepting
+            new applications.
+        </p>
+
+        <p class="closed-submessage">
+            Please check back later for future recruitment
+            opportunities.
+        </p>
+
+        <div class="closed-actions">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="btn btn-primary"
+            >
+                ← Return to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
