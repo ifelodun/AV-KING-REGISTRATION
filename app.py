@@ -395,10 +395,49 @@ def apply():
 
     if request.method == "GET":
 
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        id,
+                        position_name
+                    FROM available_positions
+                    WHERE is_active = TRUE
+                    ORDER BY position_name ASC
+                    """
+                )
+
+                positions = cur.fetchall()
+
+        except Exception:
+
+            app.logger.exception(
+                "Error loading available positions"
+            )
+
+            positions = []
+
+        finally:
+
+            conn.close()
+
+
         return render_template(
-            "apply.html"
+            "apply.html",
+            positions=positions
         )
 
+
+    # ========================================================
+    # POST APPLICATION
+    # ========================================================
+
+    # KEEP YOUR EXISTING POST APPLICATION CODE BELOW THIS LINE
 
     # ========================================================
     # PERSONAL INFORMATION
@@ -2119,6 +2158,283 @@ def applicant_dashboard():
     return render_template(
         "applicant_dashboard.html",
         application=application
+    )
+
+@app.route(
+    "/admin/positions",
+    methods=["GET", "POST"]
+)
+def admin_positions():
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ==================================================
+            # ADD POSITION
+            # ==================================================
+
+            if request.method == "POST":
+
+                position_name = (
+                    request.form.get(
+                        "position_name",
+                        ""
+                    ).strip()
+                )
+
+                description = (
+                    request.form.get(
+                        "description",
+                        ""
+                    ).strip()
+                )
+
+                if not position_name:
+
+                    flash(
+                        "Please enter a position name.",
+                        "error"
+                    )
+
+                else:
+
+                    cur.execute(
+                        """
+                        INSERT INTO available_positions
+                        (
+                            position_name,
+                            description,
+                            is_active
+                        )
+                        VALUES
+                        (
+                            %s,
+                            %s,
+                            TRUE
+                        )
+                        ON CONFLICT (position_name)
+                        DO UPDATE SET
+                            description = EXCLUDED.description,
+                            is_active = TRUE
+                        """,
+                        (
+                            position_name,
+                            description or None
+                        )
+                    )
+
+                    conn.commit()
+
+                    flash(
+                        "Position added successfully.",
+                        "success"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_positions"
+                        )
+                    )
+
+
+            # ==================================================
+            # GET POSITIONS
+            # ==================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    position_name,
+                    description,
+                    is_active,
+                    created_at
+                FROM available_positions
+                ORDER BY
+                    is_active DESC,
+                    position_name ASC
+                """
+            )
+
+            positions = cur.fetchall()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error managing available positions"
+        )
+
+        flash(
+            "Unable to manage positions.",
+            "error"
+        )
+
+        positions = []
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_positions.html",
+        positions=positions
+    )
+
+@app.route(
+    "/admin/positions/<int:position_id>/edit",
+    methods=["POST"]
+)
+def admin_edit_position(position_id):
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+    position_name = (
+        request.form.get(
+            "position_name",
+            ""
+        ).strip()
+    )
+
+    description = (
+        request.form.get(
+            "description",
+            ""
+        ).strip()
+    )
+
+    if not position_name:
+
+        flash(
+            "Position name is required.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_positions")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE available_positions
+
+                SET
+                    position_name = %s,
+                    description = %s
+
+                WHERE id = %s
+                """,
+                (
+                    position_name,
+                    description or None,
+                    position_id
+                )
+            )
+
+        conn.commit()
+
+        flash(
+            "Position updated successfully.",
+            "success"
+        )
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error editing position"
+        )
+
+        flash(
+            "Unable to update position.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+    return redirect(
+        url_for("admin_positions")
+    )
+
+@app.route(
+    "/admin/positions/<int:position_id>/toggle",
+    methods=["POST"]
+)
+def admin_toggle_position(position_id):
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE available_positions
+
+                SET is_active =
+                    NOT is_active
+
+                WHERE id = %s
+                """,
+                (position_id,)
+            )
+
+        conn.commit()
+
+        flash(
+            "Position status updated.",
+            "success"
+        )
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error changing position status"
+        )
+
+        flash(
+            "Unable to change position status.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+    return redirect(
+        url_for("admin_positions")
     )
 
 # ============================================================
