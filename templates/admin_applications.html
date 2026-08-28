@@ -852,13 +852,16 @@
         'admin_download_file',
         filename=application.cv_filename
     ) }}"
-    class="document-link"
+    class="btn btn-primary"
 >
-    📄 Download CV
+    Download CV
 </a>
 
-                        
-                        {% endif %}
+{% else %}
+
+<span>No CV uploaded</span>
+
+{% endif %}
 
 
                         {% if application.passport_filename %}
@@ -868,12 +871,13 @@
         'admin_download_file',
         filename=application.passport_filename
     ) }}"
-    class="document-link"
+    class="btn btn-primary"
 >
-    🖼 Download Passport
+    Download Passport
 </a>
 
                         {% endif %}
+
 {% if application.qualification_filename %}
 
 <a
@@ -881,13 +885,16 @@
         'admin_download_file',
         filename=application.qualification_filename
     ) }}"
-    class="document-link"
+    class="btn btn-primary"
 >
-    📄 Download Qualification
+    Download Qualification
 </a>
 
-{% endif %}
+{% else %}
 
+<span>No qualification document uploaded</span>
+
+{% endif %}
                         {% if not application.cv_filename
                               and not application.passport_filename %}
 
