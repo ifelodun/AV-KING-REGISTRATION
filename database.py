@@ -529,6 +529,16 @@ def init_db():
                 )
                 """
             )
+
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS admin_username VARCHAR(100);
+            
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS admin_password_hash TEXT;
+                """
+            )
     # =========================================================
     # SAVE CHANGES
     # =========================================================
