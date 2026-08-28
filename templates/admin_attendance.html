@@ -4,16 +4,16 @@
 
 <div class="admin-page">
 
-    <!-- =====================================================
+    <!-- =========================================================
          PAGE HEADER
-         ===================================================== -->
+         ========================================================= -->
 
     <div class="admin-page-header">
 
         <div>
 
             <span class="admin-page-eyebrow">
-                STAFF MANAGEMENT
+                WORKFORCE MANAGEMENT
             </span>
 
             <h1>
@@ -21,8 +21,8 @@
             </h1>
 
             <p>
-                Monitor employee attendance, working hours,
-                and location verification.
+                Monitor daily staff attendance, clock-in activity,
+                clock-out records, and attendance exceptions.
             </p>
 
         </div>
@@ -42,135 +42,22 @@
     </div>
 
 
-    <!-- =====================================================
-         SUMMARY
-         ===================================================== -->
+    <!-- =========================================================
+         DATE FILTER
+         ========================================================= -->
 
-    <div class="application-summary-grid">
-
-        <div class="application-summary-card">
-
-            <div class="summary-card-icon">
-                #
-            </div>
-
-            <div>
-
-                <span>
-                    Approved Staff
-                </span>
-
-                <strong>
-                    {{ approved_workers }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="application-summary-card">
-
-            <div class="summary-card-icon">
-                ✓
-            </div>
-
-            <div>
-
-                <span>
-                    Clocked In
-                </span>
-
-                <strong>
-                    {{ summary.clocked_in or 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="application-summary-card">
-
-            <div class="summary-card-icon">
-                →
-            </div>
-
-            <div>
-
-                <span>
-                    Clocked Out
-                </span>
-
-                <strong>
-                    {{ summary.clocked_out or 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="application-summary-card">
-
-            <div class="summary-card-icon">
-                A
-            </div>
-
-            <div>
-
-                <span>
-                    Absent
-                </span>
-
-                <strong>
-                    {{ absent_count }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="application-summary-card">
-
-            <div class="summary-card-icon">
-                H
-            </div>
-
-            <div>
-
-                <span>
-                    Total Hours
-                </span>
-
-                <strong>
-                    {{ "%.2f"|format(summary.total_hours or 0) }}
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         FILTERS
-         ===================================================== -->
-
-    <section class="admin-panel">
+    <section class="admin-panel attendance-filter-panel">
 
         <div class="panel-heading">
 
             <div>
 
                 <span>
-                    ATTENDANCE SEARCH
+                    ATTENDANCE DATE
                 </span>
 
                 <h2>
-                    Attendance Records
+                    Daily Attendance
                 </h2>
 
             </div>
@@ -181,13 +68,13 @@
         <form
             method="GET"
             action="{{ url_for('admin_attendance') }}"
-            class="applications-filter-form"
+            class="attendance-filter-form"
         >
 
             <div class="filter-field">
 
                 <label for="date">
-                    Attendance Date
+                    Select Date
                 </label>
 
                 <input
@@ -195,53 +82,8 @@
                     id="date"
                     name="date"
                     value="{{ selected_date }}"
+                    required
                 >
-
-            </div>
-
-
-            <div class="filter-field search-field">
-
-                <label for="search">
-                    Search Employee
-                </label>
-
-                <input
-                    type="text"
-                    id="search"
-                    name="search"
-                    value="{{ search }}"
-                    placeholder="Name, application number, phone or email"
-                >
-
-            </div>
-
-
-            <div class="filter-field">
-
-                <label for="status">
-                    Status
-                </label>
-
-                <select
-                    id="status"
-                    name="status"
-                >
-
-                    <option value="">
-                        All Statuses
-                    </option>
-
-                    <option
-                        value="Present"
-                        {% if selected_status == "Present" %}
-                            selected
-                        {% endif %}
-                    >
-                        Present
-                    </option>
-
-                </select>
 
             </div>
 
@@ -270,9 +112,133 @@
     </section>
 
 
-    <!-- =====================================================
-         ATTENDANCE TABLE
-         ===================================================== -->
+    <!-- =========================================================
+         ATTENDANCE SUMMARY
+         ========================================================= -->
+
+    <div class="attendance-summary-grid">
+
+
+        <!-- TOTAL STAFF -->
+
+        <div class="attendance-summary-card">
+
+            <div class="summary-card-icon">
+                👥
+            </div>
+
+            <div>
+
+                <span>
+                    Total Staff
+                </span>
+
+                <strong>
+                    {{ total_staff }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- PRESENT -->
+
+        <div class="attendance-summary-card">
+
+            <div class="summary-card-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Present
+                </span>
+
+                <strong>
+                    {{ present_count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- ABSENT -->
+
+        <div class="attendance-summary-card">
+
+            <div class="summary-card-icon">
+                !
+            </div>
+
+            <div>
+
+                <span>
+                    Absent
+                </span>
+
+                <strong>
+                    {{ absent_count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- CLOCKED IN -->
+
+        <div class="attendance-summary-card">
+
+            <div class="summary-card-icon">
+                ◷
+            </div>
+
+            <div>
+
+                <span>
+                    Currently Clocked In
+                </span>
+
+                <strong>
+                    {{ clocked_in_count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- COMPLETED -->
+
+        <div class="attendance-summary-card">
+
+            <div class="summary-card-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Completed
+                </span>
+
+                <strong>
+                    {{ completed_count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ATTENDANCE RECORDS
+         ========================================================= -->
 
     <section class="admin-panel">
 
@@ -281,19 +247,30 @@
             <div>
 
                 <span>
-                    DAILY ATTENDANCE
+                    DAILY RECORDS
                 </span>
 
                 <h2>
-                    {{ selected_date }}
+                    Attendance Records
                 </h2>
+
+                <p>
+                    Staff who have recorded attendance for
+                    {{ selected_date }}.
+                </p>
 
             </div>
 
-            <div class="application-count">
 
-                {{ attendance_records|length }}
-                record{% if attendance_records|length != 1 %}s{% endif %}
+            <div class="attendance-count-badge">
+
+                {{ present_count }}
+
+                {% if present_count == 1 %}
+                    Record
+                {% else %}
+                    Records
+                {% endif %}
 
             </div>
 
@@ -302,20 +279,25 @@
 
         {% if attendance_records %}
 
+
+        <!-- =====================================================
+             DESKTOP TABLE
+             ===================================================== -->
+
         <div class="table-wrapper">
 
-            <table class="admin-table applications-table">
+            <table class="admin-table attendance-table">
 
                 <thead>
 
                     <tr>
 
                         <th>
-                            Employee
+                            Staff
                         </th>
 
                         <th>
-                            Application No.
+                            Application
                         </th>
 
                         <th>
@@ -353,7 +335,9 @@
 
                     <tr>
 
-                        <!-- EMPLOYEE -->
+                        <!-- =================================================
+                             STAFF
+                             ================================================= -->
 
                         <td>
 
@@ -386,9 +370,618 @@
 
                                     </strong>
 
+
+                                    {% if record.phone %}
+
                                     <small>
-                                        {{ record.email or "No email" }}
+                                        {{ record.phone }}
                                     </small>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             APPLICATION NUMBER
+                             ================================================= -->
+
+                        <td>
+
+                            <strong>
+                                {{ record.application_number }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             POSITION
+                             ================================================= -->
+
+                        <td>
+
+                            <span class="position-cell">
+
+                                {{ record.position_applied or "—" }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             CLOCK IN
+                             ================================================= -->
+
+                        <td>
+
+                            {% if record.clock_in %}
+
+                                <div class="attendance-time-cell">
+
+                                    <strong>
+                                        {{ record.clock_in.strftime("%I:%M %p") }}
+                                    </strong>
+
+                                    <small>
+                                        Clock In
+                                    </small>
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="attendance-missing">
+                                    Not Recorded
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- =================================================
+                             CLOCK OUT
+                             ================================================= -->
+
+                        <td>
+
+                            {% if record.clock_out %}
+
+                                <div class="attendance-time-cell">
+
+                                    <strong>
+                                        {{ record.clock_out.strftime("%I:%M %p") }}
+                                    </strong>
+
+                                    <small>
+                                        Clock Out
+                                    </small>
+
+                                </div>
+
+                            {% else %}
+
+                                <span class="attendance-active">
+                                    Still Clocked In
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- =================================================
+                             TOTAL HOURS
+                             ================================================= -->
+
+                        <td>
+
+                            <strong>
+
+                                {% if record.total_hours is not none %}
+
+                                    {{ "%.2f"|format(record.total_hours|float) }}
+
+                                    hrs
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </strong>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             LOCATION
+                             ================================================= -->
+
+                        <td>
+
+                            <div class="attendance-location-cell">
+
+
+                                {% if record.clock_in_location_verified %}
+
+                                    <span class="location-verified">
+                                        ✓ Clock In Verified
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="location-unverified">
+                                        ⚠ Clock In Not Verified
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if record.clock_out %}
+
+                                    {% if record.clock_out_location_verified %}
+
+                                        <span class="location-verified">
+                                            ✓ Clock Out Verified
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="location-unverified">
+                                            ⚠ Clock Out Not Verified
+                                        </span>
+
+                                    {% endif %}
+
+                                {% endif %}
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- =================================================
+                             STATUS
+                             ================================================= -->
+
+                        <td>
+
+                            {% if record.clock_in and record.clock_out %}
+
+                                <span class="attendance-status attendance-status-complete">
+                                    Completed
+                                </span>
+
+                            {% elif record.clock_in %}
+
+                                <span class="attendance-status attendance-status-active">
+                                    Clocked In
+                                </span>
+
+                            {% else %}
+
+                                <span class="attendance-status attendance-status-pending">
+                                    Pending
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =====================================================
+             MOBILE ATTENDANCE CARDS
+             ===================================================== -->
+
+        <div class="mobile-attendance">
+
+        {% for record in attendance_records %}
+
+            <div class="mobile-attendance-card">
+
+
+                <!-- =================================================
+                     CARD HEADER
+                     ================================================= -->
+
+                <div class="mobile-attendance-top">
+
+
+                    <div class="mobile-applicant">
+
+                        <div class="applicant-avatar">
+
+                            {{
+                                (
+                                    record.first_name[:1]
+                                    ~
+                                    record.last_name[:1]
+                                )|upper
+                            }}
+
+                        </div>
+
+
+                        <div class="mobile-applicant-info">
+
+                            <strong>
+
+                                {{ record.first_name }}
+
+                                {% if record.middle_name %}
+                                    {{ record.middle_name }}
+                                {% endif %}
+
+                                {{ record.last_name }}
+
+                            </strong>
+
+
+                            <small>
+                                {{ record.application_number }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if record.clock_in and record.clock_out %}
+
+                        <span class="attendance-status attendance-status-complete">
+                            Completed
+                        </span>
+
+                    {% elif record.clock_in %}
+
+                        <span class="attendance-status attendance-status-active">
+                            Clocked In
+                        </span>
+
+                    {% else %}
+
+                        <span class="attendance-status attendance-status-pending">
+                            Pending
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- =================================================
+                     DETAILS
+                     ================================================= -->
+
+                <div class="mobile-attendance-details">
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Position
+                        </span>
+
+                        <strong>
+                            {{ record.position_applied or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Clock In
+                        </span>
+
+                        <strong>
+
+                            {% if record.clock_in %}
+
+                                {{ record.clock_in.strftime(
+                                    "%d %b %Y, %I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                Not Recorded
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Clock Out
+                        </span>
+
+                        <strong>
+
+                            {% if record.clock_out %}
+
+                                {{ record.clock_out.strftime(
+                                    "%d %b %Y, %I:%M %p"
+                                ) }}
+
+                            {% else %}
+
+                                Still Clocked In
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Total Hours
+                        </span>
+
+                        <strong>
+
+                            {% if record.total_hours is not none %}
+
+                                {{ "%.2f"|format(
+                                    record.total_hours|float
+                                ) }}
+                                hrs
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     LOCATION VERIFICATION
+                     ================================================= -->
+
+                <div class="mobile-attendance-location">
+
+                    <div class="mobile-section-label">
+                        LOCATION VERIFICATION
+                    </div>
+
+
+                    {% if record.clock_in_location_verified %}
+
+                        <span class="location-verified">
+                            ✓ Clock In Location Verified
+                        </span>
+
+                    {% else %}
+
+                        <span class="location-unverified">
+                            ⚠ Clock In Location Not Verified
+                        </span>
+
+                    {% endif %}
+
+
+                    {% if record.clock_out %}
+
+                        {% if record.clock_out_location_verified %}
+
+                            <span class="location-verified">
+                                ✓ Clock Out Location Verified
+                            </span>
+
+                        {% else %}
+
+                            <span class="location-unverified">
+                                ⚠ Clock Out Location Not Verified
+                            </span>
+
+                        {% endif %}
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =====================================================
+             EMPTY ATTENDANCE STATE
+             ===================================================== -->
+
+        <div class="attendance-empty-state">
+
+            <div class="attendance-empty-icon">
+                —
+            </div>
+
+
+            <h3>
+                No Attendance Records
+            </h3>
+
+
+            <p>
+                No approved staff members have recorded attendance
+                for {{ selected_date }}.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =========================================================
+         ABSENT STAFF
+         ========================================================= -->
+
+    <section class="admin-panel absent-staff-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    ATTENDANCE EXCEPTIONS
+                </span>
+
+                <h2>
+                    Absent Staff
+                </h2>
+
+                <p>
+                    Approved staff members who have not clocked in
+                    for {{ selected_date }}.
+                </p>
+
+            </div>
+
+
+            <div class="attendance-count-badge absent-count-badge">
+
+                {{ absent_count }}
+
+                {% if absent_count == 1 %}
+                    Absent
+                {% else %}
+                    Absent
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        {% if absent_staff %}
+
+
+        <!-- =====================================================
+             DESKTOP ABSENT TABLE
+             ===================================================== -->
+
+        <div class="table-wrapper">
+
+            <table class="admin-table absent-staff-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Staff
+                        </th>
+
+                        <th>
+                            Application Number
+                        </th>
+
+                        <th>
+                            Position
+                        </th>
+
+                        <th>
+                            Phone
+                        </th>
+
+                        <th>
+                            Attendance Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for staff in absent_staff %}
+
+                    <tr>
+
+
+                        <!-- STAFF -->
+
+                        <td>
+
+                            <div class="applicant-cell">
+
+                                <div class="applicant-avatar">
+
+                                    {{
+                                        (
+                                            staff.first_name[:1]
+                                            ~
+                                            staff.last_name[:1]
+                                        )|upper
+                                    }}
+
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+
+                                        {{ staff.first_name }}
+
+                                        {% if staff.middle_name %}
+                                            {{ staff.middle_name }}
+                                        {% endif %}
+
+                                        {{ staff.last_name }}
+
+                                    </strong>
+
+
+                                    {% if staff.email %}
+
+                                    <small>
+                                        {{ staff.email }}
+                                    </small>
+
+                                    {% endif %}
 
                                 </div>
 
@@ -402,7 +995,7 @@
                         <td>
 
                             <strong>
-                                {{ record.application_number }}
+                                {{ staff.application_number }}
                             </strong>
 
                         </td>
@@ -412,108 +1005,25 @@
 
                         <td>
 
-                            {{ record.position_applied or "—" }}
+                            {{ staff.position_applied or "—" }}
 
                         </td>
 
 
-                        <!-- CLOCK IN -->
+                        <!-- PHONE -->
 
                         <td>
 
-                            {% if record.clock_in %}
-
-                                <div class="date-cell">
-
-                                    <strong>
-                                        {{ record.clock_in.strftime(
-                                            "%I:%M %p"
-                                        ) }}
-                                    </strong>
-
-                                </div>
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
+                            {{ staff.phone or "—" }}
 
                         </td>
 
 
-                        <!-- CLOCK OUT -->
+                        <!-- DATE -->
 
                         <td>
 
-                            {% if record.clock_out %}
-
-                                <div class="date-cell">
-
-                                    <strong>
-                                        {{ record.clock_out.strftime(
-                                            "%I:%M %p"
-                                        ) }}
-                                    </strong>
-
-                                </div>
-
-                            {% else %}
-
-                                <span>
-                                    Not clocked out
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <!-- HOURS -->
-
-                        <td>
-
-                            {% if record.total_hours %}
-
-                                <strong>
-                                    {{ record.total_hours }} hrs
-                                </strong>
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <!-- LOCATION -->
-
-                        <td>
-
-                            {% if
-                                record.clock_in_location_verified
-                                and record.clock_out_location_verified
-                            %}
-
-                                <span class="application-status application-status-approved">
-                                    ✓ Verified
-                                </span>
-
-                            {% elif record.clock_in_location_verified %}
-
-                                <span class="application-status application-status-review">
-                                    Clock-in Verified
-                                </span>
-
-                            {% else %}
-
-                                <span class="application-status application-status-rejected">
-                                    Not Verified
-                                </span>
-
-                            {% endif %}
+                            {{ selected_date }}
 
                         </td>
 
@@ -522,8 +1032,8 @@
 
                         <td>
 
-                            <span class="application-status application-status-approved">
-                                {{ record.status or "Present" }}
+                            <span class="attendance-status attendance-status-absent">
+                                Absent
                             </span>
 
                         </td>
@@ -539,25 +1049,165 @@
         </div>
 
 
-        {% else %}
+        <!-- =====================================================
+             MOBILE ABSENT CARDS
+             ===================================================== -->
 
-        <!-- =================================================
-             EMPTY STATE
-             ================================================= -->
+        <div class="mobile-absent-staff">
 
-        <div class="applications-empty-state">
+        {% for staff in absent_staff %}
 
-            <div class="empty-state-icon">
-                ◷
+            <div class="mobile-absent-card">
+
+
+                <div class="mobile-application-top">
+
+
+                    <div class="mobile-applicant">
+
+                        <div class="applicant-avatar">
+
+                            {{
+                                (
+                                    staff.first_name[:1]
+                                    ~
+                                    staff.last_name[:1]
+                                )|upper
+                            }}
+
+                        </div>
+
+
+                        <div class="mobile-applicant-info">
+
+                            <strong>
+
+                                {{ staff.first_name }}
+
+                                {% if staff.middle_name %}
+                                    {{ staff.middle_name }}
+                                {% endif %}
+
+                                {{ staff.last_name }}
+
+                            </strong>
+
+
+                            <small>
+                                {{ staff.application_number }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <span class="attendance-status attendance-status-absent">
+                        Absent
+                    </span>
+
+                </div>
+
+
+                <div class="mobile-application-details">
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Position
+                        </span>
+
+                        <strong>
+                            {{ staff.position_applied or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Phone
+                        </span>
+
+                        <strong>
+                            {{ staff.phone or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Email
+                        </span>
+
+                        <strong>
+                            {{ staff.email or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mobile-detail-item">
+
+                        <span>
+                            Date
+                        </span>
+
+                        <strong>
+                            {{ selected_date }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="absent-notice">
+
+                    <strong>
+                        No attendance recorded
+                    </strong>
+
+                    <span>
+                        This approved staff member has not
+                        clocked in for the selected date.
+                    </span>
+
+                </div>
+
             </div>
 
+        {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+
+        <!-- =====================================================
+             NO ABSENT STAFF
+             ===================================================== -->
+
+        <div class="attendance-empty-state attendance-full-state">
+
+            <div class="attendance-empty-icon">
+                ✓
+            </div>
+
+
             <h3>
-                No Attendance Records
+                Full Attendance
             </h3>
 
+
             <p>
-                There are no attendance records matching
-                your selected date and filters.
+                All approved staff members have recorded
+                attendance for {{ selected_date }}.
             </p>
 
         </div>
@@ -565,6 +1215,7 @@
         {% endif %}
 
     </section>
+
 
 </div>
 
