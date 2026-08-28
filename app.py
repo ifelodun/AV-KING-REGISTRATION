@@ -5993,6 +5993,1397 @@ def admin_reports():
         position_report=position_report,
         gender_report=gender_report
         )
+
+@app.route(
+    "/admin/applications/<int:application_id>/biodata/pdf"
+)
+def download_applicant_biodata(application_id):
+
+    # =========================================================
+    # ADMIN LOGIN
+    # =========================================================
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+
+    # =========================================================
+    # REPORTLAB IMPORTS
+    # =========================================================
+
+    from io import BytesIO
+    from datetime import datetime
+
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import (
+        getSampleStyleSheet,
+        ParagraphStyle
+    )
+    from reportlab.lib.units import mm
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+        Image,
+        HRFlowable
+    )
+
+
+    # =========================================================
+    # DATABASE
+    # =========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # -------------------------------------------------
+            # GET APPLICANT
+            # -------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT *
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+                """,
+                (application_id,)
+            )
+
+            applicant = cur.fetchone()
+
+
+            # -------------------------------------------------
+            # GET COMPANY SETTINGS
+            # -------------------------------------------------
+
+            cur.execute(
+                """
+                SELECT
+                    company_name,
+                    company_email,
+                    company_phone,
+                    company_address,
+                    company_website,
+                    footer_text,
+                    logo
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+
+    # =========================================================
+    # APPLICANT NOT FOUND
+    # =========================================================
+
+    if not applicant:
+
+        flash(
+            "Applicant not found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+
+    # =========================================================
+    # COMPANY INFORMATION
+    # =========================================================
+
+    if settings:
+
+        company_name = (
+            settings["company_name"]
+            or "AV KING VET DRUG VENTURE"
+        )
+
+        company_address = (
+            settings["company_address"]
+            or ""
+        )
+
+        company_phone = (
+            settings["company_phone"]
+            or ""
+        )
+
+        company_email = (
+            settings["company_email"]
+            or ""
+        )
+
+        company_website = (
+            settings["company_website"]
+            or ""
+        )
+
+        footer_text = (
+            settings["footer_text"]
+            or ""
+        )
+
+        logo_filename = (
+            settings["logo"]
+            or ""
+        )
+
+    else:
+
+        company_name = "AV KING VET DRUG VENTURE"
+        company_address = ""
+        company_phone = ""
+        company_email = ""
+        company_website = ""
+        footer_text = ""
+        logo_filename = ""
+
+
+    # =========================================================
+    # HELPER
+    # =========================================================
+
+    def value(field, default="—"):
+
+        try:
+
+            result = applicant[field]
+
+        except (KeyError, TypeError):
+
+            result = None
+
+        if result is None:
+            return default
+
+        result = str(result).strip()
+
+        return result if result else default
+
+
+    # =========================================================
+    # APPLICANT NAME
+    # =========================================================
+
+    applicant_name = " ".join(
+        part
+        for part in [
+            value("first_name", ""),
+            value("middle_name", ""),
+            value("last_name", "")
+        ]
+        if part
+    )
+
+    if not applicant_name:
+        applicant_name = "Applicant"
+
+
+    # =========================================================
+    # FORMAT DATE OF BIRTH
+    # =========================================================
+
+    date_of_birth = value(
+        "date_of_birth"
+    )
+
+    if date_of_birth != "—":
+
+        try:
+
+            if hasattr(
+                applicant["date_of_birth"],
+                "strftime"
+            ):
+
+                date_of_birth = (
+                    applicant["date_of_birth"]
+                    .strftime("%d %B %Y")
+                )
+
+        except Exception:
+
+            pass
+
+
+    # =========================================================
+    # FORMAT APPLICATION DATE
+    # =========================================================
+
+    application_date = value(
+        "created_at"
+    )
+
+    if application_date != "—":
+
+        try:
+
+            if hasattr(
+                applicant["created_at"],
+                "strftime"
+            ):
+
+                application_date = (
+                    applicant["created_at"]
+                    .strftime("%d %B %Y")
+                )
+
+        except Exception:
+
+            pass
+
+
+    # =========================================================
+    # FILE LOCATIONS
+    # =========================================================
+
+    upload_folder = os.path.join(
+        app.root_path,
+        "static",
+        "uploads"
+    )
+
+
+    # =========================================================
+    # PASSPORT
+    # =========================================================
+
+    passport_filename = value(
+        "passport_filename",
+        ""
+    )
+
+    passport_path = None
+
+    if passport_filename:
+
+        possible_passport = os.path.join(
+            upload_folder,
+            passport_filename
+        )
+
+        if os.path.isfile(
+            possible_passport
+        ):
+
+            passport_path = possible_passport
+
+
+    # =========================================================
+    # COMPANY LOGO
+    # =========================================================
+
+    logo_path = None
+
+    if logo_filename:
+
+        possible_logo = os.path.join(
+            upload_folder,
+            logo_filename
+        )
+
+        if os.path.isfile(
+            possible_logo
+        ):
+
+            logo_path = possible_logo
+
+
+    # =========================================================
+    # PDF BUFFER
+    # =========================================================
+
+    buffer = BytesIO()
+
+
+    # =========================================================
+    # DOCUMENT
+    # =========================================================
+
+    document = SimpleDocTemplate(
+
+        buffer,
+
+        pagesize=A4,
+
+        rightMargin=15 * mm,
+
+        leftMargin=15 * mm,
+
+        topMargin=15 * mm,
+
+        bottomMargin=18 * mm
+    )
+
+
+    # =========================================================
+    # STYLES
+    # =========================================================
+
+    styles = getSampleStyleSheet()
+
+
+    company_style = ParagraphStyle(
+        "Company",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=16,
+        leading=20,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#111827")
+    )
+
+
+    company_info_style = ParagraphStyle(
+        "CompanyInfo",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8.5,
+        leading=12,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#4b5563")
+    )
+
+
+    title_style = ParagraphStyle(
+        "Title",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=15,
+        leading=19,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#111827")
+    )
+
+
+    section_style = ParagraphStyle(
+        "Section",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=9,
+        leading=11,
+        textColor=colors.white
+    )
+
+
+    label_style = ParagraphStyle(
+        "Label",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=7.5,
+        leading=10,
+        textColor=colors.HexColor("#374151")
+    )
+
+
+    data_style = ParagraphStyle(
+        "Data",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8.5,
+        leading=11,
+        textColor=colors.HexColor("#111827")
+    )
+
+
+    small_style = ParagraphStyle(
+        "Small",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=7.5,
+        leading=10,
+        textColor=colors.HexColor("#4b5563")
+    )
+
+
+    # =========================================================
+    # STORY
+    # =========================================================
+
+    story = []
+
+
+    # =========================================================
+    # HEADER
+    #
+    # LOGO LEFT
+    # COMPANY INFO CENTER
+    # PASSPORT RIGHT
+    # =========================================================
+
+    header_left = ""
+
+
+    if logo_path:
+
+        try:
+
+            logo = Image(
+                logo_path,
+                width=28 * mm,
+                height=28 * mm,
+                kind="proportional"
+            )
+
+            header_left = logo
+
+        except Exception:
+
+            header_left = Paragraph(
+                "AV",
+                company_style
+            )
+
+    else:
+
+        header_left = Paragraph(
+            "AV",
+            company_style
+        )
+
+
+    # ---------------------------------------------------------
+    # COMPANY CENTER
+    # ---------------------------------------------------------
+
+    company_lines = [
+        Paragraph(
+            company_name,
+            company_style
+        )
+    ]
+
+
+    if company_address:
+
+        company_lines.append(
+            Paragraph(
+                company_address,
+                company_info_style
+            )
+        )
+
+
+    if company_phone:
+
+        company_lines.append(
+            Paragraph(
+                f"Phone: {company_phone}",
+                company_info_style
+            )
+        )
+
+
+    if company_email:
+
+        company_lines.append(
+            Paragraph(
+                f"Email: {company_email}",
+                company_info_style
+            )
+        )
+
+
+    if company_website:
+
+        company_lines.append(
+            Paragraph(
+                company_website,
+                company_info_style
+            )
+        )
+
+
+    company_center = company_lines
+
+
+    # ---------------------------------------------------------
+    # PASSPORT RIGHT
+    # ---------------------------------------------------------
+
+    if passport_path:
+
+        try:
+
+            passport = Image(
+                passport_path,
+                width=30 * mm,
+                height=36 * mm,
+                kind="proportional"
+            )
+
+            passport.hAlign = "RIGHT"
+
+            header_right = passport
+
+        except Exception:
+
+            header_right = Paragraph(
+                "PASSPORT",
+                small_style
+            )
+
+    else:
+
+        header_right = Paragraph(
+            "PASSPORT<br/>PHOTO",
+            ParagraphStyle(
+                "PassportPlaceholder",
+                parent=small_style,
+                alignment=TA_CENTER
+            )
+        )
+
+
+    # =========================================================
+    # HEADER TABLE
+    # =========================================================
+
+    header_table = Table(
+        [
+            [
+                header_left,
+                company_center,
+                header_right
+            ]
+        ],
+        colWidths=[
+            40 * mm,
+            110 * mm,
+            35 * mm
+        ]
+    )
+
+
+    header_table.setStyle(
+        TableStyle(
+            [
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "MIDDLE"
+                ),
+
+                (
+                    "ALIGN",
+                    (0, 0),
+                    (0, 0),
+                    "LEFT"
+                ),
+
+                (
+                    "ALIGN",
+                    (1, 0),
+                    (1, 0),
+                    "CENTER"
+                ),
+
+                (
+                    "ALIGN",
+                    (2, 0),
+                    (2, 0),
+                    "RIGHT"
+                ),
+
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    2
+                ),
+
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    2
+                ),
+
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    2
+                ),
+
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    2
+                )
+            ]
+        )
+    )
+
+
+    story.append(
+        header_table
+    )
+
+
+    story.append(
+        Spacer(1, 6 * mm)
+    )
+
+
+    # =========================================================
+    # DIVIDER
+    # =========================================================
+
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=1,
+            color=colors.HexColor("#d1d5db")
+        )
+    )
+
+
+    story.append(
+        Spacer(1, 5 * mm)
+    )
+
+
+    # =========================================================
+    # TITLE
+    # =========================================================
+
+    story.append(
+        Paragraph(
+            "APPLICANT BIODATA",
+            title_style
+        )
+    )
+
+
+    story.append(
+        Spacer(1, 2 * mm)
+    )
+
+
+    story.append(
+        Paragraph(
+            f"Application No.: <b>{value('application_number')}</b>",
+            company_info_style
+        )
+    )
+
+
+    story.append(
+        Spacer(1, 5 * mm)
+    )
+
+
+    # =========================================================
+    # TABLE HELPER
+    # =========================================================
+
+    def section_header(title):
+
+        table = Table(
+            [
+                [
+                    Paragraph(
+                        title,
+                        section_style
+                    )
+                ]
+            ],
+            colWidths=[
+                180 * mm
+            ]
+        )
+
+
+        table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, -1),
+                        colors.HexColor("#111827")
+                    ),
+
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
+
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
+
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    ),
+
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    )
+                ]
+            )
+        )
+
+        story.append(table)
+
+        story.append(
+            Spacer(1, 2 * mm)
+        )
+
+
+    def information_table(rows):
+
+        formatted = []
+
+
+        for label, data in rows:
+
+            formatted.append(
+                [
+                    Paragraph(
+                        label,
+                        label_style
+                    ),
+
+                    Paragraph(
+                        str(data),
+                        data_style
+                    )
+                ]
+            )
+
+
+        table = Table(
+            formatted,
+            colWidths=[
+                48 * mm,
+                132 * mm
+            ]
+        )
+
+
+        table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.4,
+                        colors.HexColor("#d1d5db")
+                    ),
+
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (0, -1),
+                        colors.HexColor("#f3f4f6")
+                    ),
+
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "TOP"
+                    ),
+
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    ),
+
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    ),
+
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    ),
+
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        6
+                    )
+                ]
+            )
+        )
+
+
+        story.append(table)
+
+        story.append(
+            Spacer(1, 5 * mm)
+        )
+
+
+    # =========================================================
+    # APPLICATION INFORMATION
+    # =========================================================
+
+    section_header(
+        "APPLICATION INFORMATION"
+    )
+
+
+    information_table(
+        [
+            (
+                "Application Number",
+                value("application_number")
+            ),
+
+            (
+                "Position Applied For",
+                value("position_applied")
+            ),
+
+            (
+                "Application Date",
+                application_date
+            ),
+
+            (
+                "Application Status",
+                value(
+                    "status",
+                    "Pending"
+                )
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # PERSONAL INFORMATION
+    # =========================================================
+
+    section_header(
+        "PERSONAL INFORMATION"
+    )
+
+
+    information_table(
+        [
+            (
+                "Full Name",
+                applicant_name
+            ),
+
+            (
+                "Gender",
+                value("gender")
+            ),
+
+            (
+                "Date of Birth",
+                date_of_birth
+            ),
+
+            (
+                "Phone Number",
+                value("phone")
+            ),
+
+            (
+                "Email Address",
+                value("email")
+            ),
+
+            (
+                "Residential Address",
+                value("address")
+            ),
+
+            (
+                "State",
+                value("state")
+            ),
+
+            (
+                "Local Government Area",
+                value("lga")
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # EDUCATION & QUALIFICATION
+    # =========================================================
+
+    section_header(
+        "EDUCATION & QUALIFICATION"
+    )
+
+    information_table(
+        [
+            (
+                "Highest Qualification",
+                value("highest_qualification")
+            ),
+
+            (
+                "Course of Study",
+                value("course_of_study")
+            ),
+
+            (
+                "Institution",
+                value("institution")
+            ),
+
+            (
+                "Graduation Year",
+                value("graduation_year")
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # WORK EXPERIENCE
+    # =========================================================
+
+    section_header(
+        "WORK EXPERIENCE"
+    )
+
+    information_table(
+        [
+            (
+                "Previous Employer",
+                value("previous_employer")
+            ),
+
+            (
+                "Previous Position",
+                value("previous_position")
+            ),
+
+            (
+                "Work Experience",
+                value("work_experience")
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # APPLICATION STATEMENT
+    # =========================================================
+
+    section_header(
+        "APPLICATION STATEMENT"
+    )
+
+    information_table(
+        [
+            (
+                "Reason for Applying",
+                value("reason_for_applying")
+            ),
+
+            (
+                "Additional Information",
+                value("additional_information")
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # SUBMITTED DOCUMENTS
+    # =========================================================
+
+    section_header(
+        "SUBMITTED DOCUMENTS"
+    )
+
+    information_table(
+        [
+            (
+                "Passport Photograph",
+                value("passport_filename")
+            ),
+
+            (
+                "Curriculum Vitae",
+                value("cv_filename")
+            ),
+
+            (
+                "Qualification Document",
+                value("qualification_filename")
+            )
+        ]
+    )
+
+
+    # =========================================================
+    # DECLARATION
+    # =========================================================
+
+    section_header(
+        "APPLICANT DECLARATION"
+    )
+
+    declaration_text = (
+        "I confirm that the information provided in this "
+        "application is true and correct to the best of my "
+        "knowledge. I understand that any false or misleading "
+        "information may affect the consideration of my application."
+    )
+
+    declaration_table = Table(
+        [
+            [
+                Paragraph(
+                    declaration_text,
+                    data_style
+                )
+            ]
+        ],
+        colWidths=[
+            180 * mm
+        ]
+    )
+
+    declaration_table.setStyle(
+        TableStyle(
+            [
+                (
+                    "BOX",
+                    (0, 0),
+                    (-1, -1),
+                    0.4,
+                    colors.HexColor("#d1d5db")
+                ),
+
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, -1),
+                    colors.HexColor("#f9fafb")
+                ),
+
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    8
+                ),
+
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    8
+                ),
+
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    8
+                ),
+
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    8
+                )
+            ]
+        )
+    )
+
+    story.append(
+        declaration_table
+    )
+
+    story.append(
+        Spacer(1, 12 * mm)
+    )
+
+
+    # =========================================================
+    # ADMIN USE
+    # =========================================================
+
+    section_header(
+        "FOR OFFICIAL USE ONLY"
+    )
+
+    official_use_table = Table(
+        [
+            [
+                Paragraph(
+                    "<b>Application Reviewed By:</b>",
+                    label_style
+                ),
+                Paragraph(
+                    "________________________________________",
+                    data_style
+                )
+            ],
+
+            [
+                Paragraph(
+                    "<b>Review Date:</b>",
+                    label_style
+                ),
+                Paragraph(
+                    "________________________________________",
+                    data_style
+                )
+            ],
+
+            [
+                Paragraph(
+                    "<b>Decision:</b>",
+                    label_style
+                ),
+                Paragraph(
+                    "☐ Approved     ☐ Shortlisted     "
+                    "☐ Rejected     ☐ Pending",
+                    data_style
+                )
+            ],
+
+            [
+                Paragraph(
+                    "<b>Comments:</b>",
+                    label_style
+                ),
+                Paragraph(
+                    "________________________________________"
+                    "<br/>"
+                    "________________________________________"
+                    "<br/>"
+                    "________________________________________",
+                    data_style
+                )
+            ]
+        ],
+        colWidths=[
+            48 * mm,
+            132 * mm
+        ]
+    )
+
+    official_use_table.setStyle(
+        TableStyle(
+            [
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.4,
+                    colors.HexColor("#d1d5db")
+                ),
+
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (0, -1),
+                    colors.HexColor("#f3f4f6")
+                ),
+
+                (
+                    "VALIGN",
+                    (0, 0),
+                    (-1, -1),
+                    "TOP"
+                ),
+
+                (
+                    "LEFTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+
+                (
+                    "RIGHTPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    6
+                ),
+
+                (
+                    "TOPPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                ),
+
+                (
+                    "BOTTOMPADDING",
+                    (0, 0),
+                    (-1, -1),
+                    7
+                )
+            ]
+        )
+    )
+
+    story.append(
+        official_use_table
+    )
+
+    story.append(
+        Spacer(1, 10 * mm)
+    )
+
+
+    # =========================================================
+    # FOOTER
+    # =========================================================
+
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=0.7,
+            color=colors.HexColor("#d1d5db")
+        )
+    )
+
+    story.append(
+        Spacer(1, 3 * mm)
+    )
+
+
+    if footer_text:
+
+        footer_content = footer_text
+
+    else:
+
+        footer_content = (
+            f"{company_name} — "
+            "Applicant Recruitment Portal"
+        )
+
+
+    story.append(
+        Paragraph(
+            footer_content,
+            company_info_style
+        )
+    )
+
+
+    # =========================================================
+    # GENERATED INFORMATION
+    # =========================================================
+
+    story.append(
+        Spacer(1, 2 * mm)
+    )
+
+    story.append(
+        Paragraph(
+            "This document was generated electronically "
+            "from the recruitment portal.",
+            small_style
+        )
+    )
+
+
+    # =========================================================
+    # BUILD PDF
+    # =========================================================
+
+    document.build(
+        story
+    )
+
+
+    # =========================================================
+    # PREPARE PDF
+    # =========================================================
+
+    buffer.seek(0)
+
+
+    # =========================================================
+    # SAFE APPLICATION NUMBER
+    # =========================================================
+
+    safe_application_number = value(
+        "application_number",
+        f"APP-{application_id}"
+    )
+
+
+    safe_application_number = (
+        safe_application_number
+        .replace("/", "-")
+        .replace("\\", "-")
+        .replace(" ", "_")
+    )
+
+
+    # =========================================================
+    # FILE NAME
+    # =========================================================
+
+    filename = (
+        f"{safe_application_number}_"
+        f"Applicant_Biodata.pdf"
+    )
+
+
+    # =========================================================
+    # RETURN PDF
+    # =========================================================
+
+    return send_file(
+        buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=filename
+)
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
