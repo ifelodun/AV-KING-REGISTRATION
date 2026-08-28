@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <div class="admin-page-header">
+
+        <div>
+            <span class="page-label">
+                RECRUITMENT MANAGEMENT
+            </span>
+
+            <h1>
+                Interviews
+            </h1>
+
+            <p>
+                View and manage applicants scheduled for interviews.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-secondary"
+        >
+            ← Dashboard
+        </a>
+
+    </div>
+
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+                <span>
+                    INTERVIEW SCHEDULE
+                </span>
+
+                <h2>
+                    Scheduled Interviews
+                </h2>
+            </div>
+
+        </div>
+
+
+        {% if interviews %}
+
+        <div class="table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Application
+                        </th>
+
+                        <th>
+                            Applicant
+                        </th>
+
+                        <th>
+                            Position
+                        </th>
+
+                        <th>
+                            Interview Date
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for application in interviews %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ application.application_number }}
+                            </strong>
+                        </td>
+
+
+                        <td>
+
+                            {{ application.first_name }}
+
+                            {% if application.middle_name %}
+                                {{ application.middle_name }}
+                            {% endif %}
+
+                            {{ application.last_name }}
+
+                        </td>
+
+
+                        <td>
+                            {{ application.position_applied }}
+                        </td>
+
+
+                        <td>
+                            {{ application.interview_date }}
+                        </td>
+
+
+                        <td>
+
+                            {% if application.interview_location %}
+                                {{ application.interview_location }}
+                            {% else %}
+                                —
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status status-{{ application.status|lower|replace(' ', '-') }}">
+                                {{ application.status }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                href="{{ url_for(
+                                    'admin_application_details',
+                                    application_id=application.id
+                                ) }}"
+                                class="panel-link"
+                            >
+                                View
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <div>◷</div>
+
+            <h3>
+                No interviews scheduled
+            </h3>
+
+            <p>
+                Applicants with scheduled interviews will appear here.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
