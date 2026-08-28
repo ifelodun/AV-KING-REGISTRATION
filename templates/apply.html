@@ -352,59 +352,71 @@ Job Application | {{ company_name }}
              SECTION 3
              ================================================= -->
 
-        <div class="form-section">
+        <!-- =================================================
+     SECTION 3
+     ================================================= -->
 
-            <div class="form-section-heading">
+<div class="form-section">
 
-                <span>
-                    03
-                </span>
+    <div class="form-section-heading">
 
-                <div>
+        <span>
+            03
+        </span>
 
-                    <h3>
-                        Position Applied For
-                    </h3>
+        <div>
 
-                    <p>
-                        Select the position you are interested in.
-                    </p>
+            <h3>
+                Position Applied For
+            </h3>
 
-                </div>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Position
-                    <required>*</required>
-                </label>
-
-                <select
-                    name="position_applied"
-                    required
-                >
-
-                    <option value="">
-                        Select a position
-                    </option>
-
-                    {% for position in positions %}
-
-                        <option value="{{ position }}">
-                            {{ position }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
+            <p>
+                Select the position you are interested in.
+            </p>
 
         </div>
 
+    </div>
+
+
+    <div class="form-group">
+
+        <label for="position_applied">
+
+            Position
+
+            <required>*</required>
+
+        </label>
+
+
+        <select
+            id="position_applied"
+            name="position_applied"
+            required
+        >
+
+            <option value="">
+                Select a position
+            </option>
+
+
+            {% for position in positions %}
+
+                <option
+                    value="{{ position.position_name }}"
+                >
+                    {{ position.position_name }}
+                </option>
+
+            {% endfor %}
+
+
+        </select>
+
+    </div>
+
+</div>
 
         <!-- =================================================
              SECTION 4
