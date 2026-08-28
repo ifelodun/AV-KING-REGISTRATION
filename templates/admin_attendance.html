@@ -174,34 +174,28 @@
 
             </a>
 
-
+<a
+    href="{{ url_for(
+        'admin_monthly_attendance_pdf',
+        month=selected_month,
+        search=search
+    ) }}"
+    class="btn btn-secondary"
+>
+    ↓ Export PDF
+</a>
             <!-- EXCEL -->
 
-            <a
-                href="{{ url_for(
-                    'admin_attendance_excel',
-                    date=selected_date
-                ) }}"
-                class="attendance-export-btn attendance-excel-btn"
-            >
-
-                <span class="export-btn-icon">
-                    📊
-                </span>
-
-                <span>
-
-                    <strong>
-                        Download Excel
-                    </strong>
-
-                    <small>
-                        Attendance spreadsheet
-                    </small>
-
-                </span>
-
-            </a>
+           <a
+    href="{{ url_for(
+        'export_monthly_attendance_excel',
+        month=selected_month,
+        search=search
+    ) }}"
+    class="btn btn-primary"
+>
+    Export Excel
+</a>
 
         </div>
 
