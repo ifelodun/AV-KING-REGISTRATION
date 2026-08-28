@@ -3811,14 +3811,30 @@ def admin_settings():
         with conn.cursor() as cur:
 
             # =================================================
+            # GET EXISTING SETTINGS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT *
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            existing_settings = cur.fetchone()
+
+
+            # =================================================
             # POST - SAVE SETTINGS
             # =================================================
 
             if request.method == "POST":
 
-                # -------------------------------------------------
-                # GET FORM VALUES
-                # -------------------------------------------------
+                # =================================================
+                # COMPANY INFORMATION
+                # =================================================
 
                 company_name = (
                     request.form.get(
@@ -3862,6 +3878,11 @@ def admin_settings():
                     ).strip()
                 )
 
+
+                # =================================================
+                # APPLICATION SETTINGS
+                # =================================================
+
                 application_status = (
                     request.form.get(
                         "application_status",
@@ -3877,10 +3898,6 @@ def admin_settings():
                 )
 
 
-                # -------------------------------------------------
-                # VALIDATE APPLICATION STATUS
-                # -------------------------------------------------
-
                 if application_status not in [
                     "Open",
                     "Closed"
@@ -3889,30 +3906,92 @@ def admin_settings():
                     application_status = "Open"
 
 
-                # -------------------------------------------------
-                # CONVERT EMPTY DATE TO NULL
-                # -------------------------------------------------
-
                 if not application_deadline:
                     application_deadline = None
 
 
                 # =================================================
-                # GET EXISTING SETTINGS
+                # ADMIN ACCOUNT
                 # =================================================
 
-                cur.execute(
-                    """
-                    SELECT
-                        id,
-                        logo
-                    FROM company_settings
-                    ORDER BY id ASC
-                    LIMIT 1
-                    """
+                admin_username = (
+                    request.form.get(
+                        "admin_username",
+                        ""
+                    ).strip()
                 )
 
-                existing_settings = cur.fetchone()
+                admin_password = (
+                    request.form.get(
+                        "admin_password",
+                        ""
+                    ).strip()
+                )
+
+                confirm_admin_password = (
+                    request.form.get(
+                        "confirm_admin_password",
+                        ""
+                    ).strip()
+                )
+
+
+                # =================================================
+                # ADMIN USERNAME VALIDATION
+                # =================================================
+
+                if not admin_username:
+
+                    flash(
+                        "Admin username cannot be empty.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("admin_settings")
+                    )
+
+
+                # =================================================
+                # ADMIN PASSWORD
+                # =================================================
+
+                admin_password_hash = None
+
+                if admin_password:
+
+                    if len(admin_password) < 6:
+
+                        flash(
+                            "Admin password must contain at least 6 characters.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    if (
+                        admin_password
+                        != confirm_admin_password
+                    ):
+
+                        flash(
+                            "Admin passwords do not match.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    admin_password_hash = (
+                        generate_password_hash(
+                            admin_password
+                        )
+                    )
 
 
                 # =================================================
@@ -3921,19 +4000,24 @@ def admin_settings():
 
                 logo_filename = None
 
-                logo_file = request.files.get("logo")
+                logo_file = request.files.get(
+                    "logo"
+                )
 
 
-                if logo_file and logo_file.filename:
+                if (
+                    logo_file
+                    and logo_file.filename
+                ):
 
                     original_filename = (
                         logo_file.filename.strip()
                     )
 
 
-                    # -------------------------------------------------
-                    # ALLOWED EXTENSIONS
-                    # -------------------------------------------------
+                    # =================================================
+                    # ALLOWED LOGO EXTENSIONS
+                    # =================================================
 
                     allowed_extensions = {
                         "png",
@@ -3976,7 +4060,7 @@ def admin_settings():
 
 
                     # =================================================
-                    # CREATE UPLOAD DIRECTORY
+                    # UPLOAD DIRECTORY
                     # =================================================
 
                     upload_folder = os.path.join(
@@ -3985,6 +4069,7 @@ def admin_settings():
                         "uploads"
                     )
 
+
                     os.makedirs(
                         upload_folder,
                         exist_ok=True
@@ -3992,10 +4077,8 @@ def admin_settings():
 
 
                     # =================================================
-                    # CREATE UNIQUE FILE NAME
+                    # UNIQUE LOGO NAME
                     # =================================================
-
-                    import uuid
 
                     logo_filename = (
                         "company_logo_"
@@ -4012,7 +4095,7 @@ def admin_settings():
 
 
                     # =================================================
-                    # SAVE LOGO FILE
+                    # SAVE NEW LOGO
                     # =================================================
 
                     logo_file.save(
@@ -4056,91 +4139,14 @@ def admin_settings():
 
 
                 # =================================================
-                # UPDATE EXISTING SETTINGS
-                # =================================================
-
-                if existing_settings:
-
-                    settings_id = (
-                        existing_settings["id"]
-                    )
-
-
-                    # -------------------------------------------------
-                    # UPDATE INCLUDING NEW LOGO
-                    # -------------------------------------------------
-
-                    if logo_filename:
-
-                        cur.execute(
-                            """
-                            UPDATE company_settings
-                            SET
-                                company_name = %s,
-                                company_email = %s,
-                                company_phone = %s,
-                                company_address = %s,
-                                company_website = %s,
-                                footer_text = %s,
-                                application_status = %s,
-                                application_deadline = %s,
-                                logo = %s
-                            WHERE id = %s
-                            """,
-                            (
-                                company_name,
-                                company_email,
-                                company_phone,
-                                company_address,
-                                company_website,
-                                footer_text,
-                                application_status,
-                                application_deadline,
-                                logo_filename,
-                                settings_id
-                            )
-                        )
-
-
-                    # -------------------------------------------------
-                    # UPDATE WITHOUT CHANGING LOGO
-                    # -------------------------------------------------
-
-                    else:
-
-                        cur.execute(
-                            """
-                            UPDATE company_settings
-                            SET
-                                company_name = %s,
-                                company_email = %s,
-                                company_phone = %s,
-                                company_address = %s,
-                                company_website = %s,
-                                footer_text = %s,
-                                application_status = %s,
-                                application_deadline = %s
-                            WHERE id = %s
-                            """,
-                            (
-                                company_name,
-                                company_email,
-                                company_phone,
-                                company_address,
-                                company_website,
-                                footer_text,
-                                application_status,
-                                application_deadline,
-                                settings_id
-                            )
-                        )
-
-
-                # =================================================
                 # CREATE SETTINGS IF NONE EXIST
                 # =================================================
 
-                else:
+                if not existing_settings:
+
+                    # -------------------------------------------------
+                    # CREATE NEW SETTINGS
+                    # -------------------------------------------------
 
                     cur.execute(
                         """
@@ -4154,10 +4160,14 @@ def admin_settings():
                             footer_text,
                             application_status,
                             application_deadline,
-                            logo
+                            logo,
+                            admin_username,
+                            admin_password_hash
                         )
                         VALUES
                         (
+                            %s,
+                            %s,
                             %s,
                             %s,
                             %s,
@@ -4178,13 +4188,114 @@ def admin_settings():
                             footer_text,
                             application_status,
                             application_deadline,
-                            logo_filename
+                            logo_filename,
+                            admin_username,
+                            admin_password_hash
                         )
                     )
 
 
                 # =================================================
-                # COMMIT TO POSTGRESQL
+                # UPDATE EXISTING SETTINGS
+                # =================================================
+
+                else:
+
+                    settings_id = (
+                        existing_settings["id"]
+                    )
+
+
+                    # -------------------------------------------------
+                    # UPDATE COMPANY INFORMATION
+                    # -------------------------------------------------
+
+                    if logo_filename:
+
+                        cur.execute(
+                            """
+                            UPDATE company_settings
+                            SET
+                                company_name = %s,
+                                company_email = %s,
+                                company_phone = %s,
+                                company_address = %s,
+                                company_website = %s,
+                                footer_text = %s,
+                                application_status = %s,
+                                application_deadline = %s,
+                                logo = %s,
+                                admin_username = %s
+                            WHERE id = %s
+                            """,
+                            (
+                                company_name,
+                                company_email,
+                                company_phone,
+                                company_address,
+                                company_website,
+                                footer_text,
+                                application_status,
+                                application_deadline,
+                                logo_filename,
+                                admin_username,
+                                settings_id
+                            )
+                        )
+
+                    else:
+
+                        cur.execute(
+                            """
+                            UPDATE company_settings
+                            SET
+                                company_name = %s,
+                                company_email = %s,
+                                company_phone = %s,
+                                company_address = %s,
+                                company_website = %s,
+                                footer_text = %s,
+                                application_status = %s,
+                                application_deadline = %s,
+                                admin_username = %s
+                            WHERE id = %s
+                            """,
+                            (
+                                company_name,
+                                company_email,
+                                company_phone,
+                                company_address,
+                                company_website,
+                                footer_text,
+                                application_status,
+                                application_deadline,
+                                admin_username,
+                                settings_id
+                            )
+                        )
+
+
+                    # -------------------------------------------------
+                    # UPDATE PASSWORD ONLY IF NEW PASSWORD ENTERED
+                    # -------------------------------------------------
+
+                    if admin_password_hash:
+
+                        cur.execute(
+                            """
+                            UPDATE company_settings
+                            SET admin_password_hash = %s
+                            WHERE id = %s
+                            """,
+                            (
+                                admin_password_hash,
+                                settings_id
+                            )
+                        )
+
+
+                # =================================================
+                # COMMIT
                 # =================================================
 
                 conn.commit()
@@ -4195,7 +4306,7 @@ def admin_settings():
                 # =================================================
 
                 flash(
-                    "Company settings updated successfully.",
+                    "Settings updated successfully.",
                     "success"
                 )
 
@@ -4206,7 +4317,7 @@ def admin_settings():
 
 
             # =================================================
-            # GET - LOAD CURRENT SETTINGS
+            # GET - LOAD SETTINGS
             # =================================================
 
             cur.execute(
@@ -4222,10 +4333,6 @@ def admin_settings():
 
 
     except Exception:
-
-        # =====================================================
-        # ROLLBACK IF ANYTHING FAILS
-        # =====================================================
 
         conn.rollback()
 
@@ -4248,15 +4355,13 @@ def admin_settings():
 
 
     # =========================================================
-    # RENDER SETTINGS PAGE
+    # RENDER SETTINGS
     # =========================================================
 
     return render_template(
         "admin_settings.html",
         settings=settings
     )
-
-
 
 
 @app.route("/admin/download-file/<path:filename>")
