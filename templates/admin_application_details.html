@@ -851,46 +851,28 @@
                     {% if application.cv_filename %}
 
                         <a
-                            href="{{ url_for(
-                                'admin_download_file',
-                                filename=application.cv_filename
-                            ) }}"
-                            class="document-link"
-                        >
-
-                            <span>
-                                CV
-                            </span>
-
-                            <strong>
-                                Download
-                            </strong>
-
+    href="{{ url_for(
+        'admin_download_file',
+        filename=application.cv_filename
+    ) }}"
+    class="document-link"
+>
+    📄 Download CV
                         </a>
-
                     {% endif %}
 
 
                     {% if application.qualification_filename %}
 
                         <a
-                            href="{{ url_for(
-                                'admin_download_file',
-                                filename=application.qualification_filename
-                            ) }}"
-                            class="document-link"
-                        >
-
-                            <span>
-                                Qualification / Result
-                            </span>
-
-                            <strong>
-                                Download
-                            </strong>
-
+    href="{{ url_for(
+        'admin_download_file',
+        filename=application.qualification_filename
+    ) }}"
+    class="document-link"
+>
+    📄 Download Qualification
                         </a>
-
                     {% endif %}
 
 <a
