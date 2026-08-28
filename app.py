@@ -14,6 +14,10 @@ from flask import (
     url_for,
     flash
 )
+from datetime import datetime
+
+current_time = datetime.now()
+
 from flask import (
     Flask,
     render_template,
@@ -225,6 +229,17 @@ def home():
         "home.html"
     )
 
+@app.context_processor
+def utility_processor():
+
+    def endpoint_exists(endpoint):
+
+        return endpoint in app.view_functions
+
+    return {
+        "endpoint_exists": endpoint_exists
+    }
+    
 @app.route("/setup-admin")
 def setup_admin():
 
