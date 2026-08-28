@@ -7000,104 +7000,91 @@ def download_applicant_biodata(application_id):
     # =========================================================
     # APPLICATION INFORMATION
     # =========================================================
-# APPLICATION INFORMATION
-# =========================================================
+    # =========================================================
+    # APPLICATION INFORMATION
+    # =========================================================
 
-section_header(
-    "APPLICATION INFORMATION"
-)
+    section_header(
+        "APPLICATION INFORMATION"
+    )
 
-information_table(
-    [
-        (
-            "Application Number",
-            value("application_number")
-        ),
-
-        (
-            "Position Applied For",
-            value("position_applied")
-        ),
-
-        (
-            "Application Date",
-            value("created_at")
-        ),
-
-        (
-            "Application Status",
-            value(
-                "status",
-                "Pending"
+    information_table(
+        [
+            (
+                "Application Number",
+                value("application_number")
+            ),
+            (
+                "Position Applied For",
+                value("position_applied")
+            ),
+            (
+                "Application Date",
+                value("created_at")
+            ),
+            (
+                "Application Status",
+                value(
+                    "status",
+                    "Pending"
+                )
             )
-        )
-    ]
-)
+        ]
+    )
 
 
-# =========================================================
-# PERSONAL INFORMATION
-# =========================================================
+    # =========================================================
+    # PERSONAL INFORMATION
+    # =========================================================
 
-section_header(
-    "PERSONAL INFORMATION"
-)
+    section_header(
+        "PERSONAL INFORMATION"
+    )
 
-full_name = " ".join(
-    part
-    for part in [
-        applicant["first_name"] or "",
-        applicant["middle_name"] or "",
-        applicant["last_name"] or ""
-    ]
-    if str(part).strip()
-)
-
-
-information_table(
-    [
-        (
-            "Full Name",
-            full_name or "—"
-        ),
-
-        (
-            "Gender",
-            value("gender")
-        ),
-
-        (
-            "Date of Birth",
-            value("date_of_birth")
-        ),
-
-        (
-            "Phone Number",
-            value("phone")
-        ),
-
-        (
-            "Email Address",
-            value("email")
-        ),
-
-        (
-            "Residential Address",
-            value("address")
-        ),
-
-        (
-            "State",
-            value("state")
-        ),
-
-        (
-            "Local Government Area",
-            value("lga")
-        )
-    ]
-)
-                 
+    information_table(
+        [
+            (
+                "Full Name",
+                " ".join(
+                    str(part).strip()
+                    for part in [
+                        applicant["first_name"] or "",
+                        applicant["middle_name"] or "",
+                        applicant["last_name"] or ""
+                    ]
+                    if str(part).strip()
+                )
+            ),
+            (
+                "Gender",
+                value("gender")
+            ),
+            (
+                "Date of Birth",
+                value("date_of_birth")
+            ),
+            (
+                "Phone Number",
+                value("phone")
+            ),
+            (
+                "Email Address",
+                value("email")
+            ),
+            (
+                "Residential Address",
+                value("address")
+            ),
+            (
+                "State",
+                value("state")
+            ),
+            (
+                "Local Government Area",
+                value("lga")
+            )
+        ]
+    )
     # =========================================================
     # EDUCATION & QUALIFICATION
     # =========================================================
