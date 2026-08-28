@@ -32,103 +32,93 @@
 <body>
 
 
-<!-- =========================================================
-     PUBLIC / AUTHENTICATION PAGES
-     ========================================================= -->
+<!-- =====================================================
+     PUBLIC HEADER
+     SHOWN ONLY BEFORE LOGIN
+     ===================================================== -->
 
 {% if not session.get("admin_logged_in")
    and not session.get("applicant_logged_in") %}
 
+<header class="public-header">
 
-    <!-- PUBLIC HEADER -->
+    <div class="public-header-inner">
 
-    <header class="public-header">
 
-        <div class="public-header-inner">
+        <!-- BRAND -->
+
+        <a
+            href="{{ url_for('home') }}"
+            class="brand"
+        >
+
+            <div class="brand-logo">
+                AV
+            </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    AV KING
+                </strong>
+
+                <span>
+                    RECRUITMENT
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <!-- PUBLIC NAVIGATION -->
+
+        <nav class="public-nav">
 
             <a
                 href="{{ url_for('home') }}"
-                class="brand"
             >
-
-                <div class="brand-logo">
-                    AV
-                </div>
-
-                <div class="brand-text">
-
-                    <strong>
-                        AV KING
-                    </strong>
-
-                    <span>
-                        RECRUITMENT
-                    </span>
-
-                </div>
-
+                Home
             </a>
 
 
-            <nav class="public-nav">
-
-                <a
-                    href="{{ url_for('home') }}"
-                >
-                    Home
-                </a>
+            <a
+                href="{{ url_for('apply') }}"
+            >
+                Apply
+            </a>
 
 
-                {% if 'apply' in endpoint_names %}
-
-                    <a
-                        href="{{ url_for('apply') }}"
-                    >
-                        Apply
-                    </a>
-
-                {% endif %}
+            <a
+                href="{{ url_for('applicant_login') }}"
+            >
+                Applicant Login
+            </a>
 
 
-                {% if 'applicant_login' in endpoint_names %}
+            <a
+                href="{{ url_for('admin_login') }}"
+            >
+                Admin Login
+            </a>
 
-                    <a
-                        href="{{ url_for('applicant_login') }}"
-                    >
-                        Applicant Login
-                    </a>
-
-                {% endif %}
+        </nav>
 
 
-                {% if 'admin_login' in endpoint_names %}
+    </div>
 
-                    <a
-                        href="{{ url_for('admin_login') }}"
-                    >
-                        Admin
-                    </a>
-
-                {% endif %}
-
-            </nav>
-
-        </div>
-
-    </header>
-
+</header>
 
 {% endif %}
 
 
 
-<!-- =========================================================
-     ADMIN NAVIGATION
-     ONLY VISIBLE AFTER ADMIN LOGIN
-     ========================================================= -->
+<!-- =====================================================
+     ADMIN HEADER
+     ONLY AFTER ADMIN LOGIN
+     ===================================================== -->
 
 {% if session.get("admin_logged_in") %}
-
 
 <header class="admin-header">
 
@@ -161,11 +151,9 @@
         </a>
 
 
-
-        <!-- ADMIN NAVIGATION -->
+        <!-- ADMIN NAV -->
 
         <nav class="admin-nav">
-
 
             <a
                 href="{{ url_for('admin_dashboard') }}"
@@ -183,40 +171,19 @@
             </a>
 
 
-            {% if 'admin_interviews' in endpoint_names %}
-
-                <a
-                    href="{{ url_for('admin_interviews') }}"
-                    class="{% if request.endpoint == 'admin_interviews' %}active{% endif %}"
-                >
-                    Interviews
-                </a>
-
-            {% endif %}
+            <a href="#">
+                Interviews
+            </a>
 
 
-            {% if 'admin_reports' in endpoint_names %}
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="{% if request.endpoint == 'admin_reports' %}active{% endif %}"
-                >
-                    Reports
-                </a>
-
-            {% endif %}
+            <a href="#">
+                Reports
+            </a>
 
 
-            {% if 'admin_settings' in endpoint_names %}
-
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="{% if request.endpoint == 'admin_settings' %}active{% endif %}"
-                >
-                    Settings
-                </a>
-
-            {% endif %}
+            <a href="#">
+                Settings
+            </a>
 
 
             <a
@@ -244,10 +211,18 @@
 
             </div>
 
+
             <div class="account-info">
 
                 <strong>
-                    {{ session.get("admin_name", "Administrator") }}
+
+                    {{
+                        session.get(
+                            "admin_name",
+                            "Administrator"
+                        )
+                    }}
+
                 </strong>
 
                 <span>
@@ -263,18 +238,16 @@
 
 </header>
 
-
 {% endif %}
 
 
 
-<!-- =========================================================
-     APPLICANT NAVIGATION
-     ONLY VISIBLE AFTER APPLICANT LOGIN
-     ========================================================= -->
+<!-- =====================================================
+     APPLICANT HEADER
+     ONLY AFTER APPLICANT LOGIN
+     ===================================================== -->
 
 {% if session.get("applicant_logged_in") %}
-
 
 <header class="applicant-header">
 
@@ -321,38 +294,27 @@
             </a>
 
 
-            {% if 'applicant_messages' in endpoint_names %}
+            <a
+                href="{{ url_for('applicant_messages') }}"
+                class="{% if request.endpoint == 'applicant_messages' %}active{% endif %}"
+            >
 
-                <a
-                    href="{{ url_for('applicant_messages') }}"
-                    class="{% if request.endpoint == 'applicant_messages' %}active{% endif %}"
-                >
+                Messages
 
-                    Messages
+                {% if unread_count is defined and unread_count > 0 %}
 
-                    {% if unread_count is defined and unread_count > 0 %}
+                    <span class="notification-count">
+                        {{ unread_count }}
+                    </span>
 
-                        <span class="notification-count">
-                            {{ unread_count }}
-                        </span>
+                {% endif %}
 
-                    {% endif %}
-
-                </a>
-
-            {% endif %}
+            </a>
 
 
-            {% if 'applicant_profile' in endpoint_names %}
-
-                <a
-                    href="{{ url_for('applicant_profile') }}"
-                    class="{% if request.endpoint == 'applicant_profile' %}active{% endif %}"
-                >
-                    My Profile
-                </a>
-
-            {% endif %}
+            <a href="#">
+                My Profile
+            </a>
 
 
             <a
@@ -362,6 +324,7 @@
                 Sign Out
             </a>
 
+
         </nav>
 
 
@@ -370,24 +333,33 @@
 
         <div class="header-account">
 
+
             <div class="account-avatar">
 
-                {{
-                    application.first_name[0]|upper
-                    if application is defined
-                    and application.first_name
-                    else "A"
-                }}
+                {% if application is defined
+                      and application.first_name %}
+
+                    {{ application.first_name[0]|upper }}
+
+                {% else %}
+
+                    A
+
+                {% endif %}
 
             </div>
+
 
             <div class="account-info">
 
                 {% if application is defined %}
 
                     <strong>
+
                         {{ application.first_name }}
+
                         {{ application.last_name }}
+
                     </strong>
 
                 {% else %}
@@ -397,6 +369,7 @@
                     </strong>
 
                 {% endif %}
+
 
                 <span>
                     Applicant
@@ -411,32 +384,31 @@
 
 </header>
 
-
 {% endif %}
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      FLASH MESSAGES
-     ========================================================= -->
+     ===================================================== -->
 
 <div class="flash-container">
 
-    {% with messages = get_flashed_messages(
-        with_categories=true
-    ) %}
+    {% with flash_messages =
+        get_flashed_messages(
+            with_categories=true
+        )
+    %}
 
-        {% if messages %}
+        {% if flash_messages %}
 
-            {% for category, message in messages %}
+            {% for category, message in flash_messages %}
 
                 <div
                     class="flash-message flash-{{ category }}"
                 >
 
-                    <span>
-                        {{ message }}
-                    </span>
+                    {{ message }}
 
                 </div>
 
@@ -450,9 +422,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      MAIN CONTENT
-     ========================================================= -->
+     ===================================================== -->
 
 <main class="main-content">
 
@@ -464,9 +436,9 @@
 
 
 
-<!-- =========================================================
+<!-- =====================================================
      FOOTER
-     ========================================================= -->
+     ===================================================== -->
 
 <footer class="site-footer">
 
@@ -487,10 +459,7 @@
 
         <div>
 
-            © {{ current_year|default(2026) }}
-
-            AV KING Vet Drug Venture.
-
+            © 2026 AV KING Vet Drug Venture.
             All rights reserved.
 
         </div>
@@ -501,9 +470,9 @@
 
 
 
-<!-- =========================================================
-     JAVASCRIPT
-     ========================================================= -->
+<!-- =====================================================
+     PAGE-SPECIFIC JAVASCRIPT
+     ===================================================== -->
 
 {% block scripts %}
 
@@ -512,4 +481,4 @@
 
 </body>
 
-    </html>
+</html>
