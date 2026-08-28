@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+         ===================================================== -->
+
+    <div class="admin-page-header">
+
+        <div>
+
+            <span class="admin-page-eyebrow">
+                STAFF MANAGEMENT
+            </span>
+
+            <h1>
+                Attendance
+            </h1>
+
+            <p>
+                Monitor employee attendance, working hours,
+                and location verification.
+            </p>
+
+        </div>
+
+
+        <div class="admin-header-actions">
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="admin-secondary-btn"
+            >
+                ← Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUMMARY
+         ===================================================== -->
+
+    <div class="application-summary-grid">
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                #
+            </div>
+
+            <div>
+
+                <span>
+                    Approved Staff
+                </span>
+
+                <strong>
+                    {{ approved_workers }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                ✓
+            </div>
+
+            <div>
+
+                <span>
+                    Clocked In
+                </span>
+
+                <strong>
+                    {{ summary.clocked_in or 0 }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                →
+            </div>
+
+            <div>
+
+                <span>
+                    Clocked Out
+                </span>
+
+                <strong>
+                    {{ summary.clocked_out or 0 }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                A
+            </div>
+
+            <div>
+
+                <span>
+                    Absent
+                </span>
+
+                <strong>
+                    {{ absent_count }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="application-summary-card">
+
+            <div class="summary-card-icon">
+                H
+            </div>
+
+            <div>
+
+                <span>
+                    Total Hours
+                </span>
+
+                <strong>
+                    {{ "%.2f"|format(summary.total_hours or 0) }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTERS
+         ===================================================== -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    ATTENDANCE SEARCH
+                </span>
+
+                <h2>
+                    Attendance Records
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin_attendance') }}"
+            class="applications-filter-form"
+        >
+
+            <div class="filter-field">
+
+                <label for="date">
+                    Attendance Date
+                </label>
+
+                <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value="{{ selected_date }}"
+                >
+
+            </div>
+
+
+            <div class="filter-field search-field">
+
+                <label for="search">
+                    Search Employee
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Name, application number, phone or email"
+                >
+
+            </div>
+
+
+            <div class="filter-field">
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select
+                    id="status"
+                    name="status"
+                >
+
+                    <option value="">
+                        All Statuses
+                    </option>
+
+                    <option
+                        value="Present"
+                        {% if selected_status == "Present" %}
+                            selected
+                        {% endif %}
+                    >
+                        Present
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="admin-primary-btn"
+                >
+                    View Attendance
+                </button>
+
+
+                <a
+                    href="{{ url_for('admin_attendance') }}"
+                    class="admin-secondary-btn"
+                >
+                    Today
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         ATTENDANCE TABLE
+         ===================================================== -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>
+                    DAILY ATTENDANCE
+                </span>
+
+                <h2>
+                    {{ selected_date }}
+                </h2>
+
+            </div>
+
+            <div class="application-count">
+
+                {{ attendance_records|length }}
+                record{% if attendance_records|length != 1 %}s{% endif %}
+
+            </div>
+
+        </div>
+
+
+        {% if attendance_records %}
+
+        <div class="table-wrapper">
+
+            <table class="admin-table applications-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Employee
+                        </th>
+
+                        <th>
+                            Application No.
+                        </th>
+
+                        <th>
+                            Position
+                        </th>
+
+                        <th>
+                            Clock In
+                        </th>
+
+                        <th>
+                            Clock Out
+                        </th>
+
+                        <th>
+                            Hours
+                        </th>
+
+                        <th>
+                            Location
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for record in attendance_records %}
+
+                    <tr>
+
+                        <!-- EMPLOYEE -->
+
+                        <td>
+
+                            <div class="applicant-cell">
+
+                                <div class="applicant-avatar">
+
+                                    {{
+                                        (
+                                            record.first_name[:1]
+                                            ~
+                                            record.last_name[:1]
+                                        )|upper
+                                    }}
+
+                                </div>
+
+
+                                <div>
+
+                                    <strong>
+
+                                        {{ record.first_name }}
+
+                                        {% if record.middle_name %}
+                                            {{ record.middle_name }}
+                                        {% endif %}
+
+                                        {{ record.last_name }}
+
+                                    </strong>
+
+                                    <small>
+                                        {{ record.email or "No email" }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- APPLICATION NUMBER -->
+
+                        <td>
+
+                            <strong>
+                                {{ record.application_number }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- POSITION -->
+
+                        <td>
+
+                            {{ record.position_applied or "—" }}
+
+                        </td>
+
+
+                        <!-- CLOCK IN -->
+
+                        <td>
+
+                            {% if record.clock_in %}
+
+                                <div class="date-cell">
+
+                                    <strong>
+                                        {{ record.clock_in.strftime(
+                                            "%I:%M %p"
+                                        ) }}
+                                    </strong>
+
+                                </div>
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- CLOCK OUT -->
+
+                        <td>
+
+                            {% if record.clock_out %}
+
+                                <div class="date-cell">
+
+                                    <strong>
+                                        {{ record.clock_out.strftime(
+                                            "%I:%M %p"
+                                        ) }}
+                                    </strong>
+
+                                </div>
+
+                            {% else %}
+
+                                <span>
+                                    Not clocked out
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- HOURS -->
+
+                        <td>
+
+                            {% if record.total_hours %}
+
+                                <strong>
+                                    {{ record.total_hours }} hrs
+                                </strong>
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- LOCATION -->
+
+                        <td>
+
+                            {% if
+                                record.clock_in_location_verified
+                                and record.clock_out_location_verified
+                            %}
+
+                                <span class="application-status application-status-approved">
+                                    ✓ Verified
+                                </span>
+
+                            {% elif record.clock_in_location_verified %}
+
+                                <span class="application-status application-status-review">
+                                    Clock-in Verified
+                                </span>
+
+                            {% else %}
+
+                                <span class="application-status application-status-rejected">
+                                    Not Verified
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            <span class="application-status application-status-approved">
+                                {{ record.status or "Present" }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <!-- =================================================
+             EMPTY STATE
+             ================================================= -->
+
+        <div class="applications-empty-state">
+
+            <div class="empty-state-icon">
+                ◷
+            </div>
+
+            <h3>
+                No Attendance Records
+            </h3>
+
+            <p>
+                There are no attendance records matching
+                your selected date and filters.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
