@@ -710,6 +710,92 @@ def init_db():
                 """
             )
 
+        # =========================================================
+        # ATTENDANCE TIME SETTINGS
+        # =========================================================
+        
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_in_start
+                TIME DEFAULT '06:00:00'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_in_end
+                TIME DEFAULT '10:00:00'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_out_start
+                TIME DEFAULT '15:00:00'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_out_end
+                TIME DEFAULT '23:00:00'
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS late_after_minutes
+                INTEGER DEFAULT 15
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS early_before_minutes
+                INTEGER DEFAULT 15
+                """
+            )
+            # =========================================================
+            # ATTENDANCE GPS SETTINGS
+            # =========================================================
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_enabled
+                BOOLEAN DEFAULT TRUE
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_latitude
+                DOUBLE PRECISION
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_longitude
+                DOUBLE PRECISION
+                """
+            )
+            
+            cur.execute(
+                """
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_radius
+                INTEGER DEFAULT 200
+                """
+            )
     # =========================================================
     # SAVE CHANGES
     # =========================================================
