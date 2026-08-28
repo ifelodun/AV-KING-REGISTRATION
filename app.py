@@ -11923,38 +11923,53 @@ def applicant_attendance():
 # APPLICANT CLOCK IN
 # ============================================================
 # =========================================================
-# APPLICANT CLOCK-IN
+# APPLICANT CLOCK IN
 # =========================================================
+
 @app.route(
     "/applicant/attendance/clock-in",
     methods=["POST"]
 )
 def applicant_clock_in():
 
+    # =====================================================
+    # AUTHENTICATION
+    # =====================================================
+
     applicant_id = session.get("applicant_id")
 
     if not applicant_id:
+
         return jsonify({
             "success": False,
-            "message": "Your session has expired. Please log in again."
+            "message": "Your applicant session has expired. Please log in again."
         }), 401
 
 
-    # =========================================================
-    # GET GPS LOCATION
-    # =========================================================
+    # =====================================================
+    # GET GPS COORDINATES
+    # =====================================================
+
+    latitude_raw = request.form.get(
+        "latitude",
+        ""
+    ).strip()
+
+    longitude_raw = request.form.get(
+        "longitude",
+        ""
+    ).strip()
+
 
     try:
 
-        latitude = float(
-            request.form.get("latitude", "")
-        )
+        latitude = float(latitude_raw)
+        longitude = float(longitude_raw)
 
-        longitude = float(
-            request.form.get("longitude", "")
-        )
-
-    except (ValueError, TypeError):
+    except (
+        ValueError,
+        TypeError
+    ):
 
         return jsonify({
             "success": False,
@@ -11962,27 +11977,32 @@ def applicant_clock_in():
         }), 400
 
 
-    # =========================================================
+    # =====================================================
     # VALIDATE GPS VALUES
-    # =========================================================
+    # =====================================================
 
-    if not (-90 <= latitude <= 90):
+    if not (
+        -90 <= latitude <= 90
+    ):
 
         return jsonify({
             "success": False,
-            "message": "Invalid latitude."
+            "message": "Invalid latitude received from your device."
         }), 400
 
 
-    if not (-180 <= longitude <= 180):
+    if not (
+        -180 <= longitude <= 180
+    ):
 
         return jsonify({
             "success": False,
-            "message": "Invalid longitude."
+            "message": "Invalid longitude received from your device."
         }), 400
 
 
     conn = get_db()
+
 
     try:
 
@@ -12000,11 +12020,16 @@ def applicant_clock_in():
                     last_name,
                     status,
                     portal_active
+
                 FROM applications
+
                 WHERE id = %s
+
                 LIMIT 1
                 """,
-                (applicant_id,)
+                (
+                    applicant_id,
+                )
             )
 
             applicant = cur.fetchone()
@@ -12019,7 +12044,7 @@ def applicant_clock_in():
 
 
             # =================================================
-            # APPROVAL
+            # APPROVAL CHECK
             # =================================================
 
             if str(
@@ -12033,7 +12058,7 @@ def applicant_clock_in():
 
 
             # =================================================
-            # PORTAL ACTIVE
+            # PORTAL CHECK
             # =================================================
 
             if not applicant["portal_active"]:
@@ -12045,7 +12070,7 @@ def applicant_clock_in():
 
 
             # =================================================
-            # COMPANY SETTINGS
+            # GET COMPANY ATTENDANCE SETTINGS
             # =================================================
 
             cur.execute(
@@ -12056,9 +12081,16 @@ def applicant_clock_in():
                     company_longitude,
                     attendance_radius,
                     clock_in_start,
-                    clock_in_end
+                    clock_in_end,
+                    clock_out_start,
+                    clock_out_end,
+                    late_after_minutes,
+                    early_before_minutes
+
                 FROM company_settings
+
                 ORDER BY id ASC
+
                 LIMIT 1
                 """
             )
@@ -12087,7 +12119,7 @@ def applicant_clock_in():
 
 
             # =================================================
-            # COMPANY LOCATION
+            # COMPANY GPS CHECK
             # =================================================
 
             if (
@@ -12099,60 +12131,6 @@ def applicant_clock_in():
                 return jsonify({
                     "success": False,
                     "message": "The company attendance location has not been configured by the administrator."
-                }), 400
-
-
-            # =================================================
-            # CHECK TODAY'S ATTENDANCE
-            # =================================================
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    clock_in,
-                    clock_out
-                FROM attendance
-                WHERE worker_id = %s
-                AND attendance_date = CURRENT_DATE
-                LIMIT 1
-                """,
-                (applicant_id,)
-            )
-
-            existing = cur.fetchone()
-
-
-            # =================================================
-            # IMPORTANT:
-            # IF CLOCK-IN ALREADY EXISTS, RETURN ACTUAL TIME
-            # =================================================
-
-            if existing and existing["clock_in"]:
-
-                clock_in_value = existing["clock_in"]
-
-                if hasattr(
-                    clock_in_value,
-                    "strftime"
-                ):
-
-                    clock_in_display = clock_in_value.strftime(
-                        "%I:%M %p"
-                    )
-
-                else:
-
-                    clock_in_display = str(
-                        clock_in_value
-                    )
-
-
-                return jsonify({
-                    "success": False,
-                    "already_clocked_in": True,
-                    "message": "You have already clocked in today.",
-                    "clock_in": clock_in_display
                 }), 400
 
 
@@ -12169,12 +12147,13 @@ def applicant_clock_in():
 
 
             radius = int(
-                settings["attendance_radius"] or 200
+                settings["attendance_radius"]
+                or 200
             )
 
 
             # =================================================
-            # LOCATION CHECK
+            # LOCATION VERIFICATION
             # =================================================
 
             if distance > radius:
@@ -12182,15 +12161,87 @@ def applicant_clock_in():
                 return jsonify({
                     "success": False,
                     "message": (
-                        f"You are outside the company attendance area. "
+                        "You are outside the company attendance area. "
                         f"Distance: {round(distance)} metres. "
                         f"Allowed radius: {radius} metres."
-                    )
-                }), 400
+                    ),
+                    "distance": round(distance),
+                    "allowed_radius": radius
+                }), 403
 
 
             # =================================================
-            # SAVE ATTENDANCE
+            # CHECK TODAY'S ATTENDANCE
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    clock_in,
+                    clock_out,
+                    clock_in_location_verified
+
+                FROM attendance
+
+                WHERE worker_id = %s
+
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (
+                    applicant_id,
+                )
+            )
+
+            existing = cur.fetchone()
+
+
+            # =================================================
+            # ALREADY CLOCKED IN
+            # =================================================
+
+            if (
+                existing
+                and existing["clock_in"] is not None
+            ):
+
+                clock_in_value = existing["clock_in"]
+
+
+                # ---------------------------------------------
+                # RETURN EXISTING RECORD
+                # ---------------------------------------------
+
+                if hasattr(
+                    clock_in_value,
+                    "strftime"
+                ):
+
+                    formatted_clock_in = (
+                        clock_in_value.strftime(
+                            "%I:%M %p"
+                        )
+                    )
+
+                else:
+
+                    formatted_clock_in = str(
+                        clock_in_value
+                    )
+
+
+                return jsonify({
+                    "success": False,
+                    "already_clocked_in": True,
+                    "message": "You have already clocked in today.",
+                    "clock_in": formatted_clock_in
+                }), 409
+
+
+            # =================================================
+            # SAVE CLOCK-IN
             # =================================================
 
             if existing:
@@ -12198,15 +12249,21 @@ def applicant_clock_in():
                 cur.execute(
                     """
                     UPDATE attendance
+
                     SET
                         clock_in = CURRENT_TIMESTAMP,
+
                         clock_in_latitude = %s,
+
                         clock_in_longitude = %s,
+
                         clock_in_location_verified = TRUE,
+
                         status = 'Present',
+
                         updated_at = CURRENT_TIMESTAMP
+
                     WHERE id = %s
-                    RETURNING clock_in
                     """,
                     (
                         latitude,
@@ -12214,6 +12271,7 @@ def applicant_clock_in():
                         existing["id"]
                     )
                 )
+
 
             else:
 
@@ -12228,8 +12286,10 @@ def applicant_clock_in():
                         clock_in_longitude,
                         clock_in_location_verified,
                         status,
+                        created_at,
                         updated_at
                     )
+
                     VALUES
                     (
                         %s,
@@ -12239,9 +12299,9 @@ def applicant_clock_in():
                         %s,
                         TRUE,
                         'Present',
+                        CURRENT_TIMESTAMP,
                         CURRENT_TIMESTAMP
                     )
-                    RETURNING clock_in
                     """,
                     (
                         applicant_id,
@@ -12251,45 +12311,73 @@ def applicant_clock_in():
                 )
 
 
-            saved = cur.fetchone()
+            # =================================================
+            # COMMIT
+            # =================================================
 
             conn.commit()
 
 
             # =================================================
-            # FORMAT SAVED TIME
+            # GET SAVED CLOCK-IN TIME
             # =================================================
 
-            saved_clock_in = saved["clock_in"]
+            cur.execute(
+                """
+                SELECT
+                    clock_in
 
+                FROM attendance
 
-            if hasattr(
-                saved_clock_in,
-                "strftime"
-            ):
+                WHERE worker_id = %s
 
-                clock_in_display = saved_clock_in.strftime(
-                    "%I:%M %p"
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (
+                    applicant_id,
                 )
+            )
+
+            saved = cur.fetchone()
+
+
+            if saved and saved["clock_in"]:
+
+                if hasattr(
+                    saved["clock_in"],
+                    "strftime"
+                ):
+
+                    formatted_clock_in = (
+                        saved["clock_in"].strftime(
+                            "%I:%M %p"
+                        )
+                    )
+
+                else:
+
+                    formatted_clock_in = str(
+                        saved["clock_in"]
+                    )
 
             else:
 
-                clock_in_display = str(
-                    saved_clock_in
-                )
+                formatted_clock_in = ""
 
 
             # =================================================
-            # SUCCESS
+            # SUCCESS JSON RESPONSE
             # =================================================
 
             return jsonify({
                 "success": True,
                 "message": "Clock-in recorded successfully.",
-                "clock_in": clock_in_display,
-                "clock_out": None,
-                "total_hours": 0,
-                "location_verified": True
+                "clock_in": formatted_clock_in,
+                "clock_in_location_verified": True,
+                "distance": round(distance),
+                "allowed_radius": radius
             }), 200
 
 
@@ -12310,17 +12398,21 @@ def applicant_clock_in():
     finally:
 
         conn.close()
-# ============================================================
+
+
+# =========================================================
 # APPLICANT CLOCK OUT
-# ============================================================
 # =========================================================
-# APPLICANT CLOCK-OUT
-# =========================================================
+
 @app.route(
     "/applicant/attendance/clock-out",
     methods=["POST"]
 )
 def applicant_clock_out():
+
+    # =====================================================
+    # AUTHENTICATION
+    # =====================================================
 
     applicant_id = session.get("applicant_id")
 
@@ -12328,25 +12420,34 @@ def applicant_clock_out():
 
         return jsonify({
             "success": False,
-            "message": "Your session has expired. Please log in again."
+            "message": "Your applicant session has expired. Please log in again."
         }), 401
 
 
-    # =========================================================
-    # GET GPS LOCATION
-    # =========================================================
+    # =====================================================
+    # GET GPS COORDINATES
+    # =====================================================
+
+    latitude_raw = request.form.get(
+        "latitude",
+        ""
+    ).strip()
+
+    longitude_raw = request.form.get(
+        "longitude",
+        ""
+    ).strip()
+
 
     try:
 
-        latitude = float(
-            request.form.get("latitude", "")
-        )
+        latitude = float(latitude_raw)
+        longitude = float(longitude_raw)
 
-        longitude = float(
-            request.form.get("longitude", "")
-        )
-
-    except (ValueError, TypeError):
+    except (
+        ValueError,
+        TypeError
+    ):
 
         return jsonify({
             "success": False,
@@ -12354,27 +12455,59 @@ def applicant_clock_out():
         }), 400
 
 
+    # =====================================================
+    # VALIDATE GPS VALUES
+    # =====================================================
+
+    if not (
+        -90 <= latitude <= 90
+    ):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid latitude received from your device."
+        }), 400
+
+
+    if not (
+        -180 <= longitude <= 180
+    ):
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid longitude received from your device."
+        }), 400
+
+
     conn = get_db()
+
 
     try:
 
         with conn.cursor() as cur:
 
             # =================================================
-            # APPLICANT
+            # GET APPLICANT
             # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
+                    first_name,
+                    last_name,
                     status,
                     portal_active
+
                 FROM applications
+
                 WHERE id = %s
+
                 LIMIT 1
                 """,
-                (applicant_id,)
+                (
+                    applicant_id,
+                )
             )
 
             applicant = cur.fetchone()
@@ -12388,6 +12521,10 @@ def applicant_clock_out():
                 }), 404
 
 
+            # =================================================
+            # APPROVAL CHECK
+            # =================================================
+
             if str(
                 applicant["status"]
             ).strip().lower() != "approved":
@@ -12398,6 +12535,10 @@ def applicant_clock_out():
                 }), 403
 
 
+            # =================================================
+            # PORTAL CHECK
+            # =================================================
+
             if not applicant["portal_active"]:
 
                 return jsonify({
@@ -12407,7 +12548,7 @@ def applicant_clock_out():
 
 
             # =================================================
-            # SETTINGS
+            # GET COMPANY SETTINGS
             # =================================================
 
             cur.execute(
@@ -12416,9 +12557,18 @@ def applicant_clock_out():
                     attendance_enabled,
                     company_latitude,
                     company_longitude,
-                    attendance_radius
+                    attendance_radius,
+                    clock_in_start,
+                    clock_in_end,
+                    clock_out_start,
+                    clock_out_end,
+                    late_after_minutes,
+                    early_before_minutes
+
                 FROM company_settings
+
                 ORDER BY id ASC
+
                 LIMIT 1
                 """
             )
@@ -12430,17 +12580,25 @@ def applicant_clock_out():
 
                 return jsonify({
                     "success": False,
-                    "message": "Attendance settings have not been configured."
+                    "message": "Attendance settings have not been configured by the administrator."
                 }), 400
 
+
+            # =================================================
+            # ATTENDANCE ENABLED
+            # =================================================
 
             if not settings["attendance_enabled"]:
 
                 return jsonify({
                     "success": False,
-                    "message": "Attendance is currently disabled."
+                    "message": "Attendance is currently disabled by the administrator."
                 }), 403
 
+
+            # =================================================
+            # COMPANY GPS CHECK
+            # =================================================
 
             if (
                 settings["company_latitude"] is None
@@ -12450,76 +12608,12 @@ def applicant_clock_out():
 
                 return jsonify({
                     "success": False,
-                    "message": "The company attendance location has not been configured."
+                    "message": "The company attendance location has not been configured by the administrator."
                 }), 400
 
 
             # =================================================
-            # TODAY'S ATTENDANCE
-            # =================================================
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    clock_in,
-                    clock_out
-                FROM attendance
-                WHERE worker_id = %s
-                AND attendance_date = CURRENT_DATE
-                LIMIT 1
-                """,
-                (applicant_id,)
-            )
-
-            attendance = cur.fetchone()
-
-
-            if not attendance:
-
-                return jsonify({
-                    "success": False,
-                    "message": "You have not clocked in today."
-                }), 400
-
-
-            if not attendance["clock_in"]:
-
-                return jsonify({
-                    "success": False,
-                    "message": "You must clock in before clocking out."
-                }), 400
-
-
-            if attendance["clock_out"]:
-
-                clock_out_value = attendance["clock_out"]
-
-                if hasattr(
-                    clock_out_value,
-                    "strftime"
-                ):
-
-                    clock_out_display = clock_out_value.strftime(
-                        "%I:%M %p"
-                    )
-
-                else:
-
-                    clock_out_display = str(
-                        clock_out_value
-                    )
-
-
-                return jsonify({
-                    "success": False,
-                    "message": "You have already clocked out today.",
-                    "clock_out": clock_out_display
-                }), 400
-
-
-            # =================================================
-            # LOCATION
+            # CALCULATE DISTANCE
             # =================================================
 
             distance = calculate_distance_meters(
@@ -12531,39 +12625,126 @@ def applicant_clock_out():
 
 
             radius = int(
-                settings["attendance_radius"] or 200
+                settings["attendance_radius"]
+                or 200
             )
 
+
+            # =================================================
+            # LOCATION VERIFICATION
+            # =================================================
 
             if distance > radius:
 
                 return jsonify({
                     "success": False,
                     "message": (
-                        f"You are outside the company attendance area. "
+                        "You are outside the company attendance area. "
                         f"Distance: {round(distance)} metres. "
                         f"Allowed radius: {radius} metres."
-                    )
+                    ),
+                    "distance": round(distance),
+                    "allowed_radius": radius
+                }), 403
+
+
+            # =================================================
+            # GET TODAY'S ATTENDANCE
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    clock_in,
+                    clock_out,
+                    clock_in_location_verified
+
+                FROM attendance
+
+                WHERE worker_id = %s
+
+                AND attendance_date = CURRENT_DATE
+
+                LIMIT 1
+                """,
+                (
+                    applicant_id,
+                )
+            )
+
+            attendance = cur.fetchone()
+
+
+            # =================================================
+            # NO CLOCK-IN
+            # =================================================
+
+            if (
+                not attendance
+                or
+                attendance["clock_in"] is None
+            ):
+
+                return jsonify({
+                    "success": False,
+                    "message": "You must clock in before you can clock out."
                 }), 400
 
 
             # =================================================
-            # UPDATE CLOCK OUT
+            # ALREADY CLOCKED OUT
+            # =================================================
+
+            if attendance["clock_out"] is not None:
+
+                if hasattr(
+                    attendance["clock_out"],
+                    "strftime"
+                ):
+
+                    formatted_clock_out = (
+                        attendance["clock_out"].strftime(
+                            "%I:%M %p"
+                        )
+                    )
+
+                else:
+
+                    formatted_clock_out = str(
+                        attendance["clock_out"]
+                    )
+
+
+                return jsonify({
+                    "success": False,
+                    "already_clocked_out": True,
+                    "message": "You have already clocked out today.",
+                    "clock_out": formatted_clock_out
+                }), 409
+
+
+            # =================================================
+            # SAVE CLOCK-OUT
             # =================================================
 
             cur.execute(
                 """
                 UPDATE attendance
+
                 SET
+
                     clock_out = CURRENT_TIMESTAMP,
+
                     clock_out_latitude = %s,
+
                     clock_out_longitude = %s,
+
                     clock_out_location_verified = TRUE,
+
                     updated_at = CURRENT_TIMESTAMP
+
                 WHERE id = %s
-                RETURNING
-                    clock_in,
-                    clock_out
                 """,
                 (
                     latitude,
@@ -12572,91 +12753,185 @@ def applicant_clock_out():
                 )
             )
 
-            saved = cur.fetchone()
-
 
             # =================================================
-            # CALCULATE HOURS
+            # GET UPDATED ATTENDANCE
             # =================================================
 
             cur.execute(
                 """
                 SELECT
-                    EXTRACT(
-                        EPOCH FROM (
-                            clock_out - clock_in
-                        )
-                    ) / 3600.0 AS total_hours
+                    clock_in,
+                    clock_out
+
                 FROM attendance
+
                 WHERE id = %s
-                """,
-                (attendance["id"],)
-            )
 
-            hours_row = cur.fetchone()
-
-
-            total_hours = float(
-                hours_row["total_hours"] or 0
-            )
-
-
-            # =================================================
-            # SAVE TOTAL HOURS
-            # =================================================
-
-            cur.execute(
-                """
-                UPDATE attendance
-                SET total_hours = %s
-                WHERE id = %s
+                LIMIT 1
                 """,
                 (
-                    round(total_hours, 2),
-                    attendance["id"]
+                    attendance["id"],
                 )
             )
 
+            updated = cur.fetchone()
+
+
+            # =================================================
+            # CALCULATE TOTAL HOURS
+            # =================================================
+
+            total_hours = 0.0
+
+
+            if (
+                updated
+                and
+                updated["clock_in"]
+                and
+                updated["clock_out"]
+            ):
+
+                time_difference = (
+                    updated["clock_out"]
+                    -
+                    updated["clock_in"]
+                )
+
+
+                total_seconds = (
+                    time_difference.total_seconds()
+                )
+
+
+                total_hours = (
+                    total_seconds / 3600
+                )
+
+
+            # =================================================
+            # UPDATE TOTAL HOURS IF COLUMN EXISTS
+            # =================================================
+            #
+            # IMPORTANT:
+            # If your attendance table has a total_hours
+            # column, this will save the calculated value.
+            #
+            # If it does not have the column, remove this
+            # UPDATE section.
+            # =================================================
+
+            try:
+
+                cur.execute(
+                    """
+                    UPDATE attendance
+
+                    SET
+                        total_hours = %s
+
+                    WHERE id = %s
+                    """,
+                    (
+                        round(
+                            total_hours,
+                            2
+                        ),
+                        attendance["id"]
+                    )
+                )
+
+            except Exception:
+
+                # ---------------------------------------------
+                # Do not fail clock-out merely because
+                # total_hours column does not exist.
+                # ---------------------------------------------
+
+                conn.rollback()
+
+                with conn.cursor() as rollback_cur:
+
+                    rollback_cur.execute(
+                        """
+                        UPDATE attendance
+
+                        SET
+                            clock_out = CURRENT_TIMESTAMP,
+
+                            clock_out_latitude = %s,
+
+                            clock_out_longitude = %s,
+
+                            clock_out_location_verified = TRUE,
+
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = %s
+                        """,
+                        (
+                            latitude,
+                            longitude,
+                            attendance["id"]
+                        )
+                    )
+
+
+            # =================================================
+            # COMMIT
+            # =================================================
 
             conn.commit()
 
 
             # =================================================
-            # FORMAT TIME
+            # FORMAT CLOCK-OUT TIME
             # =================================================
 
-            clock_out_value = saved["clock_out"]
-
-
-            if hasattr(
-                clock_out_value,
-                "strftime"
+            if (
+                updated
+                and
+                updated["clock_out"]
             ):
 
-                clock_out_display = clock_out_value.strftime(
-                    "%I:%M %p"
-                )
+                if hasattr(
+                    updated["clock_out"],
+                    "strftime"
+                ):
+
+                    formatted_clock_out = (
+                        updated["clock_out"].strftime(
+                            "%I:%M %p"
+                        )
+                    )
+
+                else:
+
+                    formatted_clock_out = str(
+                        updated["clock_out"]
+                    )
 
             else:
 
-                clock_out_display = str(
-                    clock_out_value
-                )
+                formatted_clock_out = ""
 
 
             # =================================================
-            # SUCCESS
+            # SUCCESS JSON RESPONSE
             # =================================================
 
             return jsonify({
                 "success": True,
                 "message": "Clock-out recorded successfully.",
-                "clock_out": clock_out_display,
+                "clock_out": formatted_clock_out,
                 "total_hours": round(
                     total_hours,
                     2
                 ),
-                "location_verified": True
+                "clock_out_location_verified": True,
+                "distance": round(distance),
+                "allowed_radius": radius
             }), 200
 
 
