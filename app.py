@@ -1,5 +1,6 @@
 import os
 import random
+from urllib.parse import quote
 from io import BytesIO
 import requests
 from datetime import datetime
