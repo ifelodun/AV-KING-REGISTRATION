@@ -3624,109 +3624,15 @@ def admin_settings():
         settings=settings
     )
 
-@app.route(
-    "/admin/applications/<int:application_id>/download/<file_type>"
-)
-def admin_download_file(application_id, file_type):
+@app.route("/admin/download-file/<path:filename>")
+def admin_download_file(filename):
 
     # --------------------------------------------------------
-    # CHECK ADMIN LOGIN
+    # ADMIN LOGIN CHECK
     # --------------------------------------------------------
 
     if not admin_required():
         return redirect(url_for("admin_login"))
-
-
-    # --------------------------------------------------------
-    # ALLOWED FILE TYPES
-    # --------------------------------------------------------
-
-    if file_type not in ["cv", "passport"]:
-        flash(
-            "Invalid document requested.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "admin_application_details",
-                application_id=application_id
-            )
-        )
-
-
-    conn = get_db()
-
-    try:
-
-        with conn.cursor() as cur:
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    cv_filename,
-                    passport_filename
-                FROM applications
-                WHERE id = %s
-                LIMIT 1
-                """,
-                (application_id,)
-            )
-
-            application = cur.fetchone()
-
-    finally:
-
-        conn.close()
-
-
-    # --------------------------------------------------------
-    # APPLICATION NOT FOUND
-    # --------------------------------------------------------
-
-    if not application:
-
-        flash(
-            "Application not found.",
-            "error"
-        )
-
-        return redirect(
-            url_for("admin_applications")
-        )
-
-
-    # --------------------------------------------------------
-    # GET FILE NAME
-    # --------------------------------------------------------
-
-    if file_type == "cv":
-
-        filename = application["cv_filename"]
-
-    else:
-
-        filename = application["passport_filename"]
-
-
-    # --------------------------------------------------------
-    # FILE DOES NOT EXIST IN DATABASE
-    # --------------------------------------------------------
-
-    if not filename:
-
-        flash(
-            "This applicant has not uploaded this document.",
-            "error"
-        )
-
-        return redirect(
-            url_for(
-                "admin_application_details",
-                application_id=application_id
-            )
-        )
 
 
     # --------------------------------------------------------
@@ -3740,14 +3646,14 @@ def admin_download_file(application_id, file_type):
 
 
     # --------------------------------------------------------
-    # REMOVE POSSIBLE PATH INFORMATION
+    # SECURITY
     # --------------------------------------------------------
 
     filename = os.path.basename(filename)
 
 
     # --------------------------------------------------------
-    # CHECK ACTUAL FILE
+    # FULL FILE PATH
     # --------------------------------------------------------
 
     file_path = os.path.join(
@@ -3755,23 +3661,25 @@ def admin_download_file(application_id, file_type):
         filename
     )
 
+
+    # --------------------------------------------------------
+    # CHECK FILE EXISTS
+    # --------------------------------------------------------
+
     if not os.path.isfile(file_path):
 
         flash(
-            "The document could not be found on the server.",
+            "The requested document could not be found.",
             "error"
         )
 
         return redirect(
-            url_for(
-                "admin_application_details",
-                application_id=application_id
-            )
+            url_for("admin_applications")
         )
 
 
     # --------------------------------------------------------
-    # DOWNLOAD FILE
+    # SEND FILE
     # --------------------------------------------------------
 
     return send_from_directory(
