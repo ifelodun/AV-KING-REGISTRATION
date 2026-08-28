@@ -537,8 +537,77 @@ def init_db():
             
                 ALTER TABLE company_settings
                 ADD COLUMN IF NOT EXISTS admin_password_hash TEXT;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_enabled BOOLEAN DEFAULT TRUE;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_latitude DOUBLE PRECISION;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS company_longitude DOUBLE PRECISION;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS attendance_radius INTEGER DEFAULT 100;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_in_start TIME DEFAULT '06:00:00';
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_in_end TIME DEFAULT '10:00:00';
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_out_start TIME DEFAULT '15:00:00';
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS clock_out_end TIME DEFAULT '23:00:00';
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS late_after_minutes INTEGER DEFAULT 15;
+                
+                ALTER TABLE company_settings
+                ADD COLUMN IF NOT EXISTS early_before_minutes INTEGER DEFAULT 15;
                 """
             )
+            -- =========================================================
+            -- ATTENDANCE TABLE
+            -- =========================================================
+            
+            CREATE TABLE IF NOT EXISTS attendance (
+            
+                id BIGSERIAL PRIMARY KEY,
+            
+                application_id BIGINT NOT NULL
+                    REFERENCES applications(id)
+                    ON DELETE CASCADE,
+            
+                attendance_date DATE NOT NULL,
+            
+                clock_in TIMESTAMP,
+                clock_out TIMESTAMP,
+            
+                clock_in_latitude DOUBLE PRECISION,
+                clock_in_longitude DOUBLE PRECISION,
+            
+                clock_out_latitude DOUBLE PRECISION,
+                clock_out_longitude DOUBLE PRECISION,
+            
+                clock_in_distance DOUBLE PRECISION,
+                clock_out_distance DOUBLE PRECISION,
+            
+                clock_in_status VARCHAR(30),
+                clock_out_status VARCHAR(30),
+            
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            
+                CONSTRAINT unique_applicant_attendance_day
+                    UNIQUE (
+                        application_id,
+                        attendance_date
+                    )
+            );
     # =========================================================
     # SAVE CHANGES
     # =========================================================
