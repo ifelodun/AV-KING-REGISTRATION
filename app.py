@@ -5,6 +5,7 @@ import io
 import pandas as pd
 import uuid
 from datetime import datetime
+from flask import jsonify
 from urllib.parse import quote
 from io import BytesIO
 import requests
@@ -10191,27 +10192,42 @@ def applicant_attendance():
 # ============================================================
 # APPLICANT CLOCK IN
 # ============================================================
-
 @app.route(
     "/applicant/attendance/clock-in",
     methods=["POST"]
 )
 def applicant_clock_in():
 
-    applicant_id = session.get(
-        "applicant_id"
-    )
+    # =========================================================
+    # HELPER - RETURN JSON RESPONSE
+    # =========================================================
+
+    def response(success, message, status_code=200):
+
+        return jsonify({
+            "success": success,
+            "message": message
+        }), status_code
+
+
+    # =========================================================
+    # CHECK APPLICANT LOGIN
+    # =========================================================
+
+    applicant_id = session.get("applicant_id")
 
     if not applicant_id:
 
-        return redirect(
-            url_for("applicant_login")
+        return response(
+            False,
+            "Your session has expired. Please log in again.",
+            401
         )
 
 
-    # --------------------------------------------------------
-    # GET GPS LOCATION FROM APPLICANT DEVICE
-    # --------------------------------------------------------
+    # =========================================================
+    # GET GPS LOCATION
+    # =========================================================
 
     try:
 
@@ -10234,13 +10250,27 @@ def applicant_clock_in():
         TypeError
     ):
 
-        flash(
+        return response(
+            False,
             "Unable to determine your location. Please allow location access and try again.",
-            "error"
+            400
         )
 
-        return redirect(
-            url_for("applicant_attendance")
+
+    # =========================================================
+    # BASIC GPS VALIDATION
+    # =========================================================
+
+    if not (
+        -90 <= latitude <= 90
+        and
+        -180 <= longitude <= 180
+    ):
+
+        return response(
+            False,
+            "Invalid location information received from your device.",
+            400
         )
 
 
@@ -10250,14 +10280,16 @@ def applicant_clock_in():
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
+            # =================================================
             # GET APPLICANT
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
+                    first_name,
+                    last_name,
                     status,
                     portal_active
 
@@ -10273,53 +10305,48 @@ def applicant_clock_in():
             applicant = cur.fetchone()
 
 
+            # =================================================
+            # APPLICANT NOT FOUND
+            # =================================================
+
             if not applicant:
 
-                flash(
+                return response(
+                    False,
                     "Applicant account not found.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_login")
+                    404
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
             # APPROVAL CHECK
-            # ------------------------------------------------
+            # =================================================
 
             if applicant["status"] != "Approved":
 
-                flash(
+                return response(
+                    False,
                     "Only approved applicants can clock attendance.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_attendance")
+                    403
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
             # PORTAL CHECK
-            # ------------------------------------------------
+            # =================================================
 
             if not applicant["portal_active"]:
 
-                flash(
+                return response(
+                    False,
                     "Your applicant portal has been disabled.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_login")
+                    403
                 )
 
 
-            # ------------------------------------------------
-            # COMPANY SETTINGS
-            # ------------------------------------------------
+            # =================================================
+            # GET COMPANY ATTENDANCE SETTINGS
+            # =================================================
 
             cur.execute(
                 """
@@ -10342,37 +10369,35 @@ def applicant_clock_in():
             settings = cur.fetchone()
 
 
+            # =================================================
+            # SETTINGS CHECK
+            # =================================================
+
             if not settings:
 
-                flash(
+                return response(
+                    False,
                     "Attendance settings have not been configured by the administrator.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_attendance")
+                    500
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
             # ATTENDANCE ENABLED
-            # ------------------------------------------------
+            # =================================================
 
             if not settings["attendance_enabled"]:
 
-                flash(
+                return response(
+                    False,
                     "Attendance is currently disabled by the administrator.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_attendance")
+                    403
                 )
 
 
-            # ------------------------------------------------
-            # COMPANY GPS MUST EXIST
-            # ------------------------------------------------
+            # =================================================
+            # COMPANY LOCATION CHECK
+            # =================================================
 
             if (
                 settings["company_latitude"] is None
@@ -10380,19 +10405,35 @@ def applicant_clock_in():
                 settings["company_longitude"] is None
             ):
 
-                flash(
-                    "Company attendance location has not been configured.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_attendance")
+                return response(
+                    False,
+                    "The company attendance location has not been configured by the administrator.",
+                    500
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
+            # ATTENDANCE RADIUS
+            # =================================================
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
+
+            if radius <= 0:
+
+                return response(
+                    False,
+                    "The company attendance radius is not configured correctly.",
+                    500
+                )
+
+
+            # =================================================
             # CHECK TODAY'S ATTENDANCE
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -10414,57 +10455,55 @@ def applicant_clock_in():
             existing = cur.fetchone()
 
 
+            # =================================================
+            # DUPLICATE CLOCK-IN PROTECTION
+            # =================================================
+
             if existing and existing["clock_in"]:
 
-                flash(
+                return response(
+                    False,
                     "You have already clocked in today.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_attendance")
+                    409
                 )
 
 
-            # ------------------------------------------------
-            # CALCULATE DISTANCE
-            # ------------------------------------------------
+            # =================================================
+            # CALCULATE DISTANCE FROM COMPANY
+            # =================================================
 
             distance = calculate_distance_meters(
                 latitude,
                 longitude,
-                settings["company_latitude"],
-                settings["company_longitude"]
+                float(
+                    settings["company_latitude"]
+                ),
+                float(
+                    settings["company_longitude"]
+                )
             )
 
 
-            radius = int(
-                settings["attendance_radius"]
-                or 200
-            )
-
-
-            # ------------------------------------------------
-            # LOCATION VERIFICATION
-            # ------------------------------------------------
+            # =================================================
+            # LOCATION ENFORCEMENT
+            # =================================================
 
             if distance > radius:
 
-                flash(
-                    f"You are outside the company attendance area. "
-                    f"Distance: {round(distance)} metres. "
-                    f"Allowed radius: {radius} metres.",
-                    "error"
+                return response(
+                    False,
+                    (
+                        "You are outside the company attendance area. "
+                        f"Your distance is approximately {round(distance)} metres. "
+                        f"The allowed radius is {radius} metres."
+                    ),
+                    403
                 )
 
-                return redirect(
-                    url_for("applicant_attendance")
-                )
 
-
-            # ------------------------------------------------
-            # SAVE CLOCK IN
-            # ------------------------------------------------
+            # =================================================
+            # SAVE CLOCK-IN
+            # =================================================
 
             if existing:
 
@@ -10481,6 +10520,8 @@ def applicant_clock_in():
                         updated_at = CURRENT_TIMESTAMP
 
                     WHERE id = %s
+
+                    AND clock_in IS NULL
                     """,
                     (
                         latitude,
@@ -10488,6 +10529,16 @@ def applicant_clock_in():
                         existing["id"]
                     )
                 )
+
+                if cur.rowcount == 0:
+
+                    conn.rollback()
+
+                    return response(
+                        False,
+                        "You have already clocked in today.",
+                        409
+                    )
 
             else:
 
@@ -10514,6 +10565,15 @@ def applicant_clock_in():
                         TRUE,
                         'Present'
                     )
+
+                    ON CONFLICT (
+                        worker_id,
+                        attendance_date
+                    )
+
+                    DO NOTHING
+
+                    RETURNING id
                     """,
                     (
                         applicant_id,
@@ -10522,13 +10582,44 @@ def applicant_clock_in():
                     )
                 )
 
+                inserted = cur.fetchone()
+
+
+                # =================================================
+                # RACE-CONDITION PROTECTION
+                # =================================================
+
+                if not inserted:
+
+                    conn.rollback()
+
+                    return response(
+                        False,
+                        "You have already clocked in today.",
+                        409
+                    )
+
+
+        # =========================================================
+        # COMMIT
+        # =========================================================
 
         conn.commit()
 
 
-        flash(
-            "Clock-in recorded successfully.",
-            "success"
+        # =========================================================
+        # SUCCESS RESPONSE
+        # =========================================================
+
+        applicant_name = (
+            f"{applicant['first_name']} "
+            f"{applicant['last_name']}"
+        )
+
+
+        return response(
+            True,
+            f"Clock-in recorded successfully for {applicant_name}."
         )
 
 
@@ -10540,21 +10631,16 @@ def applicant_clock_in():
             "Applicant clock-in error"
         )
 
-        flash(
-            "Unable to record clock-in. Please try again.",
-            "error"
+        return response(
+            False,
+            "Unable to record your clock-in. Please try again.",
+            500
         )
 
 
     finally:
 
         conn.close()
-
-
-    return redirect(
-        url_for("applicant_attendance")
-    )
-
 
 # ============================================================
 # APPLICANT CLOCK OUT
