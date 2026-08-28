@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-page">
+
+    <div class="admin-page-header">
+
+        <div>
+            <span class="page-label">
+                RECRUITMENT MANAGEMENT
+            </span>
+
+            <h1>Available Positions</h1>
+
+            <p>
+                Add and manage the positions available to applicants.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-secondary"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- ADD POSITION -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>POSITION MANAGEMENT</span>
+
+                <h2>Add New Position</h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('admin_positions') }}"
+        >
+
+            <div class="settings-grid">
+
+                <div class="form-group">
+
+                    <label for="position_name">
+                        Position Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="position_name"
+                        name="position_name"
+                        placeholder="e.g. Sales Representative"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-actions">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    + Add Position
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- POSITION LIST -->
+
+    <section class="admin-panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <span>AVAILABLE POSITIONS</span>
+
+                <h2>Position List</h2>
+
+            </div>
+
+        </div>
+
+
+        {% if positions %}
+
+            <div class="table-responsive">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>Position</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for position in positions %}
+
+                            <tr>
+
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        {{ position.position_name }}
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    {% if position.is_active %}
+
+                                        <span class="status-badge status-active">
+                                            Active
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="status-badge status-inactive">
+                                            Inactive
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin_toggle_position',
+                                            position_id=position.id
+                                        ) }}"
+                                    >
+
+                                        {% if position.is_active %}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-secondary"
+                                            >
+                                                Disable
+                                            </button>
+
+                                        {% else %}
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                            >
+                                                Activate
+                                            </button>
+
+                                        {% endif %}
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No Positions Available</h3>
+
+                <p>
+                    Add your first recruitment position above.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}
