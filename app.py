@@ -380,14 +380,65 @@ def admin_interviews():
 # ============================================================
 # APPLICATION FORM
 # ============================================================
-# ============================================================
-# APPLICATION FORM
-# ============================================================
 @app.route(
     "/apply",
     methods=["GET", "POST"]
 )
 def apply():
+
+    # ========================================================
+    # CHECK WHETHER APPLICATIONS ARE OPEN
+    # ========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT applications_open
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            if settings:
+                applications_open = bool(
+                    settings["applications_open"]
+                )
+            else:
+                # If no settings record exists,
+                # do not accept applications.
+                applications_open = False
+
+    except Exception:
+
+        app.logger.exception(
+            "Error checking application status"
+        )
+
+        applications_open = False
+
+    finally:
+
+        conn.close()
+
+
+    # ========================================================
+    # APPLICATIONS CLOSED
+    # ========================================================
+
+    if not applications_open:
+
+        return render_template(
+            "applications_closed.html"
+        ), 403
+
 
     # ========================================================
     # DISPLAY APPLICATION FORM
@@ -832,6 +883,37 @@ def apply():
         with conn.cursor() as cur:
 
             # ==================================================
+            # FINAL APPLICATION STATUS CHECK
+            # ==================================================
+            # This prevents someone from submitting an old
+            # application form after the admin has closed it.
+
+            cur.execute(
+                """
+                SELECT applications_open
+                FROM company_settings
+                ORDER BY id ASC
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            if (
+                not settings
+                or not bool(
+                    settings["applications_open"]
+                )
+            ):
+
+                conn.rollback()
+
+                return render_template(
+                    "applications_closed.html"
+                ), 403
+
+
+            # ==================================================
             # APPLICATION NUMBER
             # ==================================================
 
@@ -899,7 +981,6 @@ def apply():
                         UPLOAD_FOLDER,
                         cv_filename
                     )
-                )
 
 
             # ==================================================
@@ -921,7 +1002,6 @@ def apply():
                         UPLOAD_FOLDER,
                         qualification_filename
                     )
-                )
 
 
             # ==================================================
@@ -1095,9 +1175,88 @@ def apply():
             "application_success",
             application_number=application_number
         )
-)
+    )
 
-    
+
+@app.route(
+    "/admin/application_status",
+    methods=["POST"]
+)
+def admin_application_status():
+
+    if session.get("role") != "admin":
+        return redirect("/")
+
+    status = request.form.get(
+        "status",
+        ""
+    ).strip().lower()
+
+    if status not in ["open", "closed"]:
+
+        flash(
+            "Invalid application status.",
+            "error"
+        )
+
+        return redirect(
+            url_for("settings")
+        )
+
+    applications_open = (
+        status == "open"
+    )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE company_settings
+                SET applications_open = %s
+                """,
+                (applications_open,)
+            )
+
+        conn.commit()
+
+        if applications_open:
+
+            flash(
+                "Applications are now OPEN.",
+                "success"
+            )
+
+        else:
+
+            flash(
+                "Applications are now CLOSED.",
+                "success"
+            )
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error updating application status"
+        )
+
+        flash(
+            "Unable to update application status.",
+            "error"
+        )
+
+    finally:
+
+        conn.close()
+
+    return redirect(
+        url_for("settings")
+    )
 
 # ============================================================
 # CREATE INITIAL ADMIN
