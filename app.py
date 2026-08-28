@@ -5994,6 +5994,7 @@ def admin_reports():
         gender_report=gender_report
         )
 
+
 @app.route(
     "/admin/applications/<int:application_id>/biodata/pdf"
 )
@@ -6004,24 +6005,31 @@ def download_applicant_biodata(application_id):
     # =========================================================
 
     if not admin_required():
-        return redirect(url_for("admin_login"))
+        return redirect(
+            url_for("admin_login")
+        )
 
 
     # =========================================================
-    # REPORTLAB IMPORTS
+    # REPORTLAB
     # =========================================================
-
-    from io import BytesIO
-    from datetime import datetime
 
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+
+    from reportlab.lib.enums import (
+        TA_CENTER,
+        TA_LEFT
+    )
+
     from reportlab.lib.pagesizes import A4
+
     from reportlab.lib.styles import (
         getSampleStyleSheet,
         ParagraphStyle
     )
+
     from reportlab.lib.units import mm
+
     from reportlab.platypus import (
         SimpleDocTemplate,
         Paragraph,
@@ -6082,6 +6090,22 @@ def download_applicant_biodata(application_id):
 
             settings = cur.fetchone()
 
+
+    except Exception:
+
+        app.logger.exception(
+            "Error loading applicant biodata"
+        )
+
+        flash(
+            "Unable to load applicant biodata.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
     finally:
 
         conn.close()
@@ -6104,6 +6128,45 @@ def download_applicant_biodata(application_id):
 
 
     # =========================================================
+    # HELPER
+    # =========================================================
+
+    def value(
+        field,
+        default="—"
+    ):
+
+        try:
+
+            result = applicant[field]
+
+        except (
+            KeyError,
+            TypeError
+        ):
+
+            result = None
+
+
+        if result is None:
+
+            return default
+
+
+        result = str(
+            result
+        ).strip()
+
+
+        if not result:
+
+            return default
+
+
+        return result
+
+
+    # =========================================================
     # COMPANY INFORMATION
     # =========================================================
 
@@ -6114,8 +6177,8 @@ def download_applicant_biodata(application_id):
             or "AV KING VET DRUG VENTURE"
         )
 
-        company_address = (
-            settings["company_address"]
+        company_email = (
+            settings["company_email"]
             or ""
         )
 
@@ -6124,8 +6187,8 @@ def download_applicant_biodata(application_id):
             or ""
         )
 
-        company_email = (
-            settings["company_email"]
+        company_address = (
+            settings["company_address"]
             or ""
         )
 
@@ -6139,150 +6202,23 @@ def download_applicant_biodata(application_id):
             or ""
         )
 
-        logo_filename = (
+        logo_value = (
             settings["logo"]
             or ""
         )
 
     else:
 
-        company_name = "AV KING VET DRUG VENTURE"
-        company_address = ""
-        company_phone = ""
-        company_email = ""
-        company_website = ""
-        footer_text = ""
-        logo_filename = ""
-
-
-    # =========================================================
-    # HELPER
-    # =========================================================
-
-    def value(field, default="—"):
-
-        try:
-
-            result = applicant[field]
-
-        except (KeyError, TypeError):
-
-            result = None
-
-        if result is None:
-            return default
-
-        result = str(result).strip()
-
-        return result if result else default
-
-
-    # =========================================================
-    # APPLICANT NAME
-    # =========================================================
-
-    applicant_name = " ".join(
-        part
-        for part in [
-            value("first_name", ""),
-            value("middle_name", ""),
-            value("last_name", "")
-        ]
-        if part
-    )
-
-    if not applicant_name:
-        applicant_name = "Applicant"
-
-
-    # =========================================================
-    # FORMAT DATE OF BIRTH
-    # =========================================================
-
-    date_of_birth = value(
-        "date_of_birth"
-    )
-
-    if date_of_birth != "—":
-
-        try:
-
-            if hasattr(
-                applicant["date_of_birth"],
-                "strftime"
-            ):
-
-                date_of_birth = (
-                    applicant["date_of_birth"]
-                    .strftime("%d %B %Y")
-                )
-
-        except Exception:
-
-            pass
-
-
-    # =========================================================
-    # FORMAT APPLICATION DATE
-    # =========================================================
-
-    application_date = value(
-        "created_at"
-    )
-
-    if application_date != "—":
-
-        try:
-
-            if hasattr(
-                applicant["created_at"],
-                "strftime"
-            ):
-
-                application_date = (
-                    applicant["created_at"]
-                    .strftime("%d %B %Y")
-                )
-
-        except Exception:
-
-            pass
-
-
-    # =========================================================
-    # FILE LOCATIONS
-    # =========================================================
-
-    upload_folder = os.path.join(
-        app.root_path,
-        "static",
-        "uploads"
-    )
-
-
-    # =========================================================
-    # PASSPORT
-    # =========================================================
-
-    passport_filename = value(
-        "passport_filename",
-        ""
-    )
-
-    passport_path = None
-
-    if passport_filename:
-
-        possible_passport = os.path.join(
-            upload_folder,
-            passport_filename
+        company_name = (
+            "AV KING VET DRUG VENTURE"
         )
 
-        if os.path.isfile(
-            possible_passport
-        ):
-
-            passport_path = possible_passport
+        company_email = ""
+        company_phone = ""
+        company_address = ""
+        company_website = ""
+        footer_text = ""
+        logo_value = ""
 
 
     # =========================================================
@@ -6291,18 +6227,154 @@ def download_applicant_biodata(application_id):
 
     logo_path = None
 
-    if logo_filename:
 
-        possible_logo = os.path.join(
-            upload_folder,
-            logo_filename
-        )
+    if logo_value:
 
-        if os.path.isfile(
-            possible_logo
+        logo_value = str(
+            logo_value
+        ).strip()
+
+
+        # -----------------------------------------------
+        # /static/uploads/logo.png
+        # -----------------------------------------------
+
+        if logo_value.startswith(
+            "/static/"
         ):
 
-            logo_path = possible_logo
+            logo_path = os.path.join(
+                app.root_path,
+                logo_value.lstrip("/")
+            )
+
+
+        # -----------------------------------------------
+        # static/uploads/logo.png
+        # -----------------------------------------------
+
+        elif logo_value.startswith(
+            "static/"
+        ):
+
+            logo_path = os.path.join(
+                app.root_path,
+                logo_value
+            )
+
+
+        # -----------------------------------------------
+        # logo.png
+        # -----------------------------------------------
+
+        else:
+
+            logo_path = os.path.join(
+                app.root_path,
+                "static",
+                "uploads",
+                os.path.basename(
+                    logo_value
+                )
+            )
+
+
+        logo_path = os.path.abspath(
+            logo_path
+        )
+
+
+        if not os.path.isfile(
+            logo_path
+        ):
+
+            app.logger.warning(
+                "Company logo not found: %s",
+                logo_path
+            )
+
+            logo_path = None
+
+
+    # =========================================================
+    # APPLICANT PASSPORT
+    # =========================================================
+
+    passport_path = None
+
+
+    passport_filename = (
+        applicant["passport_filename"]
+        or ""
+    )
+
+
+    if passport_filename:
+
+        passport_filename = str(
+            passport_filename
+        ).strip()
+
+
+        # -----------------------------------------------
+        # /static/uploads/passport.jpg
+        # -----------------------------------------------
+
+        if passport_filename.startswith(
+            "/static/"
+        ):
+
+            passport_path = os.path.join(
+                app.root_path,
+                passport_filename.lstrip("/")
+            )
+
+
+        # -----------------------------------------------
+        # static/uploads/passport.jpg
+        # -----------------------------------------------
+
+        elif passport_filename.startswith(
+            "static/"
+        ):
+
+            passport_path = os.path.join(
+                app.root_path,
+                passport_filename
+            )
+
+
+        # -----------------------------------------------
+        # filename only
+        # -----------------------------------------------
+
+        else:
+
+            passport_path = os.path.join(
+                app.root_path,
+                "static",
+                "uploads",
+                os.path.basename(
+                    passport_filename
+                )
+            )
+
+
+        passport_path = os.path.abspath(
+            passport_path
+        )
+
+
+        if not os.path.isfile(
+            passport_path
+        ):
+
+            app.logger.warning(
+                "Applicant passport not found: %s",
+                passport_path
+            )
+
+            passport_path = None
 
 
     # =========================================================
@@ -6313,7 +6385,7 @@ def download_applicant_biodata(application_id):
 
 
     # =========================================================
-    # DOCUMENT
+    # PDF DOCUMENT
     # =========================================================
 
     document = SimpleDocTemplate(
@@ -6326,7 +6398,7 @@ def download_applicant_biodata(application_id):
 
         leftMargin=15 * mm,
 
-        topMargin=15 * mm,
+        topMargin=12 * mm,
 
         bottomMargin=18 * mm
     )
@@ -6340,75 +6412,125 @@ def download_applicant_biodata(application_id):
 
 
     company_style = ParagraphStyle(
-        "Company",
+        "CompanyStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica-Bold",
-        fontSize=16,
-        leading=20,
+
+        fontSize=15,
+
+        leading=19,
+
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#111827")
+
+        textColor=colors.HexColor(
+            "#111827"
+        )
     )
 
 
     company_info_style = ParagraphStyle(
         "CompanyInfo",
+
         parent=styles["Normal"],
+
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=12,
+
+        fontSize=8,
+
+        leading=11,
+
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#4b5563")
+
+        textColor=colors.HexColor(
+            "#4b5563"
+        )
     )
 
 
     title_style = ParagraphStyle(
-        "Title",
+        "TitleStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica-Bold",
+
         fontSize=15,
+
         leading=19,
+
         alignment=TA_CENTER,
-        textColor=colors.HexColor("#111827")
+
+        textColor=colors.HexColor(
+            "#111827"
+        )
     )
 
 
     section_style = ParagraphStyle(
-        "Section",
+        "SectionStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica-Bold",
+
         fontSize=9,
+
         leading=11,
+
         textColor=colors.white
     )
 
 
     label_style = ParagraphStyle(
-        "Label",
+        "LabelStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica-Bold",
+
         fontSize=7.5,
+
         leading=10,
-        textColor=colors.HexColor("#374151")
+
+        textColor=colors.HexColor(
+            "#374151"
+        )
     )
 
 
     data_style = ParagraphStyle(
-        "Data",
+        "DataStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica",
+
         fontSize=8.5,
+
         leading=11,
-        textColor=colors.HexColor("#111827")
+
+        textColor=colors.HexColor(
+            "#111827"
+        )
     )
 
 
     small_style = ParagraphStyle(
-        "Small",
+        "SmallStyle",
+
         parent=styles["Normal"],
+
         fontName="Helvetica",
+
         fontSize=7.5,
+
         leading=10,
-        textColor=colors.HexColor("#4b5563")
+
+        textColor=colors.HexColor(
+            "#6b7280"
+        )
     )
 
 
@@ -6420,61 +6542,93 @@ def download_applicant_biodata(application_id):
 
 
     # =========================================================
-    # HEADER
-    #
-    # LOGO LEFT
-    # COMPANY INFO CENTER
-    # PASSPORT RIGHT
+    # COMPANY LOGO
     # =========================================================
-
-    header_left = ""
-
 
     if logo_path:
 
         try:
 
-            logo = Image(
+            header_logo = Image(
+
                 logo_path,
-                width=28 * mm,
-                height=28 * mm,
+
+                width=30 * mm,
+
+                height=30 * mm,
+
                 kind="proportional"
             )
 
-            header_left = logo
-
         except Exception:
 
-            header_left = Paragraph(
+            header_logo = Paragraph(
                 "AV",
                 company_style
             )
 
     else:
 
-        header_left = Paragraph(
+        header_logo = Paragraph(
             "AV",
             company_style
         )
 
 
-    # ---------------------------------------------------------
-    # COMPANY CENTER
-    # ---------------------------------------------------------
+    # =========================================================
+    # APPLICANT PASSPORT
+    # =========================================================
 
-    company_lines = [
+    if passport_path:
+
+        try:
+
+            header_passport = Image(
+
+                passport_path,
+
+                width=30 * mm,
+
+                height=38 * mm,
+
+                kind="proportional"
+            )
+
+        except Exception:
+
+            header_passport = Paragraph(
+                "PASSPORT<br/>PHOTO",
+                small_style
+            )
+
+    else:
+
+        header_passport = Paragraph(
+            "PASSPORT<br/>PHOTO",
+            small_style
+        )
+
+
+    # =========================================================
+    # COMPANY INFORMATION
+    # =========================================================
+
+    company_details = []
+
+
+    company_details.append(
         Paragraph(
-            company_name,
+            str(company_name),
             company_style
         )
-    ]
+    )
 
 
     if company_address:
 
-        company_lines.append(
+        company_details.append(
             Paragraph(
-                company_address,
+                str(company_address),
                 company_info_style
             )
         )
@@ -6482,7 +6636,7 @@ def download_applicant_biodata(application_id):
 
     if company_phone:
 
-        company_lines.append(
+        company_details.append(
             Paragraph(
                 f"Phone: {company_phone}",
                 company_info_style
@@ -6492,7 +6646,7 @@ def download_applicant_biodata(application_id):
 
     if company_email:
 
-        company_lines.append(
+        company_details.append(
             Paragraph(
                 f"Email: {company_email}",
                 company_info_style
@@ -6502,51 +6656,10 @@ def download_applicant_biodata(application_id):
 
     if company_website:
 
-        company_lines.append(
+        company_details.append(
             Paragraph(
-                company_website,
+                str(company_website),
                 company_info_style
-            )
-        )
-
-
-    company_center = company_lines
-
-
-    # ---------------------------------------------------------
-    # PASSPORT RIGHT
-    # ---------------------------------------------------------
-
-    if passport_path:
-
-        try:
-
-            passport = Image(
-                passport_path,
-                width=30 * mm,
-                height=36 * mm,
-                kind="proportional"
-            )
-
-            passport.hAlign = "RIGHT"
-
-            header_right = passport
-
-        except Exception:
-
-            header_right = Paragraph(
-                "PASSPORT",
-                small_style
-            )
-
-    else:
-
-        header_right = Paragraph(
-            "PASSPORT<br/>PHOTO",
-            ParagraphStyle(
-                "PassportPlaceholder",
-                parent=small_style,
-                alignment=TA_CENTER
             )
         )
 
@@ -6556,13 +6669,15 @@ def download_applicant_biodata(application_id):
     # =========================================================
 
     header_table = Table(
+
         [
             [
-                header_left,
-                company_center,
-                header_right
+                header_logo,
+                company_details,
+                header_passport
             ]
         ],
+
         colWidths=[
             40 * mm,
             110 * mm,
@@ -6574,6 +6689,7 @@ def download_applicant_biodata(application_id):
     header_table.setStyle(
         TableStyle(
             [
+
                 (
                     "VALIGN",
                     (0, 0),
@@ -6640,25 +6756,25 @@ def download_applicant_biodata(application_id):
 
 
     story.append(
-        Spacer(1, 6 * mm)
+        Spacer(1, 5 * mm)
     )
 
-
-    # =========================================================
-    # DIVIDER
-    # =========================================================
 
     story.append(
         HRFlowable(
             width="100%",
+
             thickness=1,
-            color=colors.HexColor("#d1d5db")
+
+            color=colors.HexColor(
+                "#d1d5db"
+            )
         )
     )
 
 
     story.append(
-        Spacer(1, 5 * mm)
+        Spacer(1, 4 * mm)
     )
 
 
@@ -6681,7 +6797,11 @@ def download_applicant_biodata(application_id):
 
     story.append(
         Paragraph(
-            f"Application No.: <b>{value('application_number')}</b>",
+            (
+                "Application No.: "
+                f"<b>{value('application_number')}</b>"
+            ),
+
             company_info_style
         )
     )
@@ -6693,12 +6813,13 @@ def download_applicant_biodata(application_id):
 
 
     # =========================================================
-    # TABLE HELPER
+    # SECTION HEADER
     # =========================================================
 
     def section_header(title):
 
         table = Table(
+
             [
                 [
                     Paragraph(
@@ -6707,6 +6828,7 @@ def download_applicant_biodata(application_id):
                     )
                 ]
             ],
+
             colWidths=[
                 180 * mm
             ]
@@ -6716,11 +6838,14 @@ def download_applicant_biodata(application_id):
         table.setStyle(
             TableStyle(
                 [
+
                     (
                         "BACKGROUND",
                         (0, 0),
                         (-1, -1),
-                        colors.HexColor("#111827")
+                        colors.HexColor(
+                            "#111827"
+                        )
                     ),
 
                     (
@@ -6754,24 +6879,31 @@ def download_applicant_biodata(application_id):
             )
         )
 
-        story.append(table)
+
+        story.append(
+            table
+        )
 
         story.append(
             Spacer(1, 2 * mm)
         )
 
 
+    # =========================================================
+    # INFORMATION TABLE
+    # =========================================================
+
     def information_table(rows):
 
-        formatted = []
+        table_data = []
 
 
         for label, data in rows:
 
-            formatted.append(
+            table_data.append(
                 [
                     Paragraph(
-                        label,
+                        str(label),
                         label_style
                     ),
 
@@ -6784,7 +6916,9 @@ def download_applicant_biodata(application_id):
 
 
         table = Table(
-            formatted,
+
+            table_data,
+
             colWidths=[
                 48 * mm,
                 132 * mm
@@ -6795,19 +6929,24 @@ def download_applicant_biodata(application_id):
         table.setStyle(
             TableStyle(
                 [
+
                     (
                         "GRID",
                         (0, 0),
                         (-1, -1),
                         0.4,
-                        colors.HexColor("#d1d5db")
+                        colors.HexColor(
+                            "#d1d5db"
+                        )
                     ),
 
                     (
                         "BACKGROUND",
                         (0, 0),
                         (0, -1),
-                        colors.HexColor("#f3f4f6")
+                        colors.HexColor(
+                            "#f3f4f6"
+                        )
                     ),
 
                     (
@@ -6849,7 +6988,9 @@ def download_applicant_biodata(application_id):
         )
 
 
-        story.append(table)
+        story.append(
+            table
+        )
 
         story.append(
             Spacer(1, 5 * mm)
@@ -6859,94 +7000,104 @@ def download_applicant_biodata(application_id):
     # =========================================================
     # APPLICATION INFORMATION
     # =========================================================
+# APPLICATION INFORMATION
+# =========================================================
 
-    section_header(
-        "APPLICATION INFORMATION"
-    )
+section_header(
+    "APPLICATION INFORMATION"
+)
 
+information_table(
+    [
+        (
+            "Application Number",
+            value("application_number")
+        ),
 
-    information_table(
-        [
-            (
-                "Application Number",
-                value("application_number")
-            ),
+        (
+            "Position Applied For",
+            value("position_applied")
+        ),
 
-            (
-                "Position Applied For",
-                value("position_applied")
-            ),
+        (
+            "Application Date",
+            value("created_at")
+        ),
 
-            (
-                "Application Date",
-                application_date
-            ),
-
-            (
-                "Application Status",
-                value(
-                    "status",
-                    "Pending"
-                )
+        (
+            "Application Status",
+            value(
+                "status",
+                "Pending"
             )
-        ]
-    )
+        )
+    ]
+)
 
 
-    # =========================================================
-    # PERSONAL INFORMATION
-    # =========================================================
+# =========================================================
+# PERSONAL INFORMATION
+# =========================================================
 
-    section_header(
-        "PERSONAL INFORMATION"
-    )
+section_header(
+    "PERSONAL INFORMATION"
+)
 
-
-    information_table(
-        [
-            (
-                "Full Name",
-                applicant_name
-            ),
-
-            (
-                "Gender",
-                value("gender")
-            ),
-
-            (
-                "Date of Birth",
-                date_of_birth
-            ),
-
-            (
-                "Phone Number",
-                value("phone")
-            ),
-
-            (
-                "Email Address",
-                value("email")
-            ),
-
-            (
-                "Residential Address",
-                value("address")
-            ),
-
-            (
-                "State",
-                value("state")
-            ),
-
-            (
-                "Local Government Area",
-                value("lga")
-            )
-        ]
-    )
+full_name = " ".join(
+    part
+    for part in [
+        applicant["first_name"] or "",
+        applicant["middle_name"] or "",
+        applicant["last_name"] or ""
+    ]
+    if str(part).strip()
+)
 
 
+information_table(
+    [
+        (
+            "Full Name",
+            full_name or "—"
+        ),
+
+        (
+            "Gender",
+            value("gender")
+        ),
+
+        (
+            "Date of Birth",
+            value("date_of_birth")
+        ),
+
+        (
+            "Phone Number",
+            value("phone")
+        ),
+
+        (
+            "Email Address",
+            value("email")
+        ),
+
+        (
+            "Residential Address",
+            value("address")
+        ),
+
+        (
+            "State",
+            value("state")
+        ),
+
+        (
+            "Local Government Area",
+            value("lga")
+        )
+    ]
+)
+                 
     # =========================================================
     # EDUCATION & QUALIFICATION
     # =========================================================
