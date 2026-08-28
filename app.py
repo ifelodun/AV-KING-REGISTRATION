@@ -5440,6 +5440,1012 @@ def admin_monthly_attendance_pdf():
         )
     )
 
+# ============================================================
+# DAILY ATTENDANCE PDF
+# ============================================================
+
+@app.route("/admin/attendance/pdf")
+def admin_attendance_pdf():
+
+    # ---------------------------------------------------------
+    # ADMIN ACCESS
+    # ---------------------------------------------------------
+
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    # ---------------------------------------------------------
+    # SELECTED DATE
+    # ---------------------------------------------------------
+
+    selected_date = (
+        request.args.get("date", "").strip()
+        or datetime.now().strftime("%Y-%m-%d")
+    )
+
+    try:
+
+        attendance_date = datetime.strptime(
+            selected_date,
+            "%Y-%m-%d"
+        ).date()
+
+    except ValueError:
+
+        attendance_date = datetime.now().date()
+
+        selected_date = (
+            attendance_date.strftime("%Y-%m-%d")
+        )
+
+    # ---------------------------------------------------------
+    # DATABASE
+    # ---------------------------------------------------------
+
+    conn = get_db()
+
+    attendance_records = []
+    absent_staff = []
+    settings = None
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # COMPANY SETTINGS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    company_name,
+                    company_email,
+                    company_phone,
+                    company_address,
+                    footer_text,
+                    logo
+
+                FROM company_settings
+
+                ORDER BY id ASC
+
+                LIMIT 1
+                """
+            )
+
+            settings = cur.fetchone()
+
+            # =================================================
+            # ATTENDANCE RECORDS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    a.id,
+                    a.worker_id,
+                    a.attendance_date,
+                    a.clock_in,
+                    a.clock_out,
+                    a.total_hours,
+                    a.status,
+                    a.clock_in_location_verified,
+                    a.clock_out_location_verified,
+
+                    ap.application_number,
+                    ap.first_name,
+                    ap.middle_name,
+                    ap.last_name,
+                    ap.phone,
+                    ap.email,
+                    ap.position_applied
+
+                FROM attendance a
+
+                INNER JOIN applications ap
+                    ON ap.id = a.worker_id
+
+                WHERE
+                    a.attendance_date = %s
+
+                AND ap.status = 'Approved'
+
+                AND ap.portal_active = TRUE
+
+                ORDER BY
+                    ap.first_name ASC,
+                    ap.last_name ASC
+                """,
+                (
+                    attendance_date,
+                )
+            )
+
+            attendance_records = cur.fetchall()
+
+            # =================================================
+            # ABSENT STAFF
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    ap.id,
+                    ap.application_number,
+                    ap.first_name,
+                    ap.middle_name,
+                    ap.last_name,
+                    ap.phone,
+                    ap.email,
+                    ap.position_applied
+
+                FROM applications ap
+
+                WHERE
+                    ap.status = 'Approved'
+
+                AND ap.portal_active = TRUE
+
+                AND NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM attendance a
+
+                    WHERE
+                        a.worker_id = ap.id
+
+                    AND a.attendance_date = %s
+                )
+
+                ORDER BY
+                    ap.first_name ASC,
+                    ap.last_name ASC
+                """,
+                (
+                    attendance_date,
+                )
+            )
+
+            absent_staff = cur.fetchall()
+
+    except Exception:
+
+        app.logger.exception(
+            "Error generating daily attendance PDF"
+        )
+
+        flash(
+            "Unable to generate daily attendance PDF.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_attendance",
+                date=selected_date
+            )
+        )
+
+    finally:
+
+        conn.close()
+
+    # ---------------------------------------------------------
+    # CALCULATE SUMMARY
+    # ---------------------------------------------------------
+
+    total_staff = (
+        len(attendance_records)
+        + len(absent_staff)
+    )
+
+    present_count = 0
+    clocked_in_count = 0
+    completed_count = 0
+    total_hours = 0
+
+    for record in attendance_records:
+
+        clock_in = record["clock_in"]
+        clock_out = record["clock_out"]
+
+        if clock_in:
+
+            clocked_in_count += 1
+
+            present_count += 1
+
+        if clock_in and clock_out:
+
+            completed_count += 1
+
+        total_hours += float(
+            record["total_hours"] or 0
+        )
+
+    absent_count = len(
+        absent_staff
+    )
+
+    # ---------------------------------------------------------
+    # REPORTLAB IMPORTS
+    # ---------------------------------------------------------
+
+    from io import BytesIO
+
+    from reportlab.lib import colors
+
+    from reportlab.lib.pagesizes import A4
+
+    from reportlab.lib.styles import (
+        getSampleStyleSheet,
+        ParagraphStyle
+    )
+
+    from reportlab.lib.enums import TA_CENTER
+
+    from reportlab.lib.units import mm
+
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+        Image
+    )
+
+    # ---------------------------------------------------------
+    # PDF BUFFER
+    # ---------------------------------------------------------
+
+    buffer = BytesIO()
+
+    # ---------------------------------------------------------
+    # DOCUMENT
+    # ---------------------------------------------------------
+
+    doc = SimpleDocTemplate(
+
+        buffer,
+
+        pagesize=A4,
+
+        rightMargin=10 * mm,
+
+        leftMargin=10 * mm,
+
+        topMargin=10 * mm,
+
+        bottomMargin=14 * mm
+
+    )
+
+    # ---------------------------------------------------------
+    # STYLES
+    # ---------------------------------------------------------
+
+    styles = getSampleStyleSheet()
+
+    company_style = ParagraphStyle(
+
+        "DailyCompanyName",
+
+        parent=styles["Heading1"],
+
+        fontSize=16,
+
+        leading=19,
+
+        alignment=TA_CENTER,
+
+        spaceAfter=3
+
+    )
+
+    contact_style = ParagraphStyle(
+
+        "DailyContact",
+
+        parent=styles["Normal"],
+
+        fontSize=7.5,
+
+        leading=10,
+
+        alignment=TA_CENTER
+
+    )
+
+    title_style = ParagraphStyle(
+
+        "DailyTitle",
+
+        parent=styles["Heading2"],
+
+        fontSize=13,
+
+        leading=16,
+
+        alignment=TA_CENTER,
+
+        spaceBefore=7,
+
+        spaceAfter=3
+
+    )
+
+    subtitle_style = ParagraphStyle(
+
+        "DailySubtitle",
+
+        parent=styles["Normal"],
+
+        fontSize=8,
+
+        leading=10,
+
+        alignment=TA_CENTER,
+
+        spaceAfter=8
+
+    )
+
+    small_style = ParagraphStyle(
+
+        "DailySmall",
+
+        parent=styles["Normal"],
+
+        fontSize=6.5,
+
+        leading=8
+
+    )
+
+    # ---------------------------------------------------------
+    # STORY
+    # ---------------------------------------------------------
+
+    story = []
+
+    # ---------------------------------------------------------
+    # LOGO
+    # ---------------------------------------------------------
+
+    logo_path = None
+
+    if settings and settings["logo"]:
+
+        possible_logo = os.path.join(
+
+            app.root_path,
+
+            "static",
+
+            "uploads",
+
+            settings["logo"]
+
+        )
+
+        if os.path.exists(
+            possible_logo
+        ):
+
+            logo_path = possible_logo
+
+    if logo_path:
+
+        try:
+
+            logo = Image(
+
+                logo_path,
+
+                width=20 * mm,
+
+                height=20 * mm
+
+            )
+
+            logo.hAlign = "CENTER"
+
+            story.append(
+                logo
+            )
+
+            story.append(
+                Spacer(
+                    1,
+                    2 * mm
+                )
+            )
+
+        except Exception:
+
+            app.logger.warning(
+                "Unable to load daily attendance logo.",
+                exc_info=True
+            )
+
+    # ---------------------------------------------------------
+    # COMPANY INFORMATION
+    # ---------------------------------------------------------
+
+    company_name = (
+
+        settings["company_name"]
+
+        if settings
+        and settings["company_name"]
+
+        else "AV KING VET DRUG VENTURE"
+
+    )
+
+    company_address = (
+
+        settings["company_address"]
+
+        if settings
+        and settings["company_address"]
+
+        else ""
+
+    )
+
+    company_phone = (
+
+        settings["company_phone"]
+
+        if settings
+        and settings["company_phone"]
+
+        else ""
+
+    )
+
+    company_email = (
+
+        settings["company_email"]
+
+        if settings
+        and settings["company_email"]
+
+        else ""
+
+    )
+
+    story.append(
+        Paragraph(
+            str(company_name),
+            company_style
+        )
+    )
+
+    contact_line = " | ".join(
+        filter(
+            None,
+            [
+                str(company_address),
+                str(company_phone),
+                str(company_email)
+            ]
+        )
+    )
+
+    if contact_line:
+
+        story.append(
+            Paragraph(
+                contact_line,
+                contact_style
+            )
+        )
+
+    # ---------------------------------------------------------
+    # TITLE
+    # ---------------------------------------------------------
+
+    story.append(
+        Paragraph(
+            "DAILY ATTENDANCE REPORT",
+            title_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            attendance_date.strftime(
+                "%A, %d %B %Y"
+            ),
+            subtitle_style
+        )
+    )
+
+    # ---------------------------------------------------------
+    # SUMMARY TABLE
+    # ---------------------------------------------------------
+
+    summary_data = [
+
+        [
+            "TOTAL STAFF",
+            "PRESENT",
+            "ABSENT",
+            "CLOCKED IN",
+            "COMPLETED",
+            "TOTAL HOURS"
+        ],
+
+        [
+            str(total_staff),
+            str(present_count),
+            str(absent_count),
+            str(clocked_in_count),
+            str(completed_count),
+            f"{total_hours:.2f}"
+        ]
+
+    ]
+
+    summary_table = Table(
+
+        summary_data,
+
+        colWidths=[
+
+            30 * mm,
+            25 * mm,
+            25 * mm,
+            30 * mm,
+            30 * mm,
+            35 * mm
+
+        ]
+
+    )
+
+    summary_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#1f2937")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, -1),
+                7
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.4,
+                colors.HexColor("#d1d5db")
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                6
+            )
+
+        ])
+    )
+
+    story.append(
+        summary_table
+    )
+
+    story.append(
+        Spacer(
+            1,
+            6 * mm
+        )
+    )
+
+    # ---------------------------------------------------------
+    # ATTENDANCE TABLE
+    # ---------------------------------------------------------
+
+    table_data = [
+
+        [
+            "#",
+            "Application No.",
+            "Employee",
+            "Position",
+            "Clock In",
+            "Clock Out",
+            "Hours",
+            "Status"
+        ]
+
+    ]
+
+    for index, record in enumerate(
+        attendance_records,
+        start=1
+    ):
+
+        clock_in_text = (
+
+            record["clock_in"].strftime(
+                "%I:%M %p"
+            )
+
+            if record["clock_in"]
+
+            else "—"
+
+        )
+
+        clock_out_text = (
+
+            record["clock_out"].strftime(
+                "%I:%M %p"
+            )
+
+            if record["clock_out"]
+
+            else "Still Clocked In"
+
+        )
+
+        employee_name = " ".join(
+            filter(
+                None,
+                [
+                    record["first_name"],
+                    record["middle_name"],
+                    record["last_name"]
+                ]
+            )
+        )
+
+        if record["clock_in"] and record["clock_out"]:
+
+            status_text = "Completed"
+
+        elif record["clock_in"]:
+
+            status_text = "Clocked In"
+
+        else:
+
+            status_text = "Not Recorded"
+
+        table_data.append([
+
+            str(index),
+
+            Paragraph(
+                str(
+                    record["application_number"]
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                employee_name,
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    record["position_applied"]
+                    or "—"
+                ),
+                small_style
+            ),
+
+            clock_in_text,
+
+            clock_out_text,
+
+            f'{float(record["total_hours"] or 0):.2f}',
+
+            status_text
+
+        ])
+
+    # ---------------------------------------------------------
+    # ABSENT STAFF
+    # ---------------------------------------------------------
+
+    for staff in absent_staff:
+
+        employee_name = " ".join(
+            filter(
+                None,
+                [
+                    staff["first_name"],
+                    staff["middle_name"],
+                    staff["last_name"]
+                ]
+            )
+        )
+
+        table_data.append([
+
+            str(
+                len(table_data)
+            ),
+
+            Paragraph(
+                str(
+                    staff["application_number"]
+                ),
+                small_style
+            ),
+
+            Paragraph(
+                employee_name,
+                small_style
+            ),
+
+            Paragraph(
+                str(
+                    staff["position_applied"]
+                    or "—"
+                ),
+                small_style
+            ),
+
+            "—",
+
+            "—",
+
+            "0.00",
+
+            "Absent"
+
+        ])
+
+    # ---------------------------------------------------------
+    # TABLE
+    # ---------------------------------------------------------
+
+    attendance_table = Table(
+
+        table_data,
+
+        repeatRows=1,
+
+        colWidths=[
+
+            8 * mm,
+            27 * mm,
+            39 * mm,
+            29 * mm,
+            20 * mm,
+            27 * mm,
+            17 * mm,
+            20 * mm
+
+        ]
+
+    )
+
+    attendance_table.setStyle(
+        TableStyle([
+
+            (
+                "BACKGROUND",
+                (0, 0),
+                (-1, 0),
+                colors.HexColor("#111827")
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0, 0),
+                (-1, 0),
+                colors.white
+            ),
+
+            (
+                "FONTNAME",
+                (0, 0),
+                (-1, 0),
+                "Helvetica-Bold"
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 0),
+                (-1, 0),
+                6.5
+            ),
+
+            (
+                "FONTSIZE",
+                (0, 1),
+                (-1, -1),
+                6.5
+            ),
+
+            (
+                "VALIGN",
+                (0, 0),
+                (-1, -1),
+                "MIDDLE"
+            ),
+
+            (
+                "ALIGN",
+                (0, 0),
+                (0, -1),
+                "CENTER"
+            ),
+
+            (
+                "ALIGN",
+                (4, 1),
+                (-1, -1),
+                "CENTER"
+            ),
+
+            (
+                "GRID",
+                (0, 0),
+                (-1, -1),
+                0.35,
+                colors.HexColor("#d1d5db")
+            ),
+
+            (
+                "ROWBACKGROUNDS",
+                (0, 1),
+                (-1, -1),
+                [
+                    colors.white,
+                    colors.HexColor("#f9fafb")
+                ]
+            ),
+
+            (
+                "TOPPADDING",
+                (0, 0),
+                (-1, -1),
+                4
+            ),
+
+            (
+                "BOTTOMPADDING",
+                (0, 0),
+                (-1, -1),
+                4
+            )
+
+        ])
+    )
+
+    story.append(
+        attendance_table
+    )
+
+    story.append(
+        Spacer(
+            1,
+            7 * mm
+        )
+    )
+
+    # ---------------------------------------------------------
+    # FOOTER
+    # ---------------------------------------------------------
+
+    footer_text = (
+
+        settings["footer_text"]
+
+        if settings
+        and settings["footer_text"]
+
+        else "Your needs, Our Priority"
+
+    )
+
+    story.append(
+        Paragraph(
+            str(footer_text),
+            contact_style
+        )
+    )
+
+    story.append(
+        Spacer(
+            1,
+            2 * mm
+        )
+    )
+
+    story.append(
+        Paragraph(
+            "Generated on "
+            + datetime.now().strftime(
+                "%d %B %Y at %I:%M %p"
+            ),
+            contact_style
+        )
+    )
+
+    # ---------------------------------------------------------
+    # BUILD
+    # ---------------------------------------------------------
+
+    doc.build(
+        story
+    )
+
+    buffer.seek(0)
+
+    # ---------------------------------------------------------
+    # DOWNLOAD
+    # ---------------------------------------------------------
+
+    return send_file(
+
+        buffer,
+
+        mimetype="application/pdf",
+
+        as_attachment=True,
+
+        download_name=(
+            f"daily_attendance_"
+            f"{selected_date}.pdf"
+        )
+
+    )
+
 @app.route("/admin/attendance/monthly/export/excel")
 def export_monthly_attendance_excel():
 
