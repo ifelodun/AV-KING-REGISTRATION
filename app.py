@@ -6691,6 +6691,55 @@ def admin_reports():
         )
 
 
+def format_date(date_value):
+
+    if not date_value:
+        return "Not Available"
+
+    try:
+
+        if isinstance(date_value, datetime):
+            return date_value.strftime("%d %B %Y")
+
+        if hasattr(date_value, "strftime"):
+            return date_value.strftime("%d %B %Y")
+
+        if isinstance(date_value, str):
+
+            try:
+                parsed_date = datetime.fromisoformat(
+                    date_value.replace("Z", "+00:00")
+                )
+
+                return parsed_date.strftime(
+                    "%d %B %Y"
+                )
+
+            except ValueError:
+
+                try:
+                    parsed_date = datetime.strptime(
+                        date_value,
+                        "%Y-%m-%d"
+                    )
+
+                    return parsed_date.strftime(
+                        "%d %B %Y"
+                    )
+
+                except ValueError:
+                    return date_value
+
+        return str(date_value)
+
+    except Exception:
+
+        app.logger.exception(
+            "Error formatting application date"
+        )
+
+        return str(date_value)
+        
 @app.route(
     "/admin/applications/<int:application_id>/biodata/pdf"
 )
@@ -7699,11 +7748,10 @@ def download_applicant_biodata(application_id):
     # =========================================================
     # APPLICATION INFORMATION
     # =========================================================
-
     section_header(
         "APPLICATION INFORMATION"
     )
-
+    
     information_table(
         [
             (
@@ -7716,7 +7764,9 @@ def download_applicant_biodata(application_id):
             ),
             (
                 "Application Date",
-                value("created_at")
+                format_date(
+                    value("created_at")
+                )
             ),
             (
                 "Application Status",
@@ -7727,8 +7777,7 @@ def download_applicant_biodata(application_id):
             )
         ]
     )
-
-
+    
     # =========================================================
     # PERSONAL INFORMATION
     # =========================================================
