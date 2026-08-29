@@ -608,9 +608,9 @@ def init_db():
             
                     attendance_date DATE NOT NULL,
             
-                    clock_in TIMESTAMP NULL,
+                    clock_in TIMESTAMPTZ NULL,
             
-                    clock_out TIMESTAMP NULL,
+                    clock_out TIMESTAMPTZ NULL,
             
                     clock_in_latitude DOUBLE PRECISION NULL,
             
