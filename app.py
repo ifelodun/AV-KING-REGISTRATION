@@ -9086,7 +9086,6 @@ def admin_download_file(filename):
         as_attachment=True
     )
 
-
 @app.route("/admin/reports/export/pdf")
 def export_admin_reports_pdf():
 
@@ -9097,17 +9096,20 @@ def export_admin_reports_pdf():
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-
     # =========================================================
     # IMPORT PDF COMPONENTS
     # =========================================================
 
     from io import BytesIO
+    from datetime import datetime
 
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from reportlab.lib.pagesizes import A4, landscape
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.styles import (
+        getSampleStyleSheet,
+        ParagraphStyle
+    )
     from reportlab.lib.units import mm
     from reportlab.platypus import (
         SimpleDocTemplate,
@@ -9115,10 +9117,8 @@ def export_admin_reports_pdf():
         Spacer,
         Table,
         TableStyle,
-        Image,
-        PageBreak
+        Image
     )
-
 
     # =========================================================
     # DATABASE
@@ -9152,9 +9152,11 @@ def export_admin_reports_pdf():
 
             settings = cur.fetchone()
 
-
             # =====================================================
             # APPLICATION REPORT
+            #
+            # created_at REMOVED
+            # because it does not exist in PostgreSQL table
             # =====================================================
 
             cur.execute(
@@ -9172,23 +9174,20 @@ def export_admin_reports_pdf():
                     lga,
                     position_applied,
                     highest_qualification,
-                    status,
-                    created_at
+                    status
                 FROM applications
-                ORDER BY created_at DESC, id DESC
+                ORDER BY id DESC
                 """
             )
 
             applications = cur.fetchall()
 
-
     finally:
 
         conn.close()
 
-
     # =========================================================
-    # DEFAULT COMPANY INFORMATION
+    # COMPANY INFORMATION
     # =========================================================
 
     if settings:
@@ -9238,13 +9237,11 @@ def export_admin_reports_pdf():
         footer_text = ""
         logo_filename = ""
 
-
     # =========================================================
     # PDF BUFFER
     # =========================================================
 
     buffer = BytesIO()
-
 
     # =========================================================
     # PDF DOCUMENT
@@ -9253,19 +9250,17 @@ def export_admin_reports_pdf():
     document = SimpleDocTemplate(
         buffer,
         pagesize=landscape(A4),
-        rightMargin=12 * mm,
-        leftMargin=12 * mm,
-        topMargin=12 * mm,
-        bottomMargin=15 * mm
+        rightMargin=10 * mm,
+        leftMargin=10 * mm,
+        topMargin=10 * mm,
+        bottomMargin=14 * mm
     )
-
 
     # =========================================================
     # STYLES
     # =========================================================
 
     styles = getSampleStyleSheet()
-
 
     company_name_style = ParagraphStyle(
         "CompanyName",
@@ -9278,17 +9273,15 @@ def export_admin_reports_pdf():
         spaceAfter=4
     )
 
-
     company_info_style = ParagraphStyle(
         "CompanyInfo",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=9,
-        leading=13,
+        fontSize=8.5,
+        leading=12,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#4b5563")
     )
-
 
     report_title_style = ParagraphStyle(
         "ReportTitle",
@@ -9298,10 +9291,9 @@ def export_admin_reports_pdf():
         leading=18,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#111827"),
-        spaceBefore=8,
+        spaceBefore=7,
         spaceAfter=4
     )
-
 
     date_style = ParagraphStyle(
         "DateStyle",
@@ -9311,26 +9303,40 @@ def export_admin_reports_pdf():
         leading=11,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#6b7280"),
-        spaceAfter=12
+        spaceAfter=10
     )
 
-
-    normal_style = ParagraphStyle(
-        "NormalReport",
+    body_style = ParagraphStyle(
+        "BodyStyle",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8,
-        leading=10,
-        alignment=TA_LEFT
+        fontSize=6.4,
+        leading=8,
+        alignment=TA_LEFT,
+        textColor=colors.HexColor("#374151")
     )
 
+    center_body_style = ParagraphStyle(
+        "CenterBodyStyle",
+        parent=body_style,
+        alignment=TA_CENTER
+    )
+
+    header_style = ParagraphStyle(
+        "HeaderStyle",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=6.5,
+        leading=8,
+        alignment=TA_CENTER,
+        textColor=colors.white
+    )
 
     # =========================================================
     # STORY
     # =========================================================
 
     story = []
-
 
     # =========================================================
     # COMPANY LOGO
@@ -9345,23 +9351,23 @@ def export_admin_reports_pdf():
             logo_filename
         )
 
-
         if os.path.exists(logo_path):
 
             try:
 
                 logo = Image(
                     logo_path,
-                    width=25 * mm,
-                    height=25 * mm,
+                    width=23 * mm,
+                    height=23 * mm,
                     kind="proportional"
                 )
 
                 logo.hAlign = "CENTER"
 
                 story.append(logo)
+
                 story.append(
-                    Spacer(1, 4 * mm)
+                    Spacer(1, 3 * mm)
                 )
 
             except Exception:
@@ -9370,7 +9376,6 @@ def export_admin_reports_pdf():
                     "Unable to load company logo for PDF.",
                     exc_info=True
                 )
-
 
     # =========================================================
     # COMPANY NAME
@@ -9383,9 +9388,8 @@ def export_admin_reports_pdf():
         )
     )
 
-
     # =========================================================
-    # COMPANY ADDRESS
+    # ADDRESS
     # =========================================================
 
     if company_address:
@@ -9397,14 +9401,11 @@ def export_admin_reports_pdf():
             )
         )
 
-
     # =========================================================
-    # PHONE + EMAIL
-    # CENTERED UNDER ADDRESS
+    # CONTACT INFORMATION
     # =========================================================
 
     contact_parts = []
-
 
     if company_phone:
 
@@ -9412,13 +9413,11 @@ def export_admin_reports_pdf():
             f"Phone: {company_phone}"
         )
 
-
     if company_email:
 
         contact_parts.append(
             f"Email: {company_email}"
         )
-
 
     if contact_parts:
 
@@ -9430,7 +9429,6 @@ def export_admin_reports_pdf():
                 company_info_style
             )
         )
-
 
     # =========================================================
     # WEBSITE
@@ -9445,11 +9443,9 @@ def export_admin_reports_pdf():
             )
         )
 
-
     story.append(
-        Spacer(1, 5 * mm)
+        Spacer(1, 4 * mm)
     )
-
 
     # =========================================================
     # DIVIDER
@@ -9457,7 +9453,7 @@ def export_admin_reports_pdf():
 
     divider = Table(
         [[""]],
-        colWidths=[260 * mm],
+        colWidths=[277 * mm],
         rowHeights=[1]
     )
 
@@ -9476,7 +9472,6 @@ def export_admin_reports_pdf():
 
     story.append(divider)
 
-
     # =========================================================
     # REPORT TITLE
     # =========================================================
@@ -9488,17 +9483,13 @@ def export_admin_reports_pdf():
         )
     )
 
-
     # =========================================================
     # REPORT DATE
     # =========================================================
 
-    from datetime import datetime
-
     generated_date = datetime.now().strftime(
         "%d %B %Y, %I:%M %p"
     )
-
 
     story.append(
         Paragraph(
@@ -9507,9 +9498,8 @@ def export_admin_reports_pdf():
         )
     )
 
-
     # =========================================================
-    # SUMMARY
+    # CALCULATE SUMMARY
     # =========================================================
 
     total_applications = len(
@@ -9522,7 +9512,6 @@ def export_admin_reports_pdf():
     approved_count = 0
     rejected_count = 0
 
-
     for application in applications:
 
         status = (
@@ -9530,27 +9519,31 @@ def export_admin_reports_pdf():
             or "Pending"
         )
 
+        status = str(status).strip().lower()
 
-        if status == "Pending":
+        if status == "pending":
 
             pending_count += 1
 
-        elif status == "Under Review":
+        elif status == "under review":
 
             review_count += 1
 
-        elif status == "Shortlisted":
+        elif status == "shortlisted":
 
             shortlisted_count += 1
 
-        elif status == "Approved":
+        elif status == "approved":
 
             approved_count += 1
 
-        elif status == "Rejected":
+        elif status == "rejected":
 
             rejected_count += 1
 
+    # =========================================================
+    # SUMMARY TABLE
+    # =========================================================
 
     summary_data = [
         [
@@ -9571,19 +9564,17 @@ def export_admin_reports_pdf():
         ]
     ]
 
-
     summary_table = Table(
         summary_data,
         colWidths=[
-            42 * mm,
-            42 * mm,
-            42 * mm,
-            42 * mm,
-            42 * mm,
-            42 * mm
+            46 * mm,
+            46 * mm,
+            46 * mm,
+            46 * mm,
+            46 * mm,
+            46 * mm
         ]
     )
-
 
     summary_table.setStyle(
         TableStyle(
@@ -9610,13 +9601,6 @@ def export_admin_reports_pdf():
                 ),
 
                 (
-                    "FONTSIZE",
-                    (0, 0),
-                    (-1, -1),
-                    8
-                ),
-
-                (
                     "ALIGN",
                     (0, 0),
                     (-1, -1),
@@ -9634,7 +9618,7 @@ def export_admin_reports_pdf():
                     "BACKGROUND",
                     (0, 1),
                     (-1, 1),
-                    colors.HexColor("#f9fafb")
+                    colors.HexColor("#f8fafc")
                 ),
 
                 (
@@ -9642,6 +9626,13 @@ def export_admin_reports_pdf():
                     (0, 1),
                     (-1, 1),
                     "Helvetica-Bold"
+                ),
+
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, 1),
+                    12
                 ),
 
                 (
@@ -9676,15 +9667,13 @@ def export_admin_reports_pdf():
         )
     )
 
-
     story.append(
         summary_table
     )
 
     story.append(
-        Spacer(1, 8 * mm)
+        Spacer(1, 7 * mm)
     )
-
 
     # =========================================================
     # APPLICATION TABLE
@@ -9702,11 +9691,9 @@ def export_admin_reports_pdf():
             "LGA",
             "POSITION",
             "QUALIFICATION",
-            "STATUS",
-            "DATE"
+            "STATUS"
         ]
     ]
-
 
     for index, application in enumerate(
         applications,
@@ -9728,7 +9715,6 @@ def export_admin_reports_pdf():
             or ""
         )
 
-
         full_name = " ".join(
             part
             for part in [
@@ -9739,30 +9725,10 @@ def export_admin_reports_pdf():
             if part
         )
 
-
-        created_at = (
-            application["created_at"]
+        status = (
+            application["status"]
+            or "Pending"
         )
-
-
-        if created_at:
-
-            try:
-
-                created_at = created_at.strftime(
-                    "%d/%m/%Y"
-                )
-
-            except Exception:
-
-                created_at = str(
-                    created_at
-                )[:10]
-
-        else:
-
-            created_at = "—"
-
 
         table_data.append(
             [
@@ -9794,20 +9760,15 @@ def export_admin_reports_pdf():
                 application["highest_qualification"]
                 or "—",
 
-                application["status"]
-                or "Pending",
-
-                created_at
+                status
             ]
         )
 
-
     # =========================================================
-    # CONVERT CELLS TO PARAGRAPHS
+    # FORMAT TABLE
     # =========================================================
 
     formatted_table_data = []
-
 
     for row_index, row in enumerate(
         table_data
@@ -9815,46 +9776,45 @@ def export_admin_reports_pdf():
 
         formatted_row = []
 
-
-        for value in row:
+        for column_index, value in enumerate(row):
 
             if row_index == 0:
 
                 formatted_row.append(
                     Paragraph(
                         str(value),
-                        ParagraphStyle(
-                            "HeaderCell",
-                            parent=normal_style,
-                            fontName="Helvetica-Bold",
-                            fontSize=7,
-                            leading=8,
-                            alignment=TA_CENTER,
-                            textColor=colors.white
-                        )
+                        header_style
                     )
                 )
 
             else:
 
-                formatted_row.append(
-                    Paragraph(
-                        str(value),
-                        ParagraphStyle(
-                            "BodyCell",
-                            parent=normal_style,
-                            fontSize=6.5,
-                            leading=8,
-                            alignment=TA_LEFT
+                if column_index in [
+                    0,
+                    1,
+                    3,
+                    10
+                ]:
+
+                    formatted_row.append(
+                        Paragraph(
+                            str(value),
+                            center_body_style
                         )
                     )
-                )
 
+                else:
+
+                    formatted_row.append(
+                        Paragraph(
+                            str(value),
+                            body_style
+                        )
+                    )
 
         formatted_table_data.append(
             formatted_row
         )
-
 
     # =========================================================
     # APPLICATION TABLE
@@ -9864,21 +9824,19 @@ def export_admin_reports_pdf():
         formatted_table_data,
         repeatRows=1,
         colWidths=[
-            9 * mm,    # S/N
-            25 * mm,   # Application
-            38 * mm,   # Name
-            16 * mm,   # Gender
-            25 * mm,   # Phone
-            38 * mm,   # Email
-            20 * mm,   # State
-            20 * mm,   # LGA
-            28 * mm,   # Position
-            28 * mm,   # Qualification
-            23 * mm,   # Status
-            20 * mm    # Date
+            9 * mm,
+            27 * mm,
+            40 * mm,
+            17 * mm,
+            27 * mm,
+            43 * mm,
+            20 * mm,
+            20 * mm,
+            31 * mm,
+            31 * mm,
+            25 * mm
         ]
     )
-
 
     application_table.setStyle(
         TableStyle(
@@ -9895,13 +9853,6 @@ def export_admin_reports_pdf():
                     (0, 0),
                     (-1, 0),
                     colors.white
-                ),
-
-                (
-                    "FONTNAME",
-                    (0, 0),
-                    (-1, 0),
-                    "Helvetica-Bold"
                 ),
 
                 (
@@ -9925,7 +9876,7 @@ def export_admin_reports_pdf():
                     (-1, -1),
                     [
                         colors.white,
-                        colors.HexColor("#f9fafb")
+                        colors.HexColor("#f8fafc")
                     ]
                 ),
 
@@ -9960,11 +9911,9 @@ def export_admin_reports_pdf():
         )
     )
 
-
     story.append(
         application_table
     )
-
 
     # =========================================================
     # FOOTER
@@ -9973,7 +9922,7 @@ def export_admin_reports_pdf():
     if footer_text:
 
         story.append(
-            Spacer(1, 7 * mm)
+            Spacer(1, 6 * mm)
         )
 
         story.append(
@@ -9983,11 +9932,6 @@ def export_admin_reports_pdf():
             )
         )
 
-
-    # =========================================================
-    # BUILD PDF
-    # =========================================================
-
     # =========================================================
     # BUILD PDF
     # =========================================================
@@ -9996,24 +9940,19 @@ def export_admin_reports_pdf():
         story
     )
 
-
     # =========================================================
-    # PREPARE PDF FOR DOWNLOAD
+    # PREPARE DOWNLOAD
     # =========================================================
 
     buffer.seek(0)
 
-
-    # =========================================================
-    # PDF FILE NAME
-    # =========================================================
-
     filename = (
         "applicant_recruitment_report_"
-        + datetime.now().strftime("%Y%m%d_%H%M%S")
+        + datetime.now().strftime(
+            "%Y%m%d_%H%M%S"
+        )
         + ".pdf"
     )
-
 
     # =========================================================
     # RETURN PDF
@@ -10025,7 +9964,6 @@ def export_admin_reports_pdf():
         as_attachment=True,
         download_name=filename
     )
-
 
 @app.route("/admin/reports/export/excel")
 def export_admin_reports_excel():
