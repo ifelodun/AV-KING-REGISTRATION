@@ -206,30 +206,53 @@
              BRANDING
              ================================================== -->
 
-        <div class="portal-brand">
+       <div class="login-brand">
 
-            {% if company_logo %}
+    {% if settings and settings.logo %}
 
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/' + company_logo
-                    ) }}"
-                    class="portal-logo"
-                    alt="{{ company_name }}"
-                >
+        <div class="login-logo-wrapper">
 
-            {% endif %}
-
-            <h1>
-                {{ company_name }}
-            </h1>
-
-            <p>
-                {{ company_motto }}
-            </p>
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='uploads/' ~ settings.logo
+                ) }}"
+                alt="{{ settings.company_name or 'Company Logo' }}"
+                class="login-logo"
+            >
 
         </div>
+
+    {% else %}
+
+        <div class="login-logo-placeholder">
+
+            {{ (
+                settings.company_name[:1]
+                if settings and settings.company_name
+                else "A"
+            )|upper }}
+
+        </div>
+
+    {% endif %}
+
+
+    <div class="login-company-name">
+
+        <h1>
+            {{ settings.company_name
+               if settings and settings.company_name
+               else "AV KING" }}
+        </h1>
+
+        <p>
+            Applicant Portal
+        </p>
+
+    </div>
+
+</div>
 
 
         <!-- ==================================================
