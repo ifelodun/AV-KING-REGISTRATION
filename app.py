@@ -12661,6 +12661,8 @@ import math
 # HELPER: DISTANCE BETWEEN TWO GPS COORDINATES
 # Returns distance in metres
 # ============================================================
+import math
+
 
 def calculate_distance_meters(
     lat1,
@@ -12668,29 +12670,34 @@ def calculate_distance_meters(
     lat2,
     lon2
 ):
+    """
+    Calculate the straight-line distance between
+    two GPS coordinates in metres.
+    """
+
+    lat1 = float(lat1)
+    lon1 = float(lon1)
+    lat2 = float(lat2)
+    lon2 = float(lon2)
 
     earth_radius = 6371000
 
-    lat1_rad = math.radians(float(lat1))
-    lat2_rad = math.radians(float(lat2))
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
 
-    delta_lat = math.radians(
-        float(lat2) - float(lat1)
-    )
-
-    delta_lon = math.radians(
-        float(lon2) - float(lon1)
-    )
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lon = math.radians(lon2 - lon1)
 
     a = (
         math.sin(delta_lat / 2) ** 2
         +
         math.cos(lat1_rad)
-        *
-        math.cos(lat2_rad)
-        *
-        math.sin(delta_lon / 2) ** 2
+        * math.cos(lat2_rad)
+        * math.sin(delta_lon / 2) ** 2
     )
+
+    # Protect against tiny floating-point errors
+    a = max(0, min(1, a))
 
     c = 2 * math.atan2(
         math.sqrt(a),
