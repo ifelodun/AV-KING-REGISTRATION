@@ -3,230 +3,500 @@
 {% block content %}
 
 <div class="admin-reports-page">
+<!-- =========================================================
+     PAGE HEADER
+     ========================================================= -->
 
-    <!-- PAGE HEADER -->
-    <div class="reports-header">
+<div class="reports-header">
 
-        <div>
-            <span class="page-label">
-                RECRUITMENT MANAGEMENT
+    <div class="reports-title-area">
+
+        <div class="reports-eyebrow">
+            <span class="eyebrow-line"></span>
+            RECRUITMENT MANAGEMENT
+        </div>
+
+        <h1>
+            Recruitment Reports
+        </h1>
+
+        <p>
+            Monitor application activity, recruitment progress,
+            applicant demographics and generate professional reports.
+        </p>
+
+    </div>
+
+
+    <div class="reports-header-actions">
+
+        <a
+            href="{{ url_for('export_admin_reports_pdf') }}"
+            class="report-export-btn pdf-export"
+        >
+
+            <div class="export-icon">
+                PDF
+            </div>
+
+            <div class="export-text">
+                <strong>Export PDF</strong>
+                <small>Professional report</small>
+            </div>
+
+            <span class="export-arrow">→</span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('export_admin_reports_excel') }}"
+            class="report-export-btn excel-export"
+        >
+
+            <div class="export-icon">
+                XLS
+            </div>
+
+            <div class="export-text">
+                <strong>Export Excel</strong>
+                <small>Spreadsheet report</small>
+            </div>
+
+            <span class="export-arrow">→</span>
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     REPORT SUMMARY
+     ========================================================= -->
+
+<div class="reports-summary-header">
+
+    <div>
+        <span class="section-label">
+            RECRUITMENT OVERVIEW
+        </span>
+
+        <h2>
+            Application Summary
+        </h2>
+    </div>
+
+    <span class="report-period">
+        Current Recruitment Data
+    </span>
+
+</div>
+
+
+<!-- =========================================================
+     SUMMARY CARDS
+     ========================================================= -->
+
+<div class="reports-grid">
+
+    <!-- TOTAL -->
+
+    <div class="report-card total-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                #
+            </div>
+
+            <span class="card-indicator">
+                TOTAL
             </span>
 
-            <h1>
-                Reports
-            </h1>
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Total Applications
+            </span>
+
+            <strong class="report-card-number">
+                {{ total_applications or total or 0 }}
+            </strong>
+
+            <small>
+                All submitted applications
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- PENDING -->
+
+    <div class="report-card pending-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                P
+            </div>
+
+            <span class="card-indicator">
+                PENDING
+            </span>
+
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Pending
+            </span>
+
+            <strong class="report-card-number">
+                {{ pending or 0 }}
+            </strong>
+
+            <small>
+                Awaiting review
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- REVIEW -->
+
+    <div class="report-card review-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                R
+            </div>
+
+            <span class="card-indicator">
+                REVIEW
+            </span>
+
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Under Review
+            </span>
+
+            <strong class="report-card-number">
+                {{ under_review or 0 }}
+            </strong>
+
+            <small>
+                Currently being assessed
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- SHORTLISTED -->
+
+    <div class="report-card shortlisted-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                S
+            </div>
+
+            <span class="card-indicator">
+                SHORTLISTED
+            </span>
+
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Shortlisted
+            </span>
+
+            <strong class="report-card-number">
+                {{ shortlisted or 0 }}
+            </strong>
+
+            <small>
+                Selected for next stage
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- APPROVED -->
+
+    <div class="report-card approved-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                A
+            </div>
+
+            <span class="card-indicator">
+                APPROVED
+            </span>
+
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Approved
+            </span>
+
+            <strong class="report-card-number">
+                {{ approved or 0 }}
+            </strong>
+
+            <small>
+                Successful applications
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- REJECTED -->
+
+    <div class="report-card rejected-card">
+
+        <div class="report-card-top">
+
+            <div class="report-card-icon">
+                X
+            </div>
+
+            <span class="card-indicator">
+                REJECTED
+            </span>
+
+        </div>
+
+        <div class="report-card-content">
+
+            <span class="report-card-label">
+                Rejected
+            </span>
+
+            <strong class="report-card-number">
+                {{ rejected or 0 }}
+            </strong>
+
+            <small>
+                Unsuccessful applications
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     REPORT GENERATION
+     ========================================================= -->
+
+<section class="report-panel report-generation-panel">
+
+    <div class="report-panel-heading">
+
+        <div>
+
+            <span class="section-label">
+                REPORT GENERATION
+            </span>
+
+            <h2>
+                Download Reports
+            </h2>
 
             <p>
-                Recruitment statistics, applicant analysis
-                and downloadable reports.
+                Export recruitment information in professionally
+                formatted PDF or Excel documents.
             </p>
-        </div>
-
-        <div class="reports-header-actions">
-
-            <a
-                href="{{ url_for('export_admin_reports_pdf') }}"
-                class="report-export-btn"
-            >
-                <span>▣</span>
-                <div>
-                    <strong>Export PDF</strong>
-                    <small>Professional PDF report</small>
-                </div>
-            </a>
-
-            <a
-                href="{{ url_for('export_admin_reports_excel') }}"
-                class="report-export-btn"
-            >
-                <span>▤</span>
-                <div>
-                    <strong>Export Excel</strong>
-                    <small>Download spreadsheet</small>
-                </div>
-            </a>
 
         </div>
 
     </div>
 
 
-    <!-- SUMMARY CARDS -->
-    <div class="reports-grid">
-
-        <div class="report-card">
-            <div class="report-card-icon">#</div>
-
-            <div>
-                <span>Total Applications</span>
-                <strong>{{ total_applications or total or 0 }}</strong>
-                <small>All submitted applications</small>
-            </div>
-        </div>
+    <div class="report-format-grid">
 
 
-        <div class="report-card">
-            <div class="report-card-icon">P</div>
+        <!-- PDF -->
 
-            <div>
-                <span>Pending</span>
-                <strong>{{ pending or 0 }}</strong>
-                <small>Awaiting review</small>
-            </div>
-        </div>
+        <div class="report-format-card pdf-card">
 
-
-        <div class="report-card">
-            <div class="report-card-icon">R</div>
-
-            <div>
-                <span>Under Review</span>
-                <strong>{{ under_review or 0 }}</strong>
-                <small>Currently under review</small>
-            </div>
-        </div>
-
-
-        <div class="report-card">
-            <div class="report-card-icon">S</div>
-
-            <div>
-                <span>Shortlisted</span>
-                <strong>{{ shortlisted or 0 }}</strong>
-                <small>Selected applicants</small>
-            </div>
-        </div>
-
-
-        <div class="report-card">
-            <div class="report-card-icon">A</div>
-
-            <div>
-                <span>Approved</span>
-                <strong>{{ approved or 0 }}</strong>
-                <small>Successful applicants</small>
-            </div>
-        </div>
-
-
-        <div class="report-card">
-            <div class="report-card-icon">R</div>
-
-            <div>
-                <span>Rejected</span>
-                <strong>{{ rejected or 0 }}</strong>
-                <small>Unsuccessful applications</small>
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- EXPORT PANEL -->
-    <section class="report-panel">
-
-        <div class="report-panel-heading">
-
-            <div>
-                <span>REPORT GENERATION</span>
-
-                <h2>
-                    Recruitment Reports
-                </h2>
-
-                <p>
-                    Generate professional reports for
-                    record keeping and analysis.
-                </p>
-            </div>
-
-        </div>
-
-
-        <div class="report-format-grid">
-
-            <!-- PDF -->
-            <div class="report-format-card">
+            <div class="format-card-header">
 
                 <div class="format-icon">
                     PDF
                 </div>
 
-                <div class="format-content">
-
-                    <h3>
-                        PDF Recruitment Report
-                    </h3>
-
-                    <p>
-                        Generate a professionally formatted
-                        PDF containing recruitment information
-                        and applicant statistics.
-                    </p>
-
-                    <a
-                        href="{{ url_for('export_admin_reports_pdf') }}"
-                        class="format-button"
-                    >
-                        Generate PDF
-                    </a>
-
-                </div>
+                <span class="format-type">
+                    DOCUMENT
+                </span>
 
             </div>
 
 
-            <!-- EXCEL -->
-            <div class="report-format-card">
+            <div class="format-content">
+
+                <h3>
+                    Recruitment PDF Report
+                </h3>
+
+                <p>
+                    Generate a professional recruitment report
+                    containing application statistics, applicant
+                    information and recruitment analysis.
+                </p>
+
+                <div class="format-features">
+
+                    <span>
+                        ✓ Professional layout
+                    </span>
+
+                    <span>
+                        ✓ Company information
+                    </span>
+
+                    <span>
+                        ✓ Recruitment statistics
+                    </span>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('export_admin_reports_pdf') }}"
+                    class="format-button"
+                >
+                    <span>Generate PDF Report</span>
+                    <span>→</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXCEL -->
+
+        <div class="report-format-card excel-card">
+
+            <div class="format-card-header">
 
                 <div class="format-icon">
                     XLS
                 </div>
 
-                <div class="format-content">
+                <span class="format-type">
+                    SPREADSHEET
+                </span>
 
-                    <h3>
-                        Excel Recruitment Report
-                    </h3>
+            </div>
 
-                    <p>
-                        Download applicant information in
-                        Excel format for further analysis
-                        and record keeping.
-                    </p>
 
-                    <a
-                        href="{{ url_for('export_admin_reports_excel') }}"
-                        class="format-button"
-                    >
-                        Generate Excel
-                    </a>
+            <div class="format-content">
+
+                <h3>
+                    Recruitment Excel Report
+                </h3>
+
+                <p>
+                    Download recruitment information in Excel
+                    format for analysis, record keeping and
+                    administrative use.
+                </p>
+
+                <div class="format-features">
+
+                    <span>
+                        ✓ Structured spreadsheet
+                    </span>
+
+                    <span>
+                        ✓ Applicant information
+                    </span>
+
+                    <span>
+                        ✓ Recruitment statistics
+                    </span>
 
                 </div>
 
-            </div>
 
-        </div>
-
-    </section>
-
-
-    <!-- STATUS REPORT -->
-    <section class="report-panel">
-
-        <div class="report-panel-heading">
-
-            <div>
-                <span>APPLICATION ANALYSIS</span>
-
-                <h2>
-                    Application Status
-                </h2>
+                <a
+                    href="{{ url_for('export_admin_reports_excel') }}"
+                    class="format-button"
+                >
+                    <span>Generate Excel Report</span>
+                    <span>→</span>
+                </a>
 
             </div>
 
         </div>
 
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     APPLICATION STATUS
+     ========================================================= -->
+
+<section class="report-panel">
+
+    <div class="report-panel-heading">
+
+        <div>
+
+            <span class="section-label">
+                APPLICATION ANALYSIS
+            </span>
+
+            <h2>
+                Application Status
+            </h2>
+
+            <p>
+                Current distribution of applications by recruitment stage.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="status-report-layout">
+
+
+        <!-- STATUS TABLE -->
 
         <div class="report-table-wrapper">
 
@@ -235,76 +505,153 @@
                 <thead>
 
                     <tr>
-                        <th>Status</th>
-                        <th>Applications</th>
+
+                        <th>
+                            Recruitment Status
+                        </th>
+
+                        <th>
+                            Applications
+                        </th>
+
+                        <th>
+                            Share
+                        </th>
+
                     </tr>
 
                 </thead>
 
+
                 <tbody>
 
                     <tr>
+
                         <td>
+
                             <span class="report-status pending">
+                                <span class="status-dot"></span>
                                 Pending
                             </span>
+
                         </td>
 
-                        <td>
+                        <td class="table-number">
                             {{ pending or 0 }}
                         </td>
+
+                        <td>
+                            {% if total_applications or total %}
+                                {{ ((pending or 0) / (total_applications or total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
                     </tr>
 
 
                     <tr>
+
                         <td>
+
                             <span class="report-status review">
+                                <span class="status-dot"></span>
                                 Under Review
                             </span>
+
                         </td>
 
-                        <td>
+                        <td class="table-number">
                             {{ under_review or 0 }}
                         </td>
+
+                        <td>
+                            {% if total_applications or total %}
+                                {{ ((under_review or 0) / (total_applications or total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
                     </tr>
 
 
                     <tr>
+
                         <td>
+
                             <span class="report-status shortlisted">
+                                <span class="status-dot"></span>
                                 Shortlisted
                             </span>
+
                         </td>
 
-                        <td>
+                        <td class="table-number">
                             {{ shortlisted or 0 }}
                         </td>
+
+                        <td>
+                            {% if total_applications or total %}
+                                {{ ((shortlisted or 0) / (total_applications or total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
                     </tr>
 
 
                     <tr>
+
                         <td>
+
                             <span class="report-status approved">
+                                <span class="status-dot"></span>
                                 Approved
                             </span>
+
                         </td>
 
-                        <td>
+                        <td class="table-number">
                             {{ approved or 0 }}
                         </td>
+
+                        <td>
+                            {% if total_applications or total %}
+                                {{ ((approved or 0) / (total_applications or total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
                     </tr>
 
 
                     <tr>
+
                         <td>
+
                             <span class="report-status rejected">
+                                <span class="status-dot"></span>
                                 Rejected
                             </span>
+
                         </td>
 
-                        <td>
+                        <td class="table-number">
                             {{ rejected or 0 }}
                         </td>
+
+                        <td>
+                            {% if total_applications or total %}
+                                {{ ((rejected or 0) / (total_applications or total) * 100)|round(1) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+
                     </tr>
 
                 </tbody>
@@ -313,126 +660,312 @@
 
         </div>
 
-    </section>
+
+        <!-- STATUS SUMMARY -->
+
+        <div class="status-summary-card">
+
+            <span class="summary-card-label">
+                TOTAL APPLICATIONS
+            </span>
+
+            <strong>
+                {{ total_applications or total or 0 }}
+            </strong>
+
+            <p>
+                Applications currently recorded
+                in the recruitment system.
+            </p>
 
 
-    <!-- GENDER REPORT -->
-    {% if gender_report %}
+            <div class="summary-divider"></div>
 
-    <section class="report-panel">
 
-        <div class="report-panel-heading">
+            <div class="summary-mini-row">
 
-            <div>
-                <span>APPLICANT DEMOGRAPHICS</span>
+                <span>
+                    Approved
+                </span>
 
-                <h2>
-                    Gender Report
-                </h2>
+                <strong>
+                    {{ approved or 0 }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-mini-row">
+
+                <span>
+                    Shortlisted
+                </span>
+
+                <strong>
+                    {{ shortlisted or 0 }}
+                </strong>
+
+            </div>
+
+
+            <div class="summary-mini-row">
+
+                <span>
+                    Pending
+                </span>
+
+                <strong>
+                    {{ pending or 0 }}
+                </strong>
 
             </div>
 
         </div>
 
+    </div>
 
-        <div class="report-table-wrapper">
+</section>
 
-            <table class="report-table">
 
-                <thead>
+<!-- =========================================================
+     GENDER REPORT
+     ========================================================= -->
 
-                    <tr>
-                        <th>Gender</th>
-                        <th>Applicants</th>
-                    </tr>
+{% if gender_report %}
 
-                </thead>
+<section class="report-panel">
 
-                <tbody>
+    <div class="report-panel-heading">
 
-                    {% for row in gender_report %}
+        <div>
 
-                    <tr>
+            <span class="section-label">
+                APPLICANT DEMOGRAPHICS
+            </span>
 
-                        <td>
-                            {{ row.gender or "Not Specified" }}
-                        </td>
+            <h2>
+                Gender Distribution
+            </h2>
 
-                        <td>
-                            {{ row.total or row.count or 0 }}
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
+            <p>
+                Applicant distribution based on recorded gender information.
+            </p>
 
         </div>
 
-    </section>
-
-    {% endif %}
+    </div>
 
 
-    <!-- QUICK ACCESS -->
-    <section class="report-panel">
+    <div class="report-table-wrapper">
 
-        <div class="report-panel-heading">
+        <table class="report-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Gender
+                    </th>
+
+                    <th>
+                        Applicants
+                    </th>
+
+                    <th>
+                        Share
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for row in gender_report %}
+
+                <tr>
+
+                    <td class="gender-name">
+                        {{ row.gender or "Not Specified" }}
+                    </td>
+
+                    <td class="table-number">
+                        {{ row.total or row.count or 0 }}
+                    </td>
+
+                    <td>
+
+                        {% if total_applications or total %}
+
+                            {{ (
+                                (row.total or row.count or 0)
+                                /
+                                (total_applications or total)
+                                * 100
+                            )|round(1) }}%
+
+                        {% else %}
+
+                            0%
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+{% endif %}
+
+
+<!-- =========================================================
+     QUICK ACCESS
+     ========================================================= -->
+
+<section class="report-panel quick-access-panel">
+
+    <div class="report-panel-heading">
+
+        <div>
+
+            <span class="section-label">
+                QUICK ACCESS
+            </span>
+
+            <h2>
+                Recruitment Management
+            </h2>
+
+            <p>
+                Quickly navigate to other recruitment management areas.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="report-navigation-links">
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="navigation-link"
+        >
+
+            <span class="navigation-icon">
+                ▣
+            </span>
 
             <div>
-                <span>QUICK ACCESS</span>
-
-                <h2>
-                    Recruitment Management
-                </h2>
+                <strong>Dashboard</strong>
+                <small>Overview and activity</small>
             </div>
 
-        </div>
+            <span class="navigation-arrow">
+                →
+            </span>
+
+        </a>
 
 
-        <div class="report-navigation-links">
+        <a
+            href="{{ url_for('admin_applications') }}"
+            class="navigation-link"
+        >
 
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="navigation-link"
-            >
-                <span>▣</span>
-                Dashboard
-            </a>
+            <span class="navigation-icon">
+                ☷
+            </span>
 
+            <div>
+                <strong>Applications</strong>
+                <small>Manage applicants</small>
+            </div>
 
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="navigation-link"
-            >
-                <span>☷</span>
-                Applications
-            </a>
+            <span class="navigation-arrow">
+                →
+            </span>
 
-
-            <a
-                href="{{ url_for('admin_interviews') }}"
-                class="navigation-link"
-            >
-                <span>◷</span>
-                Interviews
-            </a>
+        </a>
 
 
-            <a
-                href="{{ url_for('admin_settings') }}"
-                class="navigation-link"
-            >
-                <span>⚙</span>
-                Settings
-            </a>
+        <a
+            href="{{ url_for('admin_interviews') }}"
+            class="navigation-link"
+        >
 
-        </div>
+            <span class="navigation-icon">
+                ◷
+            </span>
 
-    </section>
+            <div>
+                <strong>Interviews</strong>
+                <small>Manage interviews</small>
+            </div>
+
+            <span class="navigation-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_settings') }}"
+            class="navigation-link"
+        >
+
+            <span class="navigation-icon">
+                ⚙
+            </span>
+
+            <div>
+                <strong>Settings</strong>
+                <small>System configuration</small>
+            </div>
+
+            <span class="navigation-arrow">
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     REPORT FOOTER
+     ========================================================= -->
+
+<div class="reports-page-footer">
+
+    <span>
+        Recruitment Management System
+    </span>
+
+    <span class="footer-separator">
+        •
+    </span>
+
+    <span>
+        Administrative Reports
+    </span>
+
+</div>
+```
 
 </div>
 
