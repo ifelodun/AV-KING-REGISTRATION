@@ -14,6 +14,8 @@ from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -87,7 +89,11 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 
 from database import get_db, init_db
+from flask import Flask, request, session, redirect, url_for, jsonify, render_template, flash, send_file
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
+NIGERIA_TZ = ZoneInfo("Africa/Lagos")
 
 # ============================================================
 # LOAD ENVIRONMENT VARIABLES
@@ -12733,7 +12739,16 @@ def get_today_attendance(
 # ============================================================
 @app.route("/applicant/attendance")
 def applicant_attendance():
+    # =========================================================
+    # NIGERIA TIMEZONE
+    # =========================================================
 
+    from zoneinfo import ZoneInfo
+
+    NIGERIA_TZ = ZoneInfo("Africa/Lagos")
+
+    nigeria_now = datetime.now(NIGERIA_TZ)
+    nigeria_today = nigeria_now.date()
     # =========================================================
     # APPLICANT AUTHENTICATION
     # =========================================================
@@ -13014,7 +13029,10 @@ def applicant_clock_in():
             "message": "Your applicant session has expired. Please log in again."
         }), 401
 
-
+    nigeria_now = datetime.now(NIGERIA_TZ)
+    nigeria_date = nigeria_now.date()
+    
+    db_clock_in = nigeria_now.replace(tzinfo=None)
     # =====================================================
     # GET GPS COORDINATES
     # =====================================================
@@ -13492,7 +13510,10 @@ def applicant_clock_out():
             "message": "Your applicant session has expired. Please log in again."
         }), 401
 
-
+    nigeria_now = datetime.now(NIGERIA_TZ)
+    nigeria_date = nigeria_now.date()
+    
+    db_clock_in = nigeria_now.replace(tzinfo=None)
     # =====================================================
     # GET GPS COORDINATES
     # =====================================================
