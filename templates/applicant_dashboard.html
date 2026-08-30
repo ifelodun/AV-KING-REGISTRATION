@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-Applicant Portal | {{ company_name }}
+    Applicant Portal | {{ company_name or "AV KING" }}
 {% endblock %}
 
 {% block content %}
@@ -9,239 +9,643 @@ Applicant Portal | {{ company_name }}
 <style>
 
 /* ============================================================
-   APPLICANT PORTAL
+   AV KING — PROFESSIONAL APPLICANT PORTAL
+   ============================================================ */
+
+:root {
+    --portal-primary: #111827;
+    --portal-primary-soft: #f3f4f6;
+    --portal-accent: #0f766e;
+    --portal-accent-light: #ecfdf5;
+
+    --portal-blue: #2563eb;
+    --portal-blue-light: #eff6ff;
+
+    --portal-success: #15803d;
+    --portal-success-light: #f0fdf4;
+
+    --portal-warning: #b45309;
+    --portal-warning-light: #fffbeb;
+
+    --portal-danger: #b91c1c;
+    --portal-danger-light: #fef2f2;
+
+    --portal-text: #111827;
+    --portal-text-soft: #4b5563;
+    --portal-muted: #6b7280;
+
+    --portal-border: #e5e7eb;
+    --portal-bg: #f5f7fa;
+    --portal-white: #ffffff;
+
+    --portal-radius: 16px;
+    --portal-shadow:
+        0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+
+/* ============================================================
+   PAGE
    ============================================================ */
 
 .applicant-page {
-    max-width: 1200px;
+
+    width: 100%;
+    max-width: 1240px;
+
     margin: 0 auto;
-    padding: 30px 20px 50px;
+
+    padding:
+        28px
+        22px
+        60px;
+
+    box-sizing: border-box;
 }
 
 
 /* ============================================================
-   HEADER
+   TOP HEADER
    ============================================================ */
 
 .applicant-header {
+
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
-    gap: 20px;
-    margin-bottom: 30px;
-    padding: 25px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 24px;
+
+    padding: 20px 22px;
+
+    background: var(--portal-white);
+
+    border:
+        1px solid
+        var(--portal-border);
+
+    border-radius:
+        var(--portal-radius);
+
+    box-shadow:
+        var(--portal-shadow);
 }
+
 
 .applicant-header-left {
+
     display: flex;
+
     align-items: center;
-    gap: 16px;
-}
 
-.applicant-logo {
-    width: 58px;
-    height: 58px;
-    border-radius: 12px;
-    background: #111827;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 800;
-}
+    gap: 15px;
 
-.applicant-header h1 {
-    margin: 0;
-    font-size: 25px;
-    color: #111827;
-}
-
-.applicant-header p {
-    margin: 5px 0 0;
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.applicant-logout {
-    display: inline-block;
-    padding: 11px 17px;
-    border-radius: 8px;
-    background: #111827;
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.applicant-logout:hover {
-    opacity: 0.9;
-}
-
-
-/* ============================================================
-   STATUS BANNER
-   ============================================================ */
-
-.application-status-banner {
-    padding: 28px;
-    border-radius: 14px;
-    margin-bottom: 25px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-}
-
-.application-status-banner h2 {
-    margin: 8px 0;
-    color: #111827;
-    font-size: 25px;
-}
-
-.application-status-banner p {
-    margin: 0;
-    color: #6b7280;
-}
-
-.status-label {
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: #6b7280;
-}
-
-.application-number {
-    display: inline-block;
-    margin-top: 14px;
-    padding: 8px 12px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-
-/* ============================================================
-   STATUS COLORS
-   ============================================================ */
-
-.status-box {
-    margin-top: 18px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 15px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-under-review {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.status-shortlisted {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-approved {
-    background: #dbeafe;
-    color: #1e40af;
-}
-
-.status-rejected {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-
-/* ============================================================
-   GRID
-   ============================================================ */
-
-.applicant-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
-    gap: 25px;
-}
-
-
-/* ============================================================
-   CARD
-   ============================================================ */
-
-.applicant-card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-}
-
-.card-heading {
-    margin-bottom: 22px;
-}
-
-.card-heading span {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 1px;
-    font-weight: 800;
-    color: #6b7280;
-    margin-bottom: 5px;
-}
-
-.card-heading h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 20px;
-}
-
-
-/* ============================================================
-   INFORMATION GRID
-   ============================================================ */
-
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.info-item {
     min-width: 0;
 }
 
-.info-item.full-width {
-    grid-column: 1 / -1;
+
+/* ============================================================
+   LOGO
+   ============================================================ */
+
+.applicant-logo-wrapper {
+
+    width: 58px;
+
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 14px;
+
+    background: #f8fafc;
+
+    border:
+        1px solid
+        var(--portal-border);
 }
 
-.info-item label {
-    display: block;
-    margin-bottom: 6px;
+
+.applicant-logo-image {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+
+    padding: 6px;
+
+    box-sizing: border-box;
+}
+
+
+.applicant-logo-placeholder {
+
+    width: 58px;
+
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: var(--portal-primary);
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+    font-weight: 800;
+}
+
+
+.applicant-brand {
+
+    min-width: 0;
+}
+
+
+.applicant-brand h1 {
+
+    margin: 0;
+
+    color: var(--portal-text);
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    line-height: 1.25;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.applicant-brand p {
+
+    margin: 5px 0 0;
+
+    color: var(--portal-muted);
+
     font-size: 12px;
-    color: #6b7280;
-    font-weight: 600;
+
+    line-height: 1.4;
 }
 
-.info-item strong {
+
+/* ============================================================
+   LOGOUT
+   ============================================================ */
+
+.applicant-logout {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    min-height: 40px;
+
+    padding:
+        0
+        15px;
+
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    border:
+        1px solid
+        var(--portal-border);
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    transition:
+        .2s ease;
+
+    white-space: nowrap;
+}
+
+
+.applicant-logout:hover {
+
+    background: #f9fafb;
+
+    border-color: #d1d5db;
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* ============================================================
+   WELCOME / STATUS HERO
+   ============================================================ */
+
+.application-hero {
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-bottom: 24px;
+
+    padding: 30px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #111827 0%,
+            #1f2937 100%
+        );
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(15, 23, 42, .12);
+
+    color: #ffffff;
+}
+
+
+.application-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 230px;
+
+    height: 230px;
+
+    right: -90px;
+
+    top: -100px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.05);
+}
+
+
+.application-hero-content {
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.application-eyebrow {
+
     display: block;
-    color: #111827;
+
+    margin-bottom: 8px;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+}
+
+
+.application-hero h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    line-height: 1.25;
+}
+
+
+.application-hero-description {
+
+    max-width: 700px;
+
+    margin:
+        8px
+        0
+        20px;
+
+    color: #d1d5db;
+
     font-size: 14px;
-    line-height: 1.5;
-    word-break: break-word;
+
+    line-height: 1.7;
+}
+
+
+.application-reference {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding:
+        8px
+        12px;
+
+    background:
+        rgba(255,255,255,.08);
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    border-radius: 8px;
+
+    color: #f9fafb;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   STATUS SECTION
+   ============================================================ */
+
+.status-panel {
+
+    margin-top: 22px;
+
+    padding: 18px;
+
+    background:
+        rgba(255,255,255,.06);
+
+    border:
+        1px solid
+        rgba(255,255,255,.10);
+
+    border-radius: 12px;
+}
+
+
+.status-panel-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
+}
+
+
+.status-panel-label {
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+
+.status-box {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding:
+        7px
+        12px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+.status-box::before {
+
+    content: "";
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+.status-pending {
+
+    color: #fbbf24;
+
+    background:
+        rgba(245,158,11,.14);
+}
+
+
+.status-under-review {
+
+    color: #93c5fd;
+
+    background:
+        rgba(59,130,246,.14);
+}
+
+
+.status-shortlisted {
+
+    color: #86efac;
+
+    background:
+        rgba(34,197,94,.14);
+}
+
+
+.status-approved {
+
+    color: #93c5fd;
+
+    background:
+        rgba(59,130,246,.14);
+}
+
+
+.status-rejected {
+
+    color: #fca5a5;
+
+    background:
+        rgba(239,68,68,.14);
+}
+
+
+/* ============================================================
+   APPLICATION PROGRESS
+   ============================================================ */
+
+.application-progress {
+
+    display: flex;
+
+    align-items: center;
+
+    width: 100%;
+
+    gap: 0;
+}
+
+
+.progress-step {
+
+    display: flex;
+
+    align-items: center;
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.progress-dot {
+
+    width: 28px;
+
+    height: 28px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #374151;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    border:
+        2px solid
+        #4b5563;
+}
+
+
+.progress-step.completed
+.progress-dot {
+
+    background:
+        var(--portal-accent);
+
+    color: #ffffff;
+
+    border-color:
+        var(--portal-accent);
+}
+
+
+.progress-step.current
+.progress-dot {
+
+    background:
+        #ffffff;
+
+    color:
+        #111827;
+
+    border-color:
+        #ffffff;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(255,255,255,.12);
+}
+
+
+.progress-line {
+
+    height: 2px;
+
+    flex: 1;
+
+    background: #374151;
+
+    margin:
+        0
+        8px;
+}
+
+
+.progress-step.completed
+.progress-line {
+
+    background:
+        var(--portal-accent);
+}
+
+
+.progress-label {
+
+    display: none;
 }
 
 
@@ -250,258 +654,828 @@ Applicant Portal | {{ company_name }}
    ============================================================ */
 
 .shortlisted-notice {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    border-radius: 14px;
-    padding: 25px;
-    margin-bottom: 25px;
+
+    margin-bottom: 24px;
+
+    padding: 24px;
+
+    background:
+        var(--portal-success-light);
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius:
+        var(--portal-radius);
 }
+
 
 .shortlisted-notice-header {
+
     display: flex;
+
     align-items: flex-start;
-    gap: 15px;
+
+    gap: 16px;
 }
 
+
 .shortlisted-icon {
+
     width: 48px;
+
     height: 48px;
+
     flex-shrink: 0;
-    border-radius: 50%;
-    background: #16a34a;
-    color: #ffffff;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
-    font-size: 24px;
+
+    border-radius: 13px;
+
+    background:
+        var(--portal-success);
+
+    color: #ffffff;
+
+    font-size: 20px;
+
     font-weight: 800;
 }
 
+
 .shortlisted-notice h2 {
-    margin: 0 0 8px;
+
+    margin: 0 0 7px;
+
     color: #166534;
-    font-size: 22px;
+
+    font-size: 20px;
+
+    font-weight: 800;
 }
 
+
 .shortlisted-notice p {
-    margin: 6px 0;
+
+    margin: 5px 0;
+
     color: #166534;
-    line-height: 1.6;
+
+    font-size: 13px;
+
+    line-height: 1.65;
 }
 
 
 /* ============================================================
-   INTERVIEW BOX
+   INTERVIEW
    ============================================================ */
 
 .interview-box {
+
     margin-top: 20px;
+
     padding: 18px;
+
     background: #ffffff;
-    border: 1px solid #a7f3d0;
-    border-radius: 10px;
+
+    border:
+        1px solid
+        #bbf7d0;
+
+    border-radius: 12px;
 }
 
-.interview-box h3 {
-    margin: 0 0 15px;
-    color: #166534;
-    font-size: 17px;
+
+.interview-box-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
 }
+
+
+.interview-box-header h3 {
+
+    margin: 0;
+
+    color: #166534;
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
 
 .interview-row {
-    display: flex;
-    justify-content: space-between;
+
+    display: grid;
+
+    grid-template-columns:
+        160px
+        minmax(0, 1fr);
+
     gap: 20px;
-    padding: 10px 0;
-    border-bottom: 1px solid #ecfdf5;
+
+    padding:
+        11px
+        0;
+
+    border-bottom:
+        1px solid
+        #ecfdf5;
 }
+
 
 .interview-row:last-child {
+
     border-bottom: none;
-}
 
-.interview-row span {
-    color: #6b7280;
-    font-size: 13px;
-}
-
-.interview-row strong {
-    color: #111827;
-    font-size: 14px;
-    text-align: right;
-}
-
-
-/* ============================================================
-   CONTACT BOX
-   ============================================================ */
-
-.contact-box {
-    margin-top: 18px;
-    padding: 15px;
-    border-radius: 9px;
-    background: #ffffff;
-    border: 1px solid #d1fae5;
-}
-
-.contact-box strong {
-    display: block;
-    color: #166534;
-    margin-bottom: 5px;
-}
-
-.contact-box span {
-    color: #374151;
-    font-size: 14px;
-}
-
-
-/* ============================================================
-   MESSAGE
-   ============================================================ */
-
-.message-item {
-    padding: 18px 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.message-item:first-child {
-    padding-top: 0;
-}
-
-.message-item:last-child {
-    border-bottom: none;
     padding-bottom: 0;
 }
 
-.message-header {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 8px;
-}
 
-.message-header strong {
-    color: #111827;
-}
+.interview-row span {
 
-.message-date {
-    color: #9ca3af;
+    color: #6b7280;
+
     font-size: 12px;
+
+    font-weight: 600;
 }
 
-.message-type {
-    display: inline-block;
-    margin-bottom: 10px;
-    padding: 4px 8px;
-    background: #f3f4f6;
-    color: #374151;
-    border-radius: 5px;
+
+.interview-row strong {
+
+    color: #111827;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.interview-instructions {
+
+    margin-top: 15px;
+
+    padding-top: 15px;
+
+    border-top:
+        1px solid
+        #d1fae5;
+}
+
+
+.interview-instructions-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #6b7280;
+
     font-size: 11px;
+
     font-weight: 700;
 }
 
-.message-body {
-    color: #4b5563;
+
+.interview-instructions-content {
+
+    color: #374151;
+
+    font-size: 13px;
+
     line-height: 1.7;
+
     white-space: pre-line;
 }
 
 
 /* ============================================================
-   EMPTY MESSAGE
+   CONTACT
    ============================================================ */
 
-.empty-message {
-    padding: 25px;
-    text-align: center;
-    background: #f9fafb;
+.contact-box {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-top: 18px;
+
+    padding: 14px 16px;
+
+    background: #ffffff;
+
+    border:
+        1px solid
+        #d1fae5;
+
     border-radius: 10px;
-    color: #6b7280;
 }
 
 
-/* ============================================================
-   APPLICATION TIMELINE
-   ============================================================ */
+.contact-box-content strong {
 
-.timeline {
-    position: relative;
-}
-
-.timeline-item {
-    position: relative;
-    padding-left: 32px;
-    padding-bottom: 22px;
-}
-
-.timeline-item:last-child {
-    padding-bottom: 0;
-}
-
-.timeline-item::before {
-    content: "";
-    position: absolute;
-    left: 7px;
-    top: 4px;
-    bottom: -2px;
-    width: 2px;
-    background: #e5e7eb;
-}
-
-.timeline-item:last-child::before {
-    display: none;
-}
-
-.timeline-dot {
-    position: absolute;
-    left: 0;
-    top: 2px;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #111827;
-    border: 3px solid #ffffff;
-    box-shadow: 0 0 0 1px #d1d5db;
-}
-
-.timeline-item strong {
     display: block;
-    color: #111827;
-    font-size: 14px;
-}
 
-.timeline-item span {
-    display: block;
-    margin-top: 4px;
-    color: #6b7280;
+    margin-bottom: 3px;
+
+    color: #166534;
+
     font-size: 13px;
 }
 
 
+.contact-box-content span {
+
+    color: #4b5563;
+
+    font-size: 12px;
+}
+
+
+.contact-whatsapp {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 36px;
+
+    padding:
+        0
+        12px;
+
+    border-radius: 8px;
+
+    background: #16a34a;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
 /* ============================================================
-   SIDEBAR INFORMATION
+   MAIN GRID
    ============================================================ */
 
-.side-info {
+.applicant-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        320px;
+
+    gap: 24px;
+
+    align-items: start;
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.applicant-card {
+
+    margin-bottom: 24px;
+
+    padding: 24px;
+
+    background:
+        var(--portal-white);
+
+    border:
+        1px solid
+        var(--portal-border);
+
+    border-radius:
+        var(--portal-radius);
+
+    box-shadow:
+        var(--portal-shadow);
+}
+
+
+.card-heading {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 22px;
+
+    padding-bottom: 16px;
+
+    border-bottom:
+        1px solid
+        #f0f1f3;
+}
+
+
+.card-heading-left span {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--portal-muted);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+}
+
+
+.card-heading-left h2 {
+
+    margin: 0;
+
+    color: var(--portal-text);
+
+    font-size: 18px;
+
+    font-weight: 800;
+}
+
+
+/* ============================================================
+   INFORMATION GRID
+   ============================================================ */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap:
+        20px
+        22px;
+}
+
+
+.info-item {
+
+    min-width: 0;
+}
+
+
+.info-item.full-width {
+
+    grid-column:
+        1 / -1;
+}
+
+
+.info-item label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--portal-muted);
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.info-item strong {
+
+    display: block;
+
+    color: var(--portal-text);
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    line-height: 1.55;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   APPLICATION DETAILS
+   ============================================================ */
+
+.application-details {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+
+    gap: 1px;
+
+    overflow: hidden;
+
+    background:
+        var(--portal-border);
+
+    border:
+        1px solid
+        var(--portal-border);
+
+    border-radius: 12px;
+}
+
+
+.application-detail {
+
+    padding: 15px;
+
+    background: #ffffff;
+}
+
+
+.application-detail label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--portal-muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .3px;
+}
+
+
+.application-detail strong {
+
+    display: block;
+
+    color: var(--portal-text);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   SIDE CARD
+   ============================================================ */
+
+.side-card {
+
+    position: sticky;
+
+    top: 20px;
+}
+
+
+.side-card .applicant-card {
+
     margin-bottom: 18px;
 }
 
-.side-info:last-child {
-    margin-bottom: 0;
+
+.side-info {
+
+    padding:
+        13px
+        0;
+
+    border-bottom:
+        1px solid
+        #f0f1f3;
 }
+
+
+.side-info:first-child {
+
+    padding-top: 0;
+}
+
+
+.side-info:last-child {
+
+    padding-bottom: 0;
+
+    border-bottom: none;
+}
+
 
 .side-info label {
+
     display: block;
-    font-size: 12px;
-    color: #6b7280;
+
     margin-bottom: 5px;
+
+    color: var(--portal-muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .3px;
 }
 
+
 .side-info strong {
+
     display: block;
-    color: #111827;
-    font-size: 14px;
+
+    color: var(--portal-text);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   TIMELINE
+   ============================================================ */
+
+.timeline {
+
+    position: relative;
+
+    padding-left: 5px;
+}
+
+
+.timeline-item {
+
+    position: relative;
+
+    padding:
+        0
+        0
+        23px
+        30px;
+}
+
+
+.timeline-item:last-child {
+
+    padding-bottom: 0;
+}
+
+
+.timeline-item::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 6px;
+
+    top: 17px;
+
+    bottom: -2px;
+
+    width: 1px;
+
+    background:
+        #d1d5db;
+}
+
+
+.timeline-item:last-child::before {
+
+    display: none;
+}
+
+
+.timeline-dot {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 2px;
+
+    width: 13px;
+
+    height: 13px;
+
+    border-radius: 50%;
+
+    background:
+        #ffffff;
+
+    border:
+        3px solid
+        #9ca3af;
+
+    box-sizing: border-box;
+}
+
+
+.timeline-item.active
+.timeline-dot {
+
+    border-color:
+        var(--portal-accent);
+
+    background:
+        var(--portal-accent);
+}
+
+
+.timeline-item strong {
+
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--portal-text);
+
+    font-size: 13px;
+
+    font-weight: 800;
+}
+
+
+.timeline-item span {
+
+    display: block;
+
+    color: var(--portal-muted);
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+
+.message-item {
+
+    padding:
+        17px
+        0;
+
+    border-bottom:
+        1px solid
+        var(--portal-border);
+}
+
+
+.message-item:first-child {
+
+    padding-top: 0;
+}
+
+
+.message-item:last-child {
+
+    padding-bottom: 0;
+
+    border-bottom: none;
+}
+
+
+.message-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 8px;
+}
+
+
+.message-header strong {
+
+    color: var(--portal-text);
+
+    font-size: 13px;
+}
+
+
+.message-date {
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+}
+
+
+.message-type {
+
+    display: inline-flex;
+
+    margin-bottom: 8px;
+
+    padding:
+        4px
+        8px;
+
+    border-radius: 5px;
+
+    background:
+        #f3f4f6;
+
+    color:
+        #374151;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: .3px;
+}
+
+
+.message-body {
+
+    color: #4b5563;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
+}
+
+
+/* ============================================================
+   EMPTY
+   ============================================================ */
+
+.empty-message {
+
+    padding: 25px 15px;
+
+    text-align: center;
+
+    background:
+        #f9fafb;
+
+    border:
+        1px dashed
+        #d1d5db;
+
+    border-radius: 10px;
+
+    color: var(--portal-muted);
+
+    font-size: 12px;
+
+    line-height: 1.6;
 }
 
 
@@ -510,11 +1484,28 @@ Applicant Portal | {{ company_name }}
    ============================================================ */
 
 .portal-footer {
+
+    margin-top: 32px;
+
+    padding-top: 20px;
+
+    border-top:
+        1px solid
+        var(--portal-border);
+
     text-align: center;
-    margin-top: 30px;
+
     color: #9ca3af;
-    font-size: 12px;
+
+    font-size: 11px;
+
     line-height: 1.6;
+}
+
+
+.portal-footer strong {
+
+    color: #6b7280;
 }
 
 
@@ -522,64 +1513,259 @@ Applicant Portal | {{ company_name }}
    MOBILE
    ============================================================ */
 
-@media (max-width: 850px) {
+@media (max-width: 950px) {
 
     .applicant-grid {
+
         grid-template-columns: 1fr;
+
+    }
+
+    .side-card {
+
+        position: static;
+
     }
 
 }
 
+
 @media (max-width: 650px) {
 
     .applicant-page {
-        padding: 15px 12px 35px;
+
+        padding:
+            15px
+            12px
+            40px;
+
     }
+
 
     .applicant-header {
-        padding: 18px;
+
         align-items: flex-start;
+
         flex-direction: column;
+
+        padding: 17px;
+
     }
 
-    .applicant-header h1 {
-        font-size: 21px;
+
+    .applicant-header-left {
+
+        width: 100%;
+
     }
+
 
     .applicant-logout {
+
         width: 100%;
-        text-align: center;
+
         box-sizing: border-box;
+
     }
 
-    .info-grid {
-        grid-template-columns: 1fr;
+
+    .applicant-logo-wrapper,
+    .applicant-logo-placeholder {
+
+        width: 50px;
+
+        height: 50px;
+
     }
 
-    .info-item.full-width {
-        grid-column: auto;
+
+    .applicant-brand h1 {
+
+        font-size: 16px;
+
     }
 
-    .applicant-card {
-        padding: 18px;
+
+    .application-hero {
+
+        padding: 22px 19px;
+
+        border-radius: 15px;
+
     }
+
+
+    .application-hero h2 {
+
+        font-size: 24px;
+
+    }
+
+
+    .application-hero-description {
+
+        font-size: 12px;
+
+    }
+
+
+    .status-panel {
+
+        padding: 14px;
+
+    }
+
+
+    .status-panel-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .application-progress {
+
+        overflow-x: auto;
+
+    }
+
+
+    .progress-step {
+
+        flex: 0 0 auto;
+
+    }
+
+
+    .progress-line {
+
+        width: 35px;
+
+        flex: 0 0 35px;
+
+    }
+
 
     .shortlisted-notice {
+
         padding: 18px;
+
     }
+
+
+    .shortlisted-notice-header {
+
+        gap: 11px;
+
+    }
+
+
+    .shortlisted-icon {
+
+        width: 42px;
+
+        height: 42px;
+
+        font-size: 17px;
+
+    }
+
+
+    .shortlisted-notice h2 {
+
+        font-size: 18px;
+
+    }
+
+
+    .contact-box {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .contact-whatsapp {
+
+        width: 100%;
+
+    }
+
+
+    .applicant-card {
+
+        padding: 18px;
+
+        border-radius: 14px;
+
+    }
+
+
+    .info-grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 17px;
+
+    }
+
+
+    .info-item.full-width {
+
+        grid-column: auto;
+
+    }
+
+
+    .application-details {
+
+        grid-template-columns: 1fr;
+
+    }
+
 
     .interview-row {
-        flex-direction: column;
+
+        grid-template-columns: 1fr;
+
         gap: 4px;
+
     }
 
-    .interview-row strong {
-        text-align: left;
-    }
 
     .message-header {
+
+        align-items: flex-start;
+
         flex-direction: column;
+
         gap: 4px;
+
+    }
+
+}
+
+
+/* ============================================================
+   VERY SMALL SCREEN
+   ============================================================ */
+
+@media (max-width: 390px) {
+
+    .application-hero h2 {
+
+        font-size: 21px;
+
+    }
+
+    .application-reference {
+
+        font-size: 10px;
+
     }
 
 }
@@ -598,18 +1784,58 @@ Applicant Portal | {{ company_name }}
 
         <div class="applicant-header-left">
 
-            <div class="applicant-logo">
-                AV
-            </div>
 
-            <div>
+            <!-- COMPANY LOGO -->
+
+            {% if settings and settings.logo %}
+
+                <div class="applicant-logo-wrapper">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/' ~ settings.logo
+                        ) }}"
+                        alt="{{ settings.company_name or 'Company Logo' }}"
+                        class="applicant-logo-image"
+                    >
+
+                </div>
+
+            {% else %}
+
+                <div class="applicant-logo-placeholder">
+
+                    {{
+                        (
+                            settings.company_name[:2]
+                            if settings
+                            and settings.company_name
+                            else "AV"
+                        )|upper
+                    }}
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="applicant-brand">
 
                 <h1>
-                    Applicant Portal
+
+                    {{
+                        settings.company_name
+                        if settings
+                        and settings.company_name
+                        else company_name
+                        or "AV KING"
+                    }}
+
                 </h1>
 
                 <p>
-                    {{ company_name }}
+                    Applicant Recruitment Portal
                 </p>
 
             </div>
@@ -621,7 +1847,11 @@ Applicant Portal | {{ company_name }}
             href="{{ url_for('applicant_logout') }}"
             class="applicant-logout"
         >
-            Sign Out
+
+            <span>Sign Out</span>
+
+            <span>→</span>
+
         </a>
 
     </header>
@@ -629,52 +1859,227 @@ Applicant Portal | {{ company_name }}
 
 
     <!-- ========================================================
-         APPLICATION STATUS
+         APPLICATION HERO
          ======================================================== -->
 
-    <section class="application-status-banner">
+    <section class="application-hero">
 
-        <span class="status-label">
-            APPLICATION STATUS
-        </span>
+        <div class="application-hero-content">
 
 
-        <h2>
-
-            Welcome,
-
-            {{ application.first_name }}
-
-            {% if application.middle_name %}
-                {{ application.middle_name }}
-            {% endif %}
-
-            {{ application.last_name }}
-
-        </h2>
-
-
-        <p>
-            You can monitor the progress of your application
-            from this portal.
-        </p>
-
-
-        <span class="application-number">
-
-            Application No:
-            {{ application.application_number }}
-
-        </span>
-
-
-        <div>
-
-            <span
-                class="status-box status-{{ application.status|lower|replace(' ', '-') }}"
-            >
-                {{ application.status }}
+            <span class="application-eyebrow">
+                APPLICATION DASHBOARD
             </span>
+
+
+            <h2>
+
+                Welcome,
+
+                {{ application.first_name }}
+
+                {% if application.middle_name %}
+                    {{ application.middle_name }}
+                {% endif %}
+
+                {{ application.last_name }}
+
+            </h2>
+
+
+            <p class="application-hero-description">
+
+                Welcome to your recruitment application dashboard.
+                You can use this portal to monitor your application
+                status, interview information and recruitment updates.
+
+            </p>
+
+
+            <div class="application-reference">
+
+                Application No:
+
+                <strong>
+                    {{ application.application_number }}
+                </strong>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="status-panel">
+
+                <div class="status-panel-header">
+
+                    <span class="status-panel-label">
+                        CURRENT APPLICATION STATUS
+                    </span>
+
+
+                    <span
+                        class="
+                            status-box
+                            status-{{ application.status|lower|replace(' ', '-') }}
+                        "
+                    >
+
+                        {{ application.status }}
+
+                    </span>
+
+                </div>
+
+
+                <!-- =================================================
+                     PROGRESS
+                     ================================================= -->
+
+                <div class="application-progress">
+
+
+                    <!-- SUBMITTED -->
+
+                    <div
+                        class="
+                            progress-step
+                            completed
+                        "
+                    >
+
+                        <div class="progress-dot">
+                            ✓
+                        </div>
+
+                        <span class="progress-label">
+                            Submitted
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-line"></div>
+
+
+                    <!-- REVIEW -->
+
+                    <div
+                        class="
+                            progress-step
+
+                            {% if application.status in [
+                                'Under Review',
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                completed
+                            {% endif %}
+
+                            {% if application.status == 'Under Review' %}
+                                current
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="progress-dot">
+
+                            {% if application.status in [
+                                'Under Review',
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                ✓
+                            {% else %}
+                                2
+                            {% endif %}
+
+                        </div>
+
+                        <span class="progress-label">
+                            Review
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-line"></div>
+
+
+                    <!-- SHORTLISTED -->
+
+                    <div
+                        class="
+                            progress-step
+
+                            {% if application.status in [
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                completed
+                            {% endif %}
+
+                            {% if application.status == 'Shortlisted' %}
+                                current
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="progress-dot">
+
+                            {% if application.status in [
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                ✓
+                            {% else %}
+                                3
+                            {% endif %}
+
+                        </div>
+
+                        <span class="progress-label">
+                            Shortlisted
+                        </span>
+
+                    </div>
+
+
+                    <div class="progress-line"></div>
+
+
+                    <!-- DECISION -->
+
+                    <div
+                        class="
+                            progress-step
+
+                            {% if application.status == 'Approved' %}
+                                completed
+                                current
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="progress-dot">
+
+                            {% if application.status == 'Approved' %}
+                                ✓
+                            {% else %}
+                                4
+                            {% endif %}
+
+                        </div>
+
+                        <span class="progress-label">
+                            Decision
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -683,14 +2088,16 @@ Applicant Portal | {{ company_name }}
 
 
     <!-- ========================================================
-         SHORTLISTED NOTIFICATION
+         SHORTLISTED NOTICE
          ======================================================== -->
 
     {% if application.status == "Shortlisted" %}
 
     <section class="shortlisted-notice">
 
+
         <div class="shortlisted-notice-header">
+
 
             <div class="shortlisted-icon">
                 ✓
@@ -704,13 +2111,14 @@ Applicant Portal | {{ company_name }}
                 </h2>
 
                 <p>
-                    You have been shortlisted for the next stage
-                    of our recruitment process.
+                    Your application has been shortlisted for the
+                    next stage of the recruitment process.
                 </p>
 
                 <p>
-                    Please continue checking this portal for
-                    interview details and further instructions.
+                    Please review the interview information below
+                    and continue checking your applicant portal
+                    for further updates.
                 </p>
 
             </div>
@@ -718,15 +2126,27 @@ Applicant Portal | {{ company_name }}
         </div>
 
 
+
+        <!-- =====================================================
+             INTERVIEW INFORMATION
+             ===================================================== -->
+
         {% if application.interview_date
             or application.interview_location
-            or application.interview_notes %}
+            or application.interview_notes
+            or application.interview_status %}
+
 
         <div class="interview-box">
 
-            <h3>
-                Interview Information
-            </h3>
+
+            <div class="interview-box-header">
+
+                <h3>
+                    Interview Information
+                </h3>
+
+            </div>
 
 
             {% if application.interview_date %}
@@ -750,6 +2170,7 @@ Applicant Portal | {{ company_name }}
             {% endif %}
 
 
+
             {% if application.interview_location %}
 
             <div class="interview-row">
@@ -765,6 +2186,7 @@ Applicant Portal | {{ company_name }}
             </div>
 
             {% endif %}
+
 
 
             {% if application.interview_status %}
@@ -784,57 +2206,64 @@ Applicant Portal | {{ company_name }}
             {% endif %}
 
 
+
             {% if application.interview_notes %}
 
-            <div
-                style="
-                    margin-top:15px;
-                    padding-top:15px;
-                    border-top:1px solid #d1fae5;
-                "
-            >
+            <div class="interview-instructions">
 
-                <span
-                    style="
-                        display:block;
-                        color:#6b7280;
-                        font-size:12px;
-                        margin-bottom:6px;
-                    "
-                >
-                    Instructions
+                <span class="interview-instructions-label">
+                    INSTRUCTIONS
                 </span>
 
-                <div
-                    style="
-                        color:#374151;
-                        line-height:1.7;
-                        white-space:pre-line;
-                    "
-                >
+                <div class="interview-instructions-content">
+
                     {{ application.interview_notes }}
+
                 </div>
 
             </div>
 
             {% endif %}
 
+
         </div>
 
         {% endif %}
 
 
+
+        <!-- =====================================================
+             RECRUITMENT CONTACT
+             ===================================================== -->
+
         <div class="contact-box">
 
-            <strong>
-                Recruitment Enquiries
-            </strong>
 
-            <span>
-                WhatsApp: +234 905 884 2501
-            </span>
+            <div class="contact-box-content">
+
+                <strong>
+                    Recruitment Enquiries
+                </strong>
+
+                <span>
+                    WhatsApp: +234 905 884 2501
+                </span>
+
+            </div>
+
+
+            <a
+                href="https://wa.me/2349058842501"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-whatsapp"
+            >
+                Contact Recruitment
+            </a>
+
 
         </div>
+
 
     </section>
 
@@ -843,7 +2272,7 @@ Applicant Portal | {{ company_name }}
 
 
     <!-- ========================================================
-         MAIN GRID
+         MAIN CONTENT
          ======================================================== -->
 
     <div class="applicant-grid">
@@ -862,20 +2291,27 @@ Applicant Portal | {{ company_name }}
 
             <section class="applicant-card">
 
+
                 <div class="card-heading">
 
-                    <span>
-                        PERSONAL INFORMATION
-                    </span>
+                    <div class="card-heading-left">
 
-                    <h2>
-                        Applicant Details
-                    </h2>
+                        <span>
+                            PERSONAL INFORMATION
+                        </span>
+
+                        <h2>
+                            Applicant Details
+                        </h2>
+
+                    </div>
 
                 </div>
 
 
+
                 <div class="info-grid">
+
 
                     <div class="info-item">
 
@@ -888,6 +2324,7 @@ Applicant Portal | {{ company_name }}
                         </strong>
 
                     </div>
+
 
 
                     <div class="info-item">
@@ -903,6 +2340,7 @@ Applicant Portal | {{ company_name }}
                     </div>
 
 
+
                     <div class="info-item">
 
                         <label>
@@ -914,6 +2352,7 @@ Applicant Portal | {{ company_name }}
                         </strong>
 
                     </div>
+
 
 
                     <div class="info-item">
@@ -929,6 +2368,7 @@ Applicant Portal | {{ company_name }}
                     </div>
 
 
+
                     <div class="info-item">
 
                         <label>
@@ -942,6 +2382,7 @@ Applicant Portal | {{ company_name }}
                     </div>
 
 
+
                     <div class="info-item">
 
                         <label>
@@ -949,10 +2390,11 @@ Applicant Portal | {{ company_name }}
                         </label>
 
                         <strong>
-                            {{ application.phone }}
+                            {{ application.phone or "—" }}
                         </strong>
 
                     </div>
+
 
 
                     <div class="info-item full-width">
@@ -968,6 +2410,7 @@ Applicant Portal | {{ company_name }}
                     </div>
 
 
+
                     <div class="info-item full-width">
 
                         <label>
@@ -979,6 +2422,7 @@ Applicant Portal | {{ company_name }}
                         </strong>
 
                     </div>
+
 
 
                     <div class="info-item">
@@ -994,10 +2438,11 @@ Applicant Portal | {{ company_name }}
                     </div>
 
 
+
                     <div class="info-item">
 
                         <label>
-                            LGA
+                            Local Government Area
                         </label>
 
                         <strong>
@@ -1005,6 +2450,7 @@ Applicant Portal | {{ company_name }}
                         </strong>
 
                     </div>
+
 
                 </div>
 
@@ -1018,10 +2464,611 @@ Applicant Portal | {{ company_name }}
 
             <section class="applicant-card">
 
+
                 <div class="card-heading">
 
-                    <span>
-                        APPLICATION
+                    <div class="card-heading-left">
+
+                        <span>
+                            APPLICATION
+                        </span>
+
+                        <h2>
+                            Application Information
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="application-details">
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            APPLICATION NUMBER
+                        </label>
+
+                        <strong>
+                            {{ application.application_number }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            POSITION APPLIED FOR
+                        </label>
+
+                        <strong>
+                            {{ application.position_applied or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            HIGHEST QUALIFICATION
+                        </label>
+
+                        <strong>
+                            {{ application.highest_qualification or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            COURSE OF STUDY
+                        </label>
+
+                        <strong>
+                            {{ application.course_of_study or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            INSTITUTION
+                        </label>
+
+                        <strong>
+                            {{ application.institution or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            GRADUATION YEAR
+                        </label>
+
+                        <strong>
+                            {{ application.graduation_year or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            WORK EXPERIENCE
+                        </label>
+
+                        <strong>
+                            {{ application.work_experience or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            PREVIOUS EMPLOYER
+                        </label>
+
+                        <strong>
+                            {{ application.previous_employer or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            PREVIOUS POSITION
+                        </label>
+
+                        <strong>
+                            {{ application.previous_position or "—" }}
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="application-detail">
+
+                        <label>
+                            APPLICATION STATUS
+                        </label>
+
+                        <strong>
+                            {{ application.status }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 APPLICATION REASON
+                 ================================================= -->
+
+            {% if application.reason_for_applying
+                or application.additional_information %}
+
+            <section class="applicant-card">
+
+
+                <div class="card-heading">
+
+                    <div class="card-heading-left">
+
+                        <span>
+                            APPLICATION STATEMENT
+                        </span>
+
+                        <h2>
+                            Additional Information
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+
+                {% if application.reason_for_applying %}
+
+                <div class="info-item"
+                     style="margin-bottom:20px;">
+
+                    <label>
+                        Reason for Applying
+                    </label>
+
+                    <strong
+                        style="
+                            font-weight:500;
+                            color:#4b5563;
+                            white-space:pre-line;
+                        "
+                    >
+                        {{ application.reason_for_applying }}
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+
+                {% if application.additional_information %}
+
+                <div class="info-item">
+
+                    <label>
+                        Additional Information
+                    </label>
+
+                    <strong
+                        style="
+                            font-weight:500;
+                            color:#4b5563;
+                            white-space:pre-line;
+                        "
+                    >
+                        {{ application.additional_information }}
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+            </section>
+
+            {% endif %}
+
+
+
+            <!-- =================================================
+                 RECRUITMENT MESSAGES
+                 ================================================= -->
+
+            {% if messages %}
+
+            <section class="applicant-card">
+
+
+                <div class="card-heading">
+
+                    <div class="card-heading-left">
+
+                        <span>
+                            COMMUNICATION
+                        </span>
+
+                        <h2>
+                            Recruitment Updates
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+
+                {% for message in messages %}
+
+                <div class="message-item">
+
+
+                    <div class="message-header">
+
+                        <strong>
+
+                            {{ message.subject
+                               or "Recruitment Update" }}
+
+                        </strong>
+
+
+                        {% if message.created_at %}
+
+                        <span class="message-date">
+
+                            {{ message.created_at }}
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    {% if message.message_type %}
+
+                    <span class="message-type">
+
+                        {{ message.message_type }}
+
                     </span>
 
-                 
+                    {% endif %}
+
+
+
+                    <div class="message-body">
+
+                        {{ message.message }}
+
+                    </div>
+
+
+                </div>
+
+                {% endfor %}
+
+
+            </section>
+
+            {% endif %}
+
+
+        </main>
+
+
+
+        <!-- ====================================================
+             RIGHT SIDEBAR
+             ==================================================== -->
+
+        <aside class="side-card">
+
+
+            <!-- =================================================
+                 APPLICATION SUMMARY
+                 ================================================= -->
+
+            <section class="applicant-card">
+
+
+                <div class="card-heading">
+
+                    <div class="card-heading-left">
+
+                        <span>
+                            SUMMARY
+                        </span>
+
+                        <h2>
+                            Application Overview
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="side-info">
+
+                    <label>
+                        Application Number
+                    </label>
+
+                    <strong>
+                        {{ application.application_number }}
+                    </strong>
+
+                </div>
+
+
+
+                <div class="side-info">
+
+                    <label>
+                        Position
+                    </label>
+
+                    <strong>
+                        {{ application.position_applied or "—" }}
+                    </strong>
+
+                </div>
+
+
+
+                <div class="side-info">
+
+                    <label>
+                        Current Status
+                    </label>
+
+                    <strong>
+                        {{ application.status }}
+                    </strong>
+
+                </div>
+
+
+
+                {% if application.created_at %}
+
+                <div class="side-info">
+
+                    <label>
+                        Application Date
+                    </label>
+
+                    <strong>
+                        {{ application.created_at }}
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+            </section>
+
+
+
+            <!-- =================================================
+                 APPLICATION TIMELINE
+                 ================================================= -->
+
+            <section class="applicant-card">
+
+
+                <div class="card-heading">
+
+                    <div class="card-heading-left">
+
+                        <span>
+                            PROCESS
+                        </span>
+
+                        <h2>
+                            Recruitment Progress
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="timeline">
+
+
+                    <div class="timeline-item active">
+
+                        <div class="timeline-dot"></div>
+
+                        <strong>
+                            Application Submitted
+                        </strong>
+
+                        <span>
+                            Your application has been received.
+                        </span>
+
+                    </div>
+
+
+
+                    <div
+                        class="
+                            timeline-item
+                            {% if application.status in [
+                                'Under Review',
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                active
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="timeline-dot"></div>
+
+                        <strong>
+                            Application Review
+                        </strong>
+
+                        <span>
+                            Your application is being assessed.
+                        </span>
+
+                    </div>
+
+
+
+                    <div
+                        class="
+                            timeline-item
+                            {% if application.status in [
+                                'Shortlisted',
+                                'Approved'
+                            ] %}
+                                active
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="timeline-dot"></div>
+
+                        <strong>
+                            Shortlisting
+                        </strong>
+
+                        <span>
+                            Candidates selected for the next stage
+                            will receive an update here.
+                        </span>
+
+                    </div>
+
+
+
+                    <div
+                        class="
+                            timeline-item
+                            {% if application.status == 'Approved' %}
+                                active
+                            {% endif %}
+                        "
+                    >
+
+                        <div class="timeline-dot"></div>
+
+                        <strong>
+                            Final Decision
+                        </strong>
+
+                        <span>
+                            Final recruitment decision.
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+            </section>
+
+
+        </aside>
+
+
+    </div>
+
+
+
+    <!-- ========================================================
+         FOOTER
+         ======================================================== -->
+
+    <footer class="portal-footer">
+
+        <div>
+
+            <strong>
+                {{
+                    settings.company_name
+                    if settings
+                    and settings.company_name
+                    else company_name
+                    or "AV KING"
+                }}
+            </strong>
+
+            · Applicant Recruitment Portal
+
+        </div>
+
+
+        {% if settings and settings.footer_text %}
+
+        <div>
+            {{ settings.footer_text }}
+        </div>
+
+        {% endif %}
+
+
+        <div>
+            Please keep your application number and password secure.
+        </div>
+
+    </footer>
+
+
+</div>
+
+{% endblock %}
