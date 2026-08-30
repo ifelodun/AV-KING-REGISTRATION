@@ -7817,43 +7817,85 @@ def applicant_login():
         )
 
 
-    # =========================================================
+        # =========================================================
     # LOGIN SUCCESS
     # =========================================================
 
+    # Clear any previous session
     session.clear()
 
+    # =========================================================
+    # APPLICANT ID
+    # =========================================================
+
+    applicant_id = applicant["id"]
+
+    if not applicant_id:
+
+        flash(
+            "Unable to create your applicant session. Please try again.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+    # =========================================================
+    # APPLICANT NAME
+    # =========================================================
+
+    first_name = (
+        applicant["first_name"]
+        or ""
+    ).strip()
+
+    last_name = (
+        applicant["last_name"]
+        or ""
+    ).strip()
+
+    applicant_name = " ".join(
+        part
+        for part in [
+            first_name,
+            last_name
+        ]
+        if part
+    ).strip()
 
     # =========================================================
     # APPLICANT SESSION
     # =========================================================
 
-    session["applicant_id"] = applicant["id"]
+    session["applicant_id"] = applicant_id
 
     session["applicant_application_number"] = (
         applicant["application_number"]
     )
 
-    session["applicant_name"] = (
-        (
-            applicant["first_name"]
-            or ""
-        ).strip()
-        + " "
-        + (
-            applicant["last_name"]
-            or ""
-        ).strip()
-    ).strip()
+    session["applicant_name"] = applicant_name
 
     session["applicant_logged_in"] = True
 
-    # IMPORTANT:
-    # This allows base.html to identify the user
-    # as an applicant and show ONLY the applicant
-    # sidebar.
+    # =========================================================
+    # USER ROLE
+    # =========================================================
+
     session["role"] = "applicant"
 
+    # =========================================================
+    # ATTENDANCE COMPATIBILITY
+    # =========================================================
+
+    session["worker_id"] = applicant_id
+
+    # =========================================================
+    # MARK SESSION AS MODIFIED
+    # =========================================================
+
+    session.modified = True
 
     # =========================================================
     # UPDATE LAST LOGIN
@@ -7873,7 +7915,7 @@ def applicant_login():
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 """,
-                (applicant["id"],)
+                (applicant_id,)
             )
 
         conn.commit()
@@ -7889,7 +7931,6 @@ def applicant_login():
     finally:
 
         conn.close()
-
 
     # =========================================================
     # REDIRECT TO APPLICANT PORTAL
