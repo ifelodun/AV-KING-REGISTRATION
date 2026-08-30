@@ -1,19 +1,937 @@
 {% extends "base.html" %}
 
+{% block title %}
+Recruitment Reports | {{ company_name or "AV KING" }}
+{% endblock %}
+
 {% block content %}
 
-<div class="admin-reports-page">
-<!-- =========================================================
-     PAGE HEADER
-     ========================================================= -->
+<style>
 
-<div class="reports-header">
+/* =========================================================
+   REPORTS — PROFESSIONAL ADMIN INTERFACE
+========================================================= */
+
+.admin-reports-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 8px 0 40px;
+    color: #172033;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.reports-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.reports-title-area {
+    min-width: 0;
+}
+
+.reports-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.eyebrow-line {
+    width: 24px;
+    height: 2px;
+    border-radius: 10px;
+    background: #2563eb;
+}
+
+.reports-title-area h1 {
+    margin: 0;
+    color: #111827;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -.7px;
+}
+
+.reports-title-area p {
+    max-width: 680px;
+    margin: 9px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   EXPORT BUTTONS
+========================================================= */
+
+.reports-header-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.report-export-btn {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 180px;
+    padding: 11px 13px;
+    border: 1px solid #e5e7eb;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #111827;
+    text-decoration: none;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.report-export-btn:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 9px 24px rgba(15, 23, 42, .08);
+}
+
+.export-icon {
+    width: 37px;
+    height: 37px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .3px;
+}
+
+.pdf-export .export-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.excel-export .export-icon {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.export-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.export-text strong {
+    color: #111827;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.export-text small {
+    color: #9ca3af;
+    font-size: 10px;
+}
+
+.export-arrow {
+    margin-left: auto;
+    color: #9ca3af;
+    font-size: 16px;
+    transition: transform .2s ease;
+}
+
+.report-export-btn:hover .export-arrow {
+    transform: translateX(3px);
+    color: #2563eb;
+}
+
+
+/* =========================================================
+   SECTION INTRO
+========================================================= */
+
+.reports-summary-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 0 0 14px;
+}
+
+.section-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2563eb;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.25px;
+    text-transform: uppercase;
+}
+
+.reports-summary-header h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -.2px;
+}
+
+.report-period {
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.report-card {
+    position: relative;
+    min-height: 150px;
+    padding: 17px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 11px 28px rgba(15, 23, 42, .075);
+}
+
+.report-card::after {
+    content: "";
+    position: absolute;
+    right: -25px;
+    bottom: -35px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, .035);
+}
+
+.report-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.report-card-icon {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.card-indicator {
+    color: #9ca3af;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: .8px;
+}
+
+.report-card-content {
+    margin-top: 22px;
+}
+
+.report-card-label {
+    display: block;
+    color: #6b7280;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+
+.report-card-number {
+    display: block;
+    margin-top: 5px;
+    color: #111827;
+    font-size: 25px;
+    line-height: 1;
+    font-weight: 850;
+    letter-spacing: -.6px;
+}
+
+.report-card-content small {
+    display: block;
+    margin-top: 8px;
+    color: #9ca3af;
+    font-size: 9.5px;
+    line-height: 1.45;
+}
+
+
+/* STATUS CARD ACCENTS */
+
+.pending-card .report-card-icon {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.review-card .report-card-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.shortlisted-card .report-card-icon {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.approved-card .report-card-icon {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.rejected-card .report-card-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   GENERAL PANEL
+========================================================= */
+
+.report-panel {
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .035);
+}
+
+.report-panel-heading {
+    padding: 20px 22px;
+    border-bottom: 1px solid #eef0f3;
+}
+
+.report-panel-heading h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -.2px;
+}
+
+.report-panel-heading p {
+    max-width: 720px;
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 11.5px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   REPORT GENERATION
+========================================================= */
+
+.report-format-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 18px;
+}
+
+.report-format-card {
+    position: relative;
+    overflow: hidden;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafbfc;
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease;
+}
+
+.report-format-card:hover {
+    transform: translateY(-2px);
+    border-color: #dbe4f0;
+    background: #ffffff;
+}
+
+.format-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.format-icon {
+    width: 43px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.pdf-card .format-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.excel-card .format-icon {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.format-type {
+    color: #9ca3af;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.format-content {
+    margin-top: 18px;
+}
+
+.format-content h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.format-content p {
+    min-height: 58px;
+    margin: 7px 0 15px;
+    color: #6b7280;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.format-features {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 18px;
+}
+
+.format-features span {
+    color: #4b5563;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.format-features span::first-letter {
+    color: #16a34a;
+}
+
+.format-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 40px;
+    padding: 0 13px;
+    border-radius: 8px;
+    background: #111827;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 10.5px;
+    font-weight: 750;
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.format-button:hover {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.pdf-card .format-button:hover {
+    background: #b91c1c;
+}
+
+.excel-card .format-button:hover {
+    background: #047857;
+}
+
+
+/* =========================================================
+   STATUS REPORT
+========================================================= */
+
+.status-report-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(250px, .75fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.report-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.report-table th {
+    padding: 10px 13px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafbfc;
+    color: #6b7280;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+}
+
+.report-table td {
+    padding: 13px;
+    border-bottom: 1px solid #f0f1f3;
+    color: #4b5563;
+    font-size: 11px;
+}
+
+.report-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.report-table tbody tr:hover {
+    background: #fafcff;
+}
+
+.table-number {
+    color: #111827 !important;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.report-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.report-status.pending {
+    color: #c2410c;
+}
+
+.report-status.review {
+    color: #2563eb;
+}
+
+.report-status.shortlisted {
+    color: #15803d;
+}
+
+.report-status.approved {
+    color: #047857;
+}
+
+.report-status.rejected {
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   STATUS SUMMARY CARD
+========================================================= */
+
+.status-summary-card {
+    padding: 21px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background:
+        linear-gradient(
+            145deg,
+            #f8fbff,
+            #ffffff
+        );
+}
+
+.summary-card-label {
+    display: block;
+    color: #6b7280;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.status-summary-card > strong {
+    display: block;
+    margin-top: 6px;
+    color: #111827;
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 850;
+    letter-spacing: -1px;
+}
+
+.status-summary-card > p {
+    margin: 8px 0 18px;
+    color: #6b7280;
+    font-size: 10.5px;
+    line-height: 1.55;
+}
+
+.summary-divider {
+    height: 1px;
+    margin-bottom: 13px;
+    background: #e5e7eb;
+}
+
+.summary-mini-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 8px 0;
+}
+
+.summary-mini-row span {
+    color: #6b7280;
+    font-size: 10.5px;
+}
+
+.summary-mini-row strong {
+    color: #111827;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   GENDER TABLE
+========================================================= */
+
+.gender-name {
+    color: #111827 !important;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   QUICK ACCESS
+========================================================= */
+
+.report-navigation-links {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    padding: 18px;
+}
+
+.navigation-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #111827;
+    text-decoration: none;
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.navigation-link:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    background: #f8fbff;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, .055);
+}
+
+.navigation-icon {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.navigation-link div {
+    min-width: 0;
+}
+
+.navigation-link strong {
+    display: block;
+    color: #111827;
+    font-size: 10.5px;
+    font-weight: 800;
+}
+
+.navigation-link small {
+    display: block;
+    margin-top: 3px;
+    overflow: hidden;
+    color: #9ca3af;
+    font-size: 9px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.navigation-arrow {
+    margin-left: auto;
+    color: #9ca3af;
+    font-size: 14px;
+    transition: transform .2s ease;
+}
+
+.navigation-link:hover .navigation-arrow {
+    color: #2563eb;
+    transform: translateX(3px);
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.reports-page-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 0 0;
+    color: #9ca3af;
+    font-size: 9.5px;
+    font-weight: 600;
+}
+
+.footer-separator {
+    color: #d1d5db;
+}
+
+
+/* =========================================================
+   LARGE TABLET
+========================================================= */
+
+@media (max-width: 1250px) {
+
+    .reports-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .report-navigation-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .reports-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .reports-header-actions {
+        width: 100%;
+    }
+
+    .report-export-btn {
+        flex: 1;
+    }
+
+    .status-report-layout {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .admin-reports-page {
+        padding: 4px 0 30px;
+    }
+
+    .reports-title-area h1 {
+        font-size: 25px;
+    }
+
+    .reports-title-area p {
+        font-size: 12px;
+    }
+
+    .reports-header-actions {
+        flex-direction: column;
+    }
+
+    .report-export-btn {
+        width: 100%;
+    }
+
+    .reports-summary-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .reports-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .report-card {
+        min-height: 140px;
+        padding: 14px;
+    }
+
+    .report-card-number {
+        font-size: 22px;
+    }
+
+    .report-format-grid {
+        grid-template-columns: 1fr;
+        padding: 12px;
+    }
+
+    .status-report-layout {
+        padding: 12px;
+    }
+
+    .report-panel-heading {
+        padding: 17px;
+    }
+
+    .report-navigation-links {
+        grid-template-columns: 1fr;
+        padding: 12px;
+    }
+
+    .reports-page-footer {
+        flex-wrap: wrap;
+        text-align: center;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .report-card {
+        min-height: auto;
+    }
+
+    .report-card-content {
+        margin-top: 18px;
+    }
+
+    .report-table {
+        min-width: 480px;
+    }
+
+    .format-content p {
+        min-height: auto;
+    }
+
+}
+
+</style>
+
+<div class="admin-reports-page">
+
+
+<!-- =====================================================
+     HEADER
+====================================================== -->
+
+<header class="reports-header">
 
     <div class="reports-title-area">
 
         <div class="reports-eyebrow">
             <span class="eyebrow-line"></span>
-            RECRUITMENT MANAGEMENT
+            Recruitment Management
         </div>
 
         <h1>
@@ -21,8 +939,9 @@
         </h1>
 
         <p>
-            Monitor application activity, recruitment progress,
-            applicant demographics and generate professional reports.
+            Monitor application activity, recruitment progress
+            and applicant information from one professional
+            reporting workspace.
         </p>
 
     </div>
@@ -41,10 +960,12 @@
 
             <div class="export-text">
                 <strong>Export PDF</strong>
-                <small>Professional report</small>
+                <small>Professional document</small>
             </div>
 
-            <span class="export-arrow">→</span>
+            <span class="export-arrow">
+                →
+            </span>
 
         </a>
 
@@ -60,32 +981,36 @@
 
             <div class="export-text">
                 <strong>Export Excel</strong>
-                <small>Spreadsheet report</small>
+                <small>Spreadsheet data</small>
             </div>
 
-            <span class="export-arrow">→</span>
+            <span class="export-arrow">
+                →
+            </span>
 
         </a>
 
     </div>
 
-</div>
+</header>
 
 
-<!-- =========================================================
-     REPORT SUMMARY
-     ========================================================= -->
+<!-- =====================================================
+     APPLICATION OVERVIEW
+====================================================== -->
 
 <div class="reports-summary-header">
 
     <div>
+
         <span class="section-label">
-            RECRUITMENT OVERVIEW
+            Recruitment Overview
         </span>
 
         <h2>
             Application Summary
         </h2>
+
     </div>
 
     <span class="report-period">
@@ -95,13 +1020,12 @@
 </div>
 
 
-<!-- =========================================================
+<!-- =====================================================
      SUMMARY CARDS
-     ========================================================= -->
+====================================================== -->
 
 <div class="reports-grid">
 
-    <!-- TOTAL -->
 
     <div class="report-card total-card">
 
@@ -136,8 +1060,6 @@
     </div>
 
 
-    <!-- PENDING -->
-
     <div class="report-card pending-card">
 
         <div class="report-card-top">
@@ -170,8 +1092,6 @@
 
     </div>
 
-
-    <!-- REVIEW -->
 
     <div class="report-card review-card">
 
@@ -206,8 +1126,6 @@
     </div>
 
 
-    <!-- SHORTLISTED -->
-
     <div class="report-card shortlisted-card">
 
         <div class="report-card-top">
@@ -241,8 +1159,6 @@
     </div>
 
 
-    <!-- APPROVED -->
-
     <div class="report-card approved-card">
 
         <div class="report-card-top">
@@ -275,8 +1191,6 @@
 
     </div>
 
-
-    <!-- REJECTED -->
 
     <div class="report-card rejected-card">
 
@@ -313,30 +1227,26 @@
 </div>
 
 
-<!-- =========================================================
+<!-- =====================================================
      REPORT GENERATION
-     ========================================================= -->
+====================================================== -->
 
-<section class="report-panel report-generation-panel">
+<section class="report-panel">
 
     <div class="report-panel-heading">
 
-        <div>
+        <span class="section-label">
+            Report Generation
+        </span>
 
-            <span class="section-label">
-                REPORT GENERATION
-            </span>
+        <h2>
+            Download Reports
+        </h2>
 
-            <h2>
-                Download Reports
-            </h2>
-
-            <p>
-                Export recruitment information in professionally
-                formatted PDF or Excel documents.
-            </p>
-
-        </div>
+        <p>
+            Export recruitment information in professionally
+            formatted PDF or Excel documents.
+        </p>
 
     </div>
 
@@ -368,15 +1278,16 @@
                 </h3>
 
                 <p>
-                    Generate a professional recruitment report
-                    containing application statistics, applicant
-                    information and recruitment analysis.
+                    Generate a professional document containing
+                    recruitment statistics, applicant information
+                    and application activity.
                 </p>
+
 
                 <div class="format-features">
 
                     <span>
-                        ✓ Professional layout
+                        ✓ Professional report layout
                     </span>
 
                     <span>
@@ -394,8 +1305,15 @@
                     href="{{ url_for('export_admin_reports_pdf') }}"
                     class="format-button"
                 >
-                    <span>Generate PDF Report</span>
-                    <span>→</span>
+
+                    <span>
+                        Generate PDF Report
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+
                 </a>
 
             </div>
@@ -427,10 +1345,11 @@
                 </h3>
 
                 <p>
-                    Download recruitment information in Excel
-                    format for analysis, record keeping and
-                    administrative use.
+                    Download structured recruitment information
+                    for analysis, record keeping and administrative
+                    reporting.
                 </p>
+
 
                 <div class="format-features">
 
@@ -453,8 +1372,15 @@
                     href="{{ url_for('export_admin_reports_excel') }}"
                     class="format-button"
                 >
-                    <span>Generate Excel Report</span>
-                    <span>→</span>
+
+                    <span>
+                        Generate Excel Report
+                    </span>
+
+                    <span>
+                        →
+                    </span>
+
                 </a>
 
             </div>
@@ -466,29 +1392,26 @@
 </section>
 
 
-<!-- =========================================================
+<!-- =====================================================
      APPLICATION STATUS
-     ========================================================= -->
+====================================================== -->
 
 <section class="report-panel">
 
     <div class="report-panel-heading">
 
-        <div>
+        <span class="section-label">
+            Application Analysis
+        </span>
 
-            <span class="section-label">
-                APPLICATION ANALYSIS
-            </span>
+        <h2>
+            Application Status
+        </h2>
 
-            <h2>
-                Application Status
-            </h2>
-
-            <p>
-                Current distribution of applications by recruitment stage.
-            </p>
-
-        </div>
+        <p>
+            Current distribution of applications across
+            the recruitment process.
+        </p>
 
     </div>
 
@@ -525,6 +1448,7 @@
 
                 <tbody>
 
+
                     <tr>
 
                         <td>
@@ -541,11 +1465,24 @@
                         </td>
 
                         <td>
+
                             {% if total_applications or total %}
-                                {{ ((pending or 0) / (total_applications or total) * 100)|round(1) }}%
+
+                                {{
+                                    (
+                                        (pending or 0)
+                                        /
+                                        (total_applications or total)
+                                        * 100
+                                    )|round(1)
+                                }}%
+
                             {% else %}
+
                                 0%
+
                             {% endif %}
+
                         </td>
 
                     </tr>
@@ -567,11 +1504,24 @@
                         </td>
 
                         <td>
+
                             {% if total_applications or total %}
-                                {{ ((under_review or 0) / (total_applications or total) * 100)|round(1) }}%
+
+                                {{
+                                    (
+                                        (under_review or 0)
+                                        /
+                                        (total_applications or total)
+                                        * 100
+                                    )|round(1)
+                                }}%
+
                             {% else %}
+
                                 0%
+
                             {% endif %}
+
                         </td>
 
                     </tr>
@@ -593,11 +1543,24 @@
                         </td>
 
                         <td>
+
                             {% if total_applications or total %}
-                                {{ ((shortlisted or 0) / (total_applications or total) * 100)|round(1) }}%
+
+                                {{
+                                    (
+                                        (shortlisted or 0)
+                                        /
+                                        (total_applications or total)
+                                        * 100
+                                    )|round(1)
+                                }}%
+
                             {% else %}
+
                                 0%
+
                             {% endif %}
+
                         </td>
 
                     </tr>
@@ -619,11 +1582,24 @@
                         </td>
 
                         <td>
+
                             {% if total_applications or total %}
-                                {{ ((approved or 0) / (total_applications or total) * 100)|round(1) }}%
+
+                                {{
+                                    (
+                                        (approved or 0)
+                                        /
+                                        (total_applications or total)
+                                        * 100
+                                    )|round(1)
+                                }}%
+
                             {% else %}
+
                                 0%
+
                             {% endif %}
+
                         </td>
 
                     </tr>
@@ -645,14 +1621,28 @@
                         </td>
 
                         <td>
+
                             {% if total_applications or total %}
-                                {{ ((rejected or 0) / (total_applications or total) * 100)|round(1) }}%
+
+                                {{
+                                    (
+                                        (rejected or 0)
+                                        /
+                                        (total_applications or total)
+                                        * 100
+                                    )|round(1)
+                                }}%
+
                             {% else %}
+
                                 0%
+
                             {% endif %}
+
                         </td>
 
                     </tr>
+
 
                 </tbody>
 
@@ -661,7 +1651,7 @@
         </div>
 
 
-        <!-- STATUS SUMMARY -->
+        <!-- SUMMARY -->
 
         <div class="status-summary-card">
 
@@ -727,9 +1717,9 @@
 </section>
 
 
-<!-- =========================================================
-     GENDER REPORT
-     ========================================================= -->
+<!-- =====================================================
+     GENDER DISTRIBUTION
+====================================================== -->
 
 {% if gender_report %}
 
@@ -737,21 +1727,18 @@
 
     <div class="report-panel-heading">
 
-        <div>
+        <span class="section-label">
+            Applicant Demographics
+        </span>
 
-            <span class="section-label">
-                APPLICANT DEMOGRAPHICS
-            </span>
+        <h2>
+            Gender Distribution
+        </h2>
 
-            <h2>
-                Gender Distribution
-            </h2>
-
-            <p>
-                Applicant distribution based on recorded gender information.
-            </p>
-
-        </div>
+        <p>
+            Applicant distribution based on recorded
+            gender information.
+        </p>
 
     </div>
 
@@ -799,12 +1786,14 @@
 
                         {% if total_applications or total %}
 
-                            {{ (
-                                (row.total or row.count or 0)
-                                /
-                                (total_applications or total)
-                                * 100
-                            )|round(1) }}%
+                            {{
+                                (
+                                    (row.total or row.count or 0)
+                                    /
+                                    (total_applications or total)
+                                    * 100
+                                )|round(1)
+                            }}%
 
                         {% else %}
 
@@ -829,34 +1818,32 @@
 {% endif %}
 
 
-<!-- =========================================================
+<!-- =====================================================
      QUICK ACCESS
-     ========================================================= -->
+====================================================== -->
 
-<section class="report-panel quick-access-panel">
+<section class="report-panel">
 
     <div class="report-panel-heading">
 
-        <div>
+        <span class="section-label">
+            Quick Access
+        </span>
 
-            <span class="section-label">
-                QUICK ACCESS
-            </span>
+        <h2>
+            Recruitment Management
+        </h2>
 
-            <h2>
-                Recruitment Management
-            </h2>
-
-            <p>
-                Quickly navigate to other recruitment management areas.
-            </p>
-
-        </div>
+        <p>
+            Quickly navigate to other recruitment
+            management areas.
+        </p>
 
     </div>
 
 
     <div class="report-navigation-links">
+
 
         <a
             href="{{ url_for('admin_dashboard') }}"
@@ -868,8 +1855,15 @@
             </span>
 
             <div>
-                <strong>Dashboard</strong>
-                <small>Overview and activity</small>
+
+                <strong>
+                    Dashboard
+                </strong>
+
+                <small>
+                    Overview and activity
+                </small>
+
             </div>
 
             <span class="navigation-arrow">
@@ -889,8 +1883,15 @@
             </span>
 
             <div>
-                <strong>Applications</strong>
-                <small>Manage applicants</small>
+
+                <strong>
+                    Applications
+                </strong>
+
+                <small>
+                    Manage applicants
+                </small>
+
             </div>
 
             <span class="navigation-arrow">
@@ -910,8 +1911,15 @@
             </span>
 
             <div>
-                <strong>Interviews</strong>
-                <small>Manage interviews</small>
+
+                <strong>
+                    Interviews
+                </strong>
+
+                <small>
+                    Manage interviews
+                </small>
+
             </div>
 
             <span class="navigation-arrow">
@@ -931,8 +1939,15 @@
             </span>
 
             <div>
-                <strong>Settings</strong>
-                <small>System configuration</small>
+
+                <strong>
+                    Settings
+                </strong>
+
+                <small>
+                    System configuration
+                </small>
+
             </div>
 
             <span class="navigation-arrow">
@@ -946,11 +1961,19 @@
 </section>
 
 
-<!-- =========================================================
-     REPORT FOOTER
-     ========================================================= -->
+<!-- =====================================================
+     FOOTER
+====================================================== -->
 
-<div class="reports-page-footer">
+<footer class="reports-page-footer">
+
+    <span>
+        {{ company_name or "AV KING" }}
+    </span>
+
+    <span class="footer-separator">
+        •
+    </span>
 
     <span>
         Recruitment Management System
@@ -964,8 +1987,8 @@
         Administrative Reports
     </span>
 
-</div>
-```
+</footer>
+
 
 </div>
 
