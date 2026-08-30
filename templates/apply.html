@@ -1,816 +1,2132 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}
-Job Application | {{ company_name }}
-{% endblock %}
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Career application portal for {{ company_name }}"
+    >
+
+    <title>
+        Job Application | {{ company_name }}
+    </title>
 
 
-{% block content %}
+    <style>
+
+        /* =====================================================
+           RESET
+           ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background: #f5f7fa;
+            color: #172033;
+            line-height: 1.6;
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           PAGE
+           ===================================================== */
+
+        .application-page {
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           TOP HEADER
+           ===================================================== */
+
+        .application-topbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e7ebf0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+
+        .application-topbar-inner {
+            width: min(1180px, calc(100% - 40px));
+            margin: auto;
+
+            min-height: 76px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .company-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            text-decoration: none;
+            color: #172033;
+        }
+
+
+        .company-logo {
+            width: 46px;
+            height: 46px;
+
+            object-fit: contain;
+
+            border-radius: 10px;
+
+            border: 1px solid #e5e9ef;
+            background: #ffffff;
+        }
+
+
+        .company-logo-placeholder {
+            width: 46px;
+            height: 46px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #172033;
+            color: #ffffff;
+
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+
+        .company-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .company-brand-name {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+
+        .company-brand-subtitle {
+            font-size: 10px;
+            font-weight: 600;
+            color: #7b8493;
+            letter-spacing: .12em;
+        }
+
+
+        .header-login {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 42px;
+            padding: 0 18px;
+
+            border: 1px solid #dce2e9;
+            border-radius: 9px;
+
+            text-decoration: none;
+
+            color: #172033;
+            background: #ffffff;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition:
+                background .2s ease,
+                border-color .2s ease,
+                transform .2s ease;
+        }
+
+
+        .header-login:hover {
+            background: #f5f7fa;
+            border-color: #cbd3dd;
+            transform: translateY(-1px);
+        }
+
+
+        /* =====================================================
+           HERO
+           ===================================================== */
+
+        .application-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #172033 0%,
+                    #202d44 55%,
+                    #263955 100%
+                );
+
+            color: #ffffff;
+        }
+
+
+        .application-hero-inner {
+            width: min(1180px, calc(100% - 40px));
+            margin: auto;
+
+            padding: 62px 0 58px;
+
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 50px;
+        }
+
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            margin-bottom: 17px;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .16em;
+
+            color: #c8d1de;
+        }
+
+
+        .hero-eyebrow::before {
+            content: "";
+
+            width: 25px;
+            height: 2px;
+
+            background: #ffffff;
+            opacity: .7;
+        }
+
+
+        .application-hero h1 {
+            max-width: 760px;
+
+            font-size: clamp(32px, 5vw, 50px);
+            line-height: 1.08;
+
+            letter-spacing: -.035em;
+
+            margin-bottom: 17px;
+        }
+
+
+        .application-hero h1 strong {
+            font-weight: 800;
+        }
+
+
+        .application-hero-description {
+            max-width: 680px;
+
+            color: #cbd4df;
+
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+
+        .hero-badge {
+            width: 128px;
+            height: 128px;
+
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 50%;
+
+            background: rgba(255,255,255,.05);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+        }
+
+
+        .hero-badge-number {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+
+        .hero-badge-text {
+            margin-top: 7px;
+
+            color: #cbd4df;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            letter-spacing: .12em;
+        }
+
+
+        /* =====================================================
+           MAIN CONTENT
+           ===================================================== */
+
+        .application-main {
+            width: min(980px, calc(100% - 40px));
+            margin: 0 auto;
+
+            padding: 45px 0 80px;
+        }
+
+
+        /* =====================================================
+           FLASH MESSAGES
+           ===================================================== */
+
+        .flash-messages {
+            margin-bottom: 25px;
+        }
+
+
+        .alert {
+            padding: 14px 17px;
+
+            border-radius: 10px;
+
+            margin-bottom: 10px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            border: 1px solid transparent;
+        }
+
+
+        .alert-success {
+            background: #ecfdf3;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+
+        .alert-danger,
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+
+        .alert-warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+
+        .alert-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+
+        /* =====================================================
+           FORM
+           ===================================================== */
+
+        .application-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+
+        .form-section {
+            background: #ffffff;
+
+            border: 1px solid #e4e8ee;
+            border-radius: 14px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 4px 16px rgba(23, 32, 51, .035);
+        }
+
+
+        /* =====================================================
+           SECTION HEADER
+           ===================================================== */
+
+        .form-section-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+
+            margin-bottom: 28px;
+
+            padding-bottom: 20px;
+
+            border-bottom: 1px solid #edf0f4;
+        }
+
+
+        .section-number {
+            flex: 0 0 auto;
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #172033;
+            color: #ffffff;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+
+
+        .section-heading-text {
+            min-width: 0;
+        }
+
+
+        .section-heading-label {
+            display: block;
+
+            margin-bottom: 3px;
+
+            color: #8993a2;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+
+        .form-section-heading h2,
+        .form-section-heading h3 {
+            color: #172033;
+
+            font-size: 20px;
+            line-height: 1.3;
+
+            font-weight: 800;
+
+            margin-bottom: 4px;
+        }
+
+
+        .form-section-heading p {
+            color: #788394;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           FORM GRID
+           ===================================================== */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+
+            gap: 20px;
+        }
+
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+
+        .form-group label,
+        .upload-box > label {
+            color: #303b4d;
+
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+
+        .required {
+            color: #dc2626;
+            margin-left: 3px;
+        }
+
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+
+            border: 1px solid #d9dfe7;
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            color: #172033;
+
+            padding: 12px 13px;
+
+            font-size: 13px;
+
+            outline: none;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease,
+                background .2s ease;
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #a1a9b5;
+        }
+
+
+        input:hover,
+        select:hover,
+        textarea:hover {
+            border-color: #c2cad5;
+        }
+
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #172033;
+
+            box-shadow:
+                0 0 0 3px rgba(23, 32, 51, .08);
+        }
+
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+
+        select {
+            appearance: auto;
+        }
+
+
+        .field-help {
+            color: #8993a2;
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           PORTAL PASSWORD SECTION
+           ===================================================== */
+
+        .portal-section {
+            border-color: #dce3ec;
+        }
+
+
+        .portal-intro {
+            padding: 14px 16px;
+
+            margin-bottom: 22px;
+
+            border-radius: 9px;
+
+            background: #f5f7fa;
+
+            color: #667184;
+
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           FILE UPLOADS
+           ===================================================== */
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+
+            gap: 16px;
+        }
+
+
+        .upload-box {
+            min-width: 0;
+
+            padding: 20px;
+
+            border: 1px dashed #cbd3de;
+            border-radius: 11px;
+
+            background: #fafbfc;
+
+            transition:
+                border-color .2s ease,
+                background .2s ease;
+        }
+
+
+        .upload-box:hover {
+            border-color: #8995a6;
+            background: #f7f9fb;
+        }
+
+
+        .upload-box p {
+            margin: 6px 0 14px;
+
+            color: #8993a2;
+
+            font-size: 11px;
+        }
+
+
+        .upload-box input[type="file"] {
+            width: 100%;
+
+            font-size: 11px;
+            color: #687386;
+        }
+
+
+        .upload-box input[type="file"]::file-selector-button {
+            border: 1px solid #d5dbe3;
+
+            background: #ffffff;
+            color: #303b4d;
+
+            padding: 8px 10px;
+
+            border-radius: 7px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            margin-right: 8px;
+        }
+
+
+        /* =====================================================
+           DECLARATION
+           ===================================================== */
+
+        .declaration-section {
+            background: #fbfcfd;
+        }
+
+
+        .declaration {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+
+            padding: 17px;
+
+            border: 1px solid #e2e7ed;
+            border-radius: 10px;
+
+            background: #ffffff;
+
+            cursor: pointer;
+        }
+
+
+        .declaration input[type="checkbox"] {
+            flex: 0 0 auto;
+
+            width: 18px;
+            height: 18px;
+
+            margin-top: 2px;
+
+            accent-color: #172033;
+        }
+
+
+        .declaration span {
+            color: #5e6979;
+
+            font-size: 12px;
+            line-height: 1.75;
+        }
+
+
+        /* =====================================================
+           SUBMIT AREA
+           ===================================================== */
+
+        .submit-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 25px;
+
+            padding: 25px 5px 0;
+        }
+
+
+        .submit-note {
+            max-width: 500px;
+
+            color: #7b8594;
+
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+
+        .submit-button {
+            min-width: 210px;
+
+            min-height: 50px;
+
+            border: 0;
+            border-radius: 9px;
+
+            background: #172033;
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            padding: 0 24px;
+
+            transition:
+                background .2s ease,
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+
+        .submit-button:hover {
+            background: #26344b;
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 20px rgba(23, 32, 51, .16);
+        }
+
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+
+        /* =====================================================
+           FOOTER
+           ===================================================== */
+
+        .application-footer {
+            border-top: 1px solid #e1e6ec;
+            background: #ffffff;
+        }
+
+
+        .application-footer-inner {
+            width: min(1180px, calc(100% - 40px));
+            margin: auto;
+
+            min-height: 80px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .footer-company {
+            color: #596475;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+
+        .footer-note {
+            color: #9aa3af;
+
+            font-size: 10px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 850px) {
+
+            .application-hero-inner {
+                grid-template-columns: 1fr;
+            }
+
+
+            .hero-badge {
+                display: none;
+            }
+
+
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 680px) {
+
+            .application-topbar-inner {
+                min-height: 68px;
+            }
+
+
+            .company-brand-subtitle {
+                display: none;
+            }
+
+
+            .header-login {
+                min-height: 38px;
+                padding: 0 12px;
+
+                font-size: 11px;
+            }
+
+
+            .application-hero-inner {
+                width: min(100% - 30px, 1180px);
+
+                padding: 42px 0;
+            }
+
+
+            .application-main {
+                width: min(100% - 30px, 980px);
+
+                padding: 25px 0 55px;
+            }
+
+
+            .form-section {
+                padding: 21px;
+
+                border-radius: 11px;
+            }
+
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 17px;
+            }
+
+
+            .form-group-full {
+                grid-column: auto;
+            }
+
+
+            .submit-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+
+            .submit-button {
+                width: 100%;
+            }
+
+
+            .application-footer-inner {
+                flex-direction: column;
+                justify-content: center;
+
+                padding: 20px 0;
+            }
+
+        }
+
+
+        @media (max-width: 430px) {
+
+            .company-brand-name {
+                font-size: 13px;
+            }
+
+
+            .company-logo,
+            .company-logo-placeholder {
+                width: 40px;
+                height: 40px;
+            }
+
+
+            .application-hero h1 {
+                font-size: 30px;
+            }
+
+
+            .form-section-heading {
+                gap: 11px;
+            }
+
+
+            .section-number {
+                width: 34px;
+                height: 34px;
+            }
+
+
+            .form-section-heading h2,
+            .form-section-heading h3 {
+                font-size: 17px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
 
 <div class="application-page">
 
-    <div class="application-header">
 
-        <span>
-            CAREER APPLICATION
-        </span>
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
-        <h2>
-            Submit Your Application
-        </h2>
+    <header class="application-topbar">
 
-        <p>
-            Please provide accurate information below.
-            Your application will be carefully reviewed by
-            our recruitment team.
-        </p>
-
-    </div>
+        <div class="application-topbar-inner">
 
 
-    {% with messages = get_flashed_messages(
-        with_categories=true
-    ) %}
+            <a
+                href="/"
+                class="company-brand"
+                aria-label="Go to homepage"
+            >
 
-        {% if messages %}
+                {% if company_logo %}
 
-            {% for category, message in messages %}
+                    <img
+                        src="{{ company_logo }}"
+                        alt="{{ company_name }}"
+                        class="company-logo"
+                    >
 
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
+                {% else %}
 
-            {% endfor %}
+                    <div class="company-logo-placeholder">
+                        AV
+                    </div>
 
-        {% endif %}
-
-    {% endwith %}
-
-
-    <form
-        method="POST"
-        enctype="multipart/form-data"
-        class="application-form"
-    >
+                {% endif %}
 
 
-        <!-- =================================================
-             SECTION 1
-             ================================================= -->
+                <div class="company-brand-text">
 
-        <div class="form-section">
+                    <span class="company-brand-name">
+                        {{ company_name }}
+                    </span>
 
-            <div class="form-section-heading">
-
-                <span>
-                    01
-                </span>
-
-                <div>
-
-                    <h3>
-                        Personal Information
-                    </h3>
-
-                    <p>
-                        Tell us about yourself.
-                    </p>
+                    <span class="company-brand-subtitle">
+                        VETERINARY BUSINESS SUITE
+                    </span>
 
                 </div>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('applicant_login') }}"
+                class="header-login"
+            >
+                Applicant Login
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="application-hero">
+
+        <div class="application-hero-inner">
+
+
+            <div>
+
+                <div class="hero-eyebrow">
+                    CAREER APPLICATION
+                </div>
+
+
+                <h1>
+                    Submit Your
+                    <strong>Application</strong>
+                </h1>
+
+
+                <p class="application-hero-description">
+
+                    We are looking for dedicated, responsible
+                    and qualified individuals to join our
+                    growing team. Complete the application
+                    below with accurate information.
+
+                </p>
 
             </div>
 
 
-            <div class="form-grid">
+            <div class="hero-badge">
+
+                <span class="hero-badge-number">
+                    08
+                </span>
+
+                <span class="hero-badge-text">
+                    SIMPLE STEPS
+                </span>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="application-main">
+
+
+        <!-- =================================================
+             FLASH MESSAGES
+             ================================================= -->
+
+        {% with messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if messages %}
+
+                <div class="flash-messages">
+
+                    {% for category, message in messages %}
+
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+        {% endwith %}
+
+
+
+        <!-- =================================================
+             APPLICATION FORM
+             ================================================= -->
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            class="application-form"
+            id="applicationForm"
+        >
+
+
+            <!-- =============================================
+                 SECTION 01
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Applicant Details
+                        </span>
+
+                        <h2>
+                            Personal Information
+                        </h2>
+
+                        <p>
+                            Tell us about yourself.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="first_name">
+                            First Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            placeholder="Enter your first name"
+                            autocomplete="given-name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="middle_name">
+                            Middle Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="middle_name"
+                            name="middle_name"
+                            placeholder="Enter your middle name"
+                            autocomplete="additional-name"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="last_name">
+                            Last Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            placeholder="Enter your last name"
+                            autocomplete="family-name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="gender">
+                            Gender
+                        </label>
+
+                        <select
+                            id="gender"
+                            name="gender"
+                        >
+
+                            <option value="">
+                                Select gender
+                            </option>
+
+                            <option value="Male">
+                                Male
+                            </option>
+
+                            <option value="Female">
+                                Female
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="date_of_birth">
+                            Date of Birth
+                        </label>
+
+                        <input
+                            type="date"
+                            id="date_of_birth"
+                            name="date_of_birth"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 02
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        02
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Contact Details
+                        </span>
+
+                        <h2>
+                            Contact Information
+                        </h2>
+
+                        <p>
+                            Provide information that can be used to contact you.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="e.g. 08012345678"
+                            autocomplete="tel"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="email">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="example@email.com"
+                            autocomplete="email"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group form-group-full">
+
+                        <label for="address">
+                            Residential Address
+                        </label>
+
+                        <textarea
+                            id="address"
+                            name="address"
+                            rows="3"
+                            placeholder="Enter your full residential address"
+                            autocomplete="street-address"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="state">
+                            State
+                        </label>
+
+                        <input
+                            type="text"
+                            id="state"
+                            name="state"
+                            placeholder="Enter your state"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="lga">
+                            Local Government Area
+                        </label>
+
+                        <input
+                            type="text"
+                            id="lga"
+                            name="lga"
+                            placeholder="Enter your LGA"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 APPLICANT PORTAL ACCOUNT
+                 ============================================= -->
+
+            <section class="form-section portal-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        A
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Applicant Portal
+                        </span>
+
+                        <h2>
+                            Create Your Password
+                        </h2>
+
+                        <p>
+                            Your application number and this password
+                            will be used to access your applicant portal.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="portal-intro">
+
+                    After submitting your application, you will receive
+                    an application number. Keep your application number
+                    and password safe because you will need them to
+                    log in and track your application.
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="portal_password">
+                            Create Password
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="password"
+                            id="portal_password"
+                            name="portal_password"
+                            placeholder="Create a secure password"
+                            minlength="6"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <span class="field-help">
+                            Minimum of 6 characters.
+                        </span>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="confirm_portal_password">
+                            Confirm Password
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="password"
+                            id="confirm_portal_password"
+                            name="confirm_portal_password"
+                            placeholder="Enter your password again"
+                            minlength="6"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 03
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        03
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Career Opportunity
+                        </span>
+
+                        <h2>
+                            Position Applied For
+                        </h2>
+
+                        <p>
+                            Select the position you are interested in.
+                        </p>
+
+                    </div>
+
+                </div>
+
 
                 <div class="form-group">
 
-                    <label>
-                        First Name
-                        <required>*</required>
+                    <label for="position_applied">
+                        Position
+                        <span class="required">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="first_name"
-                        placeholder="Enter your first name"
+
+                    <select
+                        id="position_applied"
+                        name="position_applied"
                         required
                     >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Middle Name
-                    </label>
-
-                    <input
-                        type="text"
-                        name="middle_name"
-                        placeholder="Enter your middle name"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Last Name
-                        <required>*</required>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="last_name"
-                        placeholder="Enter your last name"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Gender
-                    </label>
-
-                    <select name="gender">
 
                         <option value="">
-                            Select gender
+                            Select a position
                         </option>
 
-                        <option value="Male">
-                            Male
-                        </option>
 
-                        <option value="Female">
-                            Female
-                        </option>
+                        {% for position in positions %}
+
+                            <option
+                                value="{{ position.position_name }}"
+                            >
+                                {{ position.position_name }}
+                            </option>
+
+                        {% endfor %}
+
 
                     </select>
 
                 </div>
 
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 04
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        04
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Academic Background
+                        </span>
+
+                        <h2>
+                            Education
+                        </h2>
+
+                        <p>
+                            Provide your highest educational qualification.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="highest_qualification">
+                            Highest Qualification
+                        </label>
+
+                        <input
+                            type="text"
+                            id="highest_qualification"
+                            name="highest_qualification"
+                            placeholder="e.g. B.Sc, HND, OND, SSCE"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="course_of_study">
+                            Course / Field of Study
+                        </label>
+
+                        <input
+                            type="text"
+                            id="course_of_study"
+                            name="course_of_study"
+                            placeholder="e.g. Animal Science"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group form-group-full">
+
+                        <label for="institution">
+                            Institution
+                        </label>
+
+                        <input
+                            type="text"
+                            id="institution"
+                            name="institution"
+                            placeholder="Name of institution attended"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="graduation_year">
+                            Graduation Year
+                        </label>
+
+                        <input
+                            type="text"
+                            id="graduation_year"
+                            name="graduation_year"
+                            placeholder="e.g. 2024"
+                            inputmode="numeric"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 05
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        05
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Professional Background
+                        </span>
+
+                        <h2>
+                            Work Experience
+                        </h2>
+
+                        <p>
+                            Tell us about your previous work experience.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="previous_employer">
+                            Previous Employer
+                        </label>
+
+                        <input
+                            type="text"
+                            id="previous_employer"
+                            name="previous_employer"
+                            placeholder="Company / organization"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="previous_position">
+                            Previous Position
+                        </label>
+
+                        <input
+                            type="text"
+                            id="previous_position"
+                            name="previous_position"
+                            placeholder="Position held"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group form-group-full">
+
+                        <label for="work_experience">
+                            Work Experience
+                        </label>
+
+                        <textarea
+                            id="work_experience"
+                            name="work_experience"
+                            rows="6"
+                            placeholder="Briefly describe your previous work experience, responsibilities and relevant skills..."
+                        ></textarea>
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 06
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        06
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Supporting Information
+                        </span>
+
+                        <h2>
+                            Tell Us More
+                        </h2>
+
+                        <p>
+                            Help us understand your interest in this opportunity.
+                        </p>
+
+                    </div>
+
+                </div>
+
 
                 <div class="form-group">
 
-                    <label>
-                        Date of Birth
-                    </label>
-
-                    <input
-                        type="date"
-                        name="date_of_birth"
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SECTION 2
-             ================================================= -->
-
-        <div class="form-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    02
-                </span>
-
-                <div>
-
-                    <h3>
-                        Contact Information
-                    </h3>
-
-                    <p>
-                        How can we reach you?
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label>
-                        Phone Number
-                        <required>*</required>
-                    </label>
-
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder="e.g. 08012345678"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="example@email.com"
-                    >
-
-                </div>
-
-
-                <div class="form-group form-group-full">
-
-                    <label>
-                        Residential Address
+                    <label for="reason_for_applying">
+                        Why do you want to work with us?
                     </label>
 
                     <textarea
-                        name="address"
-                        rows="3"
-                        placeholder="Enter your full residential address"
-                    ></textarea>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        State
-                    </label>
-
-                    <input
-                        type="text"
-                        name="state"
-                        placeholder="State"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Local Government Area
-                    </label>
-
-                    <input
-                        type="text"
-                        name="lga"
-                        placeholder="LGA"
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-<!-- ============================================================
-     APPLICANT PORTAL ACCOUNT
-     ============================================================ -->
-
-<div class="form-section">
-
-    <div class="section-heading">
-
-        <span>
-            APPLICANT PORTAL
-        </span>
-
-        <h3>
-            Create Your Portal Password
-        </h3>
-
-        <p>
-            This password will be used together with your
-            application number to access your applicant portal.
-        </p>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label for="portal_password">
-            Password
-        </label>
-
-        <input
-            type="password"
-            id="portal_password"
-            name="portal_password"
-            placeholder="Create a secure password"
-            minlength="6"
-            required
-        >
-
-        <small>
-            Minimum of 6 characters.
-        </small>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label for="confirm_portal_password">
-            Confirm Password
-        </label>
-
-        <input
-            type="password"
-            id="confirm_portal_password"
-            name="confirm_portal_password"
-            placeholder="Enter your password again"
-            minlength="6"
-            required
-        >
-
-    </div>
-
-</div>
-        <!-- =================================================
-             SECTION 3
-             ================================================= -->
-
-        <!-- =================================================
-     SECTION 3
-     ================================================= -->
-
-<div class="form-section">
-
-    <div class="form-section-heading">
-
-        <span>
-            03
-        </span>
-
-        <div>
-
-            <h3>
-                Position Applied For
-            </h3>
-
-            <p>
-                Select the position you are interested in.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="form-group">
-
-        <label for="position_applied">
-
-            Position
-
-            <required>*</required>
-
-        </label>
-
-
-        <select
-            id="position_applied"
-            name="position_applied"
-            required
-        >
-
-            <option value="">
-                Select a position
-            </option>
-
-
-            {% for position in positions %}
-
-                <option
-                    value="{{ position.position_name }}"
-                >
-                    {{ position.position_name }}
-                </option>
-
-            {% endfor %}
-
-
-        </select>
-
-    </div>
-
-</div>
-
-        <!-- =================================================
-             SECTION 4
-             ================================================= -->
-
-        <div class="form-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    04
-                </span>
-
-                <div>
-
-                    <h3>
-                        Education
-                    </h3>
-
-                    <p>
-                        Provide your highest educational qualification.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label>
-                        Highest Qualification
-                    </label>
-
-                    <input
-                        type="text"
-                        name="highest_qualification"
-                        placeholder="e.g. B.Sc, OND, HND, SSCE"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Course / Field of Study
-                    </label>
-
-                    <input
-                        type="text"
-                        name="course_of_study"
-                        placeholder="e.g. Animal Science"
-                    >
-
-                </div>
-
-
-                <div class="form-group form-group-full">
-
-                    <label>
-                        Institution
-                    </label>
-
-                    <input
-                        type="text"
-                        name="institution"
-                        placeholder="Name of institution"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Graduation Year
-                    </label>
-
-                    <input
-                        type="text"
-                        name="graduation_year"
-                        placeholder="e.g. 2024"
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SECTION 5
-             ================================================= -->
-
-        <div class="form-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    05
-                </span>
-
-                <div>
-
-                    <h3>
-                        Work Experience
-                    </h3>
-
-                    <p>
-                        Tell us about your previous experience.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="form-grid">
-
-                <div class="form-group">
-
-                    <label>
-                        Previous Employer
-                    </label>
-
-                    <input
-                        type="text"
-                        name="previous_employer"
-                        placeholder="Company / organization"
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Previous Position
-                    </label>
-
-                    <input
-                        type="text"
-                        name="previous_position"
-                        placeholder="Position held"
-                    >
-
-                </div>
-
-
-                <div class="form-group form-group-full">
-
-                    <label>
-                        Work Experience
-                    </label>
-
-                    <textarea
-                        name="work_experience"
+                        id="reason_for_applying"
+                        name="reason_for_applying"
                         rows="6"
-                        placeholder="Briefly describe your previous work experience..."
+                        placeholder="Tell us why you are interested in this position..."
                     ></textarea>
 
                 </div>
 
-            </div>
 
-        </div>
-
-
-        <!-- =================================================
-             SECTION 6
-             ================================================= -->
-
-        <div class="form-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    06
-                </span>
-
-                <div>
-
-                    <h3>
-                        Supporting Information
-                    </h3>
-
-                    <p>
-                        Help us understand your interest in this position.
-                    </p>
-
-                </div>
-
-            </div>
+                <br>
 
 
-            <div class="form-group">
+                <div class="form-group">
 
-                <label>
-                    Why do you want to work with us?
-                </label>
-
-                <textarea
-                    name="reason_for_applying"
-                    rows="6"
-                    placeholder="Tell us why you are interested in this opportunity..."
-                ></textarea>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Additional Information
-                </label>
-
-                <textarea
-                    name="additional_information"
-                    rows="5"
-                    placeholder="Anything else you would like us to know?"
-                ></textarea>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SECTION 7
-             ================================================= -->
-
-        <div class="form-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    07
-                </span>
-
-                <div>
-
-                    <h3>
-                        Documents
-                    </h3>
-
-                    <p>
-                        Upload the required supporting documents.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="upload-grid">
-
-
-                <div class="upload-box">
-
-                    <label>
-                        Passport Photograph
-                        <required>*</required>
+                    <label for="additional_information">
+                        Additional Information
                     </label>
 
-                    <p>
-                        JPG, JPEG, PNG or WEBP
-                    </p>
+                    <textarea
+                        id="additional_information"
+                        name="additional_information"
+                        rows="5"
+                        placeholder="Anything else you would like the recruitment team to know?"
+                    ></textarea>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 07
+                 ============================================= -->
+
+            <section class="form-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        07
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Supporting Documents
+                        </span>
+
+                        <h2>
+                            Upload Documents
+                        </h2>
+
+                        <p>
+                            Upload clear and valid supporting documents.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="upload-grid">
+
+
+                    <div class="upload-box">
+
+                        <label for="passport">
+                            Passport Photograph
+                            <span class="required">*</span>
+                        </label>
+
+                        <p>
+                            JPG, JPEG, PNG or WEBP
+                        </p>
+
+                        <input
+                            type="file"
+                            id="passport"
+                            name="passport"
+                            accept=".jpg,.jpeg,.png,.webp"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="upload-box">
+
+                        <label for="cv">
+                            Curriculum Vitae
+                        </label>
+
+                        <p>
+                            PDF, DOC or DOCX
+                        </p>
+
+                        <input
+                            type="file"
+                            id="cv"
+                            name="cv"
+                            accept=".pdf,.doc,.docx"
+                        >
+
+                    </div>
+
+
+                    <div class="upload-box">
+
+                        <label for="qualification">
+                            Qualification / Result
+                        </label>
+
+                        <p>
+                            PDF, DOC or DOCX
+                        </p>
+
+                        <input
+                            type="file"
+                            id="qualification"
+                            name="qualification"
+                            accept=".pdf,.doc,.docx"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 SECTION 08
+                 ============================================= -->
+
+            <section class="form-section declaration-section">
+
+                <div class="form-section-heading">
+
+                    <span class="section-number">
+                        08
+                    </span>
+
+                    <div class="section-heading-text">
+
+                        <span class="section-heading-label">
+                            Final Confirmation
+                        </span>
+
+                        <h2>
+                            Declaration
+                        </h2>
+
+                        <p>
+                            Please confirm the accuracy of your information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <label class="declaration">
 
                     <input
-                        type="file"
-                        name="passport"
-                        accept=".jpg,.jpeg,.png,.webp"
+                        type="checkbox"
+                        name="declaration"
+                        value="accepted"
                         required
                     >
 
-                </div>
+                    <span>
+
+                        I declare that the information provided in this
+                        application is true and accurate to the best of my
+                        knowledge. I understand that providing false or
+                        misleading information may result in my application
+                        being disqualified.
+
+                    </span>
+
+                </label>
+
+            </section>
 
 
-                <div class="upload-box">
 
-                    <label>
-                        Curriculum Vitae
-                    </label>
+            <!-- =============================================
+                 SUBMIT
+                 ============================================= -->
 
-                    <p>
-                        PDF, DOC or DOCX
-                    </p>
+            <div class="submit-area">
 
-                    <input
-                        type="file"
-                        name="cv"
-                        accept=".pdf,.doc,.docx"
-                    >
+                <p class="submit-note">
 
-                </div>
+                    Please review all information carefully before
+                    submitting. Once submitted, your application can
+                    be tracked through the applicant portal.
+
+                </p>
 
 
-                <div class="upload-box">
-
-                    <label>
-                        Qualification / Result
-                    </label>
-
-                    <p>
-                        PDF, DOC or DOCX
-                    </p>
-
-                    <input
-                        type="file"
-                        name="qualification"
-                        accept=".pdf,.doc,.docx"
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SECTION 8
-             ================================================= -->
-
-        <div class="form-section declaration-section">
-
-            <div class="form-section-heading">
-
-                <span>
-                    08
-                </span>
-
-                <div>
-
-                    <h3>
-                        Declaration
-                    </h3>
-
-                </div>
-
-            </div>
-
-
-            <label class="declaration">
-
-                <input
-                    type="checkbox"
-                    name="declaration"
-                    value="accepted"
-                    required
+                <button
+                    type="submit"
+                    class="submit-button"
+                    id="submitButton"
                 >
+                    Submit Application
+                </button>
 
-                <span>
-
-                    I declare that the information provided in
-                    this application is true and accurate to the
-                    best of my knowledge. I understand that any
-                    false or misleading information may result
-                    in my application being disqualified.
-
-                </span>
-
-            </label>
-
-        </div>
+            </div>
 
 
-        <!-- =================================================
-             SUBMIT
-             ================================================= -->
+        </form>
 
-        <div class="submit-area">
+    </main>
 
-            <p>
-                Please review your information carefully
-                before submitting your application.
-            </p>
 
-            <button
-                type="submit"
-                class="btn btn-primary submit-button"
-            >
-                Submit Application
-            </button>
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="application-footer">
+
+        <div class="application-footer-inner">
+
+            <span class="footer-company">
+                © {{ current_year or 2026 }}
+                {{ company_name }}. All rights reserved.
+            </span>
+
+            <span class="footer-note">
+                Professional • Secure • Reliable
+            </span>
 
         </div>
 
+    </footer>
 
-    </form>
 
 </div>
 
-{% endblock %}
+
+<!-- =========================================================
+     PASSWORD VALIDATION
+     ========================================================= -->
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const form =
+            document.getElementById("applicationForm");
+
+        const password =
+            document.getElementById("portal_password");
+
+        const confirmPassword =
+            document.getElementById(
+                "confirm_portal_password"
+            );
+
+        const submitButton =
+            document.getElementById("submitButton");
+
+
+        if (!form || !password || !confirmPassword) {
+            return;
+        }
+
+
+        function validatePasswords() {
+
+            if (
+                confirmPassword.value &&
+                password.value !== confirmPassword.value
+            ) {
+
+                confirmPassword.setCustomValidity(
+                    "Passwords do not match."
+                );
+
+            } else {
+
+                confirmPassword.setCustomValidity("");
+
+            }
+
+        }
+
+
+        password.addEventListener(
+            "input",
+            validatePasswords
+        );
+
+
+        confirmPassword.addEventListener(
+            "input",
+            validatePasswords
+        );
+
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                validatePasswords();
+
+
+                if (!form.checkValidity()) {
+                    return;
+                }
+
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    "Submitting Application...";
+
+            }
+        );
+
+    });
+
+</script>
+
+
+</body>
+
+</html>
