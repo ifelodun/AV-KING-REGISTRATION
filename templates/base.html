@@ -24,7 +24,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -35,6 +35,10 @@
 
 
     <style>
+
+        /* =====================================================
+           GLOBAL
+        ====================================================== */
 
         * {
             box-sizing: border-box;
@@ -68,7 +72,7 @@
 
 
         /* =====================================================
-           NORMAL / PUBLIC PAGE
+           PUBLIC / NORMAL PAGE
         ====================================================== */
 
         .public-content {
@@ -78,7 +82,7 @@
 
 
         /* =====================================================
-           ADMIN APPLICATION SHELL
+           ADMIN SHELL
         ====================================================== */
 
         .admin-shell {
@@ -115,11 +119,11 @@
 
 
         /* =====================================================
-           BRAND
+           SIDEBAR BRAND
         ====================================================== */
 
         .admin-sidebar-brand {
-            height: 82px;
+            min-height: 82px;
 
             display: flex;
             align-items: center;
@@ -164,6 +168,7 @@
 
         .admin-brand-text {
             margin-left: 11px;
+            min-width: 0;
         }
 
 
@@ -176,6 +181,10 @@
             font-weight: 800;
 
             letter-spacing: .7px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
@@ -190,6 +199,8 @@
             font-weight: 700;
 
             letter-spacing: 1.3px;
+
+            white-space: nowrap;
         }
 
 
@@ -306,7 +317,7 @@
 
 
         /* =====================================================
-           ADMIN ACCOUNT
+           ADMIN PROFILE
         ====================================================== */
 
         .admin-sidebar-footer {
@@ -409,7 +420,7 @@
 
 
         /* =====================================================
-           ADMIN MAIN CONTENT
+           ADMIN MAIN
         ====================================================== */
 
         .admin-main {
@@ -435,7 +446,7 @@
 
 
         /* =====================================================
-           MOBILE
+           MOBILE ADMIN HEADER
         ====================================================== */
 
         .mobile-admin-header {
@@ -551,7 +562,8 @@
 
 
             .admin-content {
-                padding: 20px 16px 30px;
+                padding:
+                    20px 16px 30px;
             }
 
         }
@@ -578,352 +590,356 @@
 <body>
 
 
-{% if session.get("admin_name") %}
+<!-- =========================================================
+     SINGLE CONTENT BLOCK
+========================================================== -->
 
-    <!-- =====================================================
-         ADMIN IS LOGGED IN
-         SHOW SIDEBAR
-    ====================================================== -->
+{% block content %}
 
-
-    <div class="admin-shell">
-
+    {% if session.get("admin_id") %}
 
         <!-- =================================================
-             SIDEBAR
+             ADMIN AREA
         ================================================== -->
 
-        <aside
-            class="admin-sidebar"
-            id="adminSidebar"
-        >
+        <div class="admin-shell">
 
 
-            <!-- BRAND -->
+            <!-- =============================================
+                 SIDEBAR
+            ============================================== -->
 
-            <div class="admin-sidebar-brand">
+            <aside
+                class="admin-sidebar"
+                id="adminSidebar"
+            >
 
-                <div class="admin-logo">
-                    AV
-                </div>
+                <!-- BRAND -->
 
-                <div class="admin-brand-text">
+                <div class="admin-sidebar-brand">
 
-                    <span class="admin-brand-name">
-                        AV KING
-                    </span>
+                    <div class="admin-logo">
+                        AV
+                    </div>
 
-                    <span class="admin-brand-subtitle">
-                        RECRUITMENT MANAGEMENT
-                    </span>
+                    <div class="admin-brand-text">
 
-                </div>
+                        <span class="admin-brand-name">
+                            AV KING
+                        </span>
 
-            </div>
-
-
-            <!-- =================================================
-                 NAVIGATION
-            ================================================== -->
-
-            <nav class="admin-navigation">
-
-
-                <div class="admin-nav-title">
-                    Main Menu
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_dashboard') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_dashboard' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ▣
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Dashboard
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_applications' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ☷
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Applications
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_positions') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_positions' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ▤
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Manage Positions
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_interviews') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_interviews' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ◷
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Interviews
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_attendance') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_attendance' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ◉
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Attendance
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_monthly_attendance') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_monthly_attendance' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ▦
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Monthly Attendance
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_reports' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ▥
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Reports
-                    </span>
-
-                </a>
-
-
-                <div class="admin-nav-divider"></div>
-
-
-                <div class="admin-nav-title">
-                    System
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="admin-nav-link
-                    {% if request.endpoint == 'admin_settings' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="admin-nav-icon">
-                        ⚙
-                    </span>
-
-                    <span class="admin-nav-label">
-                        Settings
-                    </span>
-
-                </a>
-
-
-            </nav>
-
-
-            <!-- =================================================
-                 ADMIN PROFILE
-            ================================================== -->
-
-            <div class="admin-sidebar-footer">
-
-
-                <div class="admin-profile">
-
-                    <div class="admin-avatar">
-
-                        {{ session.get(
-                            "admin_name",
-                            "A"
-                        )[0]|upper }}
+                        <span class="admin-brand-subtitle">
+                            RECRUITMENT MANAGEMENT
+                        </span>
 
                     </div>
 
+                </div>
 
-                    <div>
 
-                        <span class="admin-profile-name">
+                <!-- =========================================
+                     NAVIGATION
+                ========================================== -->
+
+                <nav class="admin-navigation">
+
+                    <div class="admin-nav-title">
+                        Main Menu
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('admin_dashboard') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_dashboard' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ▣
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Dashboard
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_applications') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_applications' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ☷
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Applications
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_positions') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_positions' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ▤
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Manage Positions
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_interviews') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_interviews' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ◷
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Interviews
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_attendance') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_attendance' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ◉
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Attendance
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_monthly_attendance') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_monthly_attendance' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ▦
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Monthly Attendance
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('admin_reports') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_reports' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ▥
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Reports
+                        </span>
+
+                    </a>
+
+
+                    <div class="admin-nav-divider"></div>
+
+
+                    <div class="admin-nav-title">
+                        System
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('admin_settings') }}"
+                        class="admin-nav-link
+                        {% if request.endpoint == 'admin_settings' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ⚙
+                        </span>
+
+                        <span class="admin-nav-label">
+                            Settings
+                        </span>
+
+                    </a>
+
+                </nav>
+
+
+                <!-- =========================================
+                     ADMIN PROFILE
+                ========================================== -->
+
+                <div class="admin-sidebar-footer">
+
+                    <div class="admin-profile">
+
+                        <div class="admin-avatar">
 
                             {{ session.get(
                                 "admin_name",
-                                "Administrator"
-                            ) }}
+                                "A"
+                            )[0]|upper }}
 
-                        </span>
+                        </div>
 
 
-                        <span class="admin-profile-role">
-                            Administrator
-                        </span>
+                        <div>
+
+                            <span class="admin-profile-name">
+
+                                {{ session.get(
+                                    "admin_name",
+                                    "Administrator"
+                                ) }}
+
+                            </span>
+
+
+                            <span class="admin-profile-role">
+                                Administrator
+                            </span>
+
+                        </div>
 
                     </div>
 
+
+                    <a
+                        href="{{ url_for('admin_logout') }}"
+                        class="admin-signout"
+                    >
+                        Sign Out
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+            <!-- =============================================
+                 MOBILE HEADER
+            ============================================== -->
+
+            <header class="mobile-admin-header">
+
+                <div class="mobile-admin-brand">
+
+                    <div class="mobile-admin-logo">
+                        AV
+                    </div>
+
+                    <strong>
+                        AV KING
+                    </strong>
+
                 </div>
 
 
-                <a
-                    href="{{ url_for('admin_logout') }}"
-                    class="admin-signout"
+                <button
+                    type="button"
+                    class="mobile-admin-menu"
+                    onclick="toggleAdminSidebar()"
                 >
-                    Sign Out
-                </a>
+                    ☰
+                </button>
 
-            </div>
-
-
-        </aside>
+            </header>
 
 
-        <!-- =================================================
-             MOBILE HEADER
-        ================================================== -->
+            <!-- =============================================
+                 MOBILE OVERLAY
+            ============================================== -->
 
-        <header class="mobile-admin-header">
+            <div
+                class="admin-overlay"
+                id="adminOverlay"
+                onclick="toggleAdminSidebar()"
+            ></div>
 
-            <div class="mobile-admin-brand">
 
-                <div class="mobile-admin-logo">
-                    AV
+            <!-- =============================================
+                 ADMIN PAGE CONTENT
+            ============================================== -->
+
+            <main class="admin-main">
+
+                <div class="admin-content">
+
+                    {{ self.content() }}
+
                 </div>
 
-                <strong>
-                    AV KING
-                </strong>
-
-            </div>
+            </main>
 
 
-            <button
-                type="button"
-                class="mobile-admin-menu"
-                onclick="toggleAdminSidebar()"
-            >
-                ☰
-            </button>
-
-        </header>
+        </div>
 
 
-        <div
-            class="admin-overlay"
-            id="adminOverlay"
-            onclick="toggleAdminSidebar()"
-        ></div>
-
+    {% else %}
 
         <!-- =================================================
-             ADMIN CONTENT
+             PUBLIC PAGE
         ================================================== -->
 
-        <main class="admin-main">
+        <div class="public-content">
 
-            <div class="admin-content">
+            {{ self.content() }}
 
-                {% block content %}
-                {% endblock %}
+        </div>
 
-            </div>
+    {% endif %}
 
-        </main>
-
-
-    </div>
+{% endblock %}
 
 
-{% else %}
-
-
-    <!-- =====================================================
-         USER / PUBLIC PAGE
-         NO ADMIN SIDEBAR
-    ====================================================== -->
-
-    <div class="public-content">
-
-        {% block content %}
-        {% endblock %}
-
-    </div>
-
-
-{% endif %}
-
+<!-- =========================================================
+     JAVASCRIPT
+========================================================== -->
 
 <script>
 
