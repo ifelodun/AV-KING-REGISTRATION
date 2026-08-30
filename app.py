@@ -8236,6 +8236,9 @@ def applicant_portal():
 # ============================================================
 # APPLICANT MESSAGES
 # ============================================================
+# ============================================================
+# APPLICANT MESSAGES
+# ============================================================
 
 @app.route("/applicant/messages")
 def applicant_messages():
@@ -8247,27 +8250,116 @@ def applicant_messages():
     if not session.get("applicant_logged_in"):
         return redirect(url_for("applicant_login"))
 
+    # --------------------------------------------------------
+    # GET APPLICATION ID FROM SESSION
+    # --------------------------------------------------------
+
     application_id = session.get("applicant_application_id")
 
+    # --------------------------------------------------------
+    # RECOVER APPLICATION ID IF SESSION KEY IS MISSING
+    #
+    # This makes the route more reliable if the applicant
+    # session was created using another applicant identifier.
+    # --------------------------------------------------------
+
     if not application_id:
-        session.clear()
+
+        applicant_email = (
+            session.get("applicant_email")
+            or session.get("email")
+        )
+
+        applicant_number = (
+            session.get("applicant_number")
+            or session.get("application_number")
+        )
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                # --------------------------------------------
+                # FIND BY APPLICATION NUMBER
+                # --------------------------------------------
+
+                if applicant_number:
+
+                    cur.execute(
+                        """
+                        SELECT id
+                        FROM applications
+                        WHERE application_number = %s
+                        LIMIT 1
+                        """,
+                        (applicant_number,)
+                    )
+
+                    row = cur.fetchone()
+
+                    if row:
+                        application_id = row["id"]
+
+                # --------------------------------------------
+                # OTHERWISE FIND BY EMAIL
+                # --------------------------------------------
+
+                if not application_id and applicant_email:
+
+                    cur.execute(
+                        """
+                        SELECT id
+                        FROM applications
+                        WHERE LOWER(email) = LOWER(%s)
+                        ORDER BY id DESC
+                        LIMIT 1
+                        """,
+                        (applicant_email,)
+                    )
+
+                    row = cur.fetchone()
+
+                    if row:
+                        application_id = row["id"]
+
+        finally:
+
+            conn.close()
+
+    # --------------------------------------------------------
+    # STILL NO APPLICATION ID
+    # --------------------------------------------------------
+
+    if not application_id:
 
         flash(
-            "Your applicant session has expired. Please login again.",
+            "Your applicant session could not be verified. Please login again.",
             "error"
         )
 
-        return redirect(url_for("applicant_login"))
+        session.pop("applicant_application_id", None)
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    # --------------------------------------------------------
+    # SAVE APPLICATION ID BACK INTO SESSION
+    # --------------------------------------------------------
+
+    session["applicant_application_id"] = application_id
+
+    # --------------------------------------------------------
+    # GET MESSAGES
+    # --------------------------------------------------------
 
     conn = get_db()
 
     try:
 
         with conn.cursor() as cur:
-
-            # ------------------------------------------------
-            # GET APPLICANT MESSAGES
-            # ------------------------------------------------
 
             cur.execute(
                 """
@@ -8289,7 +8381,7 @@ def applicant_messages():
             messages = cur.fetchall()
 
             # ------------------------------------------------
-            # COUNT UNREAD MESSAGES
+            # COUNT UNREAD
             # ------------------------------------------------
 
             cur.execute(
@@ -8304,35 +8396,16 @@ def applicant_messages():
 
             row = cur.fetchone()
 
-            if row:
-
-                unread_count = int(
-                    row["unread_count"]
-                    or 0
-                )
-
-            else:
-
-                unread_count = 0
-
-    except Exception:
-
-        conn.rollback()
-
-        flash(
-            "Unable to load your messages at the moment.",
-            "error"
-        )
-
-        messages = []
-        unread_count = 0
+            unread_count = int(
+                row["unread_count"]
+            ) if row else 0
 
     finally:
 
         conn.close()
 
     # --------------------------------------------------------
-    # SAVE BADGE COUNT IN SESSION
+    # UPDATE SESSION BADGE
     # --------------------------------------------------------
 
     session["applicant_unread_count"] = unread_count
@@ -8362,32 +8435,113 @@ def applicant_message(message_id):
     if not session.get("applicant_logged_in"):
         return redirect(url_for("applicant_login"))
 
+    # --------------------------------------------------------
+    # GET APPLICATION ID
+    # --------------------------------------------------------
+
     application_id = session.get("applicant_application_id")
 
+    # --------------------------------------------------------
+    # RECOVER APPLICATION ID IF NECESSARY
+    # --------------------------------------------------------
+
     if not application_id:
-        session.clear()
+
+        applicant_email = (
+            session.get("applicant_email")
+            or session.get("email")
+        )
+
+        applicant_number = (
+            session.get("applicant_number")
+            or session.get("application_number")
+        )
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                # --------------------------------------------
+                # FIND BY APPLICATION NUMBER
+                # --------------------------------------------
+
+                if applicant_number:
+
+                    cur.execute(
+                        """
+                        SELECT id
+                        FROM applications
+                        WHERE application_number = %s
+                        LIMIT 1
+                        """,
+                        (applicant_number,)
+                    )
+
+                    row = cur.fetchone()
+
+                    if row:
+                        application_id = row["id"]
+
+                # --------------------------------------------
+                # FIND BY EMAIL
+                # --------------------------------------------
+
+                if not application_id and applicant_email:
+
+                    cur.execute(
+                        """
+                        SELECT id
+                        FROM applications
+                        WHERE LOWER(email) = LOWER(%s)
+                        ORDER BY id DESC
+                        LIMIT 1
+                        """,
+                        (applicant_email,)
+                    )
+
+                    row = cur.fetchone()
+
+                    if row:
+                        application_id = row["id"]
+
+        finally:
+
+            conn.close()
+
+    # --------------------------------------------------------
+    # APPLICATION ID STILL MISSING
+    # --------------------------------------------------------
+
+    if not application_id:
 
         flash(
-            "Your applicant session has expired. Please login again.",
+            "Your applicant session could not be verified. Please login again.",
             "error"
         )
 
-        return redirect(url_for("applicant_login"))
+        session.pop("applicant_application_id", None)
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    # --------------------------------------------------------
+    # SAVE APPLICATION ID
+    # --------------------------------------------------------
+
+    session["applicant_application_id"] = application_id
+
+    # --------------------------------------------------------
+    # GET THE MESSAGE
+    # --------------------------------------------------------
 
     conn = get_db()
 
     try:
 
         with conn.cursor() as cur:
-
-            # ------------------------------------------------
-            # GET MESSAGE
-            #
-            # IMPORTANT:
-            # The application_id condition prevents one
-            # applicant from opening another applicant's
-            # message.
-            # ------------------------------------------------
 
             cur.execute(
                 """
@@ -8419,7 +8573,7 @@ def applicant_message(message_id):
             if not message:
 
                 flash(
-                    "The requested message could not be found.",
+                    "Message not found.",
                     "error"
                 )
 
@@ -8431,40 +8585,25 @@ def applicant_message(message_id):
             # MARK MESSAGE AS READ
             # ------------------------------------------------
 
-            if not message["is_read"]:
-
-                cur.execute(
-                    """
-                    UPDATE applicant_messages
-                    SET is_read = TRUE
-                    WHERE id = %s
-                      AND application_id = %s
-                    """,
-                    (
-                        message_id,
-                        application_id
-                    )
+            cur.execute(
+                """
+                UPDATE applicant_messages
+                SET is_read = TRUE
+                WHERE id = %s
+                  AND application_id = %s
+                """,
+                (
+                    message_id,
+                    application_id
                 )
+            )
 
-                conn.commit()
-
-                # Update local copy as well
-                if isinstance(message, dict):
-
-                    message["is_read"] = True
+        conn.commit()
 
     except Exception:
 
         conn.rollback()
-
-        flash(
-            "Unable to open this message.",
-            "error"
-        )
-
-        return redirect(
-            url_for("applicant_messages")
-        )
+        raise
 
     finally:
 
@@ -8492,15 +8631,9 @@ def applicant_message(message_id):
 
             row = cur.fetchone()
 
-            unread_count = (
-                int(row["unread_count"] or 0)
-                if row
-                else 0
-            )
-
-    except Exception:
-
-        unread_count = 0
+            unread_count = int(
+                row["unread_count"]
+            ) if row else 0
 
     finally:
 
@@ -8521,6 +8654,7 @@ def applicant_message(message_id):
         message=message,
         unread_count=unread_count
     )
+
 # ============================================================
 # ADMIN SETTINGS
 # ============================================================
