@@ -12,19 +12,625 @@
 
     <title>
         {% block title %}
-            AV KING Recruitment
+            {{ company_name or "AV KING Recruitment" }}
         {% endblock %}
     </title>
 
-    <meta
-        name="description"
-        content="AV KING Recruitment Portal"
+
+    <!-- =====================================================
+         GLOBAL FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
     >
 
     <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
     >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         BASE STYLES
+    ====================================================== -->
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+        }
+
+
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+        }
+
+
+        a {
+            color: inherit;
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           APPLICATION SHELL
+        ====================================================== */
+
+        .app-shell {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ====================================================== */
+
+        .app-sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: 260px;
+
+            background: #111827;
+
+            color: #ffffff;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+
+            border-right: 1px solid #1f2937;
+        }
+
+
+        /* =====================================================
+           SIDEBAR BRAND
+        ====================================================== */
+
+        .app-sidebar-brand {
+            height: 82px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 21px;
+
+            border-bottom: 1px solid rgba(255,255,255,.07);
+        }
+
+
+        .app-brand-logo {
+            width: 43px;
+            height: 43px;
+
+            flex-shrink: 0;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #1d4ed8
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            letter-spacing: .5px;
+
+            box-shadow:
+                0 8px 20px
+                rgba(37,99,235,.25);
+        }
+
+
+        .app-brand-text {
+            margin-left: 11px;
+            min-width: 0;
+        }
+
+
+        .app-brand-name {
+            display: block;
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            letter-spacing: .7px;
+
+            line-height: 1.2;
+        }
+
+
+        .app-brand-subtitle {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #94a3b8;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            letter-spacing: 1.4px;
+
+            line-height: 1;
+        }
+
+
+        /* =====================================================
+           NAVIGATION AREA
+        ====================================================== */
+
+        .app-sidebar-nav {
+            flex: 1;
+
+            padding: 18px 12px;
+
+            overflow-y: auto;
+        }
+
+
+        .app-nav-section-title {
+            padding: 7px 12px 9px;
+
+            color: #64748b;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1.3px;
+
+            text-transform: uppercase;
+        }
+
+
+        .app-nav-link {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            width: 100%;
+
+            min-height: 44px;
+
+            padding: 0 12px;
+
+            margin-bottom: 4px;
+
+            border-radius: 9px;
+
+            color: #cbd5e1;
+
+            text-decoration: none;
+
+            font-size: 12.5px;
+            font-weight: 600;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+
+        .app-nav-link:hover {
+            color: #ffffff;
+
+            background:
+                rgba(255,255,255,.065);
+        }
+
+
+        .app-nav-link.active {
+            color: #ffffff;
+
+            background: #2563eb;
+
+            box-shadow:
+                0 7px 18px
+                rgba(37,99,235,.22);
+        }
+
+
+        .app-nav-icon {
+            width: 32px;
+            height: 32px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            color: #94a3b8;
+
+            font-size: 15px;
+
+            border-radius: 7px;
+        }
+
+
+        .app-nav-link.active .app-nav-icon {
+            color: #ffffff;
+        }
+
+
+        .app-nav-link:hover .app-nav-icon {
+            color: #ffffff;
+        }
+
+
+        .app-nav-label {
+            flex: 1;
+        }
+
+
+        .app-nav-arrow {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+
+        .app-nav-link.active .app-nav-arrow {
+            color: rgba(255,255,255,.8);
+        }
+
+
+        /* =====================================================
+           NAV DIVIDER
+        ====================================================== */
+
+        .app-nav-divider {
+            height: 1px;
+
+            background:
+                rgba(255,255,255,.07);
+
+            margin:
+                15px 8px;
+        }
+
+
+        /* =====================================================
+           SIDEBAR FOOTER
+        ====================================================== */
+
+        .app-sidebar-footer {
+            padding: 14px;
+
+            border-top:
+                1px solid rgba(255,255,255,.07);
+        }
+
+
+        .app-admin-profile {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            padding:
+                5px 5px 13px;
+        }
+
+
+        .app-admin-avatar {
+            width: 38px;
+            height: 38px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: #263244;
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #ffffff;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+
+        .app-admin-info {
+            min-width: 0;
+        }
+
+
+        .app-admin-name {
+            display: block;
+
+            max-width: 150px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            color: #ffffff;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .app-admin-role {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #94a3b8;
+
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+
+        .app-signout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            height: 39px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            border-radius: 8px;
+
+            color: #cbd5e1;
+
+            text-decoration: none;
+
+            font-size: 11.5px;
+            font-weight: 700;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                border-color .18s ease;
+        }
+
+
+        .app-signout:hover {
+            color: #ffffff;
+
+            background:
+                rgba(255,255,255,.06);
+
+            border-color:
+                rgba(255,255,255,.14);
+        }
+
+
+        /* =====================================================
+           MAIN AREA
+        ====================================================== */
+
+        .app-main {
+            width: calc(100% - 260px);
+
+            min-height: 100vh;
+
+            margin-left: 260px;
+
+            background: #f5f7fb;
+        }
+
+
+        /* =====================================================
+           PAGE CONTENT
+        ====================================================== */
+
+        .app-content {
+            width: 100%;
+
+            max-width: 1600px;
+
+            margin: 0 auto;
+
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           MOBILE HEADER
+        ====================================================== */
+
+        .mobile-header {
+            display: none;
+
+            height: 62px;
+
+            padding: 0 16px;
+
+            align-items: center;
+            justify-content: space-between;
+
+            background: #111827;
+
+            color: #ffffff;
+        }
+
+
+        .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+
+        .mobile-brand-logo {
+            width: 34px;
+            height: 34px;
+
+            border-radius: 8px;
+
+            background: #2563eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+
+        .mobile-brand strong {
+            font-size: 12px;
+        }
+
+
+        .mobile-menu-button {
+            width: 38px;
+            height: 38px;
+
+            border: 0;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,.08);
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            font-size: 18px;
+        }
+
+
+        /* =====================================================
+           MOBILE OVERLAY
+        ====================================================== */
+
+        .sidebar-overlay {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(15,23,42,.45);
+
+            z-index: 999;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 900px) {
+
+            .app-sidebar {
+                width: 245px;
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform .25s ease;
+            }
+
+
+            .app-sidebar.mobile-open {
+                transform:
+                    translateX(0);
+            }
+
+
+            .sidebar-overlay.mobile-open {
+                display: block;
+            }
+
+
+            .mobile-header {
+                display: flex;
+            }
+
+
+            .app-main {
+                width: 100%;
+
+                margin-left: 0;
+            }
+
+
+            .app-content {
+                padding: 20px 16px 30px;
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .app-content {
+                padding:
+                    16px 12px 25px;
+            }
+
+        }
+
+    </style>
+
+
+    {% block head %}
+    {% endblock %}
 
 </head>
 
@@ -32,452 +638,413 @@
 <body>
 
 
-<!-- =====================================================
-     PUBLIC HEADER
-     SHOWN ONLY BEFORE LOGIN
-     ===================================================== -->
+<div class="app-shell">
 
-{% if not session.get("admin_logged_in")
-   and not session.get("applicant_logged_in") %}
 
-<header class="public-header">
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
 
-    <div class="public-header-inner">
+    <aside
+        class="app-sidebar"
+        id="appSidebar"
+    >
 
 
         <!-- BRAND -->
 
-        <a
-            href="{{ url_for('home') }}"
-            class="brand"
-        >
+        <div class="app-sidebar-brand">
 
-            <div class="brand-logo">
+            <div class="app-brand-logo">
                 AV
             </div>
 
-            <div class="brand-text">
+            <div class="app-brand-text">
 
-                <strong>
+                <span class="app-brand-name">
                     AV KING
-                </strong>
+                </span>
 
-                <span>
-                    RECRUITMENT
+                <span class="app-brand-subtitle">
+                    RECRUITMENT MANAGEMENT
                 </span>
 
             </div>
 
-        </a>
+        </div>
 
 
-        <!-- PUBLIC NAVIGATION -->
+        <!-- =================================================
+             NAVIGATION
+        ================================================== -->
 
-        <nav class="public-nav">
+        <nav class="app-sidebar-nav">
+
+
+            <div class="app-nav-section-title">
+                Main Menu
+            </div>
+
+
+            <!-- DASHBOARD -->
 
             <a
-                href="{{ url_for('home') }}"
+                href="{{ url_for('admin_dashboard') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_dashboard' %}
+                    active
+                {% endif %}"
             >
-                Home
+
+                <span class="app-nav-icon">
+                    ▣
+                </span>
+
+                <span class="app-nav-label">
+                    Dashboard
+                </span>
+
             </a>
 
 
+            <!-- APPLICATIONS -->
+
             <a
-                href="{{ url_for('apply') }}"
+                href="{{ url_for('admin_applications') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_applications' %}
+                    active
+                {% endif %}"
             >
-                Apply
+
+                <span class="app-nav-icon">
+                    ☷
+                </span>
+
+                <span class="app-nav-label">
+                    Applications
+                </span>
+
             </a>
 
 
+            <!-- POSITIONS -->
+
             <a
-                href="{{ url_for('applicant_login') }}"
+                href="{{ url_for('admin_positions') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_positions' %}
+                    active
+                {% endif %}"
             >
-                Applicant Login
+
+                <span class="app-nav-icon">
+                    ▤
+                </span>
+
+                <span class="app-nav-label">
+                    Manage Positions
+                </span>
+
             </a>
 
 
+            <!-- INTERVIEWS -->
+
             <a
-                href="{{ url_for('admin_login') }}"
+                href="{{ url_for('admin_interviews') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_interviews' %}
+                    active
+                {% endif %}"
             >
-                Admin Login
+
+                <span class="app-nav-icon">
+                    ◷
+                </span>
+
+                <span class="app-nav-label">
+                    Interviews
+                </span>
+
             </a>
+
+
+            <!-- ATTENDANCE -->
+
+            <a
+                href="{{ url_for('admin_attendance') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_attendance' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="app-nav-icon">
+                    ◉
+                </span>
+
+                <span class="app-nav-label">
+                    Attendance
+                </span>
+
+            </a>
+
+
+            <!-- MONTHLY ATTENDANCE -->
+
+            <a
+                href="{{ url_for('admin_monthly_attendance') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_monthly_attendance' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="app-nav-icon">
+                    ▦
+                </span>
+
+                <span class="app-nav-label">
+                    Monthly Attendance
+                </span>
+
+            </a>
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{{ url_for('admin_reports') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_reports' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="app-nav-icon">
+                    ▥
+                </span>
+
+                <span class="app-nav-label">
+                    Reports
+                </span>
+
+            </a>
+
+
+            <div class="app-nav-divider"></div>
+
+
+            <div class="app-nav-section-title">
+                System
+            </div>
+
+
+            <!-- SETTINGS -->
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="app-nav-link
+                {% if request.endpoint == 'admin_settings' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="app-nav-icon">
+                    ⚙
+                </span>
+
+                <span class="app-nav-label">
+                    Settings
+                </span>
+
+            </a>
+
 
         </nav>
 
 
-    </div>
+        <!-- =================================================
+             SIDEBAR FOOTER
+        ================================================== -->
 
-</header>
-
-{% endif %}
-
-
-
-<!-- =====================================================
-     ADMIN HEADER
-     ONLY AFTER ADMIN LOGIN
-     ===================================================== -->
-
-{% if session.get("admin_logged_in") %}
-
-<header class="admin-header">
-
-    <div class="admin-header-inner">
+        <div class="app-sidebar-footer">
 
 
-        <!-- BRAND -->
+            <div class="app-admin-profile">
 
-        <a
-            href="{{ url_for('admin_dashboard') }}"
-            class="brand"
-        >
+                <div class="app-admin-avatar">
 
-            <div class="brand-logo">
-                AV
-            </div>
+                    {{ session.get(
+                        "admin_name",
+                        "A"
+                    )[0]|upper }}
 
-            <div class="brand-text">
+                </div>
 
-                <strong>
-                    AV KING
-                </strong>
 
-                <span>
-                    RECRUITMENT
-                </span>
+                <div class="app-admin-info">
+
+                    <span class="app-admin-name">
+
+                        {{ session.get(
+                            "admin_name",
+                            "Administrator"
+                        ) }}
+
+                    </span>
+
+
+                    <span class="app-admin-role">
+                        Administrator
+                    </span>
+
+                </div>
 
             </div>
-
-        </a>
-
-
-        <!-- ADMIN NAV -->
-
-        <nav class="admin-nav">
-
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
-            >
-                Dashboard
-            </a>
-
-
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="{% if request.endpoint == 'admin_applications' %}active{% endif %}"
-            >
-                Applications
-            </a>
-
-
-            <a href="{{ url_for('admin_interviews') }}">
-    <span>◷</span>
-    Interviews
-            </a>
-
-
-            <a href="#">
-                Reports
-            </a>
-
-
-            <a href="{{ url_for('admin_settings') }}">
-    <span>⚙</span>
-    Settings
-            </a>
 
 
             <a
                 href="{{ url_for('admin_logout') }}"
-                class="logout-link"
+                class="app-signout"
             >
                 Sign Out
             </a>
 
-        </nav>
-
-
-        <!-- ADMIN ACCOUNT -->
-
-        <div class="header-account">
-
-            <div class="account-avatar">
-
-                {{
-                    session.get(
-                        "admin_name",
-                        "A"
-                    )[0]|upper
-                }}
-
-            </div>
-
-
-            <div class="account-info">
-
-                <strong>
-
-                    {{
-                        session.get(
-                            "admin_name",
-                            "Administrator"
-                        )
-                    }}
-
-                </strong>
-
-                <span>
-                    Administrator
-                </span>
-
-            </div>
-
         </div>
 
-
-    </div>
-
-</header>
-
-{% endif %}
+    </aside>
 
 
+    <!-- =====================================================
+         MOBILE HEADER
+    ====================================================== -->
 
-<!-- =====================================================
-     APPLICANT HEADER
-     ONLY AFTER APPLICANT LOGIN
-     ===================================================== -->
+    <header class="mobile-header">
 
-{% if session.get("applicant_logged_in") %}
+        <div class="mobile-brand">
 
-<header class="applicant-header">
-
-    <div class="applicant-header-inner">
-
-
-        <!-- BRAND -->
-
-        <a
-            href="{{ url_for('applicant_portal') }}"
-            class="brand"
-        >
-
-            <div class="brand-logo">
+            <div class="mobile-brand-logo">
                 AV
             </div>
-
-            <div class="brand-text">
-
-                <strong>
-                    AV KING
-                </strong>
-
-                <span>
-                    APPLICANT PORTAL
-                </span>
-
-            </div>
-
-        </a>
-
-
-
-        <!-- APPLICANT NAVIGATION -->
-
-        <nav class="applicant-nav">
-
-
-            <a
-                href="{{ url_for('applicant_portal') }}"
-                class="{% if request.endpoint == 'applicant_portal' %}active{% endif %}"
-            >
-                Dashboard
-            </a>
-
-
-            <a
-                href="{{ url_for('applicant_messages') }}"
-                class="{% if request.endpoint == 'applicant_messages' %}active{% endif %}"
-            >
-
-                Messages
-
-                {% if unread_count is defined and unread_count > 0 %}
-
-                    <span class="notification-count">
-                        {{ unread_count }}
-                    </span>
-
-                {% endif %}
-
-            </a>
-
-
-            <a href="#">
-                My Profile
-            </a>
-
-
-            <a
-                href="{{ url_for('applicant_logout') }}"
-                class="logout-link"
-            >
-                Sign Out
-            </a>
-
-
-        </nav>
-
-
-
-        <!-- APPLICANT ACCOUNT -->
-
-        <div class="header-account">
-
-
-            <div class="account-avatar">
-
-                {% if application is defined
-                      and application.first_name %}
-
-                    {{ application.first_name[0]|upper }}
-
-                {% else %}
-
-                    A
-
-                {% endif %}
-
-            </div>
-
-
-            <div class="account-info">
-
-                {% if application is defined %}
-
-                    <strong>
-
-                        {{ application.first_name }}
-
-                        {{ application.last_name }}
-
-                    </strong>
-
-                {% else %}
-
-                    <strong>
-                        Applicant
-                    </strong>
-
-                {% endif %}
-
-
-                <span>
-                    Applicant
-                </span>
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-</header>
-
-{% endif %}
-
-
-
-<!-- =====================================================
-     FLASH MESSAGES
-     ===================================================== -->
-
-<div class="flash-container">
-
-    {% with flash_messages =
-        get_flashed_messages(
-            with_categories=true
-        )
-    %}
-
-        {% if flash_messages %}
-
-            {% for category, message in flash_messages %}
-
-                <div
-                    class="flash-message flash-{{ category }}"
-                >
-
-                    {{ message }}
-
-                </div>
-
-            {% endfor %}
-
-        {% endif %}
-
-    {% endwith %}
-
-</div>
-
-
-
-<!-- =====================================================
-     MAIN CONTENT
-     ===================================================== -->
-
-<main class="main-content">
-
-    {% block content %}
-
-    {% endblock %}
-
-</main>
-
-
-
-<!-- =====================================================
-     FOOTER
-     ===================================================== -->
-
-<footer class="site-footer">
-
-    <div class="footer-inner">
-
-        <div>
 
             <strong>
                 AV KING
             </strong>
 
-            <span>
-                Recruitment Portal
-            </span>
-
         </div>
 
 
-        <div>
+        <button
+            type="button"
+            class="mobile-menu-button"
+            onclick="toggleAdminSidebar()"
+            aria-label="Open menu"
+        >
+            ☰
+        </button>
 
-            © 2026 AV KING Vet Drug Venture.
-            All rights reserved.
+    </header>
+
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="toggleAdminSidebar()"
+    ></div>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION AREA
+    ====================================================== -->
+
+    <main class="app-main">
+
+        <div class="app-content">
+
+            {% block content %}
+            {% endblock %}
 
         </div>
 
-    </div>
-
-</footer>
+    </main>
 
 
+</div>
 
-<!-- =====================================================
-     PAGE-SPECIFIC JAVASCRIPT
-     ===================================================== -->
+
+<script>
+
+function toggleAdminSidebar() {
+
+    const sidebar =
+        document.getElementById("appSidebar");
+
+    const overlay =
+        document.getElementById("sidebarOverlay");
+
+
+    sidebar.classList.toggle(
+        "mobile-open"
+    );
+
+    overlay.classList.toggle(
+        "mobile-open"
+    );
+}
+
+
+/* Close mobile sidebar after clicking a link */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        document
+            .querySelectorAll(".app-nav-link")
+            .forEach(function(link) {
+
+                link.addEventListener(
+                    "click",
+                    function () {
+
+                        if (
+                            window.innerWidth <= 900
+                        ) {
+
+                            document
+                                .getElementById(
+                                    "appSidebar"
+                                )
+                                .classList
+                                .remove(
+                                    "mobile-open"
+                                );
+
+                            document
+                                .getElementById(
+                                    "sidebarOverlay"
+                                )
+                                .classList
+                                .remove(
+                                    "mobile-open"
+                                );
+
+                        }
+
+                    }
+                );
+
+            });
+
+    }
+);
+
+</script>
+
 
 {% block scripts %}
-
 {% endblock %}
 
 
