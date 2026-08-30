@@ -279,16 +279,62 @@ def generate_application_number(conn):
 # ============================================================
 # HOME
 # ============================================================
-
-
 @app.route("/")
 def home():
-    return render_template(
-        "careers.html",
-        company_name=company_name,
-        company_logo=company_logo,
-        current_year=datetime.now().year
-    )
+    conn = get_db()
+
+    try:
+        cursor = conn.cursor()
+
+        # Get company settings
+        cursor.execute("""
+            SELECT
+                company_name,
+                company_email,
+                company_phone,
+                company_address,
+                company_website,
+                footer_text,
+                logo
+            FROM company_settings
+            LIMIT 1
+        """)
+
+        settings = cursor.fetchone()
+
+        if settings:
+            company_name = settings["company_name"] or "AV KING"
+            company_logo = settings["logo"]
+            footer_text = settings["footer_text"] or ""
+        else:
+            company_name = "AV KING"
+            company_logo = None
+            footer_text = ""
+
+        return render_template(
+            "careers.html",
+            company_name=company_name,
+            company_logo=company_logo,
+            footer_text=footer_text,
+            current_year=datetime.now().year
+        )
+
+    except Exception as e:
+        app.logger.exception(
+            "Error loading public home page"
+        )
+
+        # Fallback so the public homepage does not crash
+        return render_template(
+            "careers.html",
+            company_name="AV KING",
+            company_logo=None,
+            footer_text="",
+            current_year=datetime.now().year
+        )
+
+    finally:
+        conn.close()
 
 @app.context_processor
 def utility_processor():
