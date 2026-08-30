@@ -10,37 +10,49 @@
 
 /* ============================================================
    AV KING — PROFESSIONAL APPLICANT PORTAL
+   CORPORATE / ATS-STYLE INTERFACE
    ============================================================ */
 
 :root {
-    --portal-primary: #111827;
-    --portal-primary-soft: #f3f4f6;
-    --portal-accent: #0f766e;
-    --portal-accent-light: #ecfdf5;
 
-    --portal-blue: #2563eb;
-    --portal-blue-light: #eff6ff;
+    --ap-bg: #f4f6f8;
+    --ap-white: #ffffff;
 
-    --portal-success: #15803d;
-    --portal-success-light: #f0fdf4;
+    --ap-primary: #111827;
+    --ap-primary-2: #1f2937;
 
-    --portal-warning: #b45309;
-    --portal-warning-light: #fffbeb;
+    --ap-accent: #0f766e;
+    --ap-accent-dark: #115e59;
+    --ap-accent-soft: #ecfdf5;
 
-    --portal-danger: #b91c1c;
-    --portal-danger-light: #fef2f2;
+    --ap-blue: #2563eb;
+    --ap-blue-soft: #eff6ff;
 
-    --portal-text: #111827;
-    --portal-text-soft: #4b5563;
-    --portal-muted: #6b7280;
+    --ap-green: #15803d;
+    --ap-green-soft: #f0fdf4;
 
-    --portal-border: #e5e7eb;
-    --portal-bg: #f5f7fa;
-    --portal-white: #ffffff;
+    --ap-orange: #b45309;
+    --ap-orange-soft: #fffbeb;
 
-    --portal-radius: 16px;
-    --portal-shadow:
-        0 8px 30px rgba(15, 23, 42, 0.06);
+    --ap-red: #b91c1c;
+    --ap-red-soft: #fef2f2;
+
+    --ap-text: #111827;
+    --ap-text-secondary: #374151;
+    --ap-muted: #6b7280;
+    --ap-light-muted: #9ca3af;
+
+    --ap-border: #e5e7eb;
+    --ap-border-light: #eef0f2;
+
+    --ap-radius: 14px;
+
+    --ap-shadow:
+        0 1px 2px rgba(15, 23, 42, .04),
+        0 8px 25px rgba(15, 23, 42, .05);
+
+    --ap-shadow-hover:
+        0 8px 30px rgba(15, 23, 42, .08);
 }
 
 
@@ -51,21 +63,24 @@
 .applicant-page {
 
     width: 100%;
-    max-width: 1240px;
+
+    max-width: 1320px;
 
     margin: 0 auto;
 
     padding:
-        28px
-        22px
+        26px
+        24px
         60px;
 
     box-sizing: border-box;
+
+    color: var(--ap-text);
 }
 
 
 /* ============================================================
-   TOP HEADER
+   TOP NAVIGATION
    ============================================================ */
 
 .applicant-header {
@@ -78,21 +93,23 @@
 
     gap: 25px;
 
-    margin-bottom: 24px;
+    min-height: 72px;
 
-    padding: 20px 22px;
+    padding:
+        14px
+        18px;
 
-    background: var(--portal-white);
+    margin-bottom: 22px;
+
+    background: var(--ap-white);
 
     border:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
 
-    border-radius:
-        var(--portal-radius);
+    border-radius: var(--ap-radius);
 
-    box-shadow:
-        var(--portal-shadow);
+    box-shadow: var(--ap-shadow);
 }
 
 
@@ -102,7 +119,7 @@
 
     align-items: center;
 
-    gap: 15px;
+    gap: 13px;
 
     min-width: 0;
 }
@@ -114,9 +131,9 @@
 
 .applicant-logo-wrapper {
 
-    width: 58px;
+    width: 48px;
 
-    height: 58px;
+    height: 48px;
 
     flex-shrink: 0;
 
@@ -128,13 +145,13 @@
 
     overflow: hidden;
 
-    border-radius: 14px;
+    border-radius: 11px;
 
     background: #f8fafc;
 
     border:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
 }
 
 
@@ -146,7 +163,7 @@
 
     object-fit: contain;
 
-    padding: 6px;
+    padding: 5px;
 
     box-sizing: border-box;
 }
@@ -154,9 +171,9 @@
 
 .applicant-logo-placeholder {
 
-    width: 58px;
+    width: 48px;
 
-    height: 58px;
+    height: 48px;
 
     flex-shrink: 0;
 
@@ -166,17 +183,28 @@
 
     justify-content: center;
 
-    border-radius: 14px;
+    border-radius: 11px;
 
-    background: var(--portal-primary);
+    background:
+        linear-gradient(
+            135deg,
+            #111827,
+            #374151
+        );
 
     color: #ffffff;
 
-    font-size: 19px;
+    font-size: 15px;
 
     font-weight: 800;
+
+    letter-spacing: .5px;
 }
 
+
+/* ============================================================
+   BRAND
+   ============================================================ */
 
 .applicant-brand {
 
@@ -188,13 +216,13 @@
 
     margin: 0;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 18px;
+    font-size: 16px;
 
     font-weight: 800;
 
-    line-height: 1.25;
+    line-height: 1.3;
 
     white-space: nowrap;
 
@@ -206,18 +234,18 @@
 
 .applicant-brand p {
 
-    margin: 5px 0 0;
+    margin: 3px 0 0;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 12px;
+    font-size: 11px;
 
     line-height: 1.4;
 }
 
 
 /* ============================================================
-   LOGOUT
+   SIGN OUT
    ============================================================ */
 
 .applicant-logout {
@@ -228,34 +256,34 @@
 
     justify-content: center;
 
-    gap: 7px;
+    gap: 8px;
 
-    min-height: 40px;
+    min-height: 38px;
 
     padding:
         0
-        15px;
-
-    border-radius: 9px;
+        13px;
 
     background: #ffffff;
 
-    color: #374151;
-
     border:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
+
+    border-radius: 8px;
+
+    color: #374151;
 
     text-decoration: none;
 
-    font-size: 13px;
+    font-size: 12px;
 
     font-weight: 700;
 
     transition:
-        .2s ease;
-
-    white-space: nowrap;
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
 }
 
 
@@ -265,13 +293,12 @@
 
     border-color: #d1d5db;
 
-    transform:
-        translateY(-1px);
+    transform: translateY(-1px);
 }
 
 
 /* ============================================================
-   WELCOME / STATUS HERO
+   HERO
    ============================================================ */
 
 .application-hero {
@@ -280,24 +307,47 @@
 
     overflow: hidden;
 
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 
-    padding: 30px;
+    padding: 28px;
 
     background:
         linear-gradient(
             135deg,
             #111827 0%,
-            #1f2937 100%
+            #1f2937 58%,
+            #273548 100%
         );
 
-    border-radius: 18px;
-
-    box-shadow:
-        0 12px 35px
-        rgba(15, 23, 42, .12);
+    border-radius: 16px;
 
     color: #ffffff;
+
+    box-shadow:
+        0 14px 35px
+        rgba(15, 23, 42, .13);
+}
+
+
+.application-hero::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 300px;
+
+    height: 300px;
+
+    right: -110px;
+
+    top: -170px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
 }
 
 
@@ -307,18 +357,18 @@
 
     position: absolute;
 
-    width: 230px;
+    width: 180px;
 
-    height: 230px;
+    height: 180px;
 
-    right: -90px;
+    right: 80px;
 
-    top: -100px;
+    bottom: -120px;
 
     border-radius: 50%;
 
     background:
-        rgba(255,255,255,.05);
+        rgba(15,118,110,.16);
 }
 
 
@@ -332,17 +382,35 @@
 
 .application-eyebrow {
 
-    display: block;
+    display: inline-flex;
 
-    margin-bottom: 8px;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-bottom: 9px;
 
     color: #9ca3af;
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 800;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 1.7px;
+}
+
+
+.application-eyebrow::before {
+
+    content: "";
+
+    width: 6px;
+
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #2dd4bf;
 }
 
 
@@ -352,30 +420,36 @@
 
     color: #ffffff;
 
-    font-size: 30px;
+    font-size: 29px;
 
     font-weight: 800;
 
     line-height: 1.25;
+
+    letter-spacing: -.5px;
 }
 
 
 .application-hero-description {
 
-    max-width: 700px;
+    max-width: 720px;
 
     margin:
-        8px
+        9px
         0
-        20px;
+        17px;
 
     color: #d1d5db;
 
-    font-size: 14px;
+    font-size: 13px;
 
     line-height: 1.7;
 }
 
+
+/* ============================================================
+   APPLICATION REFERENCE
+   ============================================================ */
 
 .application-reference {
 
@@ -383,47 +457,62 @@
 
     align-items: center;
 
-    gap: 8px;
+    gap: 9px;
 
     padding:
-        8px
-        12px;
+        7px
+        11px;
 
     background:
-        rgba(255,255,255,.08);
-
-    border:
-        1px solid
-        rgba(255,255,255,.12);
-
-    border-radius: 8px;
-
-    color: #f9fafb;
-
-    font-size: 12px;
-
-    font-weight: 700;
-}
-
-
-/* ============================================================
-   STATUS SECTION
-   ============================================================ */
-
-.status-panel {
-
-    margin-top: 22px;
-
-    padding: 18px;
-
-    background:
-        rgba(255,255,255,.06);
+        rgba(255,255,255,.07);
 
     border:
         1px solid
         rgba(255,255,255,.10);
 
-    border-radius: 12px;
+    border-radius: 7px;
+
+    color: #d1d5db;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    letter-spacing: .2px;
+}
+
+
+.application-reference strong {
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    letter-spacing: .5px;
+}
+
+
+/* ============================================================
+   STATUS PANEL
+   ============================================================ */
+
+.status-panel {
+
+    margin-top: 21px;
+
+    padding:
+        16px;
+
+    background:
+        rgba(255,255,255,.055);
+
+    border:
+        1px solid
+        rgba(255,255,255,.09);
+
+    border-radius: 11px;
+
+    backdrop-filter: blur(5px);
 }
 
 
@@ -431,13 +520,13 @@
 
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
+
+    justify-content: space-between;
 
     gap: 15px;
 
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 
@@ -445,13 +534,17 @@
 
     color: #9ca3af;
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 800;
 
-    letter-spacing: 1.2px;
+    letter-spacing: 1.3px;
 }
 
+
+/* ============================================================
+   STATUS BADGE
+   ============================================================ */
 
 .status-box {
 
@@ -462,14 +555,16 @@
     gap: 7px;
 
     padding:
-        7px
-        12px;
+        6px
+        10px;
 
     border-radius: 999px;
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 800;
+
+    white-space: nowrap;
 }
 
 
@@ -477,9 +572,9 @@
 
     content: "";
 
-    width: 7px;
+    width: 6px;
 
-    height: 7px;
+    height: 6px;
 
     border-radius: 50%;
 
@@ -492,7 +587,7 @@
     color: #fbbf24;
 
     background:
-        rgba(245,158,11,.14);
+        rgba(245,158,11,.13);
 }
 
 
@@ -501,7 +596,7 @@
     color: #93c5fd;
 
     background:
-        rgba(59,130,246,.14);
+        rgba(59,130,246,.13);
 }
 
 
@@ -510,7 +605,7 @@
     color: #86efac;
 
     background:
-        rgba(34,197,94,.14);
+        rgba(34,197,94,.13);
 }
 
 
@@ -519,7 +614,7 @@
     color: #93c5fd;
 
     background:
-        rgba(59,130,246,.14);
+        rgba(59,130,246,.13);
 }
 
 
@@ -528,7 +623,7 @@
     color: #fca5a5;
 
     background:
-        rgba(239,68,68,.14);
+        rgba(239,68,68,.13);
 }
 
 
@@ -543,8 +638,6 @@
     align-items: center;
 
     width: 100%;
-
-    gap: 0;
 }
 
 
@@ -562,9 +655,9 @@
 
 .progress-dot {
 
-    width: 28px;
+    width: 27px;
 
-    height: 28px;
+    height: 27px;
 
     flex-shrink: 0;
 
@@ -578,46 +671,39 @@
 
     background: #374151;
 
-    color: #9ca3af;
-
-    font-size: 11px;
-
-    font-weight: 800;
-
     border:
         2px solid
         #4b5563;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    font-weight: 800;
 }
 
 
-.progress-step.completed
-.progress-dot {
+.progress-step.completed .progress-dot {
 
-    background:
-        var(--portal-accent);
+    background: var(--ap-accent);
+
+    border-color: var(--ap-accent);
 
     color: #ffffff;
-
-    border-color:
-        var(--portal-accent);
 }
 
 
-.progress-step.current
-.progress-dot {
+.progress-step.current .progress-dot {
 
-    background:
-        #ffffff;
+    background: #ffffff;
 
-    color:
-        #111827;
+    border-color: #ffffff;
 
-    border-color:
-        #ffffff;
+    color: #111827;
 
     box-shadow:
         0 0 0 4px
-        rgba(255,255,255,.12);
+        rgba(255,255,255,.10);
 }
 
 
@@ -627,19 +713,17 @@
 
     flex: 1;
 
-    background: #374151;
-
     margin:
         0
-        8px;
+        7px;
+
+    background: #374151;
 }
 
 
-.progress-step.completed
-.progress-line {
+.progress-step.completed .progress-line {
 
-    background:
-        var(--portal-accent);
+    background: var(--ap-accent);
 }
 
 
@@ -655,19 +739,24 @@
 
 .shortlisted-notice {
 
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 
-    padding: 24px;
+    padding: 22px;
 
     background:
-        var(--portal-success-light);
+        linear-gradient(
+            135deg,
+            #f0fdf4,
+            #ffffff
+        );
 
     border:
         1px solid
         #bbf7d0;
 
-    border-radius:
-        var(--portal-radius);
+    border-radius: var(--ap-radius);
+
+    box-shadow: var(--ap-shadow);
 }
 
 
@@ -677,15 +766,15 @@
 
     align-items: flex-start;
 
-    gap: 16px;
+    gap: 14px;
 }
 
 
 .shortlisted-icon {
 
-    width: 48px;
+    width: 43px;
 
-    height: 48px;
+    height: 43px;
 
     flex-shrink: 0;
 
@@ -695,14 +784,14 @@
 
     justify-content: center;
 
-    border-radius: 13px;
+    border-radius: 11px;
 
     background:
-        var(--portal-success);
+        var(--ap-green);
 
     color: #ffffff;
 
-    font-size: 20px;
+    font-size: 17px;
 
     font-weight: 800;
 }
@@ -710,11 +799,14 @@
 
 .shortlisted-notice h2 {
 
-    margin: 0 0 7px;
+    margin:
+        0
+        0
+        6px;
 
     color: #166534;
 
-    font-size: 20px;
+    font-size: 19px;
 
     font-weight: 800;
 }
@@ -726,29 +818,29 @@
 
     color: #166534;
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.65;
 }
 
 
 /* ============================================================
-   INTERVIEW
+   INTERVIEW BOX
    ============================================================ */
 
 .interview-box {
 
-    margin-top: 20px;
+    margin-top: 18px;
 
-    padding: 18px;
+    padding: 17px;
 
     background: #ffffff;
 
     border:
         1px solid
-        #bbf7d0;
+        #d1fae5;
 
-    border-radius: 12px;
+    border-radius: 11px;
 }
 
 
@@ -758,9 +850,35 @@
 
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
 
-    margin-bottom: 15px;
+    margin-bottom: 11px;
+}
+
+
+.interview-box-header::before {
+
+    content: "✓";
+
+    width: 25px;
+
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 7px;
+
+    background: #dcfce7;
+
+    color: #15803d;
+
+    font-size: 11px;
+
+    font-weight: 800;
 }
 
 
@@ -770,7 +888,7 @@
 
     color: #166534;
 
-    font-size: 16px;
+    font-size: 14px;
 
     font-weight: 800;
 }
@@ -781,13 +899,13 @@
     display: grid;
 
     grid-template-columns:
-        160px
-        minmax(0, 1fr);
+        145px
+        minmax(0,1fr);
 
     gap: 20px;
 
     padding:
-        11px
+        10px
         0;
 
     border-bottom:
@@ -799,8 +917,6 @@
 .interview-row:last-child {
 
     border-bottom: none;
-
-    padding-bottom: 0;
 }
 
 
@@ -808,7 +924,7 @@
 
     color: #6b7280;
 
-    font-size: 12px;
+    font-size: 11px;
 
     font-weight: 600;
 }
@@ -818,7 +934,7 @@
 
     color: #111827;
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.5;
 }
@@ -826,9 +942,9 @@
 
 .interview-instructions {
 
-    margin-top: 15px;
+    margin-top: 13px;
 
-    padding-top: 15px;
+    padding-top: 13px;
 
     border-top:
         1px solid
@@ -840,13 +956,15 @@
 
     display: block;
 
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 
     color: #6b7280;
 
-    font-size: 11px;
+    font-size: 9px;
 
-    font-weight: 700;
+    font-weight: 800;
+
+    letter-spacing: .8px;
 }
 
 
@@ -854,7 +972,7 @@
 
     color: #374151;
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.7;
 
@@ -874,11 +992,13 @@
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 18px;
 
-    margin-top: 18px;
+    margin-top: 16px;
 
-    padding: 14px 16px;
+    padding:
+        12px
+        14px;
 
     background: #ffffff;
 
@@ -886,7 +1006,7 @@
         1px solid
         #d1fae5;
 
-    border-radius: 10px;
+    border-radius: 9px;
 }
 
 
@@ -894,11 +1014,13 @@
 
     display: block;
 
-    margin-bottom: 3px;
+    margin-bottom: 2px;
 
     color: #166534;
 
-    font-size: 13px;
+    font-size: 11px;
+
+    font-weight: 800;
 }
 
 
@@ -906,7 +1028,7 @@
 
     color: #4b5563;
 
-    font-size: 12px;
+    font-size: 10px;
 }
 
 
@@ -918,13 +1040,13 @@
 
     justify-content: center;
 
-    min-height: 36px;
+    min-height: 34px;
 
     padding:
         0
         12px;
 
-    border-radius: 8px;
+    border-radius: 7px;
 
     background: #16a34a;
 
@@ -932,16 +1054,26 @@
 
     text-decoration: none;
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 800;
 
     white-space: nowrap;
+
+    transition: .2s ease;
+}
+
+
+.contact-whatsapp:hover {
+
+    background: #15803d;
+
+    transform: translateY(-1px);
 }
 
 
 /* ============================================================
-   MAIN GRID
+   MAIN CONTENT GRID
    ============================================================ */
 
 .applicant-grid {
@@ -949,39 +1081,50 @@
     display: grid;
 
     grid-template-columns:
-        minmax(0, 1fr)
-        320px;
+        minmax(0,1fr)
+        310px;
 
-    gap: 24px;
+    gap: 22px;
 
     align-items: start;
 }
 
 
 /* ============================================================
-   CARDS
+   CARD
    ============================================================ */
 
 .applicant-card {
 
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 
-    padding: 24px;
+    padding: 22px;
 
-    background:
-        var(--portal-white);
+    background: var(--ap-white);
 
     border:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
 
-    border-radius:
-        var(--portal-radius);
+    border-radius: var(--ap-radius);
 
-    box-shadow:
-        var(--portal-shadow);
+    box-shadow: var(--ap-shadow);
+
+    transition:
+        box-shadow .2s ease,
+        transform .2s ease;
 }
 
+
+.applicant-card:hover {
+
+    box-shadow: var(--ap-shadow-hover);
+}
+
+
+/* ============================================================
+   CARD HEADER
+   ============================================================ */
 
 .card-heading {
 
@@ -993,13 +1136,13 @@
 
     gap: 15px;
 
-    margin-bottom: 22px;
+    margin-bottom: 19px;
 
-    padding-bottom: 16px;
+    padding-bottom: 14px;
 
     border-bottom:
         1px solid
-        #f0f1f3;
+        var(--ap-border-light);
 }
 
 
@@ -1007,15 +1150,15 @@
 
     display: block;
 
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 
-    color: var(--portal-muted);
+    color: var(--ap-light-muted);
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 800;
 
-    letter-spacing: 1.3px;
+    letter-spacing: 1.4px;
 }
 
 
@@ -1023,11 +1166,13 @@
 
     margin: 0;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 18px;
+    font-size: 17px;
 
     font-weight: 800;
+
+    line-height: 1.35;
 }
 
 
@@ -1042,11 +1187,11 @@
     grid-template-columns:
         repeat(
             2,
-            minmax(0, 1fr)
+            minmax(0,1fr)
         );
 
     gap:
-        20px
+        18px
         22px;
 }
 
@@ -1059,8 +1204,7 @@
 
 .info-item.full-width {
 
-    grid-column:
-        1 / -1;
+    grid-column: 1 / -1;
 }
 
 
@@ -1070,9 +1214,9 @@
 
     margin-bottom: 5px;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 11px;
+    font-size: 10px;
 
     font-weight: 600;
 }
@@ -1082,9 +1226,9 @@
 
     display: block;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 13px;
+    font-size: 12px;
 
     font-weight: 700;
 
@@ -1105,7 +1249,7 @@
     grid-template-columns:
         repeat(
             2,
-            minmax(0, 1fr)
+            minmax(0,1fr)
         );
 
     gap: 1px;
@@ -1113,19 +1257,23 @@
     overflow: hidden;
 
     background:
-        var(--portal-border);
+        var(--ap-border);
 
     border:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
 
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 
 .application-detail {
 
-    padding: 15px;
+    min-width: 0;
+
+    padding:
+        13px
+        14px;
 
     background: #ffffff;
 }
@@ -1137,13 +1285,13 @@
 
     margin-bottom: 5px;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 700;
 
-    letter-spacing: .3px;
+    letter-spacing: .4px;
 }
 
 
@@ -1151,9 +1299,9 @@
 
     display: block;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.5;
 
@@ -1162,32 +1310,32 @@
 
 
 /* ============================================================
-   SIDE CARD
+   SIDEBAR
    ============================================================ */
 
 .side-card {
 
     position: sticky;
 
-    top: 20px;
+    top: 18px;
 }
 
 
 .side-card .applicant-card {
 
-    margin-bottom: 18px;
+    margin-bottom: 17px;
 }
 
 
 .side-info {
 
     padding:
-        13px
+        11px
         0;
 
     border-bottom:
         1px solid
-        #f0f1f3;
+        var(--ap-border-light);
 }
 
 
@@ -1209,15 +1357,15 @@
 
     display: block;
 
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 700;
 
-    letter-spacing: .3px;
+    letter-spacing: .4px;
 }
 
 
@@ -1225,13 +1373,41 @@
 
     display: block;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 13px;
+    font-size: 12px;
 
     line-height: 1.5;
 
     word-break: break-word;
+}
+
+
+/* ============================================================
+   SIDEBAR STATUS
+   ============================================================ */
+
+.side-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding:
+        5px
+        9px;
+
+    border-radius: 999px;
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    font-size: 9px;
+
+    font-weight: 800;
 }
 
 
@@ -1243,7 +1419,7 @@
 
     position: relative;
 
-    padding-left: 5px;
+    padding-left: 2px;
 }
 
 
@@ -1254,8 +1430,8 @@
     padding:
         0
         0
-        23px
-        30px;
+        22px
+        28px;
 }
 
 
@@ -1271,16 +1447,15 @@
 
     position: absolute;
 
-    left: 6px;
+    left: 5px;
 
-    top: 17px;
+    top: 15px;
 
     bottom: -2px;
 
     width: 1px;
 
-    background:
-        #d1d5db;
+    background: #d1d5db;
 }
 
 
@@ -1296,33 +1471,35 @@
 
     left: 0;
 
-    top: 2px;
+    top: 1px;
 
-    width: 13px;
+    width: 11px;
 
-    height: 13px;
+    height: 11px;
+
+    box-sizing: border-box;
 
     border-radius: 50%;
 
-    background:
-        #ffffff;
+    background: #ffffff;
 
     border:
-        3px solid
+        2px solid
         #9ca3af;
-
-    box-sizing: border-box;
 }
 
 
-.timeline-item.active
-.timeline-dot {
-
-    border-color:
-        var(--portal-accent);
+.timeline-item.active .timeline-dot {
 
     background:
-        var(--portal-accent);
+        var(--ap-accent);
+
+    border-color:
+        var(--ap-accent);
+
+    box-shadow:
+        0 0 0 3px
+        var(--ap-accent-soft);
 }
 
 
@@ -1330,11 +1507,11 @@
 
     display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 13px;
+    font-size: 11px;
 
     font-weight: 800;
 }
@@ -1344,11 +1521,11 @@
 
     display: block;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 11px;
+    font-size: 10px;
 
-    line-height: 1.5;
+    line-height: 1.55;
 }
 
 
@@ -1359,12 +1536,12 @@
 .message-item {
 
     padding:
-        17px
+        15px
         0;
 
     border-bottom:
         1px solid
-        var(--portal-border);
+        var(--ap-border-light);
 }
 
 
@@ -1390,25 +1567,27 @@
 
     justify-content: space-between;
 
-    gap: 15px;
+    gap: 12px;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 }
 
 
 .message-header strong {
 
-    color: var(--portal-text);
+    color: var(--ap-text);
 
-    font-size: 13px;
+    font-size: 12px;
+
+    font-weight: 800;
 }
 
 
 .message-date {
 
-    color: #9ca3af;
+    color: var(--ap-light-muted);
 
-    font-size: 10px;
+    font-size: 9px;
 
     white-space: nowrap;
 }
@@ -1418,25 +1597,23 @@
 
     display: inline-flex;
 
-    margin-bottom: 8px;
+    margin-bottom: 7px;
 
     padding:
         4px
-        8px;
+        7px;
 
     border-radius: 5px;
 
-    background:
-        #f3f4f6;
+    background: #f3f4f6;
 
-    color:
-        #374151;
+    color: #374151;
 
-    font-size: 9px;
+    font-size: 8px;
 
     font-weight: 800;
 
-    letter-spacing: .3px;
+    letter-spacing: .4px;
 }
 
 
@@ -1444,7 +1621,7 @@
 
     color: #4b5563;
 
-    font-size: 13px;
+    font-size: 11px;
 
     line-height: 1.7;
 
@@ -1453,27 +1630,28 @@
 
 
 /* ============================================================
-   EMPTY
+   EMPTY STATE
    ============================================================ */
 
 .empty-message {
 
-    padding: 25px 15px;
+    padding:
+        23px
+        15px;
 
     text-align: center;
 
-    background:
-        #f9fafb;
+    background: #f9fafb;
 
     border:
         1px dashed
         #d1d5db;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
-    color: var(--portal-muted);
+    color: var(--ap-muted);
 
-    font-size: 12px;
+    font-size: 11px;
 
     line-height: 1.6;
 }
@@ -1485,21 +1663,24 @@
 
 .portal-footer {
 
-    margin-top: 32px;
+    margin-top: 30px;
 
-    padding-top: 20px;
+    padding:
+        18px
+        10px
+        0;
 
     border-top:
         1px solid
-        var(--portal-border);
+        var(--ap-border);
 
     text-align: center;
 
-    color: #9ca3af;
+    color: var(--ap-light-muted);
 
-    font-size: 11px;
+    font-size: 9px;
 
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 
@@ -1510,10 +1691,10 @@
 
 
 /* ============================================================
-   MOBILE
+   TABLET
    ============================================================ */
 
-@media (max-width: 950px) {
+@media (max-width: 1050px) {
 
     .applicant-grid {
 
@@ -1521,34 +1702,60 @@
 
     }
 
+
     .side-card {
 
         position: static;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+        gap: 18px;
+
+    }
+
+
+    .side-card .applicant-card {
+
+        margin-bottom: 0;
 
     }
 
 }
 
 
-@media (max-width: 650px) {
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 680px) {
 
     .applicant-page {
 
         padding:
-            15px
             12px
-            40px;
+            10px
+            35px;
 
     }
 
 
     .applicant-header {
 
-        align-items: flex-start;
+        align-items: stretch;
 
         flex-direction: column;
 
-        padding: 17px;
+        gap: 12px;
+
+        padding: 14px;
+
+        margin-bottom: 14px;
 
     }
 
@@ -1572,46 +1779,58 @@
     .applicant-logo-wrapper,
     .applicant-logo-placeholder {
 
-        width: 50px;
+        width: 44px;
 
-        height: 50px;
+        height: 44px;
 
     }
 
 
     .applicant-brand h1 {
 
-        font-size: 16px;
+        font-size: 14px;
+
+    }
+
+
+    .applicant-brand p {
+
+        font-size: 10px;
 
     }
 
 
     .application-hero {
 
-        padding: 22px 19px;
+        padding:
+            21px
+            17px;
 
-        border-radius: 15px;
+        margin-bottom: 14px;
+
+        border-radius: 13px;
 
     }
 
 
     .application-hero h2 {
 
-        font-size: 24px;
+        font-size: 23px;
 
     }
 
 
     .application-hero-description {
 
-        font-size: 12px;
+        font-size: 11px;
 
+        line-height: 1.65;
     }
 
 
     .status-panel {
 
-        padding: 14px;
+        padding: 13px;
 
     }
 
@@ -1622,6 +1841,8 @@
 
         flex-direction: column;
 
+        gap: 9px;
+
     }
 
 
@@ -1629,6 +1850,7 @@
 
         overflow-x: auto;
 
+        padding-bottom: 2px;
     }
 
 
@@ -1641,50 +1863,61 @@
 
     .progress-line {
 
-        width: 35px;
+        width: 32px;
 
-        flex: 0 0 35px;
+        flex: 0 0 32px;
 
     }
 
 
     .shortlisted-notice {
 
-        padding: 18px;
+        padding: 17px;
+
+        margin-bottom: 14px;
 
     }
 
 
     .shortlisted-notice-header {
 
-        gap: 11px;
+        gap: 10px;
 
     }
 
 
     .shortlisted-icon {
 
-        width: 42px;
+        width: 38px;
 
-        height: 42px;
+        height: 38px;
 
-        font-size: 17px;
+        font-size: 15px;
 
     }
 
 
     .shortlisted-notice h2 {
 
-        font-size: 18px;
+        font-size: 17px;
+
+    }
+
+
+    .shortlisted-notice p {
+
+        font-size: 11px;
 
     }
 
 
     .contact-box {
 
-        align-items: flex-start;
+        align-items: stretch;
 
         flex-direction: column;
+
+        gap: 10px;
 
     }
 
@@ -1696,11 +1929,34 @@
     }
 
 
+    .applicant-grid {
+
+        display: block;
+
+    }
+
+
     .applicant-card {
 
-        padding: 18px;
+        padding: 17px;
 
-        border-radius: 14px;
+        margin-bottom: 14px;
+
+        border-radius: 12px;
+
+    }
+
+
+    .card-heading {
+
+        margin-bottom: 17px;
+
+    }
+
+
+    .card-heading-left h2 {
+
+        font-size: 15px;
 
     }
 
@@ -1709,7 +1965,7 @@
 
         grid-template-columns: 1fr;
 
-        gap: 17px;
+        gap: 15px;
 
     }
 
@@ -1732,7 +1988,7 @@
 
         grid-template-columns: 1fr;
 
-        gap: 4px;
+        gap: 3px;
 
     }
 
@@ -1743,7 +1999,21 @@
 
         flex-direction: column;
 
-        gap: 4px;
+        gap: 3px;
+
+    }
+
+
+    .side-card {
+
+        display: block;
+
+    }
+
+
+    .side-card .applicant-card {
+
+        margin-bottom: 14px;
 
     }
 
@@ -1751,18 +2021,26 @@
 
 
 /* ============================================================
-   VERY SMALL SCREEN
+   VERY SMALL DEVICES
    ============================================================ */
 
 @media (max-width: 390px) {
 
     .application-hero h2 {
 
-        font-size: 21px;
+        font-size: 20px;
 
     }
 
+
     .application-reference {
+
+        font-size: 9px;
+
+    }
+
+
+    .application-reference strong {
 
         font-size: 10px;
 
@@ -1783,9 +2061,6 @@
     <header class="applicant-header">
 
         <div class="applicant-header-left">
-
-
-            <!-- COMPANY LOGO -->
 
             {% if settings and settings.logo %}
 
@@ -1859,13 +2134,12 @@
 
 
     <!-- ========================================================
-         APPLICATION HERO
+         HERO
          ======================================================== -->
 
     <section class="application-hero">
 
         <div class="application-hero-content">
-
 
             <span class="application-eyebrow">
                 APPLICATION DASHBOARD
@@ -1890,15 +2164,18 @@
             <p class="application-hero-description">
 
                 Welcome to your recruitment application dashboard.
-                You can use this portal to monitor your application
-                status, interview information and recruitment updates.
+                Here you can monitor your application status,
+                recruitment progress, interview information and
+                important recruitment updates.
 
             </p>
 
 
             <div class="application-reference">
 
-                Application No:
+                <span>
+                    APPLICATION NUMBER
+                </span>
 
                 <strong>
                     {{ application.application_number }}
@@ -1932,29 +2209,18 @@
                 </div>
 
 
-                <!-- =================================================
-                     PROGRESS
-                     ================================================= -->
+                <!-- PROGRESS -->
 
                 <div class="application-progress">
 
 
                     <!-- SUBMITTED -->
 
-                    <div
-                        class="
-                            progress-step
-                            completed
-                        "
-                    >
+                    <div class="progress-step completed">
 
                         <div class="progress-dot">
                             ✓
                         </div>
-
-                        <span class="progress-label">
-                            Submitted
-                        </span>
 
                     </div>
 
@@ -1989,16 +2255,16 @@
                                 'Shortlisted',
                                 'Approved'
                             ] %}
+
                                 ✓
+
                             {% else %}
+
                                 2
+
                             {% endif %}
 
                         </div>
-
-                        <span class="progress-label">
-                            Review
-                        </span>
 
                     </div>
 
@@ -2031,16 +2297,16 @@
                                 'Shortlisted',
                                 'Approved'
                             ] %}
+
                                 ✓
+
                             {% else %}
+
                                 3
+
                             {% endif %}
 
                         </div>
-
-                        <span class="progress-label">
-                            Shortlisted
-                        </span>
 
                     </div>
 
@@ -2064,16 +2330,16 @@
                         <div class="progress-dot">
 
                             {% if application.status == 'Approved' %}
+
                                 ✓
+
                             {% else %}
+
                                 4
+
                             {% endif %}
 
                         </div>
-
-                        <span class="progress-label">
-                            Decision
-                        </span>
 
                     </div>
 
@@ -2095,9 +2361,7 @@
 
     <section class="shortlisted-notice">
 
-
         <div class="shortlisted-notice-header">
-
 
             <div class="shortlisted-icon">
                 ✓
@@ -2118,7 +2382,7 @@
                 <p>
                     Please review the interview information below
                     and continue checking your applicant portal
-                    for further updates.
+                    for recruitment updates.
                 </p>
 
             </div>
@@ -2127,18 +2391,12 @@
 
 
 
-        <!-- =====================================================
-             INTERVIEW INFORMATION
-             ===================================================== -->
-
         {% if application.interview_date
             or application.interview_location
             or application.interview_notes
             or application.interview_status %}
 
-
         <div class="interview-box">
-
 
             <div class="interview-box-header">
 
@@ -2170,7 +2428,6 @@
             {% endif %}
 
 
-
             {% if application.interview_location %}
 
             <div class="interview-row">
@@ -2186,7 +2443,6 @@
             </div>
 
             {% endif %}
-
 
 
             {% if application.interview_status %}
@@ -2206,25 +2462,21 @@
             {% endif %}
 
 
-
             {% if application.interview_notes %}
 
             <div class="interview-instructions">
 
                 <span class="interview-instructions-label">
-                    INSTRUCTIONS
+                    INTERVIEW INSTRUCTIONS
                 </span>
 
                 <div class="interview-instructions-content">
-
                     {{ application.interview_notes }}
-
                 </div>
 
             </div>
 
             {% endif %}
-
 
         </div>
 
@@ -2232,12 +2484,9 @@
 
 
 
-        <!-- =====================================================
-             RECRUITMENT CONTACT
-             ===================================================== -->
+        <!-- CONTACT -->
 
         <div class="contact-box">
-
 
             <div class="contact-box-content">
 
@@ -2261,9 +2510,7 @@
                 Contact Recruitment
             </a>
 
-
         </div>
-
 
     </section>
 
@@ -2272,7 +2519,7 @@
 
 
     <!-- ========================================================
-         MAIN CONTENT
+         MAIN GRID
          ======================================================== -->
 
     <div class="applicant-grid">
@@ -2285,12 +2532,9 @@
         <main>
 
 
-            <!-- =================================================
-                 PERSONAL INFORMATION
-                 ================================================= -->
+            <!-- PERSONAL INFORMATION -->
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2309,9 +2553,7 @@
                 </div>
 
 
-
                 <div class="info-grid">
-
 
                     <div class="info-item">
 
@@ -2324,7 +2566,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="info-item">
@@ -2340,7 +2581,6 @@
                     </div>
 
 
-
                     <div class="info-item">
 
                         <label>
@@ -2352,7 +2592,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="info-item">
@@ -2368,7 +2607,6 @@
                     </div>
 
 
-
                     <div class="info-item">
 
                         <label>
@@ -2380,7 +2618,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="info-item">
@@ -2396,7 +2633,6 @@
                     </div>
 
 
-
                     <div class="info-item full-width">
 
                         <label>
@@ -2410,11 +2646,10 @@
                     </div>
 
 
-
                     <div class="info-item full-width">
 
                         <label>
-                            Address
+                            Residential Address
                         </label>
 
                         <strong>
@@ -2422,7 +2657,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="info-item">
@@ -2438,7 +2672,6 @@
                     </div>
 
 
-
                     <div class="info-item">
 
                         <label>
@@ -2451,19 +2684,15 @@
 
                     </div>
 
-
                 </div>
 
             </section>
 
 
 
-            <!-- =================================================
-                 APPLICATION INFORMATION
-                 ================================================= -->
+            <!-- APPLICATION INFORMATION -->
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2482,7 +2711,6 @@
                 </div>
 
 
-
                 <div class="application-details">
 
 
@@ -2499,7 +2727,6 @@
                     </div>
 
 
-
                     <div class="application-detail">
 
                         <label>
@@ -2511,7 +2738,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="application-detail">
@@ -2527,7 +2753,6 @@
                     </div>
 
 
-
                     <div class="application-detail">
 
                         <label>
@@ -2539,7 +2764,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="application-detail">
@@ -2555,7 +2779,6 @@
                     </div>
 
 
-
                     <div class="application-detail">
 
                         <label>
@@ -2567,7 +2790,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="application-detail">
@@ -2583,7 +2805,6 @@
                     </div>
 
 
-
                     <div class="application-detail">
 
                         <label>
@@ -2595,7 +2816,6 @@
                         </strong>
 
                     </div>
-
 
 
                     <div class="application-detail">
@@ -2611,7 +2831,6 @@
                     </div>
 
 
-
                     <div class="application-detail">
 
                         <label>
@@ -2624,22 +2843,18 @@
 
                     </div>
 
-
                 </div>
 
             </section>
 
 
 
-            <!-- =================================================
-                 APPLICATION REASON
-                 ================================================= -->
+            <!-- APPLICATION STATEMENT -->
 
             {% if application.reason_for_applying
                 or application.additional_information %}
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2658,11 +2873,12 @@
                 </div>
 
 
-
                 {% if application.reason_for_applying %}
 
-                <div class="info-item"
-                     style="margin-bottom:20px;">
+                <div
+                    class="info-item"
+                    style="margin-bottom:19px;"
+                >
 
                     <label>
                         Reason for Applying
@@ -2681,7 +2897,6 @@
                 </div>
 
                 {% endif %}
-
 
 
                 {% if application.additional_information %}
@@ -2706,21 +2921,17 @@
 
                 {% endif %}
 
-
             </section>
 
             {% endif %}
 
 
 
-            <!-- =================================================
-                 RECRUITMENT MESSAGES
-                 ================================================= -->
+            <!-- RECRUITMENT MESSAGES -->
 
             {% if messages %}
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2739,28 +2950,21 @@
                 </div>
 
 
-
                 {% for message in messages %}
 
                 <div class="message-item">
 
-
                     <div class="message-header">
 
                         <strong>
-
-                            {{ message.subject
-                               or "Recruitment Update" }}
-
+                            {{ message.subject or "Recruitment Update" }}
                         </strong>
 
 
                         {% if message.created_at %}
 
                         <span class="message-date">
-
                             {{ message.created_at }}
-
                         </span>
 
                         {% endif %}
@@ -2768,35 +2972,26 @@
                     </div>
 
 
-
                     {% if message.message_type %}
 
                     <span class="message-type">
-
                         {{ message.message_type }}
-
                     </span>
 
                     {% endif %}
 
 
-
                     <div class="message-body">
-
                         {{ message.message }}
-
                     </div>
-
 
                 </div>
 
                 {% endfor %}
 
-
             </section>
 
             {% endif %}
-
 
         </main>
 
@@ -2809,12 +3004,9 @@
         <aside class="side-card">
 
 
-            <!-- =================================================
-                 APPLICATION SUMMARY
-                 ================================================= -->
+            <!-- APPLICATION SUMMARY -->
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2833,7 +3025,6 @@
                 </div>
 
 
-
                 <div class="side-info">
 
                     <label>
@@ -2845,7 +3036,6 @@
                     </strong>
 
                 </div>
-
 
 
                 <div class="side-info">
@@ -2861,7 +3051,6 @@
                 </div>
 
 
-
                 <div class="side-info">
 
                     <label>
@@ -2873,7 +3062,6 @@
                     </strong>
 
                 </div>
-
 
 
                 {% if application.created_at %}
@@ -2892,17 +3080,13 @@
 
                 {% endif %}
 
-
             </section>
 
 
 
-            <!-- =================================================
-                 APPLICATION TIMELINE
-                 ================================================= -->
+            <!-- RECRUITMENT TIMELINE -->
 
             <section class="applicant-card">
-
 
                 <div class="card-heading">
 
@@ -2921,9 +3105,10 @@
                 </div>
 
 
-
                 <div class="timeline">
 
+
+                    <!-- SUBMITTED -->
 
                     <div class="timeline-item active">
 
@@ -2934,16 +3119,18 @@
                         </strong>
 
                         <span>
-                            Your application has been received.
+                            Your application has been successfully received.
                         </span>
 
                     </div>
 
 
+                    <!-- REVIEW -->
 
                     <div
                         class="
                             timeline-item
+
                             {% if application.status in [
                                 'Under Review',
                                 'Shortlisted',
@@ -2961,16 +3148,18 @@
                         </strong>
 
                         <span>
-                            Your application is being assessed.
+                            Your application is being assessed by the recruitment team.
                         </span>
 
                     </div>
 
 
+                    <!-- SHORTLISTING -->
 
                     <div
                         class="
                             timeline-item
+
                             {% if application.status in [
                                 'Shortlisted',
                                 'Approved'
@@ -2987,17 +3176,18 @@
                         </strong>
 
                         <span>
-                            Candidates selected for the next stage
-                            will receive an update here.
+                            Selected candidates will receive an update here.
                         </span>
 
                     </div>
 
 
+                    <!-- DECISION -->
 
                     <div
                         class="
                             timeline-item
+
                             {% if application.status == 'Approved' %}
                                 active
                             {% endif %}
@@ -3016,15 +3206,11 @@
 
                     </div>
 
-
                 </div>
-
 
             </section>
 
-
         </aside>
-
 
     </div>
 
