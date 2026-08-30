@@ -206,51 +206,23 @@
              BRANDING
              ================================================== -->
 
-       <div class="login-brand">
+       <div class="applicant-login-brand">
 
     {% if settings and settings.logo %}
-
-        <div class="login-logo-wrapper">
-
-            <img
-                src="{{ url_for(
-                    'static',
-                    filename='uploads/' ~ settings.logo
-                ) }}"
-                alt="{{ settings.company_name or 'Company Logo' }}"
-                class="login-logo"
-            >
-
-        </div>
-
-    {% else %}
-
-        <div class="login-logo-placeholder">
-
-            {{ (
-                settings.company_name[:1]
-                if settings and settings.company_name
-                else "A"
-            )|upper }}
-
-        </div>
-
+        <img
+            src="{{ url_for('static', filename=settings.logo) }}"
+            alt="{{ settings.company_name or 'Company Logo' }}"
+            class="applicant-login-logo"
+        >
     {% endif %}
 
+    <h1>
+        {{ settings.company_name if settings else 'AV KING' }}
+    </h1>
 
-    <div class="login-company-name">
-
-        <h1>
-            {{ settings.company_name
-               if settings and settings.company_name
-               else "AV KING" }}
-        </h1>
-
-        <p>
-            Applicant Portal
-        </p>
-
-    </div>
+    {% if settings and settings.company_motto %}
+        <p>{{ settings.company_motto }}</p>
+    {% endif %}
 
 </div>
 
@@ -261,9 +233,9 @@
 
         <div class="portal-title">
 
-            <h2>
+            <p>
                 Applicant Portal
-            </h2>
+            </p>
 
             <p>
                 Sign in to track your recruitment application.
