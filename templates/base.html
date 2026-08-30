@@ -1679,20 +1679,17 @@
 
                     <!-- APPLICANT MESSAGES -->
 
-                    <a
-                        href="{{ url_for('applicant_messages') }}"
-                        class="sidebar-link {% if request.endpoint == 'applicant_messages' %}active{% endif %}"
-                    >
+                   <a href="{{ url_for('applicant_messages') }}"
+   class="sidebar-link {% if request.endpoint in ['applicant_messages', 'applicant_message'] %}active{% endif %}">
+    <span class="sidebar-link-icon">💬</span>
+    <span class="sidebar-link-text">Messages</span>
 
-                        <span class="sidebar-link-icon">
-                            💬
-                        </span>
-
-                        <span class="sidebar-link-text">
-                            Applicant Messages
-                        </span>
-
-                    </a>
+    {% if session.get("applicant_unread_count", 0) > 0 %}
+        <span class="message-badge">
+            {{ session.get("applicant_unread_count", 0) }}
+        </span>
+    {% endif %}
+</a>
 
 
                     <!-- REPORTS -->
