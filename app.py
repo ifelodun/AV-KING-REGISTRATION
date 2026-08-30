@@ -5629,6 +5629,101 @@ def admin_monthly_attendance_pdf():
         )
     )
 
+# =========================================================
+# NORMALIZE DATABASE TIME
+# =========================================================
+
+from datetime import time
+
+
+def normalize_db_time(value, default=None):
+    """
+    Convert a PostgreSQL time/datetime/string value
+    into a Python datetime.time object.
+
+    Supports:
+    - datetime.time
+    - datetime.datetime
+    - strings such as:
+        08:00
+        08:00:00
+        08:00 AM
+        08:00:00 AM
+    """
+
+    # -----------------------------------------------------
+    # Already a time object
+    # -----------------------------------------------------
+
+    if isinstance(value, time):
+        return value
+
+
+    # -----------------------------------------------------
+    # Datetime object
+    # -----------------------------------------------------
+
+    if isinstance(value, datetime):
+        return value.time()
+
+
+    # -----------------------------------------------------
+    # Empty database value
+    # -----------------------------------------------------
+
+    if value is None:
+
+        return default
+
+
+    # -----------------------------------------------------
+    # Convert to string
+    # -----------------------------------------------------
+
+    value = str(value).strip()
+
+
+    if not value:
+
+        return default
+
+
+    # -----------------------------------------------------
+    # Try common time formats
+    # -----------------------------------------------------
+
+    formats = [
+        "%H:%M:%S",
+        "%H:%M",
+        "%I:%M %p",
+        "%I:%M:%S %p",
+    ]
+
+
+    for fmt in formats:
+
+        try:
+
+            return datetime.strptime(
+                value,
+                fmt
+            ).time()
+
+        except ValueError:
+
+            continue
+
+
+    # -----------------------------------------------------
+    # Unable to understand database value
+    # -----------------------------------------------------
+
+    app.logger.warning(
+        "Unable to normalize database time value: %r",
+        value
+    )
+
+    return default
 # ============================================================
 # DAILY ATTENDANCE PDF
 # ============================================================
