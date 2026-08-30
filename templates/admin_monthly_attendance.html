@@ -1,437 +1,1848 @@
 {% extends "base.html" %}
 
+{% block title %}
+Monthly Attendance | {{ company_name or "AV KING" }}
+{% endblock %}
+
 {% block content %}
 
-<div class="admin-page">
+<style>
 
-    <!-- =====================================================
-         PAGE HEADER
-    ====================================================== -->
+/* =========================================================
+   MONTHLY ATTENDANCE — PROFESSIONAL ADMIN UI
+========================================================= */
 
-    <div class="admin-page-header">
+.monthly-attendance-page {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.attendance-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 28px;
+}
+
+.attendance-header-content {
+    min-width: 0;
+}
+
+.attendance-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 9px;
+
+    color: #2563eb;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.attendance-eyebrow::before {
+    content: "";
+    width: 24px;
+    height: 2px;
+    border-radius: 99px;
+    background: #2563eb;
+}
+
+.attendance-page-header h1 {
+    margin: 0;
+    color: #111827;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.7px;
+}
+
+.attendance-page-header p {
+    max-width: 700px;
+    margin: 9px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+
+/* =========================================================
+   HEADER ACTIONS
+========================================================= */
+
+.attendance-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.attendance-header-actions .btn {
+    min-height: 42px;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.monthly-attendance-page .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    min-height: 40px;
+    padding: 0 15px;
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    font-size: 11.5px;
+    font-weight: 750;
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.monthly-attendance-page .btn:hover {
+    transform: translateY(-1px);
+}
+
+.monthly-attendance-page .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 5px 14px rgba(37, 99, 235, .15);
+}
+
+.monthly-attendance-page .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+.monthly-attendance-page .btn-secondary {
+    background: #ffffff;
+    color: #374151;
+    border-color: #dfe3e8;
+}
+
+.monthly-attendance-page .btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #111827;
+}
+
+.monthly-attendance-page .btn-small {
+    min-height: 32px;
+    padding: 0 11px;
+    font-size: 10.5px;
+}
+
+
+/* =========================================================
+   FLASH MESSAGES
+========================================================= */
+
+.monthly-attendance-page .flash-container {
+    margin-bottom: 20px;
+}
+
+.monthly-attendance-page .flash-message {
+    padding: 12px 15px;
+    margin-bottom: 8px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #374151;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.monthly-attendance-page .flash-message.success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.monthly-attendance-page .flash-message.error,
+.monthly-attendance-page .flash-message.danger {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.monthly-attendance-page .flash-message.warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.monthly-attendance-page .admin-panel {
+    margin-bottom: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, .025);
+}
+
+
+/* =========================================================
+   PANEL HEADING
+========================================================= */
+
+.monthly-attendance-page .panel-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 20px 22px;
+
+    border-bottom: 1px solid #eef0f3;
+}
+
+.monthly-attendance-page .panel-heading > div {
+    min-width: 0;
+}
+
+.monthly-attendance-page .panel-heading span {
+    display: block;
+    margin-bottom: 5px;
+
+    color: #2563eb;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.15px;
+    text-transform: uppercase;
+}
+
+.monthly-attendance-page .panel-heading h2 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 16px;
+    font-weight: 780;
+    line-height: 1.3;
+}
+
+.monthly-attendance-page .panel-heading p {
+    margin: 6px 0 0;
+
+    color: #6b7280;
+
+    font-size: 11.5px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   MONTH FILTER
+========================================================= */
+
+.attendance-filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+
+    padding: 20px 22px;
+}
+
+.attendance-filter-form .form-group {
+    width: 260px;
+}
+
+.attendance-filter-form label {
+    display: block;
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.attendance-filter-form input[type="month"] {
+    width: 100%;
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: 1px solid #dfe3e8;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #111827;
+
+    font-size: 12px;
+
+    outline: none;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.attendance-filter-form input[type="month"]:focus {
+    border-color: #60a5fa;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, .09);
+}
+
+.filter-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   SUMMARY GRID
+========================================================= */
+
+.attendance-summary-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 13px;
+
+    margin-bottom: 22px;
+}
+
+
+/* =========================================================
+   SUMMARY CARD
+========================================================= */
+
+.attendance-summary-grid .stat-card {
+    position: relative;
+
+    min-height: 128px;
+
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    padding: 17px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, .025);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease,
+        border-color .18s ease;
+}
+
+.attendance-summary-grid .stat-card::after {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: #e5e7eb;
+}
+
+.attendance-summary-grid .stat-card:nth-child(1)::after {
+    background: #2563eb;
+}
+
+.attendance-summary-grid .stat-card:nth-child(2)::after {
+    background: #16a34a;
+}
+
+.attendance-summary-grid .stat-card:nth-child(3)::after {
+    background: #dc2626;
+}
+
+.attendance-summary-grid .stat-card:nth-child(4)::after {
+    background: #d97706;
+}
+
+.attendance-summary-grid .stat-card:nth-child(5)::after {
+    background: #7c3aed;
+}
+
+.attendance-summary-grid .stat-card:nth-child(6)::after {
+    background: #0891b2;
+}
+
+.attendance-summary-grid .stat-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #d9dee5;
+
+    box-shadow:
+        0 9px 22px rgba(15, 23, 42, .055);
+}
+
+
+/* =========================================================
+   SUMMARY ICON
+========================================================= */
+
+.attendance-summary-grid .stat-card-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #f3f6fa;
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.attendance-summary-grid .stat-card:nth-child(1) .stat-card-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.attendance-summary-grid .stat-card:nth-child(2) .stat-card-icon {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.attendance-summary-grid .stat-card:nth-child(3) .stat-card-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.attendance-summary-grid .stat-card:nth-child(4) .stat-card-icon {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.attendance-summary-grid .stat-card:nth-child(5) .stat-card-icon {
+    background: #f5f3ff;
+    color: #7c3aed;
+}
+
+.attendance-summary-grid .stat-card:nth-child(6) .stat-card-icon {
+    background: #ecfeff;
+    color: #0891b2;
+}
+
+
+/* =========================================================
+   SUMMARY TEXT
+========================================================= */
+
+.attendance-summary-grid .stat-label {
+    display: block;
+
+    margin-top: 1px;
+    margin-bottom: 6px;
+
+    color: #6b7280;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: .65px;
+}
+
+.attendance-summary-grid .stat-card strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+.attendance-summary-grid .stat-card small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   REPORT TITLE AREA
+========================================================= */
+
+.monthly-report-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.report-working-days {
+    padding: 7px 10px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+
+    background: #f8fafc;
+
+    color: #6b7280;
+
+    font-size: 10.5px;
+    white-space: nowrap;
+}
+
+.report-working-days strong {
+    color: #111827;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+
+/* =========================================================
+   MAIN TABLE
+========================================================= */
+
+.monthly-attendance-page .admin-table {
+    width: 100%;
+
+    min-width: 1180px;
+
+    border-collapse: collapse;
+}
+
+.monthly-attendance-page .admin-table th {
+    padding: 12px 15px;
+
+    background: #f8fafc;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    color: #6b7280;
+
+    text-align: left;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: .65px;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+.monthly-attendance-page .admin-table td {
+    padding: 13px 15px;
+
+    border-bottom: 1px solid #f0f1f3;
+
+    color: #374151;
+
+    font-size: 11.5px;
+
+    vertical-align: middle;
+}
+
+.monthly-attendance-page .admin-table tbody tr:not(.attendance-details-row) {
+    transition: background .15s ease;
+}
+
+.monthly-attendance-page .admin-table tbody tr:not(.attendance-details-row):hover {
+    background: #fafcff;
+}
+
+.monthly-attendance-page .admin-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* =========================================================
+   EMPLOYEE CELL
+========================================================= */
+
+.employee-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 190px;
+}
+
+.employee-avatar {
+    width: 36px;
+    height: 36px;
+
+    flex: 0 0 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    border: 1px solid #dbeafe;
+}
+
+.employee-cell strong {
+    display: block;
+
+    max-width: 190px;
+
+    color: #111827;
+
+    font-size: 11.5px;
+    font-weight: 750;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employee-cell small {
+    display: block;
+
+    max-width: 190px;
+
+    margin-top: 3px;
+
+    color: #9ca3af;
+
+    font-size: 9.5px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   APPLICATION NUMBER
+========================================================= */
+
+.reference-number {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 8px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+
+    background: #f8fafc;
+
+    color: #4b5563;
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 9.5px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   ATTENDANCE NUMBERS
+========================================================= */
+
+.attendance-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 29px;
+    height: 27px;
+
+    padding: 0 7px;
+
+    border-radius: 7px;
+
+    font-size: 10.5px;
+    font-weight: 800;
+}
+
+.attendance-number.present {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.attendance-number.late {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.attendance-number.absent {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.attendance-number.incomplete {
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+
+/* =========================================================
+   HOURS
+========================================================= */
+
+.monthly-attendance-page .admin-table td > strong {
+    color: #111827;
+    font-size: 11.5px;
+}
+
+
+/* =========================================================
+   ATTENDANCE PROGRESS
+========================================================= */
+
+.attendance-progress {
+    width: 125px;
+}
+
+.attendance-progress-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 6px;
+}
+
+.attendance-progress-top strong {
+    color: #111827;
+    font-size: 10.5px;
+    font-weight: 800;
+}
+
+.attendance-progress-bar {
+    width: 100%;
+    height: 5px;
+
+    overflow: hidden;
+
+    border-radius: 99px;
+
+    background: #eef0f3;
+}
+
+.attendance-progress-bar span {
+    display: block;
+
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #2563eb;
+
+    transition: width .3s ease;
+}
+
+
+/* =========================================================
+   DAILY DETAILS ROW
+========================================================= */
+
+.attendance-details-row {
+    background: #f8fafc;
+}
+
+.attendance-details-row > td {
+    padding: 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+.attendance-details {
+    padding: 22px;
+}
+
+.details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 17px;
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.details-header span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #2563eb;
+
+    font-size: 8.5px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.details-header h3 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 14px;
+    font-weight: 780;
+}
+
+
+/* =========================================================
+   DAILY ATTENDANCE GRID
+========================================================= */
+
+.daily-attendance-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr));
+
+    gap: 9px;
+}
+
+.daily-attendance-card {
+    min-width: 0;
+
+    padding: 11px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e7ec;
+    border-radius: 9px;
+
+    box-shadow:
+        0 1px 4px rgba(15, 23, 42, .025);
+}
+
+.daily-date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+
+    color: #9ca3af;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.daily-date strong {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 26px;
+    height: 26px;
+
+    border-radius: 7px;
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    font-size: 10px;
+}
+
+.daily-times {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 7px;
+
+    margin-bottom: 10px;
+}
+
+.daily-times > div {
+    padding-bottom: 6px;
+
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.daily-times small {
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #9ca3af;
+
+    font-size: 8.5px;
+}
+
+.daily-times strong {
+    color: #374151;
+    font-size: 10px;
+}
+
+.daily-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.daily-bottom small {
+    color: #6b7280;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 21px;
+
+    padding: 3px 7px;
+
+    border-radius: 999px;
+
+    background: #f3f4f6;
+    color: #4b5563;
+
+    font-size: 8px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.status-badge.present {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.status-badge.late {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.status-badge.absent {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.status-badge.incomplete {
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+    padding: 65px 20px !important;
+
+    text-align: center;
+}
+
+.empty-state > div {
+    max-width: 380px;
+    margin: 0 auto;
+}
+
+.empty-state strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.empty-state p {
+    margin: 7px 0 0;
+
+    color: #9ca3af;
+
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   TABLE SCROLLBAR
+========================================================= */
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 99px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1300px
+========================================================= */
+
+@media (max-width: 1300px) {
+
+    .attendance-summary-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .daily-attendance-grid {
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .attendance-page-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .attendance-header-actions {
+        justify-content: flex-start;
+    }
+
+    .attendance-summary-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .daily-attendance-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 650px
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .monthly-attendance-page {
+        padding-bottom: 25px;
+    }
+
+    .attendance-page-header {
+        margin-bottom: 21px;
+    }
+
+    .attendance-page-header h1 {
+        font-size: 25px;
+    }
+
+    .attendance-header-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .attendance-header-actions .btn {
+        width: 100%;
+    }
+
+    .attendance-filter-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .attendance-filter-form .form-group {
+        width: 100%;
+    }
+
+    .filter-action {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-action .btn {
+        width: 100%;
+    }
+
+    .monthly-attendance-page .panel-heading {
+        padding: 17px;
+    }
+
+    .monthly-report-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .report-working-days {
+        white-space: normal;
+    }
+
+    .attendance-details {
+        padding: 15px;
+    }
+
+    .daily-attendance-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 430px
+========================================================= */
+
+@media (max-width: 430px) {
+
+    .attendance-page-header h1 {
+        font-size: 23px;
+    }
+
+    .attendance-page-header p {
+        font-size: 12px;
+    }
+
+    .attendance-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .attendance-summary-grid .stat-card {
+        min-height: 96px;
+    }
+
+    .filter-action {
+        grid-template-columns: 1fr;
+    }
+
+    .daily-attendance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .employee-cell {
+        min-width: 170px;
+    }
+
+}
+
+</style>
+
+<div class="monthly-attendance-page">
+
+<!-- =====================================================
+     PAGE HEADER
+====================================================== -->
+
+<header class="attendance-page-header">
+
+    <div class="attendance-header-content">
+
+        <span class="attendance-eyebrow">
+            Attendance Management
+        </span>
+
+        <h1>
+            Monthly Attendance
+        </h1>
+
+        <p>
+            Review employee attendance, working hours,
+            punctuality and monthly workforce performance.
+        </p>
+
+    </div>
+
+
+    <div class="attendance-header-actions">
+
+        <a
+            href="{{ url_for('admin_attendance') }}"
+            class="btn btn-secondary"
+        >
+            <span>←</span>
+            Daily Attendance
+        </a>
+
+
+        <a
+            href="{{ url_for(
+                'admin_monthly_attendance_pdf',
+                month=selected_month
+            ) }}"
+            class="btn btn-secondary"
+        >
+            <span>↓</span>
+            PDF Report
+        </a>
+
+
+        <a
+            href="{{ url_for(
+                'export_monthly_attendance_excel',
+                month=selected_month,
+                search=search
+            ) }}"
+            class="btn btn-primary"
+        >
+            <span>↓</span>
+            Export Excel
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     FLASH MESSAGES
+====================================================== -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% if messages %}
+
+        <div class="flash-container">
+
+            {% for category, message in messages %}
+
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+{% endwith %}
+
+
+<!-- =====================================================
+     MONTH FILTER
+====================================================== -->
+
+<section class="admin-panel">
+
+    <div class="panel-heading">
 
         <div>
 
-            <span class="page-label">
-                ATTENDANCE MANAGEMENT
+            <span>
+                Report Period
             </span>
 
-            <h1>
-                Monthly Attendance
-            </h1>
+            <h2>
+                Select Attendance Month
+            </h2>
 
             <p>
-                Review employee attendance, working hours,
-                punctuality and attendance performance.
+                Choose the reporting period you want to review.
             </p>
 
         </div>
 
-        <div class="header-actions">
+    </div>
+
+
+    <form
+        method="GET"
+        action="{{ url_for('admin_monthly_attendance') }}"
+        class="attendance-filter-form"
+    >
+
+        <div class="form-group">
+
+            <label for="month">
+                Attendance Month
+            </label>
+
+            <input
+                type="month"
+                id="month"
+                name="month"
+                value="{{ selected_month }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="filter-action">
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Generate Report
+            </button>
+
 
             <a
-                href="{{ url_for('admin_attendance') }}"
+                href="{{ url_for(
+                    'admin_monthly_attendance_pdf',
+                    month=selected_month
+                ) }}"
                 class="btn btn-secondary"
             >
-                ← Daily Attendance
+                Export PDF
             </a>
 
-            <a
-    href="{{ url_for(
-        'export_monthly_attendance_excel',
-        month=selected_month,
-        search=search
-    ) }}"
-    class="btn btn-primary"
->
-    Export Excel
-</a>
         </div>
 
-    </div>
+    </form>
+
+</section>
 
 
-    <!-- =====================================================
-         FLASH MESSAGES
-    ====================================================== -->
+<!-- =====================================================
+     SUMMARY
+====================================================== -->
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            <div class="flash-container">
-
-                {% for category, message in messages %}
-
-                    <div class="flash-message {{ category }}">
-                        {{ message }}
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-        {% endif %}
-
-    {% endwith %}
+<div class="attendance-summary-grid">
 
 
-    <!-- =====================================================
-         MONTH FILTER
-    ====================================================== -->
+    <!-- ACTIVE STAFF -->
 
-    <section class="admin-panel settings-panel">
+    <div class="stat-card">
 
-        <div class="panel-heading">
-
-            <div>
-
-                <span>
-                    REPORT PERIOD
-                </span>
-
-                <h2>
-                    Attendance Month
-                </h2>
-
-                <p>
-                    Select a month to generate the attendance report.
-                </p>
-
-            </div>
-
+        <div class="stat-card-icon">
+            👥
         </div>
 
-
-        <form
-            method="GET"
-            action="{{ url_for('admin_monthly_attendance') }}"
-            class="attendance-filter-form"
-        >
-
-            <div class="form-group">
-
-                <label for="month">
-                    Select Month
-                </label>
-
-                <input
-                    type="month"
-                    id="month"
-                    name="month"
-                    value="{{ selected_month }}"
-                    required
-                >
-
-            </div>
-
-
-            <div class="filter-action">
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Generate Report
-                </button>
-<a
-    href="{{ url_for(
-        'admin_monthly_attendance_pdf',
-        month=selected_month
-    ) }}"
-    class="btn btn-secondary"
->
-    ↓ Export PDF
-</a>
-            </div>
-
-        </form>
-
-    </section>
-
-
-    <!-- =====================================================
-         SUMMARY CARDS
-    ====================================================== -->
-
-    <div class="stats-grid attendance-summary-grid">
-
-
-        <!-- TOTAL STAFF -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                👥
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    ACTIVE STAFF
-                </span>
-
-                <strong>
-                    {{ total_staff }}
-                </strong>
-
-                <small>
-                    Approved employees
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- PRESENT -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                ✓
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    PRESENT
-                </span>
-
-                <strong>
-                    {{ total_present }}
-                </strong>
-
-                <small>
-                    Completed attendance
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- ABSENT -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                !
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    ABSENT
-                </span>
-
-                <strong>
-                    {{ total_absent }}
-                </strong>
-
-                <small>
-                    No attendance record
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- LATE -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                ⏱
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    LATE
-                </span>
-
-                <strong>
-                    {{ total_late }}
-                </strong>
-
-                <small>
-                    Late arrivals
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- INCOMPLETE -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                ◐
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    INCOMPLETE
-                </span>
-
-                <strong>
-                    {{ total_incomplete }}
-                </strong>
-
-                <small>
-                    Missing clock-out
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <!-- TOTAL HOURS -->
-
-        <div class="stat-card">
-
-            <div class="stat-card-icon">
-                ⌚
-            </div>
-
-            <div>
-
-                <span class="stat-label">
-                    TOTAL HOURS
-                </span>
-
-                <strong>
-                    {{ "%.2f"|format(total_hours) }}
-                </strong>
-
-                <small>
-                    Hours recorded
-                </small>
-
-            </div>
+        <div>
+
+            <span class="stat-label">
+                ACTIVE STAFF
+            </span>
+
+            <strong>
+                {{ total_staff }}
+            </strong>
+
+            <small>
+                Approved employees
+            </small>
 
         </div>
 
     </div>
 
 
-    <!-- =====================================================
-         REPORT INFORMATION
-    ====================================================== -->
+    <!-- PRESENT -->
 
-    <section class="admin-panel">
+    <div class="stat-card">
 
-        <div class="panel-heading">
+        <div class="stat-card-icon">
+            ✓
+        </div>
 
-            <div>
+        <div>
 
-                <span>
-                    MONTHLY REPORT
-                </span>
+            <span class="stat-label">
+                PRESENT
+            </span>
 
-                <h2>
-                    {{ month_start.strftime("%B %Y") }}
-                </h2>
+            <strong>
+                {{ total_present }}
+            </strong>
 
-                <p>
-                    Working days:
-                    <strong>
-                        {{ total_working_days }}
-                    </strong>
-                </p>
+            <small>
+                Attendance completed
+            </small>
 
-            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ABSENT -->
+
+    <div class="stat-card">
+
+        <div class="stat-card-icon">
+            !
+        </div>
+
+        <div>
+
+            <span class="stat-label">
+                ABSENT
+            </span>
+
+            <strong>
+                {{ total_absent }}
+            </strong>
+
+            <small>
+                No attendance record
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- LATE -->
+
+    <div class="stat-card">
+
+        <div class="stat-card-icon">
+            ⏱
+        </div>
+
+        <div>
+
+            <span class="stat-label">
+                LATE
+            </span>
+
+            <strong>
+                {{ total_late }}
+            </strong>
+
+            <small>
+                Late arrivals
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- INCOMPLETE -->
+
+    <div class="stat-card">
+
+        <div class="stat-card-icon">
+            ◐
+        </div>
+
+        <div>
+
+            <span class="stat-label">
+                INCOMPLETE
+            </span>
+
+            <strong>
+                {{ total_incomplete }}
+            </strong>
+
+            <small>
+                Missing clock-out
+            </small>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOTAL HOURS -->
+
+    <div class="stat-card">
+
+        <div class="stat-card-icon">
+            ⌚
+        </div>
+
+        <div>
+
+            <span class="stat-label">
+                TOTAL HOURS
+            </span>
+
+            <strong>
+                {{ "%.2f"|format(total_hours) }}
+            </strong>
+
+            <small>
+                Hours recorded
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MONTHLY REPORT
+====================================================== -->
+
+<section class="admin-panel">
+
+    <div class="panel-heading monthly-report-heading">
+
+        <div>
+
+            <span>
+                Monthly Report
+            </span>
+
+            <h2>
+                {{ month_start.strftime("%B %Y") }}
+            </h2>
+
+            <p>
+                Employee attendance summary for the selected
+                reporting period.
+            </p>
 
         </div>
 
 
-        <!-- =================================================
-             EMPLOYEE TABLE
-        ================================================== -->
+        <div class="report-working-days">
 
-        <div class="table-responsive">
+            Working Days:
+            <strong>
+                {{ total_working_days }}
+            </strong>
 
-            <table class="admin-table">
+        </div>
 
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Employee
-                        </th>
-
-                        <th>
-                            Application No.
-                        </th>
-
-                        <th>
-                            Position
-                        </th>
-
-                        <th>
-                            Present
-                        </th>
-
-                        <th>
-                            Late
-                        </th>
-
-                        <th>
-                            Absent
-                        </th>
-
-                        <th>
-                            Incomplete
-                        </th>
-
-                        <th>
-                            Hours
-                        </th>
-
-                        <th>
-                            Attendance
-                        </th>
-
-                        <th>
-                            Details
-                        </th>
-
-                    </tr>
-
-                </thead>
+    </div>
 
 
-                <tbody>
+    <!-- =================================================
+         EMPLOYEE TABLE
+    ================================================== -->
 
-                {% if attendance_records %}
+    <div class="table-responsive">
 
-                    {% for employee in attendance_records %}
+        <table class="admin-table">
 
-                    <tr>
+            <thead>
+
+                <tr>
+
+                    <th>Employee</th>
+
+                    <th>Application No.</th>
+
+                    <th>Position</th>
+
+                    <th>Present</th>
+
+                    <th>Late</th>
+
+                    <th>Absent</th>
+
+                    <th>Incomplete</th>
+
+                    <th>Total Hours</th>
+
+                    <th>Attendance Rate</th>
+
+                    <th>Details</th>
+
+                </tr>
+
+            </thead>
 
 
-                        <!-- EMPLOYEE -->
+            <tbody>
 
-                        <td>
+            {% if attendance_records %}
 
-                            <div class="employee-cell">
+                {% for employee in attendance_records %}
 
-                                <div class="employee-avatar">
+                <tr>
 
-                                    {{ employee.first_name[:1]|upper }}
+                    <!-- EMPLOYEE -->
 
-                                </div>
+                    <td>
+
+                        <div class="employee-cell">
+
+                            <div class="employee-avatar">
+
+                                {{ employee.first_name[:1]|upper }}
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+
+                                    {{ employee.first_name }}
+
+                                    {% if employee.middle_name %}
+                                        {{ employee.middle_name }}
+                                    {% endif %}
+
+                                    {{ employee.last_name }}
+
+                                </strong>
+
+                                <small>
+
+                                    {{ employee.email
+                                       or employee.phone
+                                       or "No contact information" }}
+
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- APPLICATION NUMBER -->
+
+                    <td>
+
+                        <span class="reference-number">
+
+                            {{ employee.application_number }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- POSITION -->
+
+                    <td>
+
+                        {{ employee.position_applied or "—" }}
+
+                    </td>
+
+
+                    <!-- PRESENT -->
+
+                    <td>
+
+                        <span class="attendance-number present">
+
+                            {{ employee.present }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- LATE -->
+
+                    <td>
+
+                        <span class="attendance-number late">
+
+                            {{ employee.late }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- ABSENT -->
+
+                    <td>
+
+                        <span class="attendance-number absent">
+
+                            {{ employee.absent }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- INCOMPLETE -->
+
+                    <td>
+
+                        <span class="attendance-number incomplete">
+
+                            {{ employee.incomplete }}
+
+                        </span>
+
+                    </td>
+
+
+                    <!-- HOURS -->
+
+                    <td>
+
+                        <strong>
+
+                            {{ "%.2f"|format(employee.total_hours) }}
+
+                        </strong>
+
+                    </td>
+
+
+                    <!-- ATTENDANCE RATE -->
+
+                    <td>
+
+                        <div class="attendance-progress">
+
+                            <div class="attendance-progress-top">
+
+                                <strong>
+                                    {{ employee.attendance_percentage }}%
+                                </strong>
+
+                            </div>
+
+                            <div class="attendance-progress-bar">
+
+                                <span
+                                    style="width: {{ employee.attendance_percentage }}%;"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- DETAILS -->
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="btn btn-small btn-secondary"
+                            onclick="toggleAttendanceDetails('{{ employee.worker_id }}')"
+                            aria-label="View attendance details"
+                        >
+                            View
+                        </button>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- =====================================
+                     DAILY ATTENDANCE DETAILS
+                ====================================== -->
+
+                <tr
+                    id="attendance-details-{{ employee.worker_id }}"
+                    class="attendance-details-row"
+                    style="display:none;"
+                >
+
+                    <td colspan="10">
+
+                        <div class="attendance-details">
+
+                            <div class="details-header">
 
                                 <div>
 
-                                    <strong>
+                                    <span>
+                                        Daily Attendance
+                                    </span>
+
+                                    <h3>
 
                                         {{ employee.first_name }}
 
@@ -441,339 +1852,164 @@
 
                                         {{ employee.last_name }}
 
-                                    </strong>
-
-                                    <small>
-
-                                        {{ employee.email or employee.phone or "—" }}
-
-                                    </small>
+                                    </h3>
 
                                 </div>
 
                             </div>
 
-                        </td>
 
+                            <div class="daily-attendance-grid">
 
-                        <!-- APPLICATION NUMBER -->
+                                {% for day in employee.daily_records %}
 
-                        <td>
+                                <div class="daily-attendance-card">
 
-                            <span class="reference-number">
+                                    <div class="daily-date">
 
-                                {{ employee.application_number }}
+                                        {{ day.date.strftime("%a") }}
 
-                            </span>
-
-                        </td>
-
-
-                        <!-- POSITION -->
-
-                        <td>
-
-                            {{ employee.position_applied or "—" }}
-
-                        </td>
-
-
-                        <!-- PRESENT -->
-
-                        <td>
-
-                            <span class="attendance-number present">
-
-                                {{ employee.present }}
-
-                            </span>
-
-                        </td>
-
-
-                        <!-- LATE -->
-
-                        <td>
-
-                            <span class="attendance-number late">
-
-                                {{ employee.late }}
-
-                            </span>
-
-                        </td>
-
-
-                        <!-- ABSENT -->
-
-                        <td>
-
-                            <span class="attendance-number absent">
-
-                                {{ employee.absent }}
-
-                            </span>
-
-                        </td>
-
-
-                        <!-- INCOMPLETE -->
-
-                        <td>
-
-                            <span class="attendance-number incomplete">
-
-                                {{ employee.incomplete }}
-
-                            </span>
-
-                        </td>
-
-
-                        <!-- HOURS -->
-
-                        <td>
-
-                            <strong>
-
-                                {{ "%.2f"|format(employee.total_hours) }}
-
-                            </strong>
-
-                        </td>
-
-
-                        <!-- ATTENDANCE PERCENTAGE -->
-
-                        <td>
-
-                            <div class="attendance-progress">
-
-                                <div class="attendance-progress-top">
-
-                                    <strong>
-                                        {{ employee.attendance_percentage }}%
-                                    </strong>
-
-                                </div>
-
-                                <div class="attendance-progress-bar">
-
-                                    <span
-                                        style="width: {{ employee.attendance_percentage }}%;"
-                                    ></span>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-
-                        <!-- DETAILS -->
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="btn btn-small btn-secondary"
-                                onclick="toggleAttendanceDetails('{{ employee.worker_id }}')"
-                            >
-                                View
-                            </button>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- =====================================
-                         DAILY DETAILS
-                    ====================================== -->
-
-                    <tr
-                        id="attendance-details-{{ employee.worker_id }}"
-                        class="attendance-details-row"
-                        style="display:none;"
-                    >
-
-                        <td colspan="10">
-
-                            <div class="attendance-details">
-
-                                <div class="details-header">
-
-                                    <div>
-
-                                        <span>
-                                            DAILY ATTENDANCE
-                                        </span>
-
-                                        <h3>
-
-                                            {{ employee.first_name }}
-
-                                            {% if employee.middle_name %}
-                                                {{ employee.middle_name }}
-                                            {% endif %}
-
-                                            {{ employee.last_name }}
-
-                                        </h3>
+                                        <strong>
+                                            {{ day.date.strftime("%d") }}
+                                        </strong>
 
                                     </div>
 
-                                </div>
 
+                                    <div class="daily-times">
 
-                                <div class="daily-attendance-grid">
+                                        <div>
 
-                                    {% for day in employee.daily_records %}
-
-                                    <div class="daily-attendance-card">
-
-
-                                        <div class="daily-date">
-
-                                            {{ day.date.strftime("%a") }}
+                                            <small>
+                                                Clock In
+                                            </small>
 
                                             <strong>
 
-                                                {{ day.date.strftime("%d") }}
+                                                {% if day.clock_in %}
+
+                                                    {{ day.clock_in.strftime(
+                                                        "%I:%M %p"
+                                                    ) }}
+
+                                                {% else %}
+
+                                                    —
+
+                                                {% endif %}
 
                                             </strong>
 
                                         </div>
 
 
-                                        <div class="daily-times">
+                                        <div>
 
-                                            <div>
+                                            <small>
+                                                Clock Out
+                                            </small>
 
-                                                <small>
-                                                    Clock In
-                                                </small>
+                                            <strong>
 
-                                                <strong>
+                                                {% if day.clock_out %}
 
-                                                    {% if day.clock_in %}
+                                                    {{ day.clock_out.strftime(
+                                                        "%I:%M %p"
+                                                    ) }}
 
-                                                        {{ day.clock_in.strftime("%I:%M %p") }}
+                                                {% else %}
 
-                                                    {% else %}
+                                                    —
 
-                                                        —
+                                                {% endif %}
 
-                                                    {% endif %}
-
-                                                </strong>
-
-                                            </div>
-
-
-                                            <div>
-
-                                                <small>
-                                                    Clock Out
-                                                </small>
-
-                                                <strong>
-
-                                                    {% if day.clock_out %}
-
-                                                        {{ day.clock_out.strftime("%I:%M %p") }}
-
-                                                    {% else %}
-
-                                                        —
-
-                                                    {% endif %}
-
-                                                </strong>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="daily-bottom">
-
-                                            <span class="status-badge {{ day.status|lower }}">
-
-                                                {{ day.status }}
-
-                                            </span>
-
-
-                                            {% if day.total_hours %}
-
-                                                <small>
-
-                                                    {{ "%.2f"|format(day.total_hours) }}
-                                                    hrs
-
-                                                </small>
-
-                                            {% endif %}
+                                            </strong>
 
                                         </div>
 
                                     </div>
 
-                                    {% endfor %}
+
+                                    <div class="daily-bottom">
+
+                                        <span
+                                            class="status-badge {{ day.status|lower|replace(' ', '-') }}"
+                                        >
+                                            {{ day.status }}
+                                        </span>
+
+
+                                        {% if day.total_hours %}
+
+                                            <small>
+
+                                                {{ "%.2f"|format(
+                                                    day.total_hours
+                                                ) }}
+                                                hrs
+
+                                            </small>
+
+                                        {% endif %}
+
+                                    </div>
 
                                 </div>
 
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-
-                {% else %}
-
-                    <tr>
-
-                        <td
-                            colspan="10"
-                            class="empty-state"
-                        >
-
-                            <div>
-
-                                <strong>
-                                    No attendance records found
-                                </strong>
-
-                                <p>
-                                    There are no approved active employees
-                                    for this report.
-                                </p>
+                                {% endfor %}
 
                             </div>
 
-                        </td>
+                        </div>
 
-                    </tr>
+                    </td>
 
-                {% endif %}
+                </tr>
 
-                </tbody>
+                {% endfor %}
 
-            </table>
 
-        </div>
+            {% else %}
 
-    </section>
+                <tr>
+
+                    <td
+                        colspan="10"
+                        class="empty-state"
+                    >
+
+                        <div>
+
+                            <strong>
+                                No attendance records found
+                            </strong>
+
+                            <p>
+                                There are currently no approved active
+                                employees available for this monthly report.
+                            </p>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
 
 </div>
 
-
 <!-- =========================================================
-     DETAILS TOGGLE
+     ATTENDANCE DETAILS TOGGLE
 ========================================================== -->
 
 <script>
@@ -788,11 +2024,13 @@ function toggleAttendanceDetails(workerId) {
         return;
     }
 
-    if (
+    const isHidden =
         row.style.display === "none"
         ||
-        row.style.display === ""
-    ) {
+        row.style.display === "";
+
+
+    if (isHidden) {
 
         row.style.display = "table-row";
 
