@@ -1,47 +1,974 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
 
-{% block content %}
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+    Applications Closed | {{ company_name }}
+</title>
+
+<style>
+
+    /* =========================================================
+       RESET
+    ========================================================= */
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+
+    body {
+        min-height: 100vh;
+        font-family:
+            Inter,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Helvetica,
+            Arial,
+            sans-serif;
+
+        background:
+            linear-gradient(
+                135deg,
+                #f8fafc 0%,
+                #eef2f7 50%,
+                #f8fafc 100%
+            );
+
+        color: #111827;
+        -webkit-font-smoothing: antialiased;
+    }
+
+
+    a {
+        text-decoration: none;
+    }
+
+
+    /* =========================================================
+       PAGE
+    ========================================================= */
+
+    .application-closed-page {
+
+        min-height: 100vh;
+
+        display: flex;
+
+        flex-direction: column;
+
+    }
+
+
+    /* =========================================================
+       SIMPLE PUBLIC HEADER
+       No sidebar
+    ========================================================= */
+
+    .closed-header {
+
+        width: 100%;
+
+        background: rgba(255, 255, 255, 0.94);
+
+        border-bottom: 1px solid #e5e7eb;
+
+        backdrop-filter: blur(12px);
+
+    }
+
+
+    .closed-header-inner {
+
+        width: min(1180px, calc(100% - 40px));
+
+        min-height: 76px;
+
+        margin: 0 auto;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 25px;
+
+    }
+
+
+    /* =========================================================
+       BRAND
+    ========================================================= */
+
+    .closed-brand {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        min-width: 0;
+
+        color: #111827;
+
+    }
+
+
+    .closed-brand-logo {
+
+        width: 44px;
+
+        height: 44px;
+
+        flex-shrink: 0;
+
+        border-radius: 11px;
+
+        object-fit: contain;
+
+        background: #f8fafc;
+
+        border: 1px solid #e5e7eb;
+
+    }
+
+
+    .closed-brand-placeholder {
+
+        width: 44px;
+
+        height: 44px;
+
+        flex-shrink: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        border-radius: 11px;
+
+        background: #111827;
+
+        color: #ffffff;
+
+        font-size: 17px;
+
+        font-weight: 800;
+
+    }
+
+
+    .closed-brand-text {
+
+        min-width: 0;
+
+    }
+
+
+    .closed-brand-text strong {
+
+        display: block;
+
+        color: #111827;
+
+        font-size: 14px;
+
+        font-weight: 800;
+
+        line-height: 1.25;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+    }
+
+
+    .closed-brand-text span {
+
+        display: block;
+
+        margin-top: 3px;
+
+        color: #6b7280;
+
+        font-size: 9px;
+
+        font-weight: 700;
+
+        letter-spacing: 1px;
+
+        white-space: nowrap;
+
+    }
+
+
+    /* =========================================================
+       HEADER LINK
+    ========================================================= */
+
+    .closed-home-link {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        min-height: 40px;
+
+        padding: 0 16px;
+
+        border: 1px solid #dbe0e7;
+
+        border-radius: 9px;
+
+        color: #374151;
+
+        background: #ffffff;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        transition:
+            background .2s ease,
+            border-color .2s ease,
+            color .2s ease,
+            transform .2s ease;
+
+    }
+
+
+    .closed-home-link:hover {
+
+        background: #f8fafc;
+
+        border-color: #cbd5e1;
+
+        color: #111827;
+
+        transform: translateY(-1px);
+
+    }
+
+
+    /* =========================================================
+       MAIN
+    ========================================================= */
+
+    .closed-main {
+
+        flex: 1;
+
+        width: 100%;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: 70px 20px 90px;
+
+    }
+
+
+    /* =========================================================
+       CARD
+    ========================================================= */
+
+    .application-closed-card {
+
+        width: 100%;
+
+        max-width: 650px;
+
+        padding: 55px 55px 50px;
+
+        text-align: center;
+
+        background: #ffffff;
+
+        border: 1px solid #e5e7eb;
+
+        border-radius: 24px;
+
+        box-shadow:
+            0 24px 70px rgba(15, 23, 42, .09);
+
+        position: relative;
+
+        overflow: hidden;
+
+    }
+
+
+    .application-closed-card::before {
+
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+
+        left: 0;
+
+        right: 0;
+
+        height: 4px;
+
+        background: #111827;
+
+    }
+
+
+    /* =========================================================
+       STATUS ICON
+    ========================================================= */
+
+    .closed-icon-wrapper {
+
+        width: 76px;
+
+        height: 76px;
+
+        margin: 0 auto 22px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        border-radius: 50%;
+
+        background: #f3f4f6;
+
+        border: 1px solid #e5e7eb;
+
+    }
+
+
+    .closed-icon {
+
+        font-size: 30px;
+
+        line-height: 1;
+
+    }
+
+
+    /* =========================================================
+       LABEL
+    ========================================================= */
+
+    .closed-label {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        min-height: 28px;
+
+        padding: 0 11px;
+
+        border-radius: 999px;
+
+        background: #f3f4f6;
+
+        border: 1px solid #e5e7eb;
+
+        color: #4b5563;
+
+        font-size: 10px;
+
+        font-weight: 800;
+
+        letter-spacing: 1.3px;
+
+    }
+
+
+    /* =========================================================
+       HEADING
+    ========================================================= */
+
+    .application-closed-card h1 {
+
+        max-width: 540px;
+
+        margin: 20px auto 0;
+
+        color: #111827;
+
+        font-size: clamp(28px, 4vw, 40px);
+
+        font-weight: 850;
+
+        line-height: 1.12;
+
+        letter-spacing: -.7px;
+
+    }
+
+
+    /* =========================================================
+       DESCRIPTION
+    ========================================================= */
+
+    .closed-message {
+
+        max-width: 510px;
+
+        margin: 18px auto 0;
+
+        color: #4b5563;
+
+        font-size: 15px;
+
+        line-height: 1.75;
+
+    }
+
+
+    .closed-submessage {
+
+        max-width: 500px;
+
+        margin: 10px auto 0;
+
+        color: #6b7280;
+
+        font-size: 13px;
+
+        line-height: 1.65;
+
+    }
+
+
+    /* =========================================================
+       DIVIDER
+    ========================================================= */
+
+    .closed-divider {
+
+        width: 100%;
+
+        height: 1px;
+
+        margin: 30px 0;
+
+        background: #eef0f3;
+
+    }
+
+
+    /* =========================================================
+       STATUS INFORMATION
+    ========================================================= */
+
+    .closed-status {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 9px;
+
+        color: #6b7280;
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+    }
+
+
+    .closed-status-dot {
+
+        width: 7px;
+
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: #9ca3af;
+
+    }
+
+
+    /* =========================================================
+       ACTIONS
+    ========================================================= */
+
+    .closed-actions {
+
+        margin-top: 30px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .closed-button {
+
+        min-height: 48px;
+
+        padding: 0 22px;
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 9px;
+
+        border-radius: 10px;
+
+        font-size: 13px;
+
+        font-weight: 800;
+
+        transition:
+            transform .2s ease,
+            background .2s ease,
+            box-shadow .2s ease;
+
+    }
+
+
+    .closed-button-primary {
+
+        background: #111827;
+
+        color: #ffffff;
+
+        box-shadow:
+            0 8px 20px rgba(17, 24, 39, .14);
+
+    }
+
+
+    .closed-button-primary:hover {
+
+        background: #1f2937;
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 12px 25px rgba(17, 24, 39, .18);
+
+    }
+
+
+    .closed-button-arrow {
+
+        font-size: 16px;
+
+        line-height: 1;
+
+    }
+
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+
+    .closed-footer {
+
+        width: 100%;
+
+        padding: 22px 20px;
+
+        border-top: 1px solid #e5e7eb;
+
+        background: rgba(255, 255, 255, .78);
+
+    }
+
+
+    .closed-footer-inner {
+
+        width: min(1180px, calc(100% - 40px));
+
+        margin: 0 auto;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+    }
+
+
+    .closed-footer span {
+
+        color: #9ca3af;
+
+        font-size: 11px;
+
+        line-height: 1.5;
+
+    }
+
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @media (max-width: 700px) {
+
+        .closed-header-inner {
+
+            width: min(100% - 28px, 1180px);
+
+            min-height: 68px;
+
+        }
+
+
+        .closed-brand-text span {
+
+            display: none;
+
+        }
+
+
+        .closed-home-link {
+
+            min-height: 38px;
+
+            padding: 0 12px;
+
+            font-size: 11px;
+
+        }
+
+
+        .closed-main {
+
+            padding: 40px 15px 55px;
+
+        }
+
+
+        .application-closed-card {
+
+            padding: 42px 24px 38px;
+
+            border-radius: 19px;
+
+        }
+
+
+        .closed-icon-wrapper {
+
+            width: 68px;
+
+            height: 68px;
+
+        }
+
+
+        .application-closed-card h1 {
+
+            font-size: 29px;
+
+        }
+
+
+        .closed-message {
+
+            font-size: 14px;
+
+        }
+
+
+        .closed-footer-inner {
+
+            width: 100%;
+
+            flex-direction: column;
+
+            text-align: center;
+
+        }
+
+    }
+
+
+    /* =========================================================
+       SMALL MOBILE
+    ========================================================= */
+
+    @media (max-width: 400px) {
+
+        .closed-header-inner {
+
+            width: calc(100% - 22px);
+
+        }
+
+
+        .closed-brand-logo,
+        .closed-brand-placeholder {
+
+            width: 39px;
+
+            height: 39px;
+
+        }
+
+
+        .closed-brand-text strong {
+
+            max-width: 145px;
+
+            font-size: 12px;
+
+        }
+
+
+        .closed-home-link {
+
+            padding: 0 10px;
+
+        }
+
+
+        .application-closed-card {
+
+            padding: 35px 18px 32px;
+
+        }
+
+
+        .application-closed-card h1 {
+
+            font-size: 26px;
+
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
 
 <div class="application-closed-page">
 
-    <div class="application-closed-card">
+```
+<!-- =========================================================
+     HEADER
+========================================================= -->
 
-        <div class="closed-icon">
-            🔒
+<header class="closed-header">
+
+    <div class="closed-header-inner">
+
+
+        <a
+            href="{{ url_for('home') }}"
+            class="closed-brand"
+            aria-label="Return to home"
+        >
+
+            {% if company_logo %}
+
+                <img
+                    src="{{ company_logo }}"
+                    alt="{{ company_name }}"
+                    class="closed-brand-logo"
+                >
+
+            {% else %}
+
+                <div class="closed-brand-placeholder">
+                    AV
+                </div>
+
+            {% endif %}
+
+
+            <div class="closed-brand-text">
+
+                <strong>
+                    {{ company_name }}
+                </strong>
+
+                <span>
+                    VETERINARY BUSINESS SUITE
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('home') }}"
+            class="closed-home-link"
+        >
+            Return Home
+        </a>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main class="closed-main">
+
+    <section
+        class="application-closed-card"
+        aria-labelledby="closed-title"
+    >
+
+
+        <div class="closed-icon-wrapper">
+
+            <span
+                class="closed-icon"
+                aria-hidden="true"
+            >
+                🔒
+            </span>
+
         </div>
+
 
         <span class="closed-label">
             RECRUITMENT PORTAL
         </span>
 
-        <h1>
+
+        <h1 id="closed-title">
             Applications Are Currently Closed
         </h1>
 
+
         <p class="closed-message">
-            Thank you for your interest in joining our team.
-            The application portal is not currently accepting
-            new applications.
+            Thank you for your interest in joining
+            {{ company_name }}. Our recruitment portal
+            is not currently accepting new applications.
         </p>
 
+
         <p class="closed-submessage">
-            Please check back later for future recruitment
-            opportunities.
+            Please check back later for future
+            recruitment opportunities.
         </p>
+
+
+        <div class="closed-divider"></div>
+
+
+        <div class="closed-status">
+
+            <span
+                class="closed-status-dot"
+                aria-hidden="true"
+            ></span>
+
+            <span>
+                Application submissions are temporarily unavailable
+            </span>
+
+        </div>
+
 
         <div class="closed-actions">
 
             <a
-                href="/"
-                class="btn btn-primary"
+                href="{{ url_for('home') }}"
+                class="closed-button closed-button-primary"
             >
-                ← Return to Home
+
+                <span class="closed-button-arrow">
+                    ←
+                </span>
+
+                Return to Home
+
             </a>
 
         </div>
 
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="closed-footer">
+
+    <div class="closed-footer-inner">
+
+        <span>
+            © {{ current_year or 2026 }}
+            {{ company_name }}.
+            All rights reserved.
+        </span>
+
+        <span>
+            Professional • Secure • Reliable
+        </span>
+
     </div>
+
+</footer>
 
 </div>
 
-{% endblock %}
+</body>
+</html>
