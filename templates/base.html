@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -59,7 +60,7 @@
 
             font-family: "Inter", Arial, sans-serif;
 
-            background: #f4f6f8;
+            background: #f5f7fa;
 
             color: #172033;
 
@@ -71,9 +72,13 @@
             color: inherit;
         }
 
+        button {
+            font-family: inherit;
+        }
+
 
         /* =====================================================
-           APP LAYOUT
+           MAIN APPLICATION WRAPPER
            ===================================================== */
 
         .app-shell {
@@ -87,6 +92,7 @@
            ===================================================== */
 
         .app-sidebar {
+
             position: fixed;
 
             left: 0;
@@ -95,7 +101,12 @@
 
             width: 260px;
 
-            background: #111827;
+            background:
+                linear-gradient(
+                    180deg,
+                    #111827 0%,
+                    #0f172a 100%
+                );
 
             color: #ffffff;
 
@@ -105,119 +116,151 @@
             z-index: 1000;
 
             box-shadow:
-                4px 0 18px rgba(15, 23, 42, 0.08);
+                5px 0 25px rgba(15, 23, 42, 0.10);
+
         }
 
 
         /* =====================================================
-           SIDEBAR BRAND
+           BRAND
            ===================================================== */
 
         .sidebar-brand {
+
             min-height: 82px;
 
-            padding: 18px 20px;
+            padding: 17px 19px;
 
             display: flex;
             align-items: center;
 
-            gap: 13px;
+            gap: 12px;
 
             border-bottom:
                 1px solid rgba(255,255,255,0.08);
+
         }
 
-        .sidebar-logo {
-            width: 45px;
-            height: 45px;
 
-            border-radius: 11px;
+        .sidebar-logo {
+
+            width: 46px;
+            height: 46px;
 
             object-fit: contain;
+
+            border-radius: 11px;
 
             background: #ffffff;
 
             padding: 4px;
 
             flex-shrink: 0;
+
         }
 
+
         .sidebar-logo-placeholder {
-            width: 45px;
-            height: 45px;
+
+            width: 46px;
+            height: 46px;
 
             border-radius: 11px;
 
-            background: #1f2937;
+            background:
+                rgba(255,255,255,0.08);
+
+            border:
+                1px solid rgba(255,255,255,0.10);
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 18px;
+            font-size: 15px;
+
             font-weight: 800;
 
             color: #ffffff;
 
             flex-shrink: 0;
+
         }
+
 
         .sidebar-brand-text {
+
             min-width: 0;
+
         }
 
+
         .sidebar-brand-text strong {
+
             display: block;
 
-            font-size: 14px;
-            font-weight: 800;
-
-            line-height: 1.25;
-
             color: #ffffff;
+
+            font-size: 13px;
+
+            line-height: 1.3;
+
+            font-weight: 800;
 
             white-space: nowrap;
 
             overflow: hidden;
+
             text-overflow: ellipsis;
+
         }
 
+
         .sidebar-brand-text span {
+
             display: block;
 
             margin-top: 3px;
 
-            font-size: 10px;
-            font-weight: 500;
+            color: #94a3b8;
 
-            color: #9ca3af;
+            font-size: 9px;
 
-            letter-spacing: 0.7px;
+            font-weight: 600;
+
+            letter-spacing: 0.8px;
 
             text-transform: uppercase;
+
         }
 
 
         /* =====================================================
-           SIDEBAR USER
+           USER INFORMATION
            ===================================================== */
 
         .sidebar-user {
-            margin: 18px 16px 12px;
 
-            padding: 13px;
+            margin:
+                17px 15px 12px;
 
-            border-radius: 12px;
+            padding:
+                13px;
 
             background:
-                rgba(255,255,255,0.05);
+                rgba(255,255,255,0.045);
 
             border:
-                1px solid rgba(255,255,255,0.06);
+                1px solid rgba(255,255,255,0.065);
+
+            border-radius: 11px;
+
         }
 
+
         .sidebar-user-label {
-            font-size: 9px;
+
+            font-size: 8px;
 
             font-weight: 700;
 
@@ -225,55 +268,102 @@
 
             text-transform: uppercase;
 
-            color: #9ca3af;
+            color: #64748b;
 
             margin-bottom: 5px;
+
         }
 
-        .sidebar-user-name {
-            font-size: 13px;
 
-            font-weight: 700;
+        .sidebar-user-name {
 
             color: #ffffff;
+
+            font-size: 12px;
+
+            font-weight: 700;
 
             white-space: nowrap;
 
             overflow: hidden;
+
             text-overflow: ellipsis;
+
         }
 
+
         .sidebar-user-role {
+
             margin-top: 4px;
 
-            font-size: 10px;
+            color: #94a3b8;
 
-            color: #9ca3af;
+            font-size: 9px;
+
+            font-weight: 500;
+
         }
 
 
         /* =====================================================
-           SIDEBAR NAVIGATION
+           NAVIGATION AREA
            ===================================================== */
 
         .sidebar-navigation {
+
             flex: 1;
 
             overflow-y: auto;
 
             padding:
-                8px 12px 18px;
+                8px 11px 18px;
+
         }
+
+
+        .sidebar-navigation::-webkit-scrollbar {
+
+            width: 4px;
+
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar-thumb {
+
+            background:
+                rgba(255,255,255,0.10);
+
+            border-radius: 10px;
+
+        }
+
+
+        /* =====================================================
+           NAVIGATION SECTION
+           ===================================================== */
 
         .sidebar-section {
+
             margin-bottom: 22px;
+
         }
 
-        .sidebar-section-title {
-            padding:
-                0 11px 8px;
 
-            font-size: 9px;
+        .sidebar-section-title {
+
+            padding:
+                0 10px 8px;
+
+            color: #64748b;
+
+            font-size: 8px;
 
             font-weight: 800;
 
@@ -281,7 +371,6 @@
 
             text-transform: uppercase;
 
-            color: #6b7280;
         }
 
 
@@ -290,27 +379,29 @@
            ===================================================== */
 
         .sidebar-link {
+
             position: relative;
 
             display: flex;
-            align-items: center;
 
-            gap: 12px;
+            align-items: center;
 
             width: 100%;
 
-            min-height: 44px;
+            min-height: 43px;
 
             padding:
-                10px 12px;
+                7px 10px;
 
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+
+            gap: 11px;
 
             border-radius: 9px;
 
             color: #cbd5e1;
 
-            font-size: 13px;
+            font-size: 12px;
 
             font-weight: 600;
 
@@ -318,53 +409,77 @@
                 background 0.18s ease,
                 color 0.18s ease,
                 transform 0.18s ease;
+
         }
 
+
         .sidebar-link:hover {
+
             background:
-                rgba(255,255,255,0.07);
+                rgba(255,255,255,0.065);
 
             color: #ffffff;
 
-            transform: translateX(2px);
+            transform:
+                translateX(2px);
+
         }
 
+
         .sidebar-link.active {
-            background: #2563eb;
+
+            background:
+                #2563eb;
 
             color: #ffffff;
 
             box-shadow:
-                0 5px 14px
-                rgba(37, 99, 235, 0.25);
+                0 5px 15px
+                rgba(37,99,235,0.22);
+
         }
 
+
         .sidebar-link-icon {
-            width: 30px;
-            height: 30px;
+
+            width: 31px;
+            height: 31px;
 
             border-radius: 8px;
 
+            background:
+                rgba(255,255,255,0.055);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            background:
-                rgba(255,255,255,0.05);
+            color: #cbd5e1;
 
             font-size: 14px;
 
             flex-shrink: 0;
+
         }
+
 
         .sidebar-link.active
         .sidebar-link-icon {
+
             background:
-                rgba(255,255,255,0.15);
+                rgba(255,255,255,0.14);
+
+            color: #ffffff;
+
         }
 
+
         .sidebar-link-text {
+
             flex: 1;
+
         }
 
 
@@ -373,14 +488,20 @@
            ===================================================== */
 
         .sidebar-footer {
-            padding: 13px;
+
+            padding:
+                12px;
 
             border-top:
                 1px solid rgba(255,255,255,0.08);
+
         }
 
+
         .sidebar-signout {
+
             display: flex;
+
             align-items: center;
 
             gap: 11px;
@@ -389,7 +510,8 @@
 
             min-height: 43px;
 
-            padding: 9px 12px;
+            padding:
+                7px 10px;
 
             border-radius: 9px;
 
@@ -402,58 +524,71 @@
             transition:
                 background 0.18s ease,
                 color 0.18s ease;
+
         }
+
 
         .sidebar-signout:hover {
+
             background:
-                rgba(239,68,68,0.12);
+                rgba(239,68,68,0.10);
 
             color: #fecaca;
+
         }
 
-        .sidebar-signout-icon {
-            width: 30px;
-            height: 30px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .sidebar-signout-icon {
+
+            width: 31px;
+            height: 31px;
 
             border-radius: 8px;
 
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
             background:
                 rgba(239,68,68,0.08);
+
         }
 
 
         /* =====================================================
-           MAIN AREA
+           MAIN CONTENT
            ===================================================== */
 
         .app-main {
+
             min-height: 100vh;
 
             margin-left: 260px;
 
-            width: calc(100% - 260px);
+            width:
+                calc(100% - 260px);
 
-            padding: 28px 30px 40px;
+            padding:
+                25px 28px 40px;
 
             display: flex;
+
             justify-content: center;
+
         }
 
 
-        /* =====================================================
-           CONTENT CONTAINER
-           ===================================================== */
-
         .app-content {
+
             width: 100%;
 
-            max-width: 1480px;
+            max-width: 1500px;
 
-            margin: 0 auto;
+            margin:
+                0 auto;
+
         }
 
 
@@ -462,92 +597,135 @@
            ===================================================== */
 
         .app-topbar {
+
             width: 100%;
 
             min-height: 58px;
 
-            margin-bottom: 22px;
+            margin-bottom: 20px;
 
             padding:
-                0 18px;
+                0 17px;
 
-            background: #ffffff;
+            background:
+                #ffffff;
 
             border:
                 1px solid #e5e7eb;
 
-            border-radius: 12px;
+            border-radius: 11px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
             box-shadow:
-                0 2px 8px rgba(15,23,42,0.035);
+                0 2px 8px
+                rgba(15,23,42,0.035);
+
         }
+
 
         .topbar-left {
+
             display: flex;
+
             align-items: center;
 
-            gap: 10px;
+            gap: 8px;
+
         }
 
+
         .topbar-title {
-            font-size: 14px;
+
+            font-size: 13px;
 
             font-weight: 700;
 
             color: #111827;
+
         }
 
+
+        .topbar-separator {
+
+            color: #cbd5e1;
+
+        }
+
+
         .topbar-subtitle {
+
             font-size: 11px;
 
             color: #6b7280;
+
         }
 
+
         .topbar-user {
+
             display: flex;
+
             align-items: center;
 
             gap: 9px;
+
         }
 
+
         .topbar-avatar {
+
             width: 34px;
             height: 34px;
 
             border-radius: 50%;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            background: #eff6ff;
+            background:
+                #eff6ff;
 
-            color: #2563eb;
-
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        .topbar-user-info strong {
-            display: block;
+            color:
+                #2563eb;
 
             font-size: 11px;
 
-            color: #111827;
+            font-weight: 800;
+
         }
 
+
+        .topbar-user-info strong {
+
+            display: block;
+
+            color: #111827;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
         .topbar-user-info span {
+
             display: block;
 
             margin-top: 2px;
 
-            font-size: 9px;
-
             color: #6b7280;
+
+            font-size: 8px;
+
         }
 
 
@@ -556,86 +734,154 @@
            ===================================================== */
 
         .flash-container {
+
             width: 100%;
 
             margin-bottom: 18px;
+
         }
 
+
         .flash-message {
+
+            width: 100%;
+
             padding:
-                12px 15px;
+                11px 14px;
 
-            margin-bottom: 8px;
+            margin-bottom: 7px;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
-            border: 1px solid #e5e7eb;
+            border:
+                1px solid #e5e7eb;
 
-            background: #ffffff;
+            background:
+                #ffffff;
 
             color: #374151;
 
-            font-size: 12px;
+            font-size: 11px;
 
             font-weight: 600;
+
         }
+
 
         .flash-message.success {
+
             background: #f0fdf4;
+
             border-color: #bbf7d0;
+
             color: #166534;
+
         }
+
 
         .flash-message.error {
+
             background: #fef2f2;
+
             border-color: #fecaca;
+
             color: #991b1b;
+
         }
+
 
         .flash-message.warning {
+
             background: #fffbeb;
+
             border-color: #fde68a;
+
             color: #92400e;
+
         }
 
+
         .flash-message.info {
+
             background: #eff6ff;
+
             border-color: #bfdbfe;
+
             color: #1e40af;
+
         }
 
 
         /* =====================================================
-           MOBILE SIDEBAR BUTTON
+           PUBLIC PAGES
+           ===================================================== */
+
+        body.public-page .app-main {
+
+            margin-left: 0;
+
+            width: 100%;
+
+            padding:
+                30px 20px 40px;
+
+        }
+
+
+        body.public-page .app-content {
+
+            max-width: 1200px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE MENU BUTTON
            ===================================================== */
 
         .sidebar-mobile-button {
+
             display: none;
 
             position: fixed;
 
-            top: 14px;
-            left: 14px;
+            top: 13px;
+
+            left: 13px;
 
             width: 42px;
+
             height: 42px;
 
             border: none;
 
             border-radius: 9px;
 
-            background: #111827;
+            background:
+                #111827;
 
-            color: #ffffff;
+            color:
+                #ffffff;
 
             z-index: 1200;
 
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 17px;
+
             cursor: pointer;
 
-            font-size: 18px;
+            box-shadow:
+                0 5px 15px
+                rgba(15,23,42,0.15);
+
         }
 
+
         .sidebar-overlay {
+
             display: none;
 
             position: fixed;
@@ -646,24 +892,30 @@
                 rgba(15,23,42,0.45);
 
             z-index: 900;
+
         }
 
 
         /* =====================================================
-           NO SIDEBAR PAGES
+           LARGE COMPUTER SCREEN
            ===================================================== */
 
-        body.public-page .app-main {
-            margin-left: 0;
+        @media (min-width: 1500px) {
 
-            width: 100%;
+            .app-main {
 
-            padding:
-                30px 20px;
-        }
+                padding-left: 35px;
 
-        body.public-page .app-content {
-            max-width: 1200px;
+                padding-right: 35px;
+
+            }
+
+            .app-content {
+
+                max-width: 1550px;
+
+            }
+
         }
 
 
@@ -674,10 +926,13 @@
         @media (max-width: 1100px) {
 
             .app-sidebar {
+
                 width: 235px;
+
             }
 
             .app-main {
+
                 margin-left: 235px;
 
                 width:
@@ -685,6 +940,7 @@
 
                 padding:
                     22px 20px 35px;
+
             }
 
         }
@@ -697,6 +953,7 @@
         @media (max-width: 768px) {
 
             .app-sidebar {
+
                 width: 270px;
 
                 transform:
@@ -704,58 +961,80 @@
 
                 transition:
                     transform 0.25s ease;
+
             }
+
 
             .app-sidebar.mobile-open {
+
                 transform:
                     translateX(0);
+
             }
+
 
             .sidebar-mobile-button {
+
                 display: flex;
 
-                align-items: center;
-                justify-content: center;
             }
+
 
             .sidebar-overlay.mobile-open {
+
                 display: block;
+
             }
 
+
             .app-main {
+
                 margin-left: 0;
 
                 width: 100%;
 
                 padding:
-                    72px 14px 25px;
+                    70px 14px 30px;
+
             }
+
 
             .app-topbar {
+
                 display: none;
+
             }
 
+
             .app-content {
-                width: 100%;
+
+                max-width: 100%;
+
             }
 
         }
 
 
         /* =====================================================
-           SMALL MOBILE
+           SMALL PHONE
            ===================================================== */
 
         @media (max-width: 480px) {
 
             .app-main {
+
                 padding-left: 10px;
+
                 padding-right: 10px;
+
             }
 
             .sidebar-mobile-button {
+
                 top: 10px;
+
                 left: 10px;
+
             }
 
         }
@@ -773,353 +1052,386 @@
 >
 
 
-<!-- =========================================================
-     AUTHENTICATED APPLICATION SHELL
-     ========================================================= -->
-
 <div class="app-shell">
 
 
     <!-- =====================================================
-         SIDEBAR
-         ONLY SHOW AFTER LOGIN
+         AUTHENTICATED SIDEBAR
          ===================================================== -->
 
-    {% if session.get("admin_logged_in") or session.get("applicant_logged_in") %}
-
-    <button
-        type="button"
-        class="sidebar-mobile-button"
-        id="sidebarMobileButton"
-        aria-label="Open navigation"
-    >
-        ☰
-    </button>
+    {% if session.get("admin_logged_in")
+          or session.get("applicant_logged_in") %}
 
 
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-    ></div>
+        <!-- MOBILE BUTTON -->
+
+        <button
+            type="button"
+            class="sidebar-mobile-button"
+            id="sidebarMobileButton"
+            aria-label="Open navigation"
+        >
+            ☰
+        </button>
 
 
-    <aside
-        class="app-sidebar"
-        id="appSidebar"
-    >
+        <!-- MOBILE OVERLAY -->
 
-        <!-- BRAND -->
-
-        <div class="sidebar-brand">
-
-            {% if company_logo %}
-
-                <img
-                    src="{{ url_for('static', filename='uploads/' ~ company_logo) }}"
-                    class="sidebar-logo"
-                    alt="Company Logo"
-                >
-
-            {% elif settings and settings.logo %}
-
-                <img
-                    src="{{ url_for('static', filename='uploads/' ~ settings.logo) }}"
-                    class="sidebar-logo"
-                    alt="Company Logo"
-                >
-
-            {% else %}
-
-                <div class="sidebar-logo-placeholder">
-                    AV
-                </div>
-
-            {% endif %}
+        <div
+            class="sidebar-overlay"
+            id="sidebarOverlay"
+        ></div>
 
 
-            <div class="sidebar-brand-text">
+        <!-- =================================================
+             SIDEBAR
+             ================================================= -->
 
-                <strong>
-                    {{ company_name or "AV KING VET" }}
-                </strong>
-
-                <span>
-                    Business Suite
-                </span>
-
-            </div>
-
-        </div>
+        <aside
+            class="app-sidebar"
+            id="appSidebar"
+        >
 
 
-        <!-- USER -->
+            <!-- BRAND -->
 
-        <div class="sidebar-user">
+            <div class="sidebar-brand">
 
-            <div class="sidebar-user-label">
-                Signed in as
-            </div>
+                {% if company_logo %}
 
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/' ~ company_logo
+                        ) }}"
+                        class="sidebar-logo"
+                        alt="Company Logo"
+                    >
 
-            {% if session.get("admin_logged_in") %}
+                {% elif settings and settings.logo %}
 
-                <div class="sidebar-user-name">
-                    {{ session.get("admin_name")
-                       or session.get("admin_username")
-                       or "Administrator" }}
-                </div>
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/' ~ settings.logo
+                        ) }}"
+                        class="sidebar-logo"
+                        alt="Company Logo"
+                    >
 
-                <div class="sidebar-user-role">
-                    Administrator
-                </div>
+                {% else %}
 
-            {% elif session.get("applicant_logged_in") %}
-
-                <div class="sidebar-user-name">
-                    {{ session.get("applicant_name")
-                       or "Applicant" }}
-                </div>
-
-                <div class="sidebar-user-role">
-                    Applicant Portal
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- NAVIGATION -->
-
-        <nav class="sidebar-navigation">
-
-
-            <!-- =================================================
-                 ADMIN NAVIGATION
-                 ================================================= -->
-
-            {% if session.get("admin_logged_in") %}
-
-            <div class="sidebar-section">
-
-                <div class="sidebar-section-title">
-                    Overview
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_dashboard') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_dashboard' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-                        ⌂
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Dashboard
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <div class="sidebar-section">
-
-                <div class="sidebar-section-title">
-                    Recruitment
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_applications' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-                        ☷
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Applications
-                    </span>
-
-                </a>
-
-
-                {% if 'admin_interviews' in request.url_rule.endpoint
-                    if request.url_rule else false %}
+                    <div class="sidebar-logo-placeholder">
+                        AV
+                    </div>
 
                 {% endif %}
 
 
-                <a
-                    href="{{ url_for('admin_interviews') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_interviews' %}
-                        active
-                    {% endif %}"
-                >
+                <div class="sidebar-brand-text">
 
-                    <span class="sidebar-link-icon">
-                        ◷
+                    <strong>
+                        {{ company_name or "AV KING VET" }}
+                    </strong>
+
+                    <span>
+                        Veterinary Business Suite
                     </span>
 
-                    <span class="sidebar-link-text">
-                        Interviews
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_reports' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-                        ▥
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Reports
-                    </span>
-
-                </a>
+                </div>
 
             </div>
 
 
-            <div class="sidebar-section">
+            <!-- USER -->
 
-                <div class="sidebar-section-title">
-                    Administration
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-label">
+                    Signed in as
                 </div>
 
 
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_settings' %}
-                        active
-                    {% endif %}"
-                >
+                {% if session.get("admin_logged_in") %}
 
-                    <span class="sidebar-link-icon">
-                        ⚙
-                    </span>
+                    <div class="sidebar-user-name">
 
-                    <span class="sidebar-link-text">
-                        Settings
-                    </span>
+                        {{ session.get("admin_name")
+                           or session.get("admin_username")
+                           or "Administrator" }}
 
-                </a>
+                    </div>
+
+                    <div class="sidebar-user-role">
+                        Administrator
+                    </div>
+
+
+                {% elif session.get("applicant_logged_in") %}
+
+                    <div class="sidebar-user-name">
+
+                        {{ session.get("applicant_name")
+                           or "Applicant" }}
+
+                    </div>
+
+                    <div class="sidebar-user-role">
+                        Applicant Portal
+                    </div>
+
+                {% endif %}
 
             </div>
-
-            {% endif %}
 
 
             <!-- =================================================
-                 APPLICANT NAVIGATION
-                 ONLY ATTENDANCE
+                 NAVIGATION
                  ================================================= -->
 
-            {% if session.get("applicant_logged_in") %}
-
-            <div class="sidebar-section">
-
-                <div class="sidebar-section-title">
-                    Applicant Portal
-                </div>
+            <nav class="sidebar-navigation">
 
 
-                <a
-                    href="{{ url_for('applicant_portal') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'applicant_portal' %}
-                        active
-                    {% endif %}"
-                >
+                <!-- =================================================
+                     ADMIN MENU
+                     ================================================= -->
 
-                    <span class="sidebar-link-icon">
-                        ◉
-                    </span>
+                {% if session.get("admin_logged_in") %}
 
-                    <span class="sidebar-link-text">
-                        Attendance
-                    </span>
 
-                </a>
+                    <!-- OVERVIEW -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Overview
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_dashboard') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_dashboard' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ⌂
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Dashboard
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- RECRUITMENT -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Recruitment
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_applications') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_applications' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ☷
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Applications
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin_interviews') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_interviews' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ◷
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Interviews
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin_reports') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_reports' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ▥
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Reports
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- ADMINISTRATION -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Administration
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_settings') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_settings' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ⚙
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Settings
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                {% endif %}
+
+
+                <!-- =================================================
+                     APPLICANT MENU
+                     ONLY ATTENDANCE
+                     ================================================= -->
+
+                {% if session.get("applicant_logged_in") %}
+
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Applicant Portal
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('applicant_portal') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'applicant_portal' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ◉
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Attendance
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </nav>
+
+
+            <!-- =================================================
+                 SIGN OUT
+                 ================================================= -->
+
+            <div class="sidebar-footer">
+
+
+                {% if session.get("admin_logged_in") %}
+
+
+                    <a
+                        href="{{ url_for('admin_logout') }}"
+                        class="sidebar-signout"
+                    >
+
+                        <span class="sidebar-signout-icon">
+                            ⇥
+                        </span>
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </a>
+
+
+                {% elif session.get("applicant_logged_in") %}
+
+
+                    <a
+                        href="{{ url_for('applicant_logout') }}"
+                        class="sidebar-signout"
+                    >
+
+                        <span class="sidebar-signout-icon">
+                            ⇥
+                        </span>
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </a>
+
+
+                {% endif %}
+
 
             </div>
 
-            {% endif %}
 
+        </aside>
 
-        </nav>
-
-
-        <!-- SIDEBAR FOOTER -->
-
-        <div class="sidebar-footer">
-
-            {% if session.get("admin_logged_in") %}
-
-                <a
-                    href="{{ url_for('admin_logout') }}"
-                    class="sidebar-signout"
-                >
-
-                    <span class="sidebar-signout-icon">
-                        ⇥
-                    </span>
-
-                    <span>
-                        Sign Out
-                    </span>
-
-                </a>
-
-            {% elif session.get("applicant_logged_in") %}
-
-                <a
-                    href="{{ url_for('applicant_logout') }}"
-                    class="sidebar-signout"
-                >
-
-                    <span class="sidebar-signout-icon">
-                        ⇥
-                    </span>
-
-                    <span>
-                        Sign Out
-                    </span>
-
-                </a>
-
-            {% endif %}
-
-        </div>
-
-    </aside>
 
     {% endif %}
 
 
 
     <!-- =========================================================
-         MAIN CONTENT
+         MAIN AREA
          ========================================================= -->
 
     <main class="app-main">
@@ -1134,92 +1446,122 @@
             {% if session.get("admin_logged_in")
                   or session.get("applicant_logged_in") %}
 
-            <div class="app-topbar">
 
-                <div class="topbar-left">
-
-                    <div class="topbar-title">
-
-                        {% if session.get("admin_logged_in") %}
-                            Administration
-                        {% else %}
-                            Applicant Portal
-                        {% endif %}
-
-                    </div>
-
-                    <div class="topbar-subtitle">
-                        /
-                    </div>
-
-                    <div class="topbar-subtitle">
-                        {{ self.title() or "Dashboard" }}
-                    </div>
-
-                </div>
+                <div class="app-topbar">
 
 
-                <div class="topbar-user">
+                    <div class="topbar-left">
 
-                    <div class="topbar-user-avatar">
-
-                    </div>
-
-                    <div class="topbar-avatar">
-
-                        {% if session.get("admin_logged_in") %}
-
-                            {{ (
-                                session.get("admin_name")
-                                or "A"
-                            )[0]|upper }}
-
-                        {% else %}
-
-                            {{ (
-                                session.get("applicant_name")
-                                or "A"
-                            )[0]|upper }}
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="topbar-user-info">
-
-                        <strong>
+                        <div class="topbar-title">
 
                             {% if session.get("admin_logged_in") %}
 
-                                {{ session.get("admin_name")
-                                   or "Administrator" }}
+                                Administration
 
                             {% else %}
 
-                                {{ session.get("applicant_name")
-                                   or "Applicant" }}
+                                Applicant Portal
 
                             {% endif %}
 
-                        </strong>
+                        </div>
 
 
-                        <span>
+                        <div class="topbar-separator">
+                            /
+                        </div>
 
-                            {% if session.get("admin_logged_in") %}
-                                Administrator
+
+                        <div class="topbar-subtitle">
+
+                            {% if request.endpoint %}
+
+                                {{ request.endpoint
+                                   |replace("_", " ")
+                                   |title }}
+
                             {% else %}
-                                Applicant
+
+                                Dashboard
+
                             {% endif %}
 
-                        </span>
+                        </div>
 
                     </div>
 
+
+                    <div class="topbar-user">
+
+
+                        <div class="topbar-avatar">
+
+                            {% if session.get("admin_logged_in") %}
+
+                                {{
+                                    (
+                                        session.get("admin_name")
+                                        or session.get("admin_username")
+                                        or "A"
+                                    )[0]|upper
+                                }}
+
+                            {% else %}
+
+                                {{
+                                    (
+                                        session.get("applicant_name")
+                                        or "A"
+                                    )[0]|upper
+                                }}
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="topbar-user-info">
+
+                            <strong>
+
+                                {% if session.get("admin_logged_in") %}
+
+                                    {{ session.get("admin_name")
+                                       or session.get("admin_username")
+                                       or "Administrator" }}
+
+                                {% else %}
+
+                                    {{ session.get("applicant_name")
+                                       or "Applicant" }}
+
+                                {% endif %}
+
+                            </strong>
+
+
+                            <span>
+
+                                {% if session.get("admin_logged_in") %}
+
+                                    Administrator
+
+                                {% else %}
+
+                                    Applicant
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
                 </div>
 
-            </div>
 
             {% endif %}
 
@@ -1229,27 +1571,39 @@
                  FLASH MESSAGES
                  ================================================= -->
 
-            {% with messages = get_flashed_messages(
-                with_categories=true
-            ) %}
+            {% with messages =
+                get_flashed_messages(
+                    with_categories=true
+                )
+            %}
+
 
                 {% if messages %}
 
-                <div class="flash-container">
 
-                    {% for category, message in messages %}
+                    <div class="flash-container">
 
-                        <div
-                            class="flash-message {{ category }}"
-                        >
-                            {{ message }}
-                        </div>
 
-                    {% endfor %}
+                        {% for category, message in messages %}
 
-                </div>
+
+                            <div
+                                class="flash-message {{ category }}"
+                            >
+
+                                {{ message }}
+
+                            </div>
+
+
+                        {% endfor %}
+
+
+                    </div>
+
 
                 {% endif %}
+
 
             {% endwith %}
 
@@ -1266,15 +1620,16 @@
 
     </main>
 
+
 </div>
 
 
 
-<script>
+<!-- =========================================================
+     MOBILE SIDEBAR SCRIPT
+     ========================================================= -->
 
-    /* =========================================================
-       MOBILE SIDEBAR
-       ========================================================= */
+<script>
 
     const sidebar =
         document.getElementById("appSidebar");
@@ -1370,17 +1725,11 @@
         });
 
 
-    /* =========================================================
-       ESCAPE CLOSE
-       ========================================================= */
-
     document.addEventListener(
         "keydown",
         function(event) {
 
-            if (
-                event.key === "Escape"
-            ) {
+            if (event.key === "Escape") {
 
                 closeSidebar();
 
@@ -1395,4 +1744,5 @@
 {% block scripts %}{% endblock %}
 
 </body>
+
 </html>
