@@ -17,9 +17,9 @@
     </title>
 
 
-    <!-- =====================================================
-         FONT
-    ====================================================== -->
+    <!-- =========================================================
+         GOOGLE FONT
+    ========================================================== -->
 
     <link
         rel="preconnect"
@@ -38,40 +38,45 @@
     >
 
 
-    <!-- =====================================================
+    <!-- =========================================================
          GLOBAL STYLES
-    ====================================================== -->
+    ========================================================== -->
 
     <style>
+
+        /* =====================================================
+           RESET
+        ====================================================== */
 
         * {
             box-sizing: border-box;
         }
 
-
-        html,
-        body {
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
             min-height: 100%;
         }
 
-
         body {
-            font-family: "Inter", Arial, sans-serif;
-            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+
+            font-family:
+                "Inter",
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f5f7fb;
             color: #111827;
 
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
-
-
-        a {
-            color: inherit;
-        }
-
 
         button,
         input,
@@ -80,48 +85,43 @@
             font-family: inherit;
         }
 
+        a {
+            color: inherit;
+        }
 
         img {
             max-width: 100%;
         }
 
 
-        /* =================================================
-           PUBLIC PAGE
-        ================================================== */
+        /* =====================================================
+           PUBLIC PAGES
+        ====================================================== */
 
-        .public-content {
+        .public-page {
             width: 100%;
             min-height: 100vh;
         }
 
 
-        /* =================================================
+        /* =====================================================
            APPLICATION SHELL
-        ================================================== */
+        ====================================================== */
 
-        .portal-shell {
-            min-height: 100vh;
-            width: 100%;
-        }
-
-
-        /* =================================================
-           ADMIN / APPLICANT LAYOUT
-        ================================================== */
-
-        .portal-layout {
+        .app-shell {
             display: flex;
-            min-height: 100vh;
+
             width: 100%;
+            min-height: 100vh;
         }
 
 
-        /* =================================================
+        /* =====================================================
            SIDEBAR
-        ================================================== */
+        ====================================================== */
 
-        .portal-sidebar {
+        .app-sidebar {
+
             position: fixed;
 
             top: 0;
@@ -142,29 +142,34 @@
 
             color: #ffffff;
 
-            z-index: 2000;
-
             border-right:
                 1px solid
                 rgba(255,255,255,.06);
 
-            box-shadow:
-                8px 0 30px
-                rgba(15,23,42,.08);
+            z-index: 2000;
+
+            overflow: hidden;
+
+            transition:
+                transform .25s ease;
         }
 
 
-        /* =================================================
+        /* =====================================================
            SIDEBAR BRAND
-        ================================================== */
+        ====================================================== */
 
-        .portal-sidebar-brand {
-            min-height: 82px;
+        .sidebar-brand {
+
+            min-height: 86px;
 
             display: flex;
             align-items: center;
 
-            padding: 14px 18px;
+            gap: 12px;
+
+            padding:
+                15px 19px;
 
             border-bottom:
                 1px solid
@@ -172,45 +177,20 @@
         }
 
 
-        .portal-brand-logo {
+        .sidebar-logo {
+
             width: 46px;
             height: 46px;
 
             flex-shrink: 0;
 
-            border-radius: 12px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
-            background: #ffffff;
 
             overflow: hidden;
 
-            box-shadow:
-                0 7px 20px
-                rgba(0,0,0,.20);
-        }
-
-
-        .portal-brand-logo img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: contain;
-
-            display: block;
-        }
-
-
-        .portal-brand-fallback {
-            width: 100%;
-            height: 100%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 12px;
 
             background:
                 linear-gradient(
@@ -224,104 +204,153 @@
             font-size: 13px;
             font-weight: 800;
 
-            letter-spacing: .5px;
+            box-shadow:
+                0 8px 22px
+                rgba(37,99,235,.22);
         }
 
 
-        .portal-brand-text {
-            min-width: 0;
+        .sidebar-logo img {
 
-            margin-left: 11px;
-        }
+            width: 100%;
+            height: 100%;
 
+            object-fit: contain;
 
-        .portal-brand-name {
             display: block;
 
-            max-width: 170px;
+            background: #ffffff;
+        }
 
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+
+        .sidebar-brand-text {
+
+            min-width: 0;
+
+            flex: 1;
+        }
+
+
+        .sidebar-company-name {
+
+            display: block;
 
             color: #ffffff;
 
             font-size: 14px;
             font-weight: 800;
 
+            line-height: 1.3;
+
             letter-spacing: .4px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
-        .portal-brand-subtitle {
+        .sidebar-company-subtitle {
+
             display: block;
 
             margin-top: 4px;
 
             color: #94a3b8;
 
-            font-size: 9px;
+            font-size: 8.5px;
             font-weight: 700;
 
             letter-spacing: 1.1px;
 
             white-space: nowrap;
-
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
 
-        /* =================================================
-           SIDEBAR NAVIGATION
-        ================================================== */
+        /* =====================================================
+           SIDEBAR ROLE BADGE
+        ====================================================== */
 
-        .portal-navigation {
-            flex: 1;
+        .sidebar-role {
 
-            padding: 17px 12px;
+            margin:
+                16px 15px 5px;
 
-            overflow-y: auto;
+            padding:
+                9px 11px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.06);
+
+            border-radius: 9px;
+
+            background:
+                rgba(255,255,255,.035);
+
+            color: #94a3b8;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
         }
 
 
-        .portal-navigation::-webkit-scrollbar {
+        /* =====================================================
+           NAVIGATION
+        ====================================================== */
+
+        .sidebar-navigation {
+
+            flex: 1;
+
+            padding:
+                10px 11px 15px;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar {
             width: 5px;
         }
 
-
-        .portal-navigation::-webkit-scrollbar-track {
+        .sidebar-navigation::-webkit-scrollbar-track {
             background: transparent;
         }
 
+        .sidebar-navigation::-webkit-scrollbar-thumb {
+            background:
+                rgba(255,255,255,.12);
 
-        .portal-navigation::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,.12);
             border-radius: 10px;
         }
 
 
-        .portal-nav-section {
-            margin-bottom: 22px;
-        }
+        .nav-section-title {
 
-
-        .portal-nav-title {
             padding:
-                5px 11px 9px;
+                12px 11px 8px;
 
             color: #64748b;
 
             font-size: 9px;
             font-weight: 800;
 
-            letter-spacing: 1.4px;
+            letter-spacing: 1.3px;
 
             text-transform: uppercase;
         }
 
 
-        .portal-nav-link {
+        .sidebar-link {
+
             position: relative;
 
             display: flex;
@@ -331,17 +360,18 @@
 
             min-height: 45px;
 
-            padding: 0 10px;
+            margin-bottom: 3px;
 
-            margin-bottom: 4px;
+            padding:
+                0 10px;
 
-            border-radius: 10px;
+            border-radius: 9px;
 
             color: #cbd5e1;
 
             text-decoration: none;
 
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 600;
 
             transition:
@@ -351,7 +381,8 @@
         }
 
 
-        .portal-nav-link:hover {
+        .sidebar-link:hover {
+
             color: #ffffff;
 
             background:
@@ -362,23 +393,25 @@
         }
 
 
-        .portal-nav-link.active {
+        .sidebar-link.active {
+
             color: #ffffff;
 
             background:
                 linear-gradient(
-                    135deg,
+                    90deg,
                     #2563eb,
                     #1d4ed8
                 );
 
             box-shadow:
-                0 8px 22px
-                rgba(37,99,235,.24);
+                0 7px 18px
+                rgba(37,99,235,.22);
         }
 
 
-        .portal-nav-link.active::before {
+        .sidebar-link.active::before {
+
             content: "";
 
             position: absolute;
@@ -389,13 +422,15 @@
 
             width: 3px;
 
-            border-radius: 0 4px 4px 0;
+            border-radius:
+                0 5px 5px 0;
 
             background: #ffffff;
         }
 
 
-        .portal-nav-icon {
+        .sidebar-icon {
+
             width: 36px;
             height: 36px;
 
@@ -407,67 +442,49 @@
 
             color: #94a3b8;
 
-            font-size: 16px;
-
-            border-radius: 9px;
+            font-size: 15px;
         }
 
 
-        .portal-nav-link:hover
-        .portal-nav-icon {
+        .sidebar-link.active
+        .sidebar-icon {
+
             color: #ffffff;
         }
 
 
-        .portal-nav-link.active
-        .portal-nav-icon {
-            color: #ffffff;
-        }
+        .sidebar-label {
 
-
-        .portal-nav-label {
             flex: 1;
 
             min-width: 0;
 
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
-        .portal-nav-arrow {
-            color: #64748b;
+        .sidebar-divider {
 
-            font-size: 11px;
-        }
-
-
-        .portal-nav-link.active
-        .portal-nav-arrow {
-            color: #ffffff;
-        }
-
-
-        /* =================================================
-           SIDEBAR DIVIDER
-        ================================================== */
-
-        .portal-nav-divider {
             height: 1px;
 
             margin:
-                16px 9px;
+                15px 8px;
 
             background:
                 rgba(255,255,255,.07);
         }
 
 
-        /* =================================================
+        /* =====================================================
            SIDEBAR FOOTER
-        ================================================== */
+        ====================================================== */
 
-        .portal-sidebar-footer {
-            padding: 13px;
+        .sidebar-footer {
+
+            padding:
+                13px 13px 14px;
 
             border-top:
                 1px solid
@@ -475,7 +492,8 @@
         }
 
 
-        .portal-user {
+        .sidebar-user {
+
             display: flex;
             align-items: center;
 
@@ -486,24 +504,21 @@
         }
 
 
-        .portal-user-avatar {
-            width: 39px;
-            height: 39px;
+        .sidebar-user-avatar {
+
+            width: 38px;
+            height: 38px;
 
             flex-shrink: 0;
-
-            border-radius: 50%;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
+            border-radius: 50%;
+
             background:
-                linear-gradient(
-                    135deg,
-                    #334155,
-                    #1e293b
-                );
+                #263244;
 
             color: #ffffff;
 
@@ -512,57 +527,61 @@
         }
 
 
-        .portal-user-information {
+        .sidebar-user-information {
+
             min-width: 0;
+
+            flex: 1;
         }
 
 
-        .portal-user-name {
+        .sidebar-user-name {
+
             display: block;
-
-            max-width: 165px;
-
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
 
             color: #ffffff;
 
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
-        .portal-user-role {
+        .sidebar-user-role {
+
             display: block;
 
             margin-top: 3px;
 
             color: #94a3b8;
 
-            font-size: 10px;
+            font-size: 9.5px;
         }
 
 
-        .portal-signout {
+        .sidebar-logout {
+
             display: flex;
             align-items: center;
             justify-content: center;
 
             width: 100%;
-            height: 40px;
+            height: 39px;
 
             border:
                 1px solid
                 rgba(255,255,255,.09);
 
-            border-radius: 9px;
+            border-radius: 8px;
 
             color: #cbd5e1;
 
             text-decoration: none;
 
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 700;
 
             transition:
@@ -571,7 +590,8 @@
         }
 
 
-        .portal-signout:hover {
+        .sidebar-logout:hover {
+
             color: #ffffff;
 
             background:
@@ -579,46 +599,52 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            MAIN CONTENT
-        ================================================== */
+        ====================================================== */
 
-        .portal-main {
-            width: calc(100% - 270px);
+        .app-main {
+
+            width:
+                calc(100% - 270px);
 
             min-height: 100vh;
 
             margin-left: 270px;
 
-            background: #f4f6f9;
+            background: #f5f7fb;
         }
 
 
-        .portal-content {
+        .app-content {
+
             width: 100%;
 
             max-width: 1700px;
 
             margin: 0 auto;
 
-            padding: 30px;
+            padding:
+                30px;
         }
 
 
-        /* =================================================
-           MOBILE HEADER
-        ================================================== */
+        /* =====================================================
+           MOBILE TOP BAR
+        ====================================================== */
 
-        .mobile-portal-header {
+        .mobile-topbar {
+
             display: none;
 
             position: sticky;
 
             top: 0;
 
-            height: 64px;
+            height: 62px;
 
-            padding: 0 15px;
+            padding:
+                0 15px;
 
             align-items: center;
             justify-content: space-between;
@@ -630,12 +656,13 @@
             z-index: 1500;
 
             box-shadow:
-                0 5px 20px
+                0 4px 15px
                 rgba(15,23,42,.15);
         }
 
 
-        .mobile-portal-brand {
+        .mobile-brand {
+
             display: flex;
             align-items: center;
 
@@ -645,119 +672,91 @@
         }
 
 
-        .mobile-portal-logo {
-            width: 37px;
-            height: 37px;
+        .mobile-brand-logo {
+
+            width: 36px;
+            height: 36px;
 
             flex-shrink: 0;
-
-            border-radius: 9px;
-
-            background: #ffffff;
-
-            overflow: hidden;
 
             display: flex;
             align-items: center;
             justify-content: center;
+
+            overflow: hidden;
+
+            border-radius: 9px;
+
+            background: #2563eb;
+
+            font-size: 10px;
+            font-weight: 800;
         }
 
 
-        .mobile-portal-logo img {
+        .mobile-brand-logo img {
+
             width: 100%;
             height: 100%;
 
             object-fit: contain;
+
+            background: #ffffff;
         }
 
 
-        .mobile-portal-logo-fallback {
-            width: 100%;
-            height: 100%;
+        .mobile-brand-name {
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #2563eb;
+            max-width: 190px;
 
             color: #ffffff;
-
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-
-        .mobile-portal-brand-text {
-            min-width: 0;
-        }
-
-
-        .mobile-portal-brand-text strong {
-            display: block;
-
-            max-width: 180px;
-
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
 
             font-size: 12px;
             font-weight: 800;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
 
-        .mobile-portal-brand-text small {
-            display: block;
+        .mobile-menu-button {
 
-            margin-top: 2px;
-
-            color: #94a3b8;
-
-            font-size: 8px;
-            font-weight: 700;
-
-            letter-spacing: 1px;
-        }
-
-
-        .mobile-portal-menu {
-            width: 40px;
-            height: 40px;
-
-            flex-shrink: 0;
-
-            border: 1px solid
-                rgba(255,255,255,.10);
-
-            border-radius: 9px;
-
-            background:
-                rgba(255,255,255,.07);
-
-            color: #ffffff;
-
-            cursor: pointer;
-
-            font-size: 20px;
+            width: 39px;
+            height: 39px;
 
             display: flex;
             align-items: center;
             justify-content: center;
-        }
 
+            border: 0;
 
-        .mobile-portal-menu:hover {
+            border-radius: 8px;
+
             background:
-                rgba(255,255,255,.12);
+                rgba(255,255,255,.08);
+
+            color: #ffffff;
+
+            font-size: 19px;
+
+            cursor: pointer;
         }
 
 
-        /* =================================================
-           OVERLAY
-        ================================================== */
+        .mobile-menu-button:hover {
 
-        .portal-overlay {
+            background:
+                rgba(255,255,255,.14);
+        }
+
+
+        /* =====================================================
+           MOBILE OVERLAY
+        ====================================================== */
+
+        .sidebar-overlay {
+
             display: none;
 
             position: fixed;
@@ -765,59 +764,59 @@
             inset: 0;
 
             background:
-                rgba(15,23,42,.52);
+                rgba(15,23,42,.55);
 
-            backdrop-filter: blur(2px);
+            backdrop-filter:
+                blur(2px);
 
             z-index: 1900;
         }
 
 
-        /* =================================================
-           MOBILE
-        ================================================== */
+        .sidebar-overlay.active {
 
-        @media (max-width: 950px) {
+            display: block;
+        }
 
-            .portal-sidebar {
+
+        /* =====================================================
+           TABLET / MOBILE
+        ====================================================== */
+
+        @media (max-width: 1000px) {
+
+            .app-sidebar {
+
                 transform:
                     translateX(-100%);
-
-                transition:
-                    transform .25s ease;
-
-                box-shadow:
-                    12px 0 35px
-                    rgba(0,0,0,.20);
             }
 
 
-            .portal-sidebar.mobile-open {
+            .app-sidebar.mobile-open {
+
                 transform:
                     translateX(0);
             }
 
 
-            .portal-main {
+            .app-main {
+
                 width: 100%;
 
                 margin-left: 0;
             }
 
 
-            .mobile-portal-header {
+            .mobile-topbar {
+
                 display: flex;
             }
 
 
-            .portal-overlay.mobile-open {
-                display: block;
-            }
+            .app-content {
 
-
-            .portal-content {
                 padding:
-                    22px 17px 30px;
+                    22px 18px 30px;
             }
 
         }
@@ -825,45 +824,70 @@
 
         @media (max-width: 600px) {
 
-            .portal-content {
+            .mobile-topbar {
+
+                height: 58px;
+            }
+
+
+            .app-content {
+
                 padding:
                     17px 12px 25px;
             }
 
 
-            .mobile-portal-header {
-                height: 60px;
+            .sidebar-brand {
+
+                min-height: 78px;
             }
 
         }
 
 
-        /* =================================================
-           SMALL ANIMATIONS
-        ================================================== */
+        /* =====================================================
+           ACCESSIBILITY
+        ====================================================== */
 
-        @keyframes portalFadeIn {
+        .sidebar-link:focus-visible,
+        .sidebar-logout:focus-visible,
+        .mobile-menu-button:focus-visible {
 
-            from {
-                opacity: 0;
-                transform:
-                    translateY(5px);
-            }
+            outline:
+                2px solid
+                #60a5fa;
 
-            to {
-                opacity: 1;
-                transform:
-                    translateY(0);
-            }
-
+            outline-offset: 2px;
         }
 
 
-        .portal-content {
-            animation:
-                portalFadeIn
-                .20s
-                ease-out;
+        /* =====================================================
+           PRINT
+        ====================================================== */
+
+        @media print {
+
+            .app-sidebar,
+            .mobile-topbar,
+            .sidebar-overlay {
+
+                display: none !important;
+            }
+
+
+            .app-main {
+
+                width: 100% !important;
+
+                margin-left: 0 !important;
+            }
+
+
+            .app-content {
+
+                padding: 0 !important;
+            }
+
         }
 
     </style>
@@ -879,17 +903,11 @@
 
 
 <!-- =========================================================
-     PORTAL DETECTION
+     DETERMINE LOGGED-IN USER
 ========================================================== -->
 
-{% set is_admin =
-    session.get("admin_id")
-%}
-
-
-{% set is_applicant =
-    session.get("applicant_id")
-%}
+{% set is_admin = session.get("admin_id") %}
+{% set is_applicant = session.get("applicant_id") %}
 
 
 <!-- =========================================================
@@ -899,415 +917,395 @@
 {% if is_admin %}
 
 
-<div class="portal-shell">
+<div class="app-shell">
 
 
-    <div class="portal-layout">
+    <!-- =====================================================
+         ADMIN SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="app-sidebar"
+        id="mainSidebar"
+    >
 
 
         <!-- =================================================
-             ADMIN SIDEBAR
+             BRAND
         ================================================== -->
 
-        <aside
-            class="portal-sidebar"
-            id="adminSidebar"
+        <div class="sidebar-brand">
+
+            <div class="sidebar-logo">
+
+                {% if company_logo %}
+
+                    <img
+                        src="{{ company_logo }}"
+                        alt="{{ company_name or 'Company' }} Logo"
+                    >
+
+                {% else %}
+
+                    AV
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="sidebar-brand-text">
+
+                <span class="sidebar-company-name">
+
+                    {{ company_name or "AV KING" }}
+
+                </span>
+
+
+                <span class="sidebar-company-subtitle">
+
+                    RECRUITMENT MANAGEMENT
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ROLE
+        ================================================== -->
+
+        <div class="sidebar-role">
+
+            Administrator
+
+        </div>
+
+
+        <!-- =================================================
+             NAVIGATION
+        ================================================== -->
+
+        <nav class="sidebar-navigation">
+
+
+            <div class="nav-section-title">
+                Main Menu
+            </div>
+
+
+            <!-- DASHBOARD -->
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_dashboard' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▣
+                </span>
+
+                <span class="sidebar-label">
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- APPLICATIONS -->
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_applications' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ☷
+                </span>
+
+                <span class="sidebar-label">
+                    Applications
+                </span>
+
+            </a>
+
+
+            <!-- POSITIONS -->
+
+            <a
+                href="{{ url_for('admin_positions') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_positions' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▤
+                </span>
+
+                <span class="sidebar-label">
+                    Manage Positions
+                </span>
+
+            </a>
+
+
+            <!-- INTERVIEWS -->
+
+            <a
+                href="{{ url_for('admin_interviews') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_interviews' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◷
+                </span>
+
+                <span class="sidebar-label">
+                    Interviews
+                </span>
+
+            </a>
+
+
+            <!-- ATTENDANCE -->
+
+            <a
+                href="{{ url_for('admin_attendance') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_attendance' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◉
+                </span>
+
+                <span class="sidebar-label">
+                    Attendance
+                </span>
+
+            </a>
+
+
+            <!-- MONTHLY ATTENDANCE -->
+
+            <a
+                href="{{ url_for('admin_monthly_attendance') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_monthly_attendance' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▦
+                </span>
+
+                <span class="sidebar-label">
+                    Monthly Attendance
+                </span>
+
+            </a>
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{{ url_for('admin_reports') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_reports' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▥
+                </span>
+
+                <span class="sidebar-label">
+                    Reports
+                </span>
+
+            </a>
+
+
+            <div class="sidebar-divider"></div>
+
+
+            <div class="nav-section-title">
+                System
+            </div>
+
+
+            <!-- SETTINGS -->
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_settings' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ⚙
+                </span>
+
+                <span class="sidebar-label">
+                    Settings
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- =================================================
+             ADMIN FOOTER
+        ================================================== -->
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-avatar">
+
+                    {{ session.get(
+                        "admin_name",
+                        "A"
+                    )[0]|upper }}
+
+                </div>
+
+
+                <div class="sidebar-user-information">
+
+                    <span class="sidebar-user-name">
+
+                        {{ session.get(
+                            "admin_name",
+                            "Administrator"
+                        ) }}
+
+                    </span>
+
+
+                    <span class="sidebar-user-role">
+
+                        Administrator
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="sidebar-logout"
+            >
+
+                Sign Out
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MOBILE ADMIN HEADER
+    ====================================================== -->
+
+    <header class="mobile-topbar">
+
+        <div class="mobile-brand">
+
+            <div class="mobile-brand-logo">
+
+                {% if company_logo %}
+
+                    <img
+                        src="{{ company_logo }}"
+                        alt="Logo"
+                    >
+
+                {% else %}
+
+                    AV
+
+                {% endif %}
+
+            </div>
+
+
+            <span class="mobile-brand-name">
+
+                {{ company_name or "AV KING" }}
+
+            </span>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="mobile-menu-button"
+            onclick="toggleSidebar()"
+            aria-label="Open navigation"
         >
 
+            ☰
 
-            <!-- BRAND -->
+        </button>
 
-            <div class="portal-sidebar-brand">
+    </header>
 
-                <div class="portal-brand-logo">
 
-                    {% if company_logo %}
+    <!-- =====================================================
+         OVERLAY
+    ====================================================== -->
 
-                        <img
-                            src="{{ company_logo }}"
-                            alt="{{ company_name or 'AV KING' }}"
-                        >
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
 
-                    {% else %}
 
-                        <div class="portal-brand-fallback">
-                            AV
-                        </div>
+    <!-- =====================================================
+         ADMIN MAIN
+    ====================================================== -->
 
-                    {% endif %}
+    <main class="app-main">
 
-                </div>
+        <div class="app-content">
 
+            {% block content %}
+            {% endblock %}
 
-                <div class="portal-brand-text">
+        </div>
 
-                    <span class="portal-brand-name">
+    </main>
 
-                        {{ company_name or "AV KING" }}
-
-                    </span>
-
-
-                    <span class="portal-brand-subtitle">
-                        ADMINISTRATION
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 NAVIGATION
-            ================================================== -->
-
-            <nav class="portal-navigation">
-
-
-                <!-- MAIN -->
-
-                <div class="portal-nav-section">
-
-                    <div class="portal-nav-title">
-                        Main Menu
-                    </div>
-
-
-                    <a
-                        href="{{ url_for('admin_dashboard') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'admin_dashboard' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ⌂
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Dashboard
-                        </span>
-
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('admin_applications') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint in [
-                            'admin_applications',
-                            'admin_application_detail',
-                            'admin_view_application'
-                        ] %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ▣
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Applications
-                        </span>
-
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('admin_positions') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'admin_positions' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ▤
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Manage Positions
-                        </span>
-
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('admin_interviews') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint in [
-                            'admin_interviews',
-                            'admin_interview'
-                        ] %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ◷
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Interviews
-                        </span>
-
-                    </a>
-
-                </div>
-
-
-                <div class="portal-nav-divider"></div>
-
-
-                <!-- ATTENDANCE -->
-
-                <div class="portal-nav-section">
-
-                    <div class="portal-nav-title">
-                        Attendance
-                    </div>
-
-
-                    <a
-                        href="{{ url_for('admin_attendance') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'admin_attendance' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ◉
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Attendance
-                        </span>
-
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('admin_monthly_attendance') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'admin_monthly_attendance' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ▦
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Monthly Attendance
-                        </span>
-
-                    </a>
-
-
-                    <a
-                        href="{{ url_for('admin_reports') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'admin_reports' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ▥
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Reports
-                        </span>
-
-                    </a>
-
-                </div>
-
-
-                <div class="portal-nav-divider"></div>
-
-
-                <!-- SYSTEM -->
-
-                <div class="portal-nav-section">
-
-                    <div class="portal-nav-title">
-                        System
-                    </div>
-
-
-                    <a
-                        href="{{ url_for('admin_settings') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint in [
-                            'admin_settings',
-                            'admin_settings_update'
-                        ] %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ⚙
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Settings
-                        </span>
-
-                    </a>
-
-                </div>
-
-            </nav>
-
-
-            <!-- =================================================
-                 ADMIN USER FOOTER
-            ================================================== -->
-
-            <div class="portal-sidebar-footer">
-
-                <div class="portal-user">
-
-                    <div class="portal-user-avatar">
-
-                        {{
-                            session.get(
-                                "admin_name",
-                                "A"
-                            )[:1]|upper
-                        }}
-
-                    </div>
-
-
-                    <div class="portal-user-information">
-
-                        <span class="portal-user-name">
-
-                            {{
-                                session.get(
-                                    "admin_name",
-                                    "Administrator"
-                                )
-                            }}
-
-                        </span>
-
-
-                        <span class="portal-user-role">
-                            Administrator
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_logout') }}"
-                    class="portal-signout"
-                >
-
-                    Sign Out
-
-                </a>
-
-            </div>
-
-        </aside>
-
-
-        <!-- =================================================
-             MOBILE HEADER
-        ================================================== -->
-
-        <header class="mobile-portal-header">
-
-
-            <div class="mobile-portal-brand">
-
-                <div class="mobile-portal-logo">
-
-                    {% if company_logo %}
-
-                        <img
-                            src="{{ company_logo }}"
-                            alt="Logo"
-                        >
-
-                    {% else %}
-
-                        <div class="mobile-portal-logo-fallback">
-                            AV
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="mobile-portal-brand-text">
-
-                    <strong>
-                        {{ company_name or "AV KING" }}
-                    </strong>
-
-                    <small>
-                        ADMINISTRATION
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="mobile-portal-menu"
-                onclick="togglePortalSidebar('admin')"
-                aria-label="Open navigation"
-            >
-                ☰
-            </button>
-
-        </header>
-
-
-        <!-- =================================================
-             OVERLAY
-        ================================================== -->
-
-        <div
-            class="portal-overlay"
-            id="adminOverlay"
-            onclick="closePortalSidebar('admin')"
-        ></div>
-
-
-        <!-- =================================================
-             ADMIN MAIN CONTENT
-        ================================================== -->
-
-        <main class="portal-main">
-
-            <div class="portal-content">
-
-                {% block content %}
-                {% endblock %}
-
-            </div>
-
-        </main>
-
-
-    </div>
 
 </div>
 
@@ -1319,380 +1317,395 @@
 {% elif is_applicant %}
 
 
-<div class="portal-shell">
+<div class="app-shell">
 
 
-    <div class="portal-layout">
+    <!-- =====================================================
+         APPLICANT SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="app-sidebar"
+        id="mainSidebar"
+    >
 
 
         <!-- =================================================
-             APPLICANT SIDEBAR
+             BRAND
         ================================================== -->
 
-        <aside
-            class="portal-sidebar"
-            id="applicantSidebar"
-        >
+        <div class="sidebar-brand">
 
+            <div class="sidebar-logo">
 
-            <!-- BRAND -->
+                {% if company_logo %}
 
-            <div class="portal-sidebar-brand">
-
-                <div class="portal-brand-logo">
-
-                    {% if company_logo %}
-
-                        <img
-                            src="{{ company_logo }}"
-                            alt="{{ company_name or 'AV KING' }}"
-                        >
-
-                    {% else %}
-
-                        <div class="portal-brand-fallback">
-                            AV
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="portal-brand-text">
-
-                    <span class="portal-brand-name">
-
-                        {{ company_name or "AV KING" }}
-
-                    </span>
-
-
-                    <span class="portal-brand-subtitle">
-                        EMPLOYEE PORTAL
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 APPLICANT NAVIGATION
-            ================================================== -->
-
-            <nav class="portal-navigation">
-
-
-                <div class="portal-nav-section">
-
-                    <div class="portal-nav-title">
-                        My Portal
-                    </div>
-
-
-                    {% if endpoint_exists('applicant_dashboard') %}
-
-                    <a
-                        href="{{ url_for('applicant_dashboard') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'applicant_dashboard' %}
-                            active
-                        {% endif %}"
+                    <img
+                        src="{{ company_logo }}"
+                        alt="{{ company_name or 'Company' }} Logo"
                     >
 
-                        <span class="portal-nav-icon">
-                            ⌂
-                        </span>
+                {% else %}
 
-                        <span class="portal-nav-label">
-                            Dashboard
-                        </span>
-
-                    </a>
-
-                    {% endif %}
-
-
-                    {% if endpoint_exists('applicant_attendance') %}
-
-                    <a
-                        href="{{ url_for('applicant_attendance') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint in [
-                            'applicant_attendance',
-                            'applicant_clock_in',
-                            'applicant_clock_out'
-                        ] %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ◉
-                        </span>
-
-                        <span class="portal-nav-label">
-                            My Attendance
-                        </span>
-
-                    </a>
-
-                    {% endif %}
-
-
-                    {% if endpoint_exists('applicant_profile') %}
-
-                    <a
-                        href="{{ url_for('applicant_profile') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'applicant_profile' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ◎
-                        </span>
-
-                        <span class="portal-nav-label">
-                            My Profile
-                        </span>
-
-                    </a>
-
-                    {% endif %}
-
-
-                    {% if endpoint_exists('applicant_application') %}
-
-                    <a
-                        href="{{ url_for('applicant_application') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'applicant_application' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ▣
-                        </span>
-
-                        <span class="portal-nav-label">
-                            My Application
-                        </span>
-
-                    </a>
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="portal-nav-divider"></div>
-
-
-                <div class="portal-nav-section">
-
-                    <div class="portal-nav-title">
-                        Account
-                    </div>
-
-
-                    {% if endpoint_exists('applicant_settings') %}
-
-                    <a
-                        href="{{ url_for('applicant_settings') }}"
-                        class="portal-nav-link
-                        {% if request.endpoint == 'applicant_settings' %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="portal-nav-icon">
-                            ⚙
-                        </span>
-
-                        <span class="portal-nav-label">
-                            Settings
-                        </span>
-
-                    </a>
-
-                    {% endif %}
-
-                </div>
-
-            </nav>
-
-
-            <!-- =================================================
-                 APPLICANT FOOTER
-            ================================================== -->
-
-            <div class="portal-sidebar-footer">
-
-                <div class="portal-user">
-
-                    <div class="portal-user-avatar">
-
-                        {% if applicant %}
-
-                            {{
-                                applicant.first_name[:1]
-                                |upper
-                            }}
-
-                        {% else %}
-
-                            A
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="portal-user-information">
-
-                        <span class="portal-user-name">
-
-                            {% if applicant %}
-
-                                {{ applicant.first_name }}
-                                {{ applicant.last_name }}
-
-                            {% else %}
-
-                                Applicant
-
-                            {% endif %}
-
-                        </span>
-
-
-                        <span class="portal-user-role">
-                            Employee
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                {% if endpoint_exists('applicant_logout') %}
-
-                <a
-                    href="{{ url_for('applicant_logout') }}"
-                    class="portal-signout"
-                >
-
-                    Sign Out
-
-                </a>
+                    AV
 
                 {% endif %}
 
             </div>
 
-        </aside>
+
+            <div class="sidebar-brand-text">
+
+                <span class="sidebar-company-name">
+
+                    {{ company_name or "AV KING" }}
+
+                </span>
+
+
+                <span class="sidebar-company-subtitle">
+
+                    APPLICANT PORTAL
+
+                </span>
+
+            </div>
+
+        </div>
 
 
         <!-- =================================================
-             MOBILE HEADER
+             ROLE
         ================================================== -->
 
-        <header class="mobile-portal-header">
+        <div class="sidebar-role">
+
+            Applicant Portal
+
+        </div>
 
 
-            <div class="mobile-portal-brand">
+        <!-- =================================================
+             APPLICANT NAVIGATION
+        ================================================== -->
 
-                <div class="mobile-portal-logo">
+        <nav class="sidebar-navigation">
 
-                    {% if company_logo %}
 
-                        <img
-                            src="{{ company_logo }}"
-                            alt="Logo"
-                        >
+            <div class="nav-section-title">
+                My Portal
+            </div>
+
+
+            <!-- =================================================
+                 APPLICANT DASHBOARD
+
+                 Only use this when the route exists.
+            ================================================== -->
+
+            {% if 'applicant_dashboard' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_dashboard') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'applicant_dashboard' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▣
+                </span>
+
+                <span class="sidebar-label">
+                    Dashboard
+                </span>
+
+            </a>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 ATTENDANCE
+
+                 Uses the attendance route already used by
+                 your applicant attendance page.
+            ================================================== -->
+
+            {% if 'applicant_attendance' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_attendance') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'applicant_attendance' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◉
+                </span>
+
+                <span class="sidebar-label">
+                    My Attendance
+                </span>
+
+            </a>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 APPLICATION STATUS
+            ================================================== -->
+
+            {% if 'applicant_status' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_status') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'applicant_status' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ✓
+                </span>
+
+                <span class="sidebar-label">
+                    Application Status
+                </span>
+
+            </a>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 PROFILE
+            ================================================== -->
+
+            {% if 'applicant_profile' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_profile') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'applicant_profile' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◯
+                </span>
+
+                <span class="sidebar-label">
+                    My Profile
+                </span>
+
+            </a>
+
+            {% endif %}
+
+
+            <div class="sidebar-divider"></div>
+
+
+            <div class="nav-section-title">
+                Account
+            </div>
+
+
+            <!-- =================================================
+                 APPLICANT LOGOUT
+
+                 This is intentionally checked before use so a
+                 missing route cannot break the entire template.
+            ================================================== -->
+
+            {% if 'applicant_logout' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_logout') }}"
+                class="sidebar-link"
+            >
+
+                <span class="sidebar-icon">
+                    ↪
+                </span>
+
+                <span class="sidebar-label">
+                    Sign Out
+                </span>
+
+            </a>
+
+            {% endif %}
+
+
+        </nav>
+
+
+        <!-- =================================================
+             APPLICANT FOOTER
+        ================================================== -->
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-avatar">
+
+                    {% if applicant %}
+
+                        {{ applicant.first_name[:1]|upper }}
 
                     {% else %}
 
-                        <div class="mobile-portal-logo-fallback">
-                            AV
-                        </div>
+                        A
 
                     {% endif %}
 
                 </div>
 
 
-                <div class="mobile-portal-brand-text">
+                <div class="sidebar-user-information">
 
-                    <strong>
-                        {{ company_name or "AV KING" }}
-                    </strong>
+                    <span class="sidebar-user-name">
 
-                    <small>
-                        EMPLOYEE PORTAL
-                    </small>
+                        {% if applicant %}
+
+                            {{ applicant.first_name }}
+
+                            {{ applicant.last_name }}
+
+                        {% else %}
+
+                            Applicant
+
+                        {% endif %}
+
+                    </span>
+
+
+                    <span class="sidebar-user-role">
+
+                        Applicant
+
+                    </span>
 
                 </div>
 
             </div>
 
 
-            <button
-                type="button"
-                class="mobile-portal-menu"
-                onclick="togglePortalSidebar('applicant')"
-                aria-label="Open navigation"
+            {% if 'applicant_logout' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_logout') }}"
+                class="sidebar-logout"
             >
-                ☰
-            </button>
 
-        </header>
+                Sign Out
 
+            </a>
 
-        <!-- =================================================
-             OVERLAY
-        ================================================== -->
+            {% endif %}
 
-        <div
-            class="portal-overlay"
-            id="applicantOverlay"
-            onclick="closePortalSidebar('applicant')"
-        ></div>
+        </div>
+
+    </aside>
 
 
-        <!-- =================================================
-             APPLICANT MAIN CONTENT
-        ================================================== -->
+    <!-- =====================================================
+         MOBILE APPLICANT HEADER
+    ====================================================== -->
 
-        <main class="portal-main">
+    <header class="mobile-topbar">
 
-            <div class="portal-content">
+        <div class="mobile-brand">
 
-                {% block content %}
-                {% endblock %}
+            <div class="mobile-brand-logo">
+
+                {% if company_logo %}
+
+                    <img
+                        src="{{ company_logo }}"
+                        alt="Logo"
+                    >
+
+                {% else %}
+
+                    AV
+
+                {% endif %}
 
             </div>
 
-        </main>
+
+            <span class="mobile-brand-name">
+
+                {{ company_name or "AV KING" }}
+
+            </span>
+
+        </div>
 
 
-    </div>
+        <button
+            type="button"
+            class="mobile-menu-button"
+            onclick="toggleSidebar()"
+            aria-label="Open navigation"
+        >
+
+            ☰
+
+        </button>
+
+    </header>
+
+
+    <!-- =====================================================
+         OVERLAY
+    ====================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
+
+
+    <!-- =====================================================
+         APPLICANT MAIN
+    ====================================================== -->
+
+    <main class="app-main">
+
+        <div class="app-content">
+
+            {% block content %}
+            {% endblock %}
+
+        </div>
+
+    </main>
+
 
 </div>
 
 
 <!-- =========================================================
-     PUBLIC / LOGIN PAGES
+     PUBLIC / LOGIN PAGE
 ========================================================== -->
 
 {% else %}
 
 
-<div class="public-content">
+<div class="public-page">
 
     {% block content %}
     {% endblock %}
@@ -1703,48 +1716,23 @@
 {% endif %}
 
 
-
 <!-- =========================================================
      SIDEBAR JAVASCRIPT
 ========================================================== -->
 
 <script>
 
+function toggleSidebar() {
 
-function togglePortalSidebar(type) {
+    const sidebar =
+        document.getElementById(
+            "mainSidebar"
+        );
 
-    let sidebar;
-    let overlay;
-
-
-    if (type === "admin") {
-
-        sidebar =
-            document.getElementById(
-                "adminSidebar"
-            );
-
-        overlay =
-            document.getElementById(
-                "adminOverlay"
-            );
-
-    }
-
-
-    else if (type === "applicant") {
-
-        sidebar =
-            document.getElementById(
-                "applicantSidebar"
-            );
-
-        overlay =
-            document.getElementById(
-                "applicantOverlay"
-            );
-
-    }
+    const overlay =
+        document.getElementById(
+            "sidebarOverlay"
+        );
 
 
     if (!sidebar || !overlay) {
@@ -1757,67 +1745,50 @@ function togglePortalSidebar(type) {
     );
 
     overlay.classList.toggle(
-        "mobile-open"
+        "active"
     );
 
 }
 
 
-function closePortalSidebar(type) {
+function closeSidebar() {
 
-    let sidebar;
-    let overlay;
+    const sidebar =
+        document.getElementById(
+            "mainSidebar"
+        );
 
-
-    if (type === "admin") {
-
-        sidebar =
-            document.getElementById(
-                "adminSidebar"
-            );
-
-        overlay =
-            document.getElementById(
-                "adminOverlay"
-            );
-
-    }
+    const overlay =
+        document.getElementById(
+            "sidebarOverlay"
+        );
 
 
-    else if (type === "applicant") {
+    if (sidebar) {
 
-        sidebar =
-            document.getElementById(
-                "applicantSidebar"
-            );
-
-        overlay =
-            document.getElementById(
-                "applicantOverlay"
-            );
+        sidebar.classList.remove(
+            "mobile-open"
+        );
 
     }
 
 
-    if (!sidebar || !overlay) {
-        return;
+    if (overlay) {
+
+        overlay.classList.remove(
+            "active"
+        );
+
     }
-
-
-    sidebar.classList.remove(
-        "mobile-open"
-    );
-
-    overlay.classList.remove(
-        "mobile-open"
-    );
 
 }
 
 
-/* =========================================================
-   CLOSE MOBILE SIDEBAR AFTER CLICKING A LINK
-========================================================= */
+/*
+ * =============================================================
+ * CLOSE MOBILE SIDEBAR AFTER NAVIGATION
+ * =============================================================
+ */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -1825,7 +1796,7 @@ document.addEventListener(
 
         document
             .querySelectorAll(
-                ".portal-nav-link"
+                ".sidebar-link"
             )
             .forEach(
                 function (link) {
@@ -1835,37 +1806,10 @@ document.addEventListener(
                         function () {
 
                             if (
-                                window.innerWidth <= 950
+                                window.innerWidth <= 1000
                             ) {
 
-                                document
-                                    .querySelectorAll(
-                                        ".portal-sidebar"
-                                    )
-                                    .forEach(
-                                        function (sidebar) {
-
-                                            sidebar.classList.remove(
-                                                "mobile-open"
-                                            );
-
-                                        }
-                                    );
-
-
-                                document
-                                    .querySelectorAll(
-                                        ".portal-overlay"
-                                    )
-                                    .forEach(
-                                        function (overlay) {
-
-                                            overlay.classList.remove(
-                                                "mobile-open"
-                                            );
-
-                                        }
-                                    );
+                                closeSidebar();
 
                             }
 
@@ -1879,9 +1823,11 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   ESC KEY CLOSES SIDEBAR
-========================================================= */
+/*
+ * =============================================================
+ * ESC KEY
+ * =============================================================
+ */
 
 document.addEventListener(
     "keydown",
@@ -1891,34 +1837,7 @@ document.addEventListener(
             event.key === "Escape"
         ) {
 
-            document
-                .querySelectorAll(
-                    ".portal-sidebar"
-                )
-                .forEach(
-                    function (sidebar) {
-
-                        sidebar.classList.remove(
-                            "mobile-open"
-                        );
-
-                    }
-                );
-
-
-            document
-                .querySelectorAll(
-                    ".portal-overlay"
-                )
-                .forEach(
-                    function (overlay) {
-
-                        overlay.classList.remove(
-                            "mobile-open"
-                        );
-
-                    }
-                );
+            closeSidebar();
 
         }
 
@@ -1926,46 +1845,21 @@ document.addEventListener(
 );
 
 
-/* =========================================================
-   RESIZE HANDLER
-========================================================= */
+/*
+ * =============================================================
+ * RESET MOBILE SIDEBAR WHEN RESIZING
+ * =============================================================
+ */
 
 window.addEventListener(
     "resize",
     function () {
 
         if (
-            window.innerWidth > 950
+            window.innerWidth > 1000
         ) {
 
-            document
-                .querySelectorAll(
-                    ".portal-sidebar"
-                )
-                .forEach(
-                    function (sidebar) {
-
-                        sidebar.classList.remove(
-                            "mobile-open"
-                        );
-
-                    }
-                );
-
-
-            document
-                .querySelectorAll(
-                    ".portal-overlay"
-                )
-                .forEach(
-                    function (overlay) {
-
-                        overlay.classList.remove(
-                            "mobile-open"
-                        );
-
-                    }
-                );
+            closeSidebar();
 
         }
 
@@ -1982,4 +1876,3 @@ window.addEventListener(
 </body>
 
 </html>
-
