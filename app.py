@@ -7730,8 +7730,6 @@ def applicant_login():
             "Unable to find applicant during login."
         )
 
-        conn.close()
-
         flash(
             "Unable to process your login. Please try again.",
             "error"
@@ -7744,10 +7742,7 @@ def applicant_login():
 
     finally:
 
-        try:
-            conn.close()
-        except Exception:
-            pass
+        conn.close()
 
 
     # =========================================================
@@ -7842,64 +7837,30 @@ def applicant_login():
     # LOGIN SUCCESS
     # =========================================================
 
-    # Completely remove any previous session.
     session.clear()
 
 
     # =========================================================
-    # APPLICANT ID
+    # APPLICANT SESSION
     # =========================================================
 
-    applicant_id = applicant["id"]
-
-    if not applicant_id:
-
-        flash(
-            "Unable to create your applicant session. Please try again.",
-            "error"
-        )
-
-        return render_template(
-            "applicant_login.html",
-            company_logo=get_company_logo()
-        )
-
-
-    # =========================================================
-    # APPLICANT NAME
-    # =========================================================
-
-    first_name = (
-        applicant["first_name"]
-        or ""
-    ).strip()
-
-    last_name = (
-        applicant["last_name"]
-        or ""
-    ).strip()
-
-    applicant_name = " ".join(
-        part
-        for part in [
-            first_name,
-            last_name
-        ]
-        if part
-    ).strip()
-
-
-    # =========================================================
-    # CREATE APPLICANT SESSION
-    # =========================================================
-
-    session["applicant_id"] = applicant_id
+    session["applicant_id"] = applicant["id"]
 
     session["applicant_application_number"] = (
         applicant["application_number"]
     )
 
-    session["applicant_name"] = applicant_name
+    session["applicant_name"] = (
+        (
+            applicant["first_name"]
+            or ""
+        ).strip()
+        + " "
+        + (
+            applicant["last_name"]
+            or ""
+        ).strip()
+    ).strip()
 
     session["applicant_logged_in"] = True
 
@@ -7908,28 +7869,14 @@ def applicant_login():
     # ROLE
     # =========================================================
 
-    # Used by base.html to identify the applicant
-    # and display only the applicant navigation.
-
     session["role"] = "applicant"
 
 
     # =========================================================
-    # ATTENDANCE COMPATIBILITY
-    # =========================================================
-
-    # Keep the applicant's database ID available to
-    # attendance-related pages as well.
-
-    session["worker_id"] = applicant_id
-
-
-    # =========================================================
-    # PERMANENT SESSION
+    # SESSION
     # =========================================================
 
     session.permanent = True
-
     session.modified = True
 
 
@@ -7952,7 +7899,7 @@ def applicant_login():
                 WHERE id = %s
                 """,
                 (
-                    applicant_id,
+                    applicant["id"],
                 )
             )
 
@@ -7972,15 +7919,7 @@ def applicant_login():
 
 
     # =========================================================
-    # REDIRECT TO APPLICANT PORTAL
-    # =========================================================
-
-    return redirect(
-        url_for("applicant_portal")
-    )
-
-    # =========================================================
-    # REDIRECT TO APPLICANT PORTAL
+    # REDIRECT
     # =========================================================
 
     return redirect(
