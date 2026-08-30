@@ -2120,6 +2120,56 @@ def admin_applications():
         selected_position=position
     )
 
+
+@app.context_processor
+def inject_company_settings():
+    try:
+        conn = get_db()
+
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT
+                company_name,
+                company_email,
+                company_phone,
+                company_address,
+                company_website,
+                footer_text,
+                logo
+            FROM company_settings
+            ORDER BY id DESC
+            LIMIT 1
+        """)
+
+        settings = cur.fetchone()
+
+        cur.close()
+        conn.close()
+
+        if settings:
+            return {
+                "settings": settings,
+                "company_name": settings["company_name"],
+                "company_email": settings["company_email"],
+                "company_phone": settings["company_phone"],
+                "company_address": settings["company_address"],
+                "company_website": settings["company_website"],
+                "company_logo": settings["logo"],
+            }
+
+    except Exception as e:
+        print("Company settings context error:", e)
+
+    return {
+        "settings": None,
+        "company_name": "AV KING VETERINARY BUSINESS SUITE",
+        "company_email": "",
+        "company_phone": "",
+        "company_address": "",
+        "company_website": "",
+        "company_logo": None,
+    }
 # ============================================================
 # VIEW APPLICATION
 # ============================================================
