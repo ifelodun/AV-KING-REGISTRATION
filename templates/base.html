@@ -17,10 +17,6 @@
     </title>
 
 
-    <!-- =========================================================
-         GOOGLE FONT
-    ========================================================== -->
-
     <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
@@ -28,7 +24,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.gstatic.com"
+        href="https://fonts.googleapis.com"
         crossorigin
     >
 
@@ -38,22 +34,15 @@
     >
 
 
-    <!-- =========================================================
-         GLOBAL STYLES
-    ========================================================== -->
-
     <style>
 
         /* =====================================================
-           RESET
+           GLOBAL
         ====================================================== */
 
-        *,
-        *::before,
-        *::after {
+        * {
             box-sizing: border-box;
         }
-
 
         html,
         body {
@@ -63,23 +52,16 @@
             min-height: 100%;
         }
 
-
         body {
-            font-family:
-                "Inter",
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background: #f4f6f9;
-
+            font-family: "Inter", Arial, sans-serif;
+            background: #f5f7fb;
             color: #111827;
-
             -webkit-font-smoothing: antialiased;
-
-            text-rendering: optimizeLegibility;
         }
 
+        a {
+            color: inherit;
+        }
 
         button,
         input,
@@ -88,19 +70,13 @@
             font-family: inherit;
         }
 
-
-        a {
-            color: inherit;
-        }
-
-
-        button {
-            font-family: inherit;
+        img {
+            max-width: 100%;
         }
 
 
         /* =====================================================
-           PUBLIC CONTENT
+           PUBLIC / LOGIN PAGES
         ====================================================== */
 
         .public-content {
@@ -110,50 +86,37 @@
 
 
         /* =====================================================
-           COMMON APPLICATION SHELL
+           SHARED APPLICATION SHELL
         ====================================================== */
 
-        .application-shell {
+        .app-shell {
             display: flex;
-
             width: 100%;
-
             min-height: 100vh;
         }
 
 
         /* =====================================================
-           SIDEBAR
+           ADMIN SIDEBAR
         ====================================================== */
 
-        .application-sidebar {
+        .admin-sidebar {
             position: fixed;
-
             top: 0;
             left: 0;
             bottom: 0;
 
-            width: 270px;
+            width: 260px;
 
             display: flex;
             flex-direction: column;
 
-            background:
-                linear-gradient(
-                    180deg,
-                    #111827 0%,
-                    #0f172a 100%
-                );
-
+            background: #111827;
             color: #ffffff;
 
-            border-right:
-                1px solid
-                rgba(255,255,255,.06);
+            z-index: 1000;
 
-            z-index: 1100;
-
-            overflow: hidden;
+            border-right: 1px solid #1f2937;
 
             transition:
                 transform .25s ease;
@@ -161,19 +124,16 @@
 
 
         /* =====================================================
-           SIDEBAR BRAND
+           ADMIN BRAND
         ====================================================== */
 
-        .sidebar-brand {
+        .admin-sidebar-brand {
             min-height: 82px;
-
-            padding:
-                15px 18px;
 
             display: flex;
             align-items: center;
 
-            gap: 12px;
+            padding: 0 21px;
 
             border-bottom:
                 1px solid
@@ -181,79 +141,65 @@
         }
 
 
-        .sidebar-brand-logo {
-            width: 46px;
-            height: 46px;
+        .admin-logo {
+            width: 43px;
+            height: 43px;
 
             flex-shrink: 0;
 
-            border-radius: 12px;
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #1d4ed8
+                );
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            background:
-                rgba(255,255,255,.08);
+            color: #ffffff;
 
-            border:
-                1px solid
-                rgba(255,255,255,.10);
+            font-size: 14px;
+            font-weight: 800;
 
             overflow: hidden;
         }
 
 
-        .sidebar-brand-logo img {
+        .admin-logo img {
             width: 100%;
             height: 100%;
-
             object-fit: contain;
-
-            padding: 5px;
+            background: #ffffff;
         }
 
 
-        .sidebar-brand-fallback {
-            font-size: 13px;
-
-            font-weight: 800;
-
-            letter-spacing: .5px;
-
-            color: #ffffff;
-        }
-
-
-        .sidebar-brand-text {
+        .admin-brand-text {
+            margin-left: 11px;
             min-width: 0;
-
-            flex: 1;
         }
 
 
-        .sidebar-company-name {
+        .admin-brand-name {
             display: block;
 
             color: #ffffff;
 
             font-size: 14px;
-
             font-weight: 800;
 
-            line-height: 1.3;
-
-            letter-spacing: .4px;
+            letter-spacing: .7px;
 
             white-space: nowrap;
-
             overflow: hidden;
-
             text-overflow: ellipsis;
         }
 
 
-        .sidebar-company-subtitle {
+        .admin-brand-subtitle {
             display: block;
 
             margin-top: 4px;
@@ -261,78 +207,61 @@
             color: #94a3b8;
 
             font-size: 9px;
-
             font-weight: 700;
 
-            letter-spacing: 1.1px;
+            letter-spacing: 1.3px;
 
             white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
         }
 
 
         /* =====================================================
-           SIDEBAR NAVIGATION
+           ADMIN NAVIGATION
         ====================================================== */
 
-        .sidebar-navigation {
+        .admin-navigation {
             flex: 1;
 
-            padding:
-                18px 12px;
+            padding: 18px 12px;
 
             overflow-y: auto;
-
-            scrollbar-width: thin;
-
-            scrollbar-color:
-                rgba(255,255,255,.12)
-                transparent;
         }
 
 
-        .sidebar-section-title {
+        .admin-nav-title {
             padding:
-                7px 11px 9px;
+                7px 12px 9px;
 
             color: #64748b;
 
             font-size: 9px;
-
             font-weight: 800;
 
-            letter-spacing: 1.4px;
+            letter-spacing: 1.3px;
 
             text-transform: uppercase;
         }
 
 
-        .sidebar-link {
-            position: relative;
-
+        .admin-nav-link {
             display: flex;
             align-items: center;
 
             width: 100%;
 
-            min-height: 45px;
+            min-height: 44px;
+
+            padding: 0 10px;
 
             margin-bottom: 4px;
 
-            padding:
-                0 10px;
-
-            border-radius: 10px;
+            border-radius: 9px;
 
             color: #cbd5e1;
 
             text-decoration: none;
 
             font-size: 12.5px;
-
             font-weight: 600;
 
             transition:
@@ -342,92 +271,59 @@
         }
 
 
-        .sidebar-link:hover {
+        .admin-nav-link:hover {
             color: #ffffff;
 
             background:
                 rgba(255,255,255,.06);
 
-            transform:
-                translateX(2px);
+            transform: translateX(2px);
         }
 
 
-        .sidebar-link.active {
+        .admin-nav-link.active {
             color: #ffffff;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #1d4ed8
-                );
+            background: #2563eb;
 
             box-shadow:
-                0 8px 20px
+                0 7px 18px
                 rgba(37,99,235,.22);
         }
 
 
-        .sidebar-link.active::before {
-            content: "";
-
-            position: absolute;
-
-            left: 0;
-            top: 9px;
-            bottom: 9px;
-
-            width: 3px;
-
-            border-radius: 0 3px 3px 0;
-
-            background: #ffffff;
-        }
-
-
-        .sidebar-link-icon {
-            width: 35px;
-            height: 35px;
-
-            flex-shrink: 0;
+        .admin-nav-icon {
+            width: 34px;
+            height: 34px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 9px;
+            flex-shrink: 0;
 
             color: #94a3b8;
 
-            font-size: 16px;
+            font-size: 15px;
         }
 
 
-        .sidebar-link:hover
-        .sidebar-link-icon {
+        .admin-nav-link.active
+        .admin-nav-icon {
             color: #ffffff;
         }
 
 
-        .sidebar-link.active
-        .sidebar-link-icon {
-            color: #ffffff;
-        }
-
-
-        .sidebar-link-text {
+        .admin-nav-label {
             flex: 1;
-
-            min-width: 0;
         }
 
 
-        .sidebar-divider {
+        .admin-nav-divider {
             height: 1px;
 
             margin:
-                17px 8px;
+                16px 8px;
 
             background:
                 rgba(255,255,255,.07);
@@ -435,23 +331,19 @@
 
 
         /* =====================================================
-           SIDEBAR FOOTER
+           ADMIN FOOTER
         ====================================================== */
 
-        .sidebar-footer {
-            padding:
-                13px;
+        .admin-sidebar-footer {
+            padding: 14px;
 
             border-top:
                 1px solid
                 rgba(255,255,255,.07);
-
-            background:
-                rgba(0,0,0,.08);
         }
 
 
-        .sidebar-user {
+        .admin-profile {
             display: flex;
             align-items: center;
 
@@ -462,9 +354,388 @@
         }
 
 
-        .sidebar-user-avatar {
-            width: 39px;
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: #263244;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #ffffff;
+
+            font-size: 12px;
+            font-weight: 800;
+
+            overflow: hidden;
+        }
+
+
+        .admin-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .admin-profile-name {
+            display: block;
+
+            max-width: 150px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            color: #ffffff;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .admin-profile-role {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #94a3b8;
+
+            font-size: 10px;
+        }
+
+
+        .admin-signout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
             height: 39px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            border-radius: 8px;
+
+            color: #cbd5e1;
+
+            text-decoration: none;
+
+            font-size: 11.5px;
+            font-weight: 700;
+
+            transition:
+                background .18s ease,
+                color .18s ease;
+        }
+
+
+        .admin-signout:hover {
+            color: #ffffff;
+
+            background:
+                rgba(255,255,255,.06);
+        }
+
+
+        /* =====================================================
+           ADMIN MAIN
+        ====================================================== */
+
+        .admin-main {
+            width: calc(100% - 260px);
+
+            min-height: 100vh;
+
+            margin-left: 260px;
+
+            background: #f5f7fb;
+        }
+
+
+        .admin-content {
+            width: 100%;
+
+            max-width: 1600px;
+
+            margin: 0 auto;
+
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           APPLICANT SIDEBAR
+        ====================================================== */
+
+        .applicant-sidebar {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            bottom: 0;
+
+            width: 260px;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #ffffff;
+
+            color: #111827;
+
+            z-index: 1000;
+
+            border-right: 1px solid #e5e7eb;
+
+            box-shadow:
+                5px 0 25px
+                rgba(15,23,42,.04);
+
+            transition:
+                transform .25s ease;
+        }
+
+
+        /* =====================================================
+           APPLICANT BRAND
+        ====================================================== */
+
+        .applicant-sidebar-brand {
+            min-height: 82px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 21px;
+
+            border-bottom:
+                1px solid #eef0f3;
+        }
+
+
+        .applicant-logo {
+            width: 43px;
+            height: 43px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #111827,
+                    #374151
+                );
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            overflow: hidden;
+        }
+
+
+        .applicant-logo img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: contain;
+
+            background: #ffffff;
+        }
+
+
+        .applicant-brand-text {
+            margin-left: 11px;
+            min-width: 0;
+        }
+
+
+        .applicant-brand-name {
+            display: block;
+
+            color: #111827;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            letter-spacing: .5px;
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .applicant-brand-subtitle {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #9ca3af;
+
+            font-size: 9px;
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           APPLICANT NAVIGATION
+        ====================================================== */
+
+        .applicant-navigation {
+            flex: 1;
+
+            padding: 18px 12px;
+
+            overflow-y: auto;
+        }
+
+
+        .applicant-nav-title {
+            padding:
+                7px 12px 9px;
+
+            color: #9ca3af;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1.3px;
+
+            text-transform: uppercase;
+        }
+
+
+        .applicant-nav-link {
+            display: flex;
+            align-items: center;
+
+            width: 100%;
+
+            min-height: 44px;
+
+            padding: 0 10px;
+
+            margin-bottom: 4px;
+
+            border-radius: 9px;
+
+            color: #4b5563;
+
+            text-decoration: none;
+
+            font-size: 12.5px;
+            font-weight: 600;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+
+        .applicant-nav-link:hover {
+            color: #111827;
+
+            background: #f3f4f6;
+
+            transform: translateX(2px);
+        }
+
+
+        .applicant-nav-link.active {
+            color: #111827;
+
+            background: #eef2ff;
+
+            box-shadow:
+                inset 3px 0 0 #2563eb;
+        }
+
+
+        .applicant-nav-icon {
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            color: #9ca3af;
+
+            font-size: 15px;
+        }
+
+
+        .applicant-nav-link.active
+        .applicant-nav-icon {
+            color: #2563eb;
+        }
+
+
+        .applicant-nav-label {
+            flex: 1;
+        }
+
+
+        .applicant-nav-divider {
+            height: 1px;
+
+            margin:
+                16px 8px;
+
+            background: #eef0f3;
+        }
+
+
+        /* =====================================================
+           APPLICANT FOOTER
+        ====================================================== */
+
+        .applicant-sidebar-footer {
+            padding: 14px;
+
+            border-top:
+                1px solid #eef0f3;
+        }
+
+
+        .applicant-profile {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            padding:
+                5px 5px 13px;
+        }
+
+
+        .applicant-avatar {
+            width: 38px;
+            height: 38px;
 
             flex-shrink: 0;
 
@@ -474,126 +745,93 @@
             align-items: center;
             justify-content: center;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #334155,
-                    #1e293b
-                );
-
-            border:
-                1px solid
-                rgba(255,255,255,.08);
+            background: #111827;
 
             color: #ffffff;
 
             font-size: 12px;
-
             font-weight: 800;
         }
 
 
-        .sidebar-user-info {
-            min-width: 0;
-
-            flex: 1;
-        }
-
-
-        .sidebar-user-name {
+        .applicant-profile-name {
             display: block;
 
-            color: #ffffff;
-
-            font-size: 11.5px;
-
-            font-weight: 700;
-
-            white-space: nowrap;
+            max-width: 150px;
 
             overflow: hidden;
-
             text-overflow: ellipsis;
+            white-space: nowrap;
+
+            color: #111827;
+
+            font-size: 12px;
+            font-weight: 700;
         }
 
 
-        .sidebar-user-role {
+        .applicant-profile-role {
             display: block;
 
             margin-top: 3px;
 
-            color: #94a3b8;
+            color: #9ca3af;
 
-            font-size: 9.5px;
+            font-size: 10px;
         }
 
 
-        .sidebar-logout {
+        .applicant-signout {
             display: flex;
             align-items: center;
             justify-content: center;
 
             width: 100%;
+            height: 39px;
 
-            min-height: 39px;
+            border: 1px solid #e5e7eb;
 
-            border:
-                1px solid
-                rgba(255,255,255,.09);
+            border-radius: 8px;
 
-            border-radius: 9px;
-
-            background:
-                transparent;
-
-            color: #cbd5e1;
+            color: #4b5563;
 
             text-decoration: none;
 
             font-size: 11.5px;
-
             font-weight: 700;
 
             transition:
                 background .18s ease,
-                color .18s ease,
-                border-color .18s ease;
+                color .18s ease;
         }
 
 
-        .sidebar-logout:hover {
-            color: #ffffff;
+        .applicant-signout:hover {
+            background: #f9fafb;
 
-            background:
-                rgba(239,68,68,.10);
-
-            border-color:
-                rgba(239,68,68,.25);
+            color: #111827;
         }
 
 
         /* =====================================================
-           MAIN CONTENT
+           APPLICANT MAIN
         ====================================================== */
 
-        .application-main {
-            width:
-                calc(100% - 270px);
+        .applicant-main {
+            width: calc(100% - 260px);
 
             min-height: 100vh;
 
-            margin-left: 270px;
+            margin-left: 260px;
 
-            background: #f4f6f9;
+            background: #f5f7fb;
         }
 
 
-        .application-content {
+        .applicant-content {
             width: 100%;
 
-            max-width: 1700px;
-
-            min-height: 100vh;
+            max-width: 1600px;
 
             margin: 0 auto;
 
@@ -602,41 +840,44 @@
 
 
         /* =====================================================
-           MOBILE TOP HEADER
+           MOBILE HEADER
         ====================================================== */
 
         .mobile-app-header {
             display: none;
 
-            position: sticky;
+            height: 62px;
 
-            top: 0;
-
-            height: 64px;
-
-            padding:
-                0 15px;
+            padding: 0 15px;
 
             align-items: center;
-
             justify-content: space-between;
 
-            background:
-                #111827;
+            background: #111827;
 
             color: #ffffff;
 
-            z-index: 1050;
+            position: relative;
 
-            box-shadow:
-                0 4px 15px
-                rgba(15,23,42,.12);
+            z-index: 900;
         }
 
 
-        .mobile-brand {
-            display: flex;
+        .mobile-applicant-header {
+            background: #ffffff;
 
+            color: #111827;
+
+            border-bottom: 1px solid #e5e7eb;
+
+            box-shadow:
+                0 2px 10px
+                rgba(15,23,42,.04);
+        }
+
+
+        .mobile-app-brand {
+            display: flex;
             align-items: center;
 
             gap: 9px;
@@ -645,93 +886,79 @@
         }
 
 
-        .mobile-brand-logo {
-            width: 35px;
-            height: 35px;
+        .mobile-app-logo {
+            width: 34px;
+            height: 34px;
 
             flex-shrink: 0;
+
+            border-radius: 8px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 9px;
+            background: #2563eb;
 
-            background:
-                rgba(255,255,255,.08);
+            color: #ffffff;
+
+            font-size: 11px;
+            font-weight: 800;
 
             overflow: hidden;
         }
 
 
-        .mobile-brand-logo img {
+        .mobile-applicant-logo {
+            background: #111827;
+        }
+
+
+        .mobile-app-logo img {
             width: 100%;
             height: 100%;
-
             object-fit: contain;
-
-            padding: 3px;
+            background: #ffffff;
         }
 
 
-        .mobile-brand-fallback {
-            font-size: 10px;
-
-            font-weight: 800;
-        }
-
-
-        .mobile-brand-name {
-            max-width: 190px;
-
-            font-size: 12px;
-
-            font-weight: 800;
-
-            white-space: nowrap;
-
+        .mobile-app-brand strong {
             overflow: hidden;
-
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
 
-        .mobile-menu-button {
-            width: 39px;
-            height: 39px;
-
-            flex-shrink: 0;
+        .mobile-app-menu {
+            width: 38px;
+            height: 38px;
 
             border: 0;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
             background:
                 rgba(255,255,255,.08);
 
             color: #ffffff;
 
+            font-size: 18px;
+
             cursor: pointer;
-
-            font-size: 19px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
 
-        .mobile-menu-button:hover {
-            background:
-                rgba(255,255,255,.14);
+        .mobile-applicant-menu {
+            background: #f3f4f6;
+            color: #111827;
         }
 
 
         /* =====================================================
-           MOBILE OVERLAY
+           OVERLAY
         ====================================================== */
 
-        .sidebar-overlay {
+        .app-overlay {
             display: none;
 
             position: fixed;
@@ -739,43 +966,39 @@
             inset: 0;
 
             background:
-                rgba(15,23,42,.55);
+                rgba(15,23,42,.48);
 
-            backdrop-filter:
-                blur(2px);
-
-            z-index: 1090;
+            z-index: 999;
         }
 
 
-        /* =====================================================
-           DESKTOP ONLY
-        ====================================================== */
-
-        .desktop-only {
+        .app-overlay.mobile-open {
             display: block;
         }
 
 
         /* =====================================================
-           RESPONSIVE
+           MOBILE
         ====================================================== */
 
-        @media (max-width: 950px) {
+        @media (max-width: 900px) {
 
-            .application-sidebar {
+            .admin-sidebar,
+            .applicant-sidebar {
                 transform:
                     translateX(-100%);
             }
 
 
-            .application-sidebar.mobile-open {
+            .admin-sidebar.mobile-open,
+            .applicant-sidebar.mobile-open {
                 transform:
                     translateX(0);
             }
 
 
-            .application-main {
+            .admin-main,
+            .applicant-main {
                 width: 100%;
 
                 margin-left: 0;
@@ -787,80 +1010,23 @@
             }
 
 
-            .sidebar-overlay.mobile-open {
-                display: block;
-            }
-
-
-            .application-content {
-                min-height:
-                    calc(100vh - 64px);
-
+            .admin-content,
+            .applicant-content {
                 padding:
-                    22px 18px 30px;
+                    20px 16px 30px;
             }
 
         }
 
 
-        @media (max-width: 600px) {
+        @media (max-width: 480px) {
 
-            .application-content {
+            .admin-content,
+            .applicant-content {
                 padding:
-                    18px 13px 25px;
+                    16px 12px 25px;
             }
 
-
-            .mobile-brand-name {
-                max-width: 150px;
-            }
-
-        }
-
-
-        @media (max-width: 380px) {
-
-            .mobile-brand-name {
-                max-width: 125px;
-            }
-
-        }
-
-
-        /* =====================================================
-           SCROLLBAR
-        ====================================================== */
-
-        .sidebar-navigation::-webkit-scrollbar {
-            width: 5px;
-        }
-
-
-        .sidebar-navigation::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-
-        .sidebar-navigation::-webkit-scrollbar-thumb {
-            background:
-                rgba(255,255,255,.12);
-
-            border-radius: 10px;
-        }
-
-
-        /* =====================================================
-           ACCESSIBILITY
-        ====================================================== */
-
-        .sidebar-link:focus-visible,
-        .sidebar-logout:focus-visible,
-        .mobile-menu-button:focus-visible {
-            outline:
-                2px solid
-                #60a5fa;
-
-            outline-offset: 2px;
         }
 
     </style>
@@ -875,15 +1041,633 @@
 <body>
 
 
-{% set is_admin = session.get("admin_id") %}
-{% set is_applicant = session.get("applicant_id") %}
+{% if session.get("admin_id") %}
+
+    <!-- =====================================================
+         ADMIN APPLICATION
+    ====================================================== -->
+
+    <div class="app-shell">
 
 
-<!-- =========================================================
-     PUBLIC / LOGIN PAGES
-========================================================== -->
+        <!-- =================================================
+             ADMIN SIDEBAR
+        ================================================== -->
 
-{% if not is_admin and not is_applicant %}
+        <aside
+            class="admin-sidebar"
+            id="adminSidebar"
+        >
+
+            <!-- BRAND -->
+
+            <div class="admin-sidebar-brand">
+
+                <div class="admin-logo">
+
+                    {% if company_logo %}
+
+                        <img
+                            src="{{ company_logo }}"
+                            alt="{{ company_name or 'AV KING' }}"
+                        >
+
+                    {% else %}
+
+                        AV
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="admin-brand-text">
+
+                    <span class="admin-brand-name">
+                        {{ company_name or "AV KING" }}
+                    </span>
+
+                    <span class="admin-brand-subtitle">
+                        RECRUITMENT MANAGEMENT
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="admin-navigation">
+
+                <div class="admin-nav-title">
+                    Main Menu
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_dashboard') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_dashboard' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▣
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_applications' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ☷
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Applications
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_positions') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_positions' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▤
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Manage Positions
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_interviews') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_interviews' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ◷
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Interviews
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_attendance') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_attendance' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ◉
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Attendance
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_monthly_attendance') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_monthly_attendance' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▦
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Monthly Attendance
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_reports') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_reports' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▥
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Reports
+                    </span>
+
+                </a>
+
+
+                <div class="admin-nav-divider"></div>
+
+
+                <div class="admin-nav-title">
+                    System
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_settings') }}"
+                    class="admin-nav-link
+                    {% if request.endpoint == 'admin_settings' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ⚙
+                    </span>
+
+                    <span class="admin-nav-label">
+                        Settings
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- FOOTER -->
+
+            <div class="admin-sidebar-footer">
+
+                <div class="admin-profile">
+
+                    <div class="admin-avatar">
+
+                        {% if company_logo %}
+
+                            <img
+                                src="{{ company_logo }}"
+                                alt="Logo"
+                            >
+
+                        {% else %}
+
+                            {{ session.get(
+                                "admin_name",
+                                "A"
+                            )[0]|upper }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-profile-name">
+
+                            {{ session.get(
+                                "admin_name",
+                                "Administrator"
+                            ) }}
+
+                        </span>
+
+
+                        <span class="admin-profile-role">
+                            Administrator
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_logout') }}"
+                    class="admin-signout"
+                >
+                    Sign Out
+                </a>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             ADMIN MOBILE HEADER
+        ================================================== -->
+
+        <header class="mobile-app-header">
+
+            <div class="mobile-app-brand">
+
+                <div class="mobile-app-logo">
+
+                    {% if company_logo %}
+
+                        <img
+                            src="{{ company_logo }}"
+                            alt="Logo"
+                        >
+
+                    {% else %}
+
+                        AV
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong>
+                    {{ company_name or "AV KING" }}
+                </strong>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="mobile-app-menu"
+                onclick="toggleAppSidebar('admin')"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+        </header>
+
+
+        <!-- OVERLAY -->
+
+        <div
+            class="app-overlay"
+            id="adminOverlay"
+            onclick="closeAppSidebar('admin')"
+        ></div>
+
+
+        <!-- CONTENT -->
+
+        <main class="admin-main">
+
+            <div class="admin-content">
+
+                {% block content %}
+                {% endblock %}
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+{% elif session.get("applicant_id") %}
+
+    <!-- =====================================================
+         APPLICANT APPLICATION
+    ====================================================== -->
+
+    <div class="app-shell">
+
+
+        <!-- =================================================
+             APPLICANT SIDEBAR
+        ================================================== -->
+
+        <aside
+            class="applicant-sidebar"
+            id="applicantSidebar"
+        >
+
+            <!-- BRAND -->
+
+            <div class="applicant-sidebar-brand">
+
+                <div class="applicant-logo">
+
+                    {% if company_logo %}
+
+                        <img
+                            src="{{ company_logo }}"
+                            alt="{{ company_name or 'AV KING' }}"
+                        >
+
+                    {% else %}
+
+                        AV
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="applicant-brand-text">
+
+                    <span class="applicant-brand-name">
+
+                        {{ company_name or "AV KING" }}
+
+                    </span>
+
+
+                    <span class="applicant-brand-subtitle">
+                        EMPLOYEE PORTAL
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+
+            <nav class="applicant-navigation">
+
+                <div class="applicant-nav-title">
+                    Employee Portal
+                </div>
+
+
+                <a
+                    href="{{ url_for('applicant_dashboard') }}"
+                    class="applicant-nav-link
+                    {% if request.endpoint == 'applicant_dashboard' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="applicant-nav-icon">
+                        ▣
+                    </span>
+
+                    <span class="applicant-nav-label">
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('applicant_attendance') }}"
+                    class="applicant-nav-link
+                    {% if request.endpoint == 'applicant_attendance' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="applicant-nav-icon">
+                        ◉
+                    </span>
+
+                    <span class="applicant-nav-label">
+                        My Attendance
+                    </span>
+
+                </a>
+
+
+                <div class="applicant-nav-divider"></div>
+
+
+                <div class="applicant-nav-title">
+                    Account
+                </div>
+
+
+                {% if endpoint_exists is not defined or false %}
+
+                {% endif %}
+
+
+                <a
+                    href="{{ url_for('applicant_logout') }}"
+                    class="applicant-nav-link"
+                >
+
+                    <span class="applicant-nav-icon">
+                        ⇥
+                    </span>
+
+                    <span class="applicant-nav-label">
+                        Sign Out
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+            <!-- FOOTER -->
+
+            <div class="applicant-sidebar-footer">
+
+                <div class="applicant-profile">
+
+                    <div class="applicant-avatar">
+
+                        {% if applicant is defined and applicant %}
+
+                            {{ applicant.first_name[:1]|upper }}
+
+                        {% else %}
+
+                            U
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="applicant-profile-name">
+
+                            {% if applicant is defined and applicant %}
+
+                                {{ applicant.first_name }}
+
+                                {{ applicant.last_name }}
+
+                            {% else %}
+
+                                Employee
+
+                            {% endif %}
+
+                        </span>
+
+
+                        <span class="applicant-profile-role">
+                            Employee
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             APPLICANT MOBILE HEADER
+        ================================================== -->
+
+        <header
+            class="mobile-app-header
+            mobile-applicant-header"
+        >
+
+            <div class="mobile-app-brand">
+
+                <div
+                    class="mobile-app-logo
+                    mobile-applicant-logo"
+                >
+
+                    {% if company_logo %}
+
+                        <img
+                            src="{{ company_logo }}"
+                            alt="Logo"
+                        >
+
+                    {% else %}
+
+                        AV
+
+                    {% endif %}
+
+                </div>
+
+
+                <strong>
+                    {{ company_name or "AV KING" }}
+                </strong>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="mobile-app-menu
+                mobile-applicant-menu"
+                onclick="toggleAppSidebar('applicant')"
+                aria-label="Open menu"
+            >
+                ☰
+            </button>
+
+        </header>
+
+
+        <!-- OVERLAY -->
+
+        <div
+            class="app-overlay"
+            id="applicantOverlay"
+            onclick="closeAppSidebar('applicant')"
+        ></div>
+
+
+        <!-- CONTENT -->
+
+        <main class="applicant-main">
+
+            <div class="applicant-content">
+
+                {% block content %}
+                {% endblock %}
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+{% else %}
+
+    <!-- =====================================================
+         PUBLIC / LOGIN PAGE
+    ====================================================== -->
 
     <div class="public-content">
 
@@ -892,850 +1676,223 @@
 
     </div>
 
-
-{% else %}
-
-
-<!-- =========================================================
-     AUTHENTICATED APPLICATION
-========================================================== -->
-
-<div class="application-shell">
-
-
-    <!-- =====================================================
-         SIDEBAR
-    ====================================================== -->
-
-    <aside
-        class="application-sidebar"
-        id="applicationSidebar"
-    >
-
-
-        <!-- =================================================
-             BRAND
-        ================================================== -->
-
-        <div class="sidebar-brand">
-
-
-            <div class="sidebar-brand-logo">
-
-                {% if company_logo %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='uploads/' ~ company_logo
-                        ) }}"
-                        alt="{{ company_name or 'Company' }}"
-                    >
-
-                {% else %}
-
-                    <span class="sidebar-brand-fallback">
-                        AV
-                    </span>
-
-                {% endif %}
-
-            </div>
-
-
-            <div class="sidebar-brand-text">
-
-                <span class="sidebar-company-name">
-
-                    {{ company_name or "AV KING" }}
-
-                </span>
-
-
-                <span class="sidebar-company-subtitle">
-
-                    {% if is_admin %}
-                        ADMINISTRATION
-                    {% else %}
-                        APPLICANT PORTAL
-                    {% endif %}
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             ADMIN NAVIGATION
-        ================================================== -->
-
-        {% if is_admin %}
-
-        <nav class="sidebar-navigation">
-
-            <div class="sidebar-section-title">
-                Main Menu
-            </div>
-
-
-            <!-- Dashboard -->
-
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_dashboard' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ▣
-                </span>
-
-                <span class="sidebar-link-text">
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <!-- Applications -->
-
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_applications' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ☷
-                </span>
-
-                <span class="sidebar-link-text">
-                    Applications
-                </span>
-
-            </a>
-
-
-            <!-- Positions -->
-
-            <a
-                href="{{ url_for('admin_positions') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_positions' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ▤
-                </span>
-
-                <span class="sidebar-link-text">
-                    Manage Positions
-                </span>
-
-            </a>
-
-
-            <!-- Interviews -->
-
-            <a
-                href="{{ url_for('admin_interviews') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_interviews' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ◷
-                </span>
-
-                <span class="sidebar-link-text">
-                    Interviews
-                </span>
-
-            </a>
-
-
-            <!-- Attendance -->
-
-            <a
-                href="{{ url_for('admin_attendance') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_attendance' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ◉
-                </span>
-
-                <span class="sidebar-link-text">
-                    Attendance
-                </span>
-
-            </a>
-
-
-            <!-- Monthly Attendance -->
-
-            <a
-                href="{{ url_for('admin_monthly_attendance') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_monthly_attendance' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ▦
-                </span>
-
-                <span class="sidebar-link-text">
-                    Monthly Attendance
-                </span>
-
-            </a>
-
-
-            <!-- Reports -->
-
-            <a
-                href="{{ url_for('admin_reports') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_reports' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ▥
-                </span>
-
-                <span class="sidebar-link-text">
-                    Reports
-                </span>
-
-            </a>
-
-
-            <div class="sidebar-divider"></div>
-
-
-            <div class="sidebar-section-title">
-                System
-            </div>
-
-
-            <!-- Settings -->
-
-            <a
-                href="{{ url_for('admin_settings') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_settings' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ⚙
-                </span>
-
-                <span class="sidebar-link-text">
-                    Settings
-                </span>
-
-            </a>
-
-        </nav>
-
-
-        <!-- =================================================
-             ADMIN FOOTER
-        ================================================== -->
-
-        <div class="sidebar-footer">
-
-            <div class="sidebar-user">
-
-                <div class="sidebar-user-avatar">
-
-                    {{
-                        session.get(
-                            "admin_name",
-                            "A"
-                        )[0]|upper
-                    }}
-
-                </div>
-
-
-                <div class="sidebar-user-info">
-
-                    <span class="sidebar-user-name">
-
-                        {{
-                            session.get(
-                                "admin_name",
-                                "Administrator"
-                            )
-                        }}
-
-                    </span>
-
-
-                    <span class="sidebar-user-role">
-                        Administrator
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <a
-                href="{{ url_for('admin_logout') }}"
-                class="sidebar-logout"
-            >
-                Sign Out
-            </a>
-
-        </div>
-
-
-        {% else %}
-
-
-        <!-- =================================================
-             APPLICANT NAVIGATION
-        ================================================== -->
-
-        <nav class="sidebar-navigation">
-
-            <div class="sidebar-section-title">
-                Applicant Portal
-            </div>
-
-
-            <!-- Applicant Dashboard -->
-
-            <a
-                href="{{ url_for('applicant_dashboard') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'applicant_dashboard' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ▣
-                </span>
-
-                <span class="sidebar-link-text">
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <!-- Attendance -->
-
-            <a
-                href="{{ url_for('applicant_attendance') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'applicant_attendance' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ◉
-                </span>
-
-                <span class="sidebar-link-text">
-                    My Attendance
-                </span>
-
-            </a>
-
-
-            <!-- Application -->
-
-            <a
-                href="{{ url_for('applicant_application') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'applicant_application' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ☷
-                </span>
-
-                <span class="sidebar-link-text">
-                    My Application
-                </span>
-
-            </a>
-
-
-            <!-- Interview -->
-
-            <a
-                href="{{ url_for('applicant_interview') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'applicant_interview' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ◷
-                </span>
-
-                <span class="sidebar-link-text">
-                    Interview
-                </span>
-
-            </a>
-
-
-            <div class="sidebar-divider"></div>
-
-
-            <div class="sidebar-section-title">
-                Account
-            </div>
-
-
-            <!-- Profile -->
-
-            <a
-                href="{{ url_for('applicant_profile') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'applicant_profile' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-link-icon">
-                    ◯
-                </span>
-
-                <span class="sidebar-link-text">
-                    My Profile
-                </span>
-
-            </a>
-
-        </nav>
-
-
-        <!-- =================================================
-             APPLICANT FOOTER
-        ================================================== -->
-
-        <div class="sidebar-footer">
-
-            <div class="sidebar-user">
-
-                <div class="sidebar-user-avatar">
-
-                    {{
-                        session.get(
-                            "applicant_name",
-                            "A"
-                        )[0]|upper
-                    }}
-
-                </div>
-
-
-                <div class="sidebar-user-info">
-
-                    <span class="sidebar-user-name">
-
-                        {{
-                            session.get(
-                                "applicant_name",
-                                "Applicant"
-                            )
-                        }}
-
-                    </span>
-
-
-                    <span class="sidebar-user-role">
-                        Applicant
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <a
-                href="{{ url_for('applicant_logout') }}"
-                class="sidebar-logout"
-            >
-                Sign Out
-            </a>
-
-        </div>
-
-        {% endif %}
-
-    </aside>
-
-
-    <!-- =====================================================
-         MOBILE HEADER
-    ====================================================== -->
-
-    <header class="mobile-app-header">
-
-        <div class="mobile-brand">
-
-
-            <div class="mobile-brand-logo">
-
-                {% if company_logo %}
-
-                    <img
-                        src="{{ url_for(
-                            'static',
-                            filename='uploads/' ~ company_logo
-                        ) }}"
-                        alt="{{ company_name or 'Company' }}"
-                    >
-
-                {% else %}
-
-                    <span class="mobile-brand-fallback">
-                        AV
-                    </span>
-
-                {% endif %}
-
-            </div>
-
-
-            <span class="mobile-brand-name">
-
-                {{ company_name or "AV KING" }}
-
-            </span>
-
-        </div>
-
-
-        <button
-            type="button"
-            class="mobile-menu-button"
-            id="mobileMenuButton"
-            aria-label="Open navigation"
-            aria-expanded="false"
-            onclick="toggleApplicationSidebar()"
-        >
-            ☰
-        </button>
-
-    </header>
-
-
-    <!-- =====================================================
-         MOBILE OVERLAY
-    ====================================================== -->
-
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="closeApplicationSidebar()"
-    ></div>
-
-
-    <!-- =====================================================
-         MAIN APPLICATION CONTENT
-    ====================================================== -->
-
-    <main class="application-main">
-
-        <div class="application-content">
-
-            {% block content %}
-            {% endblock %}
-
-        </div>
-
-    </main>
-
-
-</div>
-
 {% endif %}
 
 
 <!-- =========================================================
-     SIDEBAR JAVASCRIPT
+     JAVASCRIPT
 ========================================================== -->
 
 <script>
 
-(function () {
+function toggleAppSidebar(type) {
 
-    "use strict";
+    let sidebar;
+    let overlay;
+
+    if (type === "admin") {
+
+        sidebar =
+            document.getElementById(
+                "adminSidebar"
+            );
+
+        overlay =
+            document.getElementById(
+                "adminOverlay"
+            );
+
+    } else {
+
+        sidebar =
+            document.getElementById(
+                "applicantSidebar"
+            );
+
+        overlay =
+            document.getElementById(
+                "applicantOverlay"
+            );
+
+    }
 
 
-    function getSidebar() {
+    if (!sidebar || !overlay) {
+        return;
+    }
 
-        return document.getElementById(
-            "applicationSidebar"
+
+    sidebar.classList.toggle(
+        "mobile-open"
+    );
+
+    overlay.classList.toggle(
+        "mobile-open"
+    );
+
+}
+
+
+function closeAppSidebar(type) {
+
+    let sidebar;
+    let overlay;
+
+    if (type === "admin") {
+
+        sidebar =
+            document.getElementById(
+                "adminSidebar"
+            );
+
+        overlay =
+            document.getElementById(
+                "adminOverlay"
+            );
+
+    } else {
+
+        sidebar =
+            document.getElementById(
+                "applicantSidebar"
+            );
+
+        overlay =
+            document.getElementById(
+                "applicantOverlay"
+            );
+
+    }
+
+
+    if (sidebar) {
+
+        sidebar.classList.remove(
+            "mobile-open"
         );
 
     }
 
 
-    function getOverlay() {
+    if (overlay) {
 
-        return document.getElementById(
-            "sidebarOverlay"
+        overlay.classList.remove(
+            "mobile-open"
         );
 
     }
 
-
-    function getMenuButton() {
-
-        return document.getElementById(
-            "mobileMenuButton"
-        );
-
-    }
+}
 
 
-    window.toggleApplicationSidebar = function () {
+/* =========================================================
+   CLOSE SIDEBAR AFTER NAVIGATION ON MOBILE
+========================================================== */
 
-        const sidebar =
-            getSidebar();
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-        const overlay =
-            getOverlay();
+        document
+            .querySelectorAll(
+                ".admin-nav-link, .applicant-nav-link"
+            )
+            .forEach(
+                function (link) {
 
-        const button =
-            getMenuButton();
+                    link.addEventListener(
+                        "click",
+                        function () {
 
+                            if (
+                                window.innerWidth <= 900
+                            ) {
 
-        if (!sidebar || !overlay) {
-            return;
-        }
+                                const adminSidebar =
+                                    document.getElementById(
+                                        "adminSidebar"
+                                    );
 
+                                const adminOverlay =
+                                    document.getElementById(
+                                        "adminOverlay"
+                                    );
 
-        const isOpen =
-            sidebar.classList.contains(
-                "mobile-open"
-            );
+                                const applicantSidebar =
+                                    document.getElementById(
+                                        "applicantSidebar"
+                                    );
 
-
-        if (isOpen) {
-
-            sidebar.classList.remove(
-                "mobile-open"
-            );
-
-            overlay.classList.remove(
-                "mobile-open"
-            );
-
-
-            if (button) {
-
-                button.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-
-                button.setAttribute(
-                    "aria-label",
-                    "Open navigation"
-                );
-
-                button.textContent = "☰";
-
-            }
-
-        }
-
-        else {
-
-            sidebar.classList.add(
-                "mobile-open"
-            );
-
-            overlay.classList.add(
-                "mobile-open"
-            );
+                                const applicantOverlay =
+                                    document.getElementById(
+                                        "applicantOverlay"
+                                    );
 
 
-            if (button) {
+                                if (adminSidebar) {
 
-                button.setAttribute(
-                    "aria-expanded",
-                    "true"
-                );
+                                    adminSidebar.classList.remove(
+                                        "mobile-open"
+                                    );
 
-                button.setAttribute(
-                    "aria-label",
-                    "Close navigation"
-                );
-
-                button.textContent = "×";
-
-            }
-
-        }
-
-    };
+                                }
 
 
-    window.closeApplicationSidebar = function () {
+                                if (adminOverlay) {
 
-        const sidebar =
-            getSidebar();
+                                    adminOverlay.classList.remove(
+                                        "mobile-open"
+                                    );
 
-        const overlay =
-            getOverlay();
-
-        const button =
-            getMenuButton();
+                                }
 
 
-        if (sidebar) {
+                                if (applicantSidebar) {
 
-            sidebar.classList.remove(
-                "mobile-open"
-            );
+                                    applicantSidebar.classList.remove(
+                                        "mobile-open"
+                                    );
 
-        }
-
-
-        if (overlay) {
-
-            overlay.classList.remove(
-                "mobile-open"
-            );
-
-        }
+                                }
 
 
-        if (button) {
+                                if (applicantOverlay) {
 
-            button.setAttribute(
-                "aria-expanded",
-                "false"
-            );
-
-            button.setAttribute(
-                "aria-label",
-                "Open navigation"
-            );
-
-            button.textContent = "☰";
-
-        }
-
-    };
-
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-
-            /*
-             * Close sidebar after clicking
-             * a navigation link on mobile.
-             */
-
-            document
-                .querySelectorAll(
-                    ".sidebar-link"
-                )
-                .forEach(
-                    function (link) {
-
-                        link.addEventListener(
-                            "click",
-                            function () {
-
-                                if (
-                                    window.innerWidth
-                                    <= 950
-                                ) {
-
-                                    closeApplicationSidebar();
+                                    applicantOverlay.classList.remove(
+                                        "mobile-open"
+                                    );
 
                                 }
 
                             }
-                        );
 
-                    }
-                );
-
-
-            /*
-             * Close sidebar with ESC.
-             */
-
-            document.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (
-                        event.key === "Escape"
-                    ) {
-
-                        closeApplicationSidebar();
-
-                    }
+                        }
+                    );
 
                 }
             );
 
+    }
+);
 
-            /*
-             * Reset mobile sidebar
-             * when returning to desktop.
-             */
 
-            window.addEventListener(
-                "resize",
-                function () {
+/* =========================================================
+   ESC KEY
+========================================================== */
 
-                    if (
-                        window.innerWidth > 950
-                    ) {
+document.addEventListener(
+    "keydown",
+    function (event) {
 
-                        closeApplicationSidebar();
-
-                    }
-
-                }
-            );
-
+        if (event.key !== "Escape") {
+            return;
         }
-    );
 
-})();
+        closeAppSidebar("admin");
+        closeAppSidebar("applicant");
+
+    }
+);
 
 </script>
 
