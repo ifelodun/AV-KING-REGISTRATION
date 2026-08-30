@@ -14615,6 +14615,52 @@ def applicant_attendance_history():
 
         attendance_history=attendance_history
     )
+
+# =========================================================
+# CHECK WHETHER A TIME IS WITHIN AN ATTENDANCE WINDOW
+# =========================================================
+
+def is_time_in_window(current_time, start_time, end_time):
+    """
+    Return True when current_time falls within the
+    configured attendance window.
+
+    Supports normal windows such as:
+        06:00 AM - 10:00 AM
+
+    Also supports windows that cross midnight, such as:
+        10:00 PM - 02:00 AM
+    """
+
+    if current_time is None:
+        return False
+
+    if start_time is None or end_time is None:
+        return False
+
+    # -----------------------------------------------------
+    # NORMAL SAME-DAY WINDOW
+    # Example: 06:00 -> 10:00
+    # -----------------------------------------------------
+
+    if start_time <= end_time:
+
+        return (
+            start_time
+            <= current_time
+            <= end_time
+        )
+
+    # -----------------------------------------------------
+    # OVERNIGHT WINDOW
+    # Example: 22:00 -> 02:00
+    # -----------------------------------------------------
+
+    return (
+        current_time >= start_time
+        or
+        current_time <= end_time
+    )
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
