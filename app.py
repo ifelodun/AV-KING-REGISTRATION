@@ -13425,18 +13425,15 @@ def applicant_attendance():
 # =========================================================
 # APPLICANT CLOCK IN
 # =========================================================
-
 @app.route(
     "/applicant/attendance/clock-in",
     methods=["POST"]
 )
 def applicant_clock_in():
 
-    from datetime import time
-
-    # =====================================================
+    # =========================================================
     # AUTHENTICATION
-    # =====================================================
+    # =========================================================
 
     applicant_id = session.get("applicant_id")
 
@@ -13450,9 +13447,10 @@ def applicant_clock_in():
             )
         }), 401
 
-    # =====================================================
-    # NIGERIA TIME
-    # =====================================================
+
+    # =========================================================
+    # EXACT NIGERIA TIME
+    # =========================================================
 
     nigeria_now = get_nigeria_now()
 
@@ -13460,27 +13458,21 @@ def applicant_clock_in():
 
     nigeria_time = nigeria_now.time()
 
-    # =====================================================
-    # GPS INPUT
-    # =====================================================
 
-    latitude_raw = (
-        request.form.get(
-            "latitude",
-            ""
-        ) or ""
+    # =========================================================
+    # GET GPS
+    # =========================================================
+
+    latitude_raw = request.form.get(
+        "latitude",
+        ""
     ).strip()
 
-    longitude_raw = (
-        request.form.get(
-            "longitude",
-            ""
-        ) or ""
+    longitude_raw = request.form.get(
+        "longitude",
+        ""
     ).strip()
 
-    # =====================================================
-    # CONVERT GPS
-    # =====================================================
 
     try:
 
@@ -13505,37 +13497,31 @@ def applicant_clock_in():
             )
         }), 400
 
-    # =====================================================
+
+    # =========================================================
     # VALIDATE GPS
-    # =====================================================
+    # =========================================================
 
-    if not (-90 <= latitude <= 90):
-
-        return jsonify({
-            "success": False,
-            "message": (
-                "Invalid latitude received from your device."
-            )
-        }), 400
-
-    if not (-180 <= longitude <= 180):
+    if not -90 <= latitude <= 90:
 
         return jsonify({
             "success": False,
-            "message": (
-                "Invalid longitude received from your device."
-            )
+            "message": "Invalid latitude received from your device."
         }), 400
 
-    # =====================================================
-    # DATABASE
-    # =====================================================
 
-    conn = None
+    if not -180 <= longitude <= 180:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid longitude received from your device."
+        }), 400
+
+
+    conn = get_db()
+
 
     try:
-
-        conn = get_db()
 
         with conn.cursor() as cur:
 
@@ -13565,9 +13551,6 @@ def applicant_clock_in():
 
             applicant = cur.fetchone()
 
-            # =================================================
-            # APPLICANT NOT FOUND
-            # =================================================
 
             if not applicant:
 
@@ -13576,15 +13559,14 @@ def applicant_clock_in():
                     "message": "Applicant account not found."
                 }), 404
 
+
             # =================================================
             # APPROVAL
             # =================================================
 
-            applicant_status = str(
-                applicant["status"] or ""
-            ).strip().lower()
-
-            if applicant_status != "approved":
+            if str(
+                applicant["status"]
+            ).strip().lower() != "approved":
 
                 return jsonify({
                     "success": False,
@@ -13593,6 +13575,7 @@ def applicant_clock_in():
                         "clock attendance."
                     )
                 }), 403
+
 
             # =================================================
             # PORTAL ACTIVE
@@ -13607,8 +13590,9 @@ def applicant_clock_in():
                     )
                 }), 403
 
+
             # =================================================
-            # GET SETTINGS
+            # GET ATTENDANCE SETTINGS
             # =================================================
 
             cur.execute(
@@ -13640,6 +13624,7 @@ def applicant_clock_in():
 
             settings = cur.fetchone()
 
+
             if not settings:
 
                 return jsonify({
@@ -13649,6 +13634,7 @@ def applicant_clock_in():
                         "been configured."
                     )
                 }), 400
+
 
             # =================================================
             # ATTENDANCE ENABLED
@@ -13664,21 +13650,15 @@ def applicant_clock_in():
                     )
                 }), 403
 
+
             # =================================================
             # COMPANY LOCATION
             # =================================================
 
-            company_latitude = (
-                settings["company_latitude"]
-            )
-
-            company_longitude = (
-                settings["company_longitude"]
-            )
-
             if (
-                company_latitude is None
-                or company_longitude is None
+                settings["company_latitude"] is None
+                or
+                settings["company_longitude"] is None
             ):
 
                 return jsonify({
@@ -13689,30 +13669,9 @@ def applicant_clock_in():
                     )
                 }), 400
 
-            # =================================================
-            # ATTENDANCE RADIUS
-            # =================================================
-
-            try:
-
-                radius = int(
-                    settings["attendance_radius"]
-                    or 200
-                )
-
-            except (
-                ValueError,
-                TypeError
-            ):
-
-                radius = 200
-
-            if radius <= 0:
-
-                radius = 200
 
             # =================================================
-            # CLOCK-IN WINDOW
+            # ATTENDANCE WINDOW
             # =================================================
 
             clock_in_start = normalize_db_time(
@@ -13724,6 +13683,7 @@ def applicant_clock_in():
                 settings["clock_in_end"],
                 time(10, 0)
             )
+
 
             # =================================================
             # CHECK CLOCK-IN WINDOW
@@ -13737,7 +13697,6 @@ def applicant_clock_in():
 
                 return jsonify({
                     "success": False,
-
                     "message": (
                         "Clock-in is not currently available. "
                         f"Clock-in window is "
@@ -13745,39 +13704,39 @@ def applicant_clock_in():
                         f"to "
                         f"{clock_in_end.strftime('%I:%M %p')}."
                     ),
-
-                    "current_time": (
-                        nigeria_now.strftime(
-                            "%I:%M:%S %p"
-                        )
+                    "current_time": nigeria_now.strftime(
+                        "%I:%M:%S %p"
                     ),
-
-                    "clock_in_start": (
-                        clock_in_start.strftime(
-                            "%I:%M %p"
-                        )
+                    "clock_in_start": clock_in_start.strftime(
+                        "%I:%M %p"
                     ),
-
-                    "clock_in_end": (
-                        clock_in_end.strftime(
-                            "%I:%M %p"
-                        )
-                    ),
-
-                    "timezone": "Africa/Lagos"
-
+                    "clock_in_end": clock_in_end.strftime(
+                        "%I:%M %p"
+                    )
                 }), 403
 
+
             # =================================================
-            # CALCULATE GPS DISTANCE
+            # GPS DISTANCE
             # =================================================
 
             distance = calculate_distance_meters(
                 latitude,
                 longitude,
-                float(company_latitude),
-                float(company_longitude)
+                float(
+                    settings["company_latitude"]
+                ),
+                float(
+                    settings["company_longitude"]
+                )
             )
+
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
 
             # =================================================
             # LOCATION CHECK
@@ -13787,27 +13746,19 @@ def applicant_clock_in():
 
                 return jsonify({
                     "success": False,
-
                     "message": (
                         "You are outside the company "
                         "attendance area. "
                         f"Distance: {round(distance)} metres. "
                         f"Allowed radius: {radius} metres."
                     ),
-
                     "distance": round(distance),
-
-                    "allowed_radius": radius,
-
-                    "timezone": "Africa/Lagos"
-
+                    "allowed_radius": radius
                 }), 403
 
+
             # =================================================
-            # FIND TODAY'S RECORD
-            #
-            # IMPORTANT:
-            # Use Nigeria date rather than CURRENT_DATE.
+            # CHECK TODAY'S RECORD
             # =================================================
 
             cur.execute(
@@ -13815,16 +13766,13 @@ def applicant_clock_in():
                 SELECT
                     id,
                     clock_in,
-                    clock_out,
-                    status
+                    clock_out
 
                 FROM attendance
 
                 WHERE worker_id = %s
 
                 AND attendance_date = %s
-
-                ORDER BY id DESC
 
                 LIMIT 1
                 """,
@@ -13835,6 +13783,7 @@ def applicant_clock_in():
             )
 
             existing = cur.fetchone()
+
 
             # =================================================
             # ALREADY CLOCKED IN
@@ -13866,47 +13815,31 @@ def applicant_clock_in():
                         existing_time
                     )
 
+
                 return jsonify({
                     "success": False,
-
                     "already_clocked_in": True,
-
                     "message": (
                         "You have already clocked in today."
                     ),
-
-                    "clock_in": formatted_time,
-
-                    "timezone": "Africa/Lagos"
-
+                    "clock_in": formatted_time
                 }), 409
+
 
             # =================================================
             # CALCULATE LATE STATUS
             # =================================================
 
-            try:
-
-                late_after_minutes = int(
-                    settings["late_after_minutes"]
-                    or 15
-                )
-
-            except (
-                ValueError,
-                TypeError
-            ):
-
-                late_after_minutes = 15
-
-            if late_after_minutes < 0:
-
-                late_after_minutes = 15
+            late_after_minutes = int(
+                settings["late_after_minutes"]
+                or 15
+            )
 
             late_minutes = calculate_lateness_minutes(
                 nigeria_time,
                 clock_in_start
             )
+
 
             if late_minutes >= late_after_minutes:
 
@@ -13916,22 +13849,22 @@ def applicant_clock_in():
 
                 attendance_status = "Present"
 
+
             # =================================================
-            # DATABASE TIMESTAMP
+            # DATABASE TIME
             #
-            # Store Nigeria wall-clock time as naive
-            # timestamp because the attendance columns
-            # are currently TIMESTAMP.
+            # Store Nigeria wall-clock time as a naive
+            # timestamp because your attendance columns are
+            # currently TIMESTAMP.
             # =================================================
 
-            db_clock_in = (
-                nigeria_now.replace(
-                    tzinfo=None
-                )
+            db_clock_in = nigeria_now.replace(
+                tzinfo=None
             )
 
+
             # =================================================
-            # SAVE ATTENDANCE
+            # SAVE
             # =================================================
 
             if existing:
@@ -13957,14 +13890,10 @@ def applicant_clock_in():
                     """,
                     (
                         db_clock_in,
-
                         latitude,
                         longitude,
-
                         attendance_status,
-
                         db_clock_in,
-
                         existing["id"]
                     )
                 )
@@ -14025,28 +13954,23 @@ def applicant_clock_in():
                     )
                 )
 
-            # =================================================
-            # COMMIT
-            # =================================================
 
             conn.commit()
 
+
             # =================================================
-            # SUCCESS
+            # RESPONSE
             # =================================================
 
             return jsonify({
-
                 "success": True,
 
                 "message": (
                     "Clock-in recorded successfully."
                 ),
 
-                "clock_in": (
-                    nigeria_now.strftime(
-                        "%I:%M %p"
-                    )
+                "clock_in": nigeria_now.strftime(
+                    "%I:%M %p"
                 ),
 
                 "status": attendance_status,
@@ -14059,28 +13983,18 @@ def applicant_clock_in():
 
                 "allowed_radius": radius,
 
-                "current_time": (
-                    nigeria_now.strftime(
-                        "%I:%M:%S %p"
-                    )
-                ),
-
-                "date": nigeria_date.strftime(
-                    "%Y-%m-%d"
+                "current_time": nigeria_now.strftime(
+                    "%I:%M:%S %p"
                 ),
 
                 "timezone": "Africa/Lagos"
 
             }), 200
 
+
     except Exception:
 
-        if conn is not None:
-
-            try:
-                conn.rollback()
-            except Exception:
-                pass
+        conn.rollback()
 
         app.logger.exception(
             "Applicant clock-in error"
@@ -14094,31 +14008,22 @@ def applicant_clock_in():
             )
         }), 500
 
+
     finally:
 
-        if conn is not None:
-
-            try:
-                conn.close()
-            except Exception:
-                pass
-
-
+        conn.close()
 # =========================================================
 # APPLICANT CLOCK OUT
 # =========================================================
-
 @app.route(
     "/applicant/attendance/clock-out",
     methods=["POST"]
 )
 def applicant_clock_out():
 
-    from datetime import datetime, time
-
-    # =====================================================
+    # =========================================================
     # AUTHENTICATION
-    # =====================================================
+    # =========================================================
 
     applicant_id = session.get(
         "applicant_id"
@@ -14134,9 +14039,10 @@ def applicant_clock_out():
             )
         }), 401
 
-    # =====================================================
-    # NIGERIA TIME
-    # =====================================================
+
+    # =========================================================
+    # EXACT NIGERIA TIME
+    # =========================================================
 
     nigeria_now = get_nigeria_now()
 
@@ -14144,27 +14050,21 @@ def applicant_clock_out():
 
     nigeria_time = nigeria_now.time()
 
-    # =====================================================
-    # GPS INPUT
-    # =====================================================
 
-    latitude_raw = (
-        request.form.get(
-            "latitude",
-            ""
-        ) or ""
+    # =========================================================
+    # GPS
+    # =========================================================
+
+    latitude_raw = request.form.get(
+        "latitude",
+        ""
     ).strip()
 
-    longitude_raw = (
-        request.form.get(
-            "longitude",
-            ""
-        ) or ""
+    longitude_raw = request.form.get(
+        "longitude",
+        ""
     ).strip()
 
-    # =====================================================
-    # CONVERT GPS
-    # =====================================================
 
     try:
 
@@ -14189,42 +14089,36 @@ def applicant_clock_out():
             )
         }), 400
 
-    # =====================================================
+
+    # =========================================================
     # VALIDATE GPS
-    # =====================================================
+    # =========================================================
 
-    if not (-90 <= latitude <= 90):
-
-        return jsonify({
-            "success": False,
-            "message": (
-                "Invalid latitude received from your device."
-            )
-        }), 400
-
-    if not (-180 <= longitude <= 180):
+    if not -90 <= latitude <= 90:
 
         return jsonify({
             "success": False,
-            "message": (
-                "Invalid longitude received from your device."
-            )
+            "message": "Invalid latitude received from your device."
         }), 400
 
-    # =====================================================
-    # DATABASE
-    # =====================================================
 
-    conn = None
+    if not -180 <= longitude <= 180:
+
+        return jsonify({
+            "success": False,
+            "message": "Invalid longitude received from your device."
+        }), 400
+
+
+    conn = get_db()
+
 
     try:
-
-        conn = get_db()
 
         with conn.cursor() as cur:
 
             # =================================================
-            # GET APPLICANT
+            # APPLICANT
             # =================================================
 
             cur.execute(
@@ -14249,9 +14143,6 @@ def applicant_clock_out():
 
             applicant = cur.fetchone()
 
-            # =================================================
-            # APPLICANT NOT FOUND
-            # =================================================
 
             if not applicant:
 
@@ -14260,15 +14151,14 @@ def applicant_clock_out():
                     "message": "Applicant account not found."
                 }), 404
 
+
             # =================================================
             # APPROVAL
             # =================================================
 
-            applicant_status = str(
-                applicant["status"] or ""
-            ).strip().lower()
-
-            if applicant_status != "approved":
+            if str(
+                applicant["status"]
+            ).strip().lower() != "approved":
 
                 return jsonify({
                     "success": False,
@@ -14278,8 +14168,9 @@ def applicant_clock_out():
                     )
                 }), 403
 
+
             # =================================================
-            # PORTAL ACTIVE
+            # PORTAL
             # =================================================
 
             if not applicant["portal_active"]:
@@ -14291,8 +14182,9 @@ def applicant_clock_out():
                     )
                 }), 403
 
+
             # =================================================
-            # GET SETTINGS
+            # SETTINGS
             # =================================================
 
             cur.execute(
@@ -14324,6 +14216,7 @@ def applicant_clock_out():
 
             settings = cur.fetchone()
 
+
             if not settings:
 
                 return jsonify({
@@ -14334,8 +14227,9 @@ def applicant_clock_out():
                     )
                 }), 400
 
+
             # =================================================
-            # ATTENDANCE ENABLED
+            # ENABLED
             # =================================================
 
             if not settings["attendance_enabled"]:
@@ -14348,21 +14242,15 @@ def applicant_clock_out():
                     )
                 }), 403
 
-            # =================================================
-            # COMPANY LOCATION
-            # =================================================
 
-            company_latitude = (
-                settings["company_latitude"]
-            )
-
-            company_longitude = (
-                settings["company_longitude"]
-            )
+            # =================================================
+            # COMPANY GPS
+            # =================================================
 
             if (
-                company_latitude is None
-                or company_longitude is None
+                settings["company_latitude"] is None
+                or
+                settings["company_longitude"] is None
             ):
 
                 return jsonify({
@@ -14373,27 +14261,6 @@ def applicant_clock_out():
                     )
                 }), 400
 
-            # =================================================
-            # RADIUS
-            # =================================================
-
-            try:
-
-                radius = int(
-                    settings["attendance_radius"]
-                    or 200
-                )
-
-            except (
-                ValueError,
-                TypeError
-            ):
-
-                radius = 200
-
-            if radius <= 0:
-
-                radius = 200
 
             # =================================================
             # CLOCK-OUT WINDOW
@@ -14409,6 +14276,7 @@ def applicant_clock_out():
                 time(23, 0)
             )
 
+
             # =================================================
             # CHECK CLOCK-OUT WINDOW
             # =================================================
@@ -14421,7 +14289,6 @@ def applicant_clock_out():
 
                 return jsonify({
                     "success": False,
-
                     "message": (
                         "Clock-out is not currently available. "
                         f"Clock-out window is "
@@ -14430,10 +14297,8 @@ def applicant_clock_out():
                         f"{clock_out_end.strftime('%I:%M %p')}."
                     ),
 
-                    "current_time": (
-                        nigeria_now.strftime(
-                            "%I:%M:%S %p"
-                        )
+                    "current_time": nigeria_now.strftime(
+                        "%I:%M:%S %p"
                     ),
 
                     "clock_out_start": (
@@ -14446,17 +14311,13 @@ def applicant_clock_out():
                         clock_out_end.strftime(
                             "%I:%M %p"
                         )
-                    ),
-
-                    "timezone": "Africa/Lagos"
+                    )
 
                 }), 403
 
+
             # =================================================
             # GET TODAY'S ATTENDANCE
-            #
-            # Again, use Nigeria's date rather than
-            # PostgreSQL CURRENT_DATE.
             # =================================================
 
             cur.execute(
@@ -14464,8 +14325,7 @@ def applicant_clock_out():
                 SELECT
                     id,
                     clock_in,
-                    clock_out,
-                    status
+                    clock_out
 
                 FROM attendance
 
@@ -14485,8 +14345,9 @@ def applicant_clock_out():
 
             attendance = cur.fetchone()
 
+
             # =================================================
-            # NO ATTENDANCE
+            # NO CLOCK-IN
             # =================================================
 
             if not attendance:
@@ -14499,9 +14360,6 @@ def applicant_clock_out():
                     )
                 }), 400
 
-            # =================================================
-            # NO CLOCK-IN
-            # =================================================
 
             if attendance["clock_in"] is None:
 
@@ -14512,6 +14370,7 @@ def applicant_clock_out():
                         "you have not clocked in today."
                     )
                 }), 400
+
 
             # =================================================
             # ALREADY CLOCKED OUT
@@ -14540,81 +14399,66 @@ def applicant_clock_out():
                         existing_clock_out
                     )
 
+
                 return jsonify({
                     "success": False,
-
                     "already_clocked_out": True,
-
                     "message": (
                         "You have already clocked out today."
                     ),
-
-                    "clock_out": formatted,
-
-                    "timezone": "Africa/Lagos"
-
+                    "clock_out": formatted
                 }), 409
 
+
             # =================================================
-            # GPS DISTANCE
+            # LOCATION DISTANCE
             # =================================================
 
             distance = calculate_distance_meters(
                 latitude,
                 longitude,
-                float(company_latitude),
-                float(company_longitude)
+                float(
+                    settings["company_latitude"]
+                ),
+                float(
+                    settings["company_longitude"]
+                )
             )
 
+
+            radius = int(
+                settings["attendance_radius"]
+                or 200
+            )
+
+
             # =================================================
-            # LOCATION CHECK
+            # LOCATION VERIFICATION
             # =================================================
 
             if distance > radius:
 
                 return jsonify({
                     "success": False,
-
                     "message": (
                         "You are outside the company "
                         "attendance area. "
                         f"Distance: {round(distance)} metres. "
                         f"Allowed radius: {radius} metres."
                     ),
-
                     "distance": round(distance),
-
-                    "allowed_radius": radius,
-
-                    "timezone": "Africa/Lagos"
-
+                    "allowed_radius": radius
                 }), 403
 
-            # =================================================
-            # EARLY CLOCK-OUT SETTING
-            # =================================================
-
-            try:
-
-                early_before_minutes = int(
-                    settings["early_before_minutes"]
-                    or 15
-                )
-
-            except (
-                ValueError,
-                TypeError
-            ):
-
-                early_before_minutes = 15
-
-            if early_before_minutes < 0:
-
-                early_before_minutes = 15
 
             # =================================================
-            # CALCULATE EARLY DEPARTURE
+            # EARLY CLOCK-OUT
             # =================================================
+
+            early_before_minutes = int(
+                settings["early_before_minutes"]
+                or 15
+            )
 
             early_minutes = (
                 calculate_early_clockout_minutes(
@@ -14623,55 +14467,38 @@ def applicant_clock_out():
                 )
             )
 
+
             # =================================================
-            # PRESERVE EXISTING STATUS
-            #
-            # This fixes an important issue in the original
-            # route:
-            #
-            # If an applicant clocked in late, clocking out
-            # should not automatically change "Late" to
-            # "Present".
+            # EXISTING STATUS
             # =================================================
 
-            existing_status = str(
-                attendance["status"] or ""
-            ).strip()
+            current_status = (
+                "Present"
+            )
+
 
             if early_minutes >= early_before_minutes:
 
                 current_status = "Early Departure"
 
-            elif existing_status:
-
-                current_status = existing_status
-
-            else:
-
-                current_status = "Present"
 
             # =================================================
-            # DATABASE CLOCK-OUT TIME
+            # DATABASE TIME
             # =================================================
 
-            db_clock_out = (
-                nigeria_now.replace(
-                    tzinfo=None
-                )
+            db_clock_out = nigeria_now.replace(
+                tzinfo=None
             )
 
+
             # =================================================
-            # CONVERT CLOCK-IN VALUE
+            # CALCULATE TOTAL HOURS
             # =================================================
 
             clock_in_value = (
                 attendance["clock_in"]
             )
 
-            # -------------------------------------------------
-            # CASE 1:
-            # PostgreSQL returned datetime
-            # -------------------------------------------------
 
             if isinstance(
                 clock_in_value,
@@ -14684,142 +14511,30 @@ def applicant_clock_out():
                     )
                 )
 
-            # -------------------------------------------------
-            # CASE 2:
-            # PostgreSQL returned time
-            # -------------------------------------------------
-
-            elif isinstance(
-                clock_in_value,
-                time
-            ):
+            else:
 
                 clock_in_naive = datetime.combine(
                     nigeria_date,
                     clock_in_value
                 )
 
-            # -------------------------------------------------
-            # CASE 3:
-            # PostgreSQL returned string
-            # -------------------------------------------------
 
-            else:
+            clock_out_naive = (
+                db_clock_out
+            )
 
-                clock_in_text = str(
-                    clock_in_value
-                ).strip()
-
-                clock_in_naive = None
-
-                # Try common datetime formats
-                datetime_formats = [
-                    "%Y-%m-%d %H:%M:%S.%f",
-                    "%Y-%m-%d %H:%M:%S",
-                    "%Y-%m-%d %H:%M"
-                ]
-
-                for fmt in datetime_formats:
-
-                    try:
-
-                        clock_in_naive = (
-                            datetime.strptime(
-                                clock_in_text,
-                                fmt
-                            )
-                        )
-
-                        break
-
-                    except ValueError:
-
-                        continue
-
-                # If it was only a time
-                if clock_in_naive is None:
-
-                    time_formats = [
-                        "%H:%M:%S.%f",
-                        "%H:%M:%S",
-                        "%H:%M"
-                    ]
-
-                    for fmt in time_formats:
-
-                        try:
-
-                            parsed_time = (
-                                datetime.strptime(
-                                    clock_in_text,
-                                    fmt
-                                ).time()
-                            )
-
-                            clock_in_naive = (
-                                datetime.combine(
-                                    nigeria_date,
-                                    parsed_time
-                                )
-                            )
-
-                            break
-
-                        except ValueError:
-
-                            continue
-
-                # -------------------------------------------------
-                # INVALID CLOCK-IN VALUE
-                # -------------------------------------------------
-
-                if clock_in_naive is None:
-
-                    return jsonify({
-                        "success": False,
-                        "message": (
-                            "The clock-in time could not "
-                            "be processed. Please contact "
-                            "the administrator."
-                        )
-                    }), 500
-
-            # =================================================
-            # CALCULATE TOTAL HOURS
-            # =================================================
 
             total_seconds = (
-                db_clock_out
+                clock_out_naive
                 - clock_in_naive
             ).total_seconds()
 
-            # =================================================
-            # INVALID NEGATIVE TIME PROTECTION
-            # =================================================
 
-            if total_seconds < 0:
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "The clock-out time appears to be "
-                        "earlier than the clock-in time. "
-                        "Please contact the administrator."
-                    )
-                }), 400
-
-            # =================================================
-            # TOTAL HOURS
-            # =================================================
-
-            total_hours = (
+            total_hours = max(
+                0,
                 total_seconds / 3600
             )
 
-            total_hours = round(
-                total_hours,
-                2
-            )
 
             # =================================================
             # UPDATE ATTENDANCE
@@ -14830,6 +14545,7 @@ def applicant_clock_out():
                 UPDATE attendance
 
                 SET
+
                     clock_out = %s,
 
                     clock_out_latitude = %s,
@@ -14852,7 +14568,10 @@ def applicant_clock_out():
                     latitude,
                     longitude,
 
-                    total_hours,
+                    round(
+                        total_hours,
+                        2
+                    ),
 
                     current_status,
 
@@ -14862,47 +14581,29 @@ def applicant_clock_out():
                 )
             )
 
-            # =================================================
-            # VERIFY UPDATE
-            # =================================================
-
-            if cur.rowcount != 1:
-
-                conn.rollback()
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "The attendance record could not "
-                        "be updated. Please try again."
-                    )
-                }), 500
-
-            # =================================================
-            # COMMIT
-            # =================================================
 
             conn.commit()
+
 
             # =================================================
             # SUCCESS
             # =================================================
 
             return jsonify({
-
                 "success": True,
 
                 "message": (
                     "Clock-out recorded successfully."
                 ),
 
-                "clock_out": (
-                    nigeria_now.strftime(
-                        "%I:%M %p"
-                    )
+                "clock_out": nigeria_now.strftime(
+                    "%I:%M %p"
                 ),
 
-                "total_hours": total_hours,
+                "total_hours": round(
+                    total_hours,
+                    2
+                ),
 
                 "status": current_status,
 
@@ -14914,28 +14615,18 @@ def applicant_clock_out():
 
                 "allowed_radius": radius,
 
-                "current_time": (
-                    nigeria_now.strftime(
-                        "%I:%M:%S %p"
-                    )
-                ),
-
-                "date": nigeria_date.strftime(
-                    "%Y-%m-%d"
+                "current_time": nigeria_now.strftime(
+                    "%I:%M:%S %p"
                 ),
 
                 "timezone": "Africa/Lagos"
 
             }), 200
 
+
     except Exception:
 
-        if conn is not None:
-
-            try:
-                conn.rollback()
-            except Exception:
-                pass
+        conn.rollback()
 
         app.logger.exception(
             "Applicant clock-out error"
@@ -14949,14 +14640,10 @@ def applicant_clock_out():
             )
         }), 500
 
+
     finally:
 
-        if conn is not None:
-
-            try:
-                conn.close()
-            except Exception:
-                pass
+        conn.close()
 # ============================================================
 # APPLICANT ATTENDANCE HISTORY
 # ============================================================
