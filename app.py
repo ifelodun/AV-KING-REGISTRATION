@@ -1567,15 +1567,21 @@ def admin_login():
 
             conn.close()
 
+
     # =========================================================
     # ALREADY LOGGED IN
     # =========================================================
 
     if session.get("admin_id"):
 
+        # Make sure old admin sessions also have the role
+        session["role"] = "admin"
+        session["admin_logged_in"] = True
+
         return redirect(
             url_for("admin_dashboard")
         )
+
 
     # =========================================================
     # GET REQUEST
@@ -1589,6 +1595,7 @@ def admin_login():
             "admin_login.html",
             settings=settings
         )
+
 
     # =========================================================
     # LOGIN DETAILS
@@ -1607,8 +1614,9 @@ def admin_login():
         ""
     )
 
+
     # =========================================================
-    # VALIDATE
+    # VALIDATE LOGIN FIELDS
     # =========================================================
 
     if not username or not password:
@@ -1623,8 +1631,9 @@ def admin_login():
             settings=get_company_settings()
         )
 
+
     # =========================================================
-    # GET ADMIN ACCOUNT FROM COMPANY SETTINGS
+    # GET ADMIN ACCOUNT
     # =========================================================
 
     settings = get_company_settings()
@@ -1641,6 +1650,11 @@ def admin_login():
             settings=None
         )
 
+
+    # =========================================================
+    # STORED ADMIN DETAILS
+    # =========================================================
+
     stored_username = (
         settings.get("admin_username")
         or ""
@@ -1649,6 +1663,7 @@ def admin_login():
     stored_password_hash = (
         settings.get("admin_password_hash")
     )
+
 
     # =========================================================
     # CHECK USERNAME
@@ -1669,8 +1684,9 @@ def admin_login():
             settings=settings
         )
 
+
     # =========================================================
-    # CHECK PASSWORD
+    # CHECK PASSWORD CONFIGURATION
     # =========================================================
 
     if not stored_password_hash:
@@ -1684,6 +1700,11 @@ def admin_login():
             "admin_login.html",
             settings=settings
         )
+
+
+    # =========================================================
+    # VERIFY PASSWORD
+    # =========================================================
 
     try:
 
@@ -1700,6 +1721,11 @@ def admin_login():
 
         password_valid = False
 
+
+    # =========================================================
+    # INVALID PASSWORD
+    # =========================================================
+
     if not password_valid:
 
         flash(
@@ -1712,25 +1738,37 @@ def admin_login():
             settings=settings
         )
 
+
     # =========================================================
     # LOGIN SUCCESS
     # =========================================================
 
     session.clear()
 
-    # Use settings ID as the administrator session ID
-    session["admin_id"] = settings["id"]
-
-    session["admin_username"] = stored_username
-
-    session["admin_name"] = (
-        stored_username
-    )
-
-    session["admin_logged_in"] = True
 
     # =========================================================
-    # REDIRECT
+    # ADMIN SESSION
+    # =========================================================
+
+    # Company settings ID
+    session["admin_id"] = settings["id"]
+
+    # Admin username
+    session["admin_username"] = stored_username
+
+    # Admin display name
+    session["admin_name"] = stored_username
+
+    # Admin authentication flag
+    session["admin_logged_in"] = True
+
+    # IMPORTANT:
+    # This is what the base.html sidebar uses
+    session["role"] = "admin"
+
+
+    # =========================================================
+    # REDIRECT TO ADMIN DASHBOARD
     # =========================================================
 
     return redirect(
@@ -1739,16 +1777,19 @@ def admin_login():
 # ============================================================
 # ADMIN LOGOUT
 # ============================================================
-
 @app.route("/admin/logout")
 def admin_logout():
 
     session.clear()
 
+    flash(
+        "You have been signed out successfully.",
+        "success"
+    )
+
     return redirect(
         url_for("admin_login")
     )
-
 # ============================================================
 # ADMIN AUTHENTICATION
 # ============================================================
@@ -7587,6 +7628,7 @@ def applicant_login():
 
             conn.close()
 
+
     # =========================================================
     # GET REQUEST
     # =========================================================
@@ -7599,6 +7641,7 @@ def applicant_login():
             "applicant_login.html",
             company_logo=company_logo
         )
+
 
     # =========================================================
     # FORM DATA
@@ -7618,6 +7661,7 @@ def applicant_login():
         ""
     )
 
+
     # =========================================================
     # VALIDATE INPUT
     # =========================================================
@@ -7633,6 +7677,7 @@ def applicant_login():
             "applicant_login.html",
             company_logo=get_company_logo()
         )
+
 
     # =========================================================
     # FIND APPLICANT
@@ -7663,9 +7708,26 @@ def applicant_login():
 
             applicant = cur.fetchone()
 
+    except Exception:
+
+        app.logger.exception(
+            "Unable to retrieve applicant account."
+        )
+
+        flash(
+            "Unable to process your login right now. Please try again.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
     finally:
 
         conn.close()
+
 
     # =========================================================
     # APPLICANT NOT FOUND
@@ -7683,6 +7745,7 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
+
     # =========================================================
     # PORTAL DISABLED
     # =========================================================
@@ -7699,6 +7762,7 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
+
     # =========================================================
     # PASSWORD NOT ACTIVATED
     # =========================================================
@@ -7714,6 +7778,7 @@ def applicant_login():
             "applicant_login.html",
             company_logo=get_company_logo()
         )
+
 
     # =========================================================
     # CHECK PASSWORD
@@ -7734,6 +7799,11 @@ def applicant_login():
 
         password_valid = False
 
+
+    # =========================================================
+    # INVALID PASSWORD
+    # =========================================================
+
     if not password_valid:
 
         flash(
@@ -7746,11 +7816,17 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
+
     # =========================================================
     # LOGIN SUCCESS
     # =========================================================
 
     session.clear()
+
+
+    # =========================================================
+    # APPLICANT SESSION
+    # =========================================================
 
     session["applicant_id"] = applicant["id"]
 
@@ -7759,12 +7835,25 @@ def applicant_login():
     )
 
     session["applicant_name"] = (
-        applicant["first_name"]
+        (
+            applicant["first_name"]
+            or ""
+        ).strip()
         + " "
-        + applicant["last_name"]
-    )
+        + (
+            applicant["last_name"]
+            or ""
+        ).strip()
+    ).strip()
 
     session["applicant_logged_in"] = True
+
+    # IMPORTANT:
+    # This allows base.html to identify the user
+    # as an applicant and show ONLY the applicant
+    # sidebar.
+    session["role"] = "applicant"
+
 
     # =========================================================
     # UPDATE LAST LOGIN
@@ -7801,8 +7890,9 @@ def applicant_login():
 
         conn.close()
 
+
     # =========================================================
-    # REDIRECT
+    # REDIRECT TO APPLICANT PORTAL
     # =========================================================
 
     return redirect(
