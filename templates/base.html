@@ -1,12 +1,16 @@
 <!-- =========================================================
-     APPLICATION SIDEBAR
+     SIDEBAR
+     SIDEBAR ONLY APPEARS AFTER LOGIN
      ========================================================= -->
 
-{% if session.get("admin_logged_in") or session.get("role") == "admin" %}
+{% if session.get("admin_logged_in") and session.get("admin_id") %}
 
 <aside class="app-sidebar" id="appSidebar">
 
-    <!-- BRAND -->
+    <!-- =====================================================
+         ADMIN BRAND
+         ===================================================== -->
+
     <div class="sidebar-brand">
 
         <a href="{{ url_for('admin_dashboard') }}">
@@ -20,6 +24,7 @@
             {% endif %}
 
             <div class="sidebar-brand-text">
+
                 <strong>
                     {{ company_name or "AV KING VET DRUG VENTURE" }}
                 </strong>
@@ -27,6 +32,7 @@
                 <small>
                     ADMINISTRATION
                 </small>
+
             </div>
 
         </a>
@@ -34,8 +40,12 @@
     </div>
 
 
-    <!-- ADMIN NAVIGATION -->
+    <!-- =====================================================
+         ADMIN NAVIGATION
+         ===================================================== -->
+
     <nav class="sidebar-navigation">
+
 
         <!-- OVERVIEW -->
         <div class="sidebar-section">
@@ -48,8 +58,15 @@
                 href="{{ url_for('admin_dashboard') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
             >
-                <span class="sidebar-icon">⌂</span>
-                <span>Dashboard</span>
+
+                <span class="sidebar-icon">
+                    ⌂
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
             </a>
 
         </div>
@@ -62,12 +79,20 @@
                 RECRUITMENT
             </div>
 
+
             <a
                 href="{{ url_for('admin_applications') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_applications' %}active{% endif %}"
             >
-                <span class="sidebar-icon">▤</span>
-                <span>Applications</span>
+
+                <span class="sidebar-icon">
+                    ▤
+                </span>
+
+                <span>
+                    Applications
+                </span>
+
             </a>
 
 
@@ -75,8 +100,15 @@
                 href="{{ url_for('admin_interviews') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_interviews' %}active{% endif %}"
             >
-                <span class="sidebar-icon">◷</span>
-                <span>Interviews</span>
+
+                <span class="sidebar-icon">
+                    ◷
+                </span>
+
+                <span>
+                    Interviews
+                </span>
+
             </a>
 
 
@@ -84,52 +116,49 @@
                 href="{{ url_for('admin_reports') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_reports' %}active{% endif %}"
             >
-                <span class="sidebar-icon">▥</span>
-                <span>Reports</span>
+
+                <span class="sidebar-icon">
+                    ▥
+                </span>
+
+                <span>
+                    Reports
+                </span>
+
             </a>
 
         </div>
 
 
-        <!-- STAFF -->
+        <!-- STAFF MANAGEMENT -->
         <div class="sidebar-section">
 
             <div class="sidebar-section-title">
                 STAFF MANAGEMENT
             </div>
 
-            {# 
-               IMPORTANT:
-               Only use this link if your Flask route is actually
-               named admin_workers.
-            #}
 
-            {% if 'admin_workers' in current_app.view_functions %}
+            <!--
+                IMPORTANT:
+                Do NOT add admin_workers here unless your
+                Flask route is actually named admin_workers.
+            -->
 
-            <a
-                href="{{ url_for('admin_workers') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_workers' %}active{% endif %}"
-            >
-                <span class="sidebar-icon">♙</span>
-                <span>Workers</span>
-            </a>
-
-            {% endif %}
-
-
-            {# Attendance route #}
-
-            {% if 'admin_attendance' in current_app.view_functions %}
 
             <a
                 href="{{ url_for('admin_attendance') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_attendance' %}active{% endif %}"
             >
-                <span class="sidebar-icon">◷</span>
-                <span>Attendance</span>
-            </a>
 
-            {% endif %}
+                <span class="sidebar-icon">
+                    ◷
+                </span>
+
+                <span>
+                    Attendance
+                </span>
+
+            </a>
 
         </div>
 
@@ -141,12 +170,20 @@
                 SYSTEM
             </div>
 
+
             <a
                 href="{{ url_for('admin_settings') }}"
                 class="sidebar-link {% if request.endpoint == 'admin_settings' %}active{% endif %}"
             >
-                <span class="sidebar-icon">⚙</span>
-                <span>Settings</span>
+
+                <span class="sidebar-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
             </a>
 
         </div>
@@ -154,14 +191,23 @@
     </nav>
 
 
-    <!-- ADMIN ACCOUNT -->
+    <!-- =====================================================
+         ADMIN ACCOUNT
+         ===================================================== -->
+
     <div class="sidebar-account">
 
         <div class="sidebar-user">
 
             <div class="sidebar-user-avatar">
-                {{ (session.get("admin_name") or "A")[0]|upper }}
+
+                {{ (
+                    session.get("admin_name")
+                    or "A"
+                )[0]|upper }}
+
             </div>
+
 
             <div class="sidebar-user-info">
 
@@ -182,8 +228,15 @@
             href="{{ url_for('admin_logout') }}"
             class="sidebar-logout"
         >
-            <span>⇥</span>
-            <span>Sign Out</span>
+
+            <span>
+                ⇥
+            </span>
+
+            <span>
+                Sign Out
+            </span>
+
         </a>
 
     </div>
@@ -191,26 +244,37 @@
 </aside>
 
 
-{% elif session.get("applicant_logged_in") or session.get("role") == "applicant" %}
+{% elif session.get("applicant_logged_in") and session.get("applicant_id") %}
+
 
 <!-- =========================================================
      APPLICANT SIDEBAR
      ========================================================= -->
 
-<aside class="app-sidebar applicant-sidebar" id="appSidebar">
+<aside
+    class="app-sidebar applicant-sidebar"
+    id="appSidebar"
+>
 
-    <!-- BRAND -->
+
+    <!-- =====================================================
+         APPLICANT BRAND
+         ===================================================== -->
+
     <div class="sidebar-brand">
 
         <a href="{{ url_for('applicant_portal') }}">
 
             {% if company_logo %}
+
                 <img
                     src="{{ url_for('static', filename='uploads/' ~ company_logo) }}"
-                    alt="Company Logo"
+                    alt="{{ company_name or 'Company Logo' }}"
                     class="sidebar-logo"
                 >
+
             {% endif %}
+
 
             <div class="sidebar-brand-text">
 
@@ -229,7 +293,11 @@
     </div>
 
 
-    <!-- APPLICANT NAVIGATION -->
+    <!-- =====================================================
+         APPLICANT NAVIGATION
+         ONLY ATTENDANCE
+         ===================================================== -->
+
     <nav class="sidebar-navigation">
 
         <div class="sidebar-section">
@@ -239,32 +307,43 @@
             </div>
 
 
-            <!-- ONLY ATTENDANCE -->
-            {% if 'applicant_portal' in current_app.view_functions %}
-
             <a
                 href="{{ url_for('applicant_portal') }}"
                 class="sidebar-link {% if request.endpoint == 'applicant_portal' %}active{% endif %}"
             >
-                <span class="sidebar-icon">◷</span>
-                <span>Attendance</span>
-            </a>
 
-            {% endif %}
+                <span class="sidebar-icon">
+                    ◷
+                </span>
+
+                <span>
+                    Attendance
+                </span>
+
+            </a>
 
         </div>
 
     </nav>
 
 
-    <!-- APPLICANT ACCOUNT -->
+    <!-- =====================================================
+         APPLICANT ACCOUNT
+         ===================================================== -->
+
     <div class="sidebar-account">
 
         <div class="sidebar-user">
 
             <div class="sidebar-user-avatar">
-                {{ (session.get("applicant_name") or "A")[0]|upper }}
+
+                {{ (
+                    session.get("applicant_name")
+                    or "A"
+                )[0]|upper }}
+
             </div>
+
 
             <div class="sidebar-user-info">
 
@@ -285,8 +364,15 @@
             href="{{ url_for('applicant_logout') }}"
             class="sidebar-logout"
         >
-            <span>⇥</span>
-            <span>Sign Out</span>
+
+            <span>
+                ⇥
+            </span>
+
+            <span>
+                Sign Out
+            </span>
+
         </a>
 
     </div>
