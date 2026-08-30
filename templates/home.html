@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -9,21 +10,1037 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <meta
-        name="theme-color"
-        content="#0f172a"
-    >
-
     <title>
         {% block title %}
             {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}
         {% endblock %}
     </title>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
+    <meta
+        name="description"
+        content="AV KING Veterinary Business Suite"
     >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        /* =====================================================
+           RESET
+           ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            width: 100%;
+            min-height: 100vh;
+
+            font-family: "Inter", Arial, sans-serif;
+
+            background: #f5f7fa;
+
+            color: #172033;
+
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           MAIN APPLICATION WRAPPER
+           ===================================================== */
+
+        .app-shell {
+            min-height: 100vh;
+            width: 100%;
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+           ===================================================== */
+
+        .app-sidebar {
+
+            position: fixed;
+
+            left: 0;
+            top: 0;
+            bottom: 0;
+
+            width: 260px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #111827 0%,
+                    #0f172a 100%
+                );
+
+            color: #ffffff;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 1000;
+
+            box-shadow:
+                5px 0 25px rgba(15, 23, 42, 0.10);
+
+        }
+
+
+        /* =====================================================
+           BRAND
+           ===================================================== */
+
+        .sidebar-brand {
+
+            min-height: 82px;
+
+            padding: 17px 19px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,0.08);
+
+        }
+
+
+        .sidebar-logo {
+
+            width: 46px;
+            height: 46px;
+
+            object-fit: contain;
+
+            border-radius: 11px;
+
+            background: #ffffff;
+
+            padding: 4px;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .sidebar-logo-placeholder {
+
+            width: 46px;
+            height: 46px;
+
+            border-radius: 11px;
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border:
+                1px solid rgba(255,255,255,0.10);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 15px;
+
+            font-weight: 800;
+
+            color: #ffffff;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .sidebar-brand-text {
+
+            min-width: 0;
+
+        }
+
+
+        .sidebar-brand-text strong {
+
+            display: block;
+
+            color: #ffffff;
+
+            font-size: 13px;
+
+            line-height: 1.3;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+
+        .sidebar-brand-text span {
+
+            display: block;
+
+            margin-top: 3px;
+
+            color: #94a3b8;
+
+            font-size: 9px;
+
+            font-weight: 600;
+
+            letter-spacing: 0.8px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        /* =====================================================
+           USER INFORMATION
+           ===================================================== */
+
+        .sidebar-user {
+
+            margin:
+                17px 15px 12px;
+
+            padding:
+                13px;
+
+            background:
+                rgba(255,255,255,0.045);
+
+            border:
+                1px solid rgba(255,255,255,0.065);
+
+            border-radius: 11px;
+
+        }
+
+
+        .sidebar-user-label {
+
+            font-size: 8px;
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            text-transform: uppercase;
+
+            color: #64748b;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .sidebar-user-name {
+
+            color: #ffffff;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+        }
+
+
+        .sidebar-user-role {
+
+            margin-top: 4px;
+
+            color: #94a3b8;
+
+            font-size: 9px;
+
+            font-weight: 500;
+
+        }
+
+
+        /* =====================================================
+           NAVIGATION AREA
+           ===================================================== */
+
+        .sidebar-navigation {
+
+            flex: 1;
+
+            overflow-y: auto;
+
+            padding:
+                8px 11px 18px;
+
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar {
+
+            width: 4px;
+
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar-track {
+
+            background: transparent;
+
+        }
+
+
+        .sidebar-navigation::-webkit-scrollbar-thumb {
+
+            background:
+                rgba(255,255,255,0.10);
+
+            border-radius: 10px;
+
+        }
+
+
+        /* =====================================================
+           NAVIGATION SECTION
+           ===================================================== */
+
+        .sidebar-section {
+
+            margin-bottom: 22px;
+
+        }
+
+
+        .sidebar-section-title {
+
+            padding:
+                0 10px 8px;
+
+            color: #64748b;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+            letter-spacing: 1.2px;
+
+            text-transform: uppercase;
+
+        }
+
+
+        /* =====================================================
+           NAVIGATION LINK
+           ===================================================== */
+
+        .sidebar-link {
+
+            position: relative;
+
+            display: flex;
+
+            align-items: center;
+
+            width: 100%;
+
+            min-height: 43px;
+
+            padding:
+                7px 10px;
+
+            margin-bottom: 3px;
+
+            gap: 11px;
+
+            border-radius: 9px;
+
+            color: #cbd5e1;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            transition:
+                background 0.18s ease,
+                color 0.18s ease,
+                transform 0.18s ease;
+
+        }
+
+
+        .sidebar-link:hover {
+
+            background:
+                rgba(255,255,255,0.065);
+
+            color: #ffffff;
+
+            transform:
+                translateX(2px);
+
+        }
+
+
+        .sidebar-link.active {
+
+            background:
+                #2563eb;
+
+            color: #ffffff;
+
+            box-shadow:
+                0 5px 15px
+                rgba(37,99,235,0.22);
+
+        }
+
+
+        .sidebar-link-icon {
+
+            width: 31px;
+            height: 31px;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,0.055);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #cbd5e1;
+
+            font-size: 14px;
+
+            flex-shrink: 0;
+
+        }
+
+
+        .sidebar-link.active
+        .sidebar-link-icon {
+
+            background:
+                rgba(255,255,255,0.14);
+
+            color: #ffffff;
+
+        }
+
+
+        .sidebar-link-text {
+
+            flex: 1;
+
+        }
+
+
+        /* =====================================================
+           SIDEBAR FOOTER
+           ===================================================== */
+
+        .sidebar-footer {
+
+            padding:
+                12px;
+
+            border-top:
+                1px solid rgba(255,255,255,0.08);
+
+        }
+
+
+        .sidebar-signout {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            width: 100%;
+
+            min-height: 43px;
+
+            padding:
+                7px 10px;
+
+            border-radius: 9px;
+
+            color: #fca5a5;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            transition:
+                background 0.18s ease,
+                color 0.18s ease;
+
+        }
+
+
+        .sidebar-signout:hover {
+
+            background:
+                rgba(239,68,68,0.10);
+
+            color: #fecaca;
+
+        }
+
+
+        .sidebar-signout-icon {
+
+            width: 31px;
+            height: 31px;
+
+            border-radius: 8px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                rgba(239,68,68,0.08);
+
+        }
+
+
+        /* =====================================================
+           MAIN CONTENT
+           ===================================================== */
+
+        .app-main {
+
+            min-height: 100vh;
+
+            margin-left: 260px;
+
+            width:
+                calc(100% - 260px);
+
+            padding:
+                25px 28px 40px;
+
+            display: flex;
+
+            justify-content: center;
+
+        }
+
+
+        .app-content {
+
+            width: 100%;
+
+            max-width: 1500px;
+
+            margin:
+                0 auto;
+
+        }
+
+
+        /* =====================================================
+           TOP BAR
+           ===================================================== */
+
+        .app-topbar {
+
+            width: 100%;
+
+            min-height: 58px;
+
+            margin-bottom: 20px;
+
+            padding:
+                0 17px;
+
+            background:
+                #ffffff;
+
+            border:
+                1px solid #e5e7eb;
+
+            border-radius: 11px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            box-shadow:
+                0 2px 8px
+                rgba(15,23,42,0.035);
+
+        }
+
+
+        .topbar-left {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+        .topbar-title {
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #111827;
+
+        }
+
+
+        .topbar-separator {
+
+            color: #cbd5e1;
+
+        }
+
+
+        .topbar-subtitle {
+
+            font-size: 11px;
+
+            color: #6b7280;
+
+        }
+
+
+        .topbar-user {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+        }
+
+
+        .topbar-avatar {
+
+            width: 34px;
+            height: 34px;
+
+            border-radius: 50%;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background:
+                #eff6ff;
+
+            color:
+                #2563eb;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .topbar-user-info strong {
+
+            display: block;
+
+            color: #111827;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .topbar-user-info span {
+
+            display: block;
+
+            margin-top: 2px;
+
+            color: #6b7280;
+
+            font-size: 8px;
+
+        }
+
+
+        /* =====================================================
+           FLASH MESSAGES
+           ===================================================== */
+
+        .flash-container {
+
+            width: 100%;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .flash-message {
+
+            width: 100%;
+
+            padding:
+                11px 14px;
+
+            margin-bottom: 7px;
+
+            border-radius: 8px;
+
+            border:
+                1px solid #e5e7eb;
+
+            background:
+                #ffffff;
+
+            color: #374151;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+        }
+
+
+        .flash-message.success {
+
+            background: #f0fdf4;
+
+            border-color: #bbf7d0;
+
+            color: #166534;
+
+        }
+
+
+        .flash-message.error {
+
+            background: #fef2f2;
+
+            border-color: #fecaca;
+
+            color: #991b1b;
+
+        }
+
+
+        .flash-message.warning {
+
+            background: #fffbeb;
+
+            border-color: #fde68a;
+
+            color: #92400e;
+
+        }
+
+
+        .flash-message.info {
+
+            background: #eff6ff;
+
+            border-color: #bfdbfe;
+
+            color: #1e40af;
+
+        }
+
+
+        /* =====================================================
+           PUBLIC PAGES
+           ===================================================== */
+
+        body.public-page .app-main {
+
+            margin-left: 0;
+
+            width: 100%;
+
+            padding:
+                30px 20px 40px;
+
+        }
+
+
+        body.public-page .app-content {
+
+            max-width: 1200px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE MENU BUTTON
+           ===================================================== */
+
+        .sidebar-mobile-button {
+
+            display: none;
+
+            position: fixed;
+
+            top: 13px;
+
+            left: 13px;
+
+            width: 42px;
+
+            height: 42px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background:
+                #111827;
+
+            color:
+                #ffffff;
+
+            z-index: 1200;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 17px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 5px 15px
+                rgba(15,23,42,0.15);
+
+        }
+
+
+        .sidebar-overlay {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(15,23,42,0.45);
+
+            z-index: 900;
+
+        }
+
+
+        /* =====================================================
+           LARGE COMPUTER SCREEN
+           ===================================================== */
+
+        @media (min-width: 1500px) {
+
+            .app-main {
+
+                padding-left: 35px;
+
+                padding-right: 35px;
+
+            }
+
+            .app-content {
+
+                max-width: 1550px;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           TABLET
+           ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .app-sidebar {
+
+                width: 235px;
+
+            }
+
+            .app-main {
+
+                margin-left: 235px;
+
+                width:
+                    calc(100% - 235px);
+
+                padding:
+                    22px 20px 35px;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 768px) {
+
+            .app-sidebar {
+
+                width: 270px;
+
+                transform:
+                    translateX(-100%);
+
+                transition:
+                    transform 0.25s ease;
+
+            }
+
+
+            .app-sidebar.mobile-open {
+
+                transform:
+                    translateX(0);
+
+            }
+
+
+            .sidebar-mobile-button {
+
+                display: flex;
+
+            }
+
+
+            .sidebar-overlay.mobile-open {
+
+                display: block;
+
+            }
+
+
+            .app-main {
+
+                margin-left: 0;
+
+                width: 100%;
+
+                padding:
+                    70px 14px 30px;
+
+            }
+
+
+            .app-topbar {
+
+                display: none;
+
+            }
+
+
+            .app-content {
+
+                max-width: 100%;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           SMALL PHONE
+           ===================================================== */
+
+        @media (max-width: 480px) {
+
+            .app-main {
+
+                padding-left: 10px;
+
+                padding-right: 10px;
+
+            }
+
+            .sidebar-mobile-button {
+
+                top: 10px;
+
+                left: 10px;
+
+            }
+
+        }
+
+    </style>
+
 
     {% block head %}{% endblock %}
 
@@ -31,42 +1048,54 @@
 
 
 <body
-    class="
-        {% if session.get('admin_logged_in') %}
-            admin-authenticated
-        {% elif session.get('applicant_logged_in') %}
-            applicant-authenticated
-        {% else %}
-            public-page
-        {% endif %}
-    "
+    class="{% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}authenticated-page{% else %}public-page{% endif %}"
 >
 
-
-<!-- =========================================================
-     APPLICATION SHELL
-     ========================================================= -->
 
 <div class="app-shell">
 
 
     <!-- =====================================================
-         SIDEBAR
-         ONLY SHOWN AFTER LOGIN
+         AUTHENTICATED SIDEBAR
          ===================================================== -->
 
-    {% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}
+    {% if session.get("admin_logged_in")
+          or session.get("applicant_logged_in") %}
 
-    <aside class="app-sidebar" id="appSidebar">
+
+        <!-- MOBILE BUTTON -->
+
+        <button
+            type="button"
+            class="sidebar-mobile-button"
+            id="sidebarMobileButton"
+            aria-label="Open navigation"
+        >
+            ☰
+        </button>
+
+
+        <!-- MOBILE OVERLAY -->
+
+        <div
+            class="sidebar-overlay"
+            id="sidebarOverlay"
+        ></div>
 
 
         <!-- =================================================
-             SIDEBAR BRAND
+             SIDEBAR
              ================================================= -->
 
-        <div class="sidebar-brand">
+        <aside
+            class="app-sidebar"
+            id="appSidebar"
+        >
 
-            <div class="sidebar-brand-logo">
+
+            <!-- BRAND -->
+
+            <div class="sidebar-brand">
 
                 {% if company_logo %}
 
@@ -75,17 +1104,19 @@
                             'static',
                             filename='uploads/' ~ company_logo
                         ) }}"
-                        alt="{{ company_name or 'Company Logo' }}"
+                        class="sidebar-logo"
+                        alt="Company Logo"
                     >
 
-                {% elif settings is defined and settings and settings.logo %}
+                {% elif settings and settings.logo %}
 
                     <img
                         src="{{ url_for(
                             'static',
                             filename='uploads/' ~ settings.logo
                         ) }}"
-                        alt="{{ company_name or 'Company Logo' }}"
+                        class="sidebar-logo"
+                        alt="Company Logo"
                     >
 
                 {% else %}
@@ -96,467 +1127,304 @@
 
                 {% endif %}
 
-            </div>
 
-
-            <div class="sidebar-brand-text">
-
-                <strong>
-                    {{ company_name or "AV KING" }}
-                </strong>
-
-                <span>
-                    Recruitment Portal
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             SIDEBAR USER
-             ================================================= -->
-
-        <div class="sidebar-user">
-
-            {% if session.get('admin_logged_in') %}
-
-                <div class="sidebar-user-avatar">
-                    {{ (session.get('admin_name') or 'A')[0]|upper }}
-                </div>
-
-                <div class="sidebar-user-details">
+                <div class="sidebar-brand-text">
 
                     <strong>
-                        {{ session.get('admin_name') or 'Administrator' }}
+                        {{ company_name or "AV KING VET" }}
                     </strong>
 
                     <span>
+                        Veterinary Business Suite
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- USER -->
+
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-label">
+                    Signed in as
+                </div>
+
+
+                {% if session.get("admin_logged_in") %}
+
+                    <div class="sidebar-user-name">
+
+                        {{ session.get("admin_name")
+                           or session.get("admin_username")
+                           or "Administrator" }}
+
+                    </div>
+
+                    <div class="sidebar-user-role">
                         Administrator
-                    </span>
-
-                </div>
-
-            {% elif session.get('applicant_logged_in') %}
-
-                <div class="sidebar-user-avatar">
-                    {{ (session.get('applicant_name') or 'A')[0]|upper }}
-                </div>
-
-                <div class="sidebar-user-details">
-
-                    <strong>
-                        {{ session.get('applicant_name') or 'Applicant' }}
-                    </strong>
-
-                    <span>
-                        Applicant
-                    </span>
-
-                </div>
-
-            {% endif %}
-
-        </div>
+                    </div>
 
 
-        <!-- =================================================
-             SIDEBAR NAVIGATION
-             ================================================= -->
+                {% elif session.get("applicant_logged_in") %}
 
-        <nav class="sidebar-navigation">
+                    <div class="sidebar-user-name">
 
+                        {{ session.get("applicant_name")
+                           or "Applicant" }}
 
-            <!-- =================================================
-                 ADMIN NAVIGATION
-                 ================================================= -->
+                    </div>
 
-            {% if session.get('admin_logged_in') %}
-
-                <div class="sidebar-section-title">
-                    MAIN MENU
-                </div>
-
-
-                <a
-                    href="{{ url_for('admin_dashboard') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_dashboard' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <rect x="3" y="3" width="7" height="7" rx="1"/>
-                            <rect x="14" y="3" width="7" height="7" rx="1"/>
-                            <rect x="3" y="14" width="7" height="7" rx="1"/>
-                            <rect x="14" y="14" width="7" height="7" rx="1"/>
-                        </svg>
-                    </span>
-
-                    <span>
-                        Dashboard
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_applications' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/>
-                            <path d="M8 7h8"/>
-                            <path d="M8 11h8"/>
-                            <path d="M8 15h5"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Applications
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_interviews') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_interviews' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <rect
-                                x="3"
-                                y="4"
-                                width="18"
-                                height="17"
-                                rx="2"
-                            />
-
-                            <path d="M8 2v4"/>
-                            <path d="M16 2v4"/>
-                            <path d="M3 9h18"/>
-                            <path d="M8 13h2"/>
-                            <path d="M14 13h2"/>
-                            <path d="M8 17h2"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Interviews
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_reports' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <path d="M4 19V5"/>
-                            <path d="M4 19h17"/>
-                            <path d="M7 16v-4"/>
-                            <path d="M11 16V8"/>
-                            <path d="M15 16v-6"/>
-                            <path d="M19 16V6"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Reports
-                    </span>
-
-                </a>
-
-
-                <div class="sidebar-section-title sidebar-section-spaced">
-                    MANAGEMENT
-                </div>
-
-
-                {% if endpoint_exists is defined and endpoint_exists('admin_workers') %}
-
-                <a
-                    href="{{ url_for('admin_workers') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_workers' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Workers
-                    </span>
-
-                </a>
+                    <div class="sidebar-user-role">
+                        Applicant Portal
+                    </div>
 
                 {% endif %}
-
-
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'admin_settings' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <circle cx="12" cy="12" r="3"/>
-                            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V22h-2.4v-.2a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.7-1.7.06-.06A1.7 1.7 0 0 0 8.46 17a1.7 1.7 0 0 0-1.56-1.03H6.7v-2.4h.2A1.7 1.7 0 0 0 8.46 12a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.7-1.7.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 12.73 7.2V7h2.4v.2a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.7 1.7-.06.06A1.7 1.7 0 0 0 19.4 12c.22.64.81 1.03 1.48 1.03h.2v2.4h-.2A1.7 1.7 0 0 0 19.4 15z"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Settings
-                    </span>
-
-                </a>
-
-
-            <!-- =================================================
-                 APPLICANT NAVIGATION
-                 ONLY ATTENDANCE + SIGN OUT
-                 ================================================= -->
-
-            {% elif session.get('applicant_logged_in') %}
-
-                <div class="sidebar-section-title">
-                    APPLICANT PORTAL
-                </div>
-
-
-                <a
-                    href="{{ url_for('applicant_portal') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'applicant_portal' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <circle cx="12" cy="9" r="3"/>
-                            <path d="M7 19c.8-2.6 2.5-4 5-4s4.2 1.4 5 4"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        My Portal
-                    </span>
-
-                </a>
-
-
-                {% if endpoint_exists is defined and endpoint_exists('applicant_attendance') %}
-
-                <a
-                    href="{{ url_for('applicant_attendance') }}"
-                    class="
-                        sidebar-link
-                        {% if request.endpoint == 'applicant_attendance' %}
-                            active
-                        {% endif %}
-                    "
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <circle cx="12" cy="12" r="9"/>
-                            <path d="M12 7v5l3 2"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Attendance
-                    </span>
-
-                </a>
-
-                {% endif %}
-
-            {% endif %}
-
-        </nav>
-
-
-        <!-- =================================================
-             SIDEBAR FOOTER
-             ================================================= -->
-
-        <div class="sidebar-footer">
-
-            {% if session.get('admin_logged_in') %}
-
-                <a
-                    href="{{ url_for('admin_logout') }}"
-                    class="sidebar-logout"
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <path d="M10 17l5-5-5-5"/>
-                            <path d="M15 12H3"/>
-                            <path d="M21 19V5a2 2 0 0 0-2-2h-6"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Sign Out
-                    </span>
-
-                </a>
-
-            {% elif session.get('applicant_logged_in') %}
-
-                <a
-                    href="{{ url_for('applicant_logout') }}"
-                    class="sidebar-logout"
-                >
-
-                    <span class="sidebar-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="1.8"
-                        >
-                            <path d="M10 17l5-5-5-5"/>
-                            <path d="M15 12H3"/>
-                            <path d="M21 19V5a2 2 0 0 0-2-2h-6"/>
-                        </svg>
-
-                    </span>
-
-                    <span>
-                        Sign Out
-                    </span>
-
-                </a>
-
-            {% endif %}
-
-
-            <div class="sidebar-copyright">
-
-                <span>
-                    {{ company_name or "AV KING" }}
-                </span>
-
-                <small>
-                    Recruitment Management System
-                </small>
 
             </div>
 
-        </div>
 
-    </aside>
+            <!-- =================================================
+                 NAVIGATION
+                 ================================================= -->
+
+            <nav class="sidebar-navigation">
+
+
+                <!-- =================================================
+                     ADMIN MENU
+                     ================================================= -->
+
+                {% if session.get("admin_logged_in") %}
+
+
+                    <!-- OVERVIEW -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Overview
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_dashboard') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_dashboard' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ⌂
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Dashboard
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- RECRUITMENT -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Recruitment
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_applications') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_applications' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ☷
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Applications
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin_interviews') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_interviews' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ◷
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Interviews
+                            </span>
+
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin_reports') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_reports' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ▥
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Reports
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- ADMINISTRATION -->
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Administration
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('admin_settings') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'admin_settings' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ⚙
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Settings
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                {% endif %}
+
+
+                <!-- =================================================
+                     APPLICANT MENU
+                     ONLY ATTENDANCE
+                     ================================================= -->
+
+                {% if session.get("applicant_logged_in") %}
+
+
+                    <div class="sidebar-section">
+
+                        <div class="sidebar-section-title">
+                            Applicant Portal
+                        </div>
+
+
+                        <a
+                            href="{{ url_for('applicant_portal') }}"
+                            class="sidebar-link
+                            {% if request.endpoint == 'applicant_portal' %}
+                                active
+                            {% endif %}"
+                        >
+
+                            <span class="sidebar-link-icon">
+                                ◉
+                            </span>
+
+                            <span class="sidebar-link-text">
+                                Attendance
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </nav>
+
+
+            <!-- =================================================
+                 SIGN OUT
+                 ================================================= -->
+
+            <div class="sidebar-footer">
+
+
+                {% if session.get("admin_logged_in") %}
+
+
+                    <a
+                        href="{{ url_for('admin_logout') }}"
+                        class="sidebar-signout"
+                    >
+
+                        <span class="sidebar-signout-icon">
+                            ⇥
+                        </span>
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </a>
+
+
+                {% elif session.get("applicant_logged_in") %}
+
+
+                    <a
+                        href="{{ url_for('applicant_logout') }}"
+                        class="sidebar-signout"
+                    >
+
+                        <span class="sidebar-signout-icon">
+                            ⇥
+                        </span>
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </a>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+        </aside>
+
 
     {% endif %}
 
@@ -566,309 +1434,309 @@
          MAIN AREA
          ========================================================= -->
 
-    <div
-        class="
-            app-main
-            {% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}
-                authenticated-main
-            {% else %}
-                public-main
+    <main class="app-main">
+
+        <div class="app-content">
+
+
+            <!-- =================================================
+                 TOP BAR
+                 ================================================= -->
+
+            {% if session.get("admin_logged_in")
+                  or session.get("applicant_logged_in") %}
+
+
+                <div class="app-topbar">
+
+
+                    <div class="topbar-left">
+
+                        <div class="topbar-title">
+
+                            {% if session.get("admin_logged_in") %}
+
+                                Administration
+
+                            {% else %}
+
+                                Applicant Portal
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="topbar-separator">
+                            /
+                        </div>
+
+
+                        <div class="topbar-subtitle">
+
+                            {% if request.endpoint %}
+
+                                {{ request.endpoint
+                                   |replace("_", " ")
+                                   |title }}
+
+                            {% else %}
+
+                                Dashboard
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="topbar-user">
+
+
+                        <div class="topbar-avatar">
+
+                            {% if session.get("admin_logged_in") %}
+
+                                {{
+                                    (
+                                        session.get("admin_name")
+                                        or session.get("admin_username")
+                                        or "A"
+                                    )[0]|upper
+                                }}
+
+                            {% else %}
+
+                                {{
+                                    (
+                                        session.get("applicant_name")
+                                        or "A"
+                                    )[0]|upper
+                                }}
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="topbar-user-info">
+
+                            <strong>
+
+                                {% if session.get("admin_logged_in") %}
+
+                                    {{ session.get("admin_name")
+                                       or session.get("admin_username")
+                                       or "Administrator" }}
+
+                                {% else %}
+
+                                    {{ session.get("applicant_name")
+                                       or "Applicant" }}
+
+                                {% endif %}
+
+                            </strong>
+
+
+                            <span>
+
+                                {% if session.get("admin_logged_in") %}
+
+                                    Administrator
+
+                                {% else %}
+
+                                    Applicant
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
             {% endif %}
-        "
-    >
-
-
-        <!-- =====================================================
-             TOP HEADER FOR LOGGED-IN USERS
-             ===================================================== -->
-
-        {% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}
-
-        <header class="top-header">
-
-            <div class="top-header-left">
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Toggle navigation"
-                >
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M4 6h16"/>
-                        <path d="M4 12h16"/>
-                        <path d="M4 18h16"/>
-                    </svg>
-
-                </button>
-
-
-                <div class="top-page-info">
-
-                    <span class="top-page-label">
-
-                        {% if session.get('admin_logged_in') %}
-                            ADMINISTRATION
-                        {% else %}
-                            APPLICANT PORTAL
-                        {% endif %}
-
-                    </span>
-
-                    <strong>
-
-                        {% block page_heading %}
-                            Dashboard
-                        {% endblock %}
-
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <div class="top-header-right">
-
-                <div class="top-user">
-
-                    <div class="top-user-avatar">
-
-                        {% if session.get('admin_logged_in') %}
-
-                            {{ (session.get('admin_name') or 'A')[0]|upper }}
-
-                        {% else %}
-
-                            {{ (session.get('applicant_name') or 'A')[0]|upper }}
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="top-user-info">
-
-                        <strong>
-
-                            {% if session.get('admin_logged_in') %}
-
-                                {{ session.get('admin_name') or 'Administrator' }}
-
-                            {% else %}
-
-                                {{ session.get('applicant_name') or 'Applicant' }}
-
-                            {% endif %}
-
-                        </strong>
-
-                        <span>
-
-                            {% if session.get('admin_logged_in') %}
-                                Administrator
-                            {% else %}
-                                Applicant
-                            {% endif %}
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </header>
-
-        {% endif %}
 
 
 
-        <!-- =====================================================
-             PAGE CONTENT
-             ===================================================== -->
+            <!-- =================================================
+                 FLASH MESSAGES
+                 ================================================= -->
 
-        <main class="page-container">
+            {% with messages =
+                get_flashed_messages(
+                    with_categories=true
+                )
+            %}
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
 
                 {% if messages %}
 
+
                     <div class="flash-container">
+
 
                         {% for category, message in messages %}
 
+
                             <div
-                                class="
-                                    flash-message
-                                    flash-{{ category }}
-                                "
+                                class="flash-message {{ category }}"
                             >
 
-                                <span class="flash-icon">
-
-                                    {% if category == 'success' %}
-                                        ✓
-                                    {% elif category == 'error' %}
-                                        !
-                                    {% elif category == 'warning' %}
-                                        !
-                                    {% else %}
-                                        i
-                                    {% endif %}
-
-                                </span>
-
-                                <span>
-                                    {{ message }}
-                                </span>
+                                {{ message }}
 
                             </div>
 
+
                         {% endfor %}
+
 
                     </div>
 
+
                 {% endif %}
+
 
             {% endwith %}
 
 
+
+            <!-- =================================================
+                 PAGE CONTENT
+                 ================================================= -->
+
             {% block content %}{% endblock %}
 
-        </main>
 
+        </div>
 
-        <!-- =====================================================
-             FOOTER
-             ===================================================== -->
+    </main>
 
-        {% if not session.get('admin_logged_in')
-              and not session.get('applicant_logged_in') %}
-
-        <footer class="public-footer">
-
-            <div>
-
-                <strong>
-                    {{ company_name or "AV KING VET DRUG VENTURE" }}
-                </strong>
-
-                {% if company_address %}
-                    <span>
-                        {{ company_address }}
-                    </span>
-                {% endif %}
-
-            </div>
-
-            <div>
-
-                {% if company_email %}
-                    <span>
-                        {{ company_email }}
-                    </span>
-                {% endif %}
-
-                {% if company_phone %}
-                    <span>
-                        {{ company_phone }}
-                    </span>
-                {% endif %}
-
-            </div>
-
-        </footer>
-
-        {% endif %}
-
-    </div>
 
 </div>
 
 
 
 <!-- =========================================================
-     SIDEBAR MOBILE OVERLAY
-     ========================================================= -->
-
-{% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
-
-{% endif %}
-
-
-
-<!-- =========================================================
-     JAVASCRIPT
+     MOBILE SIDEBAR SCRIPT
      ========================================================= -->
 
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
+    const sidebar =
+        document.getElementById("appSidebar");
 
-    const sidebar = document.getElementById("appSidebar");
-    const toggle = document.getElementById("sidebarToggle");
-    const overlay = document.getElementById("sidebarOverlay");
+    const sidebarButton =
+        document.getElementById("sidebarMobileButton");
 
-
-    if (!sidebar || !toggle) {
-        return;
-    }
+    const sidebarOverlay =
+        document.getElementById("sidebarOverlay");
 
 
-    toggle.addEventListener("click", function () {
+    function openSidebar() {
 
-        sidebar.classList.toggle("sidebar-open");
-
-        if (overlay) {
-            overlay.classList.toggle("overlay-visible");
+        if (!sidebar) {
+            return;
         }
 
-    });
+        sidebar.classList.add(
+            "mobile-open"
+        );
 
+        if (sidebarOverlay) {
 
-    if (overlay) {
+            sidebarOverlay.classList.add(
+                "mobile-open"
+            );
 
-        overlay.addEventListener("click", function () {
-
-            sidebar.classList.remove("sidebar-open");
-
-            overlay.classList.remove("overlay-visible");
-
-        });
+        }
 
     }
 
-});
+
+    function closeSidebar() {
+
+        if (!sidebar) {
+            return;
+        }
+
+        sidebar.classList.remove(
+            "mobile-open"
+        );
+
+        if (sidebarOverlay) {
+
+            sidebarOverlay.classList.remove(
+                "mobile-open"
+            );
+
+        }
+
+    }
 
 
-/* =========================================================
-   AUTO HIDE FLASH MESSAGES
-   ========================================================= */
+    if (sidebarButton) {
 
-setTimeout(function () {
+        sidebarButton.addEventListener(
+            "click",
+            openSidebar
+        );
+
+    }
+
+
+    if (sidebarOverlay) {
+
+        sidebarOverlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+
+    }
+
 
     document
-        .querySelectorAll(".flash-message")
-        .forEach(function (message) {
+        .querySelectorAll(".sidebar-link")
+        .forEach(function(link) {
 
-            message.classList.add("flash-hide");
+            link.addEventListener(
+                "click",
+                function() {
+
+                    if (
+                        window.innerWidth <= 768
+                    ) {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
 
         });
 
-}, 6000);
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Escape") {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
 
 </script>
 
@@ -876,4 +1744,5 @@ setTimeout(function () {
 {% block scripts %}{% endblock %}
 
 </body>
+
 </html>
