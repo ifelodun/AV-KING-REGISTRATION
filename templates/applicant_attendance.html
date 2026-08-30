@@ -92,9 +92,7 @@
             (
                 (applicant.first_name or "")[:1]
                 ~
-                (
-                    (applicant.last_name or "")[:1]
-                )
+                ((applicant.last_name or "")[:1])
             )|upper
         }}
 
@@ -107,6 +105,7 @@
         </span>
 
         <h2>
+
             {{ applicant.first_name or "" }}
 
             {% if applicant.middle_name %}
@@ -114,6 +113,7 @@
             {% endif %}
 
             {{ applicant.last_name or "" }}
+
         </h2>
 
         <div class="profile-meta">
@@ -303,11 +303,17 @@
         >
 
             {% if attendance and attendance.clock_in and attendance.clock_out %}
+
                 Completed
+
             {% elif attendance and attendance.clock_in %}
+
                 Clocked In
+
             {% else %}
+
                 Not Recorded
+
             {% endif %}
 
         </div>
@@ -702,6 +708,7 @@
         class="attendance-result"
         style="display:none;"
         role="alert"
+        aria-live="polite"
     ></div>
 
 </section>
@@ -801,7 +808,9 @@
 
                         {% else %}
 
-                            <span class="muted-value">—</span>
+                            <span class="muted-value">
+                                —
+                            </span>
 
                         {% endif %}
 
@@ -818,7 +827,9 @@
 
                         {% else %}
 
-                            <span class="muted-value">—</span>
+                            <span class="muted-value">
+                                —
+                            </span>
 
                         {% endif %}
 
@@ -941,7 +952,6 @@
     </div>
 
 </section>
-
 
 </div>
 
@@ -1313,7 +1323,7 @@
 
 
 /* =============================================================
-   CARDS
+   MAIN CARDS
 ============================================================= */
 
 .attendance-main-card,
@@ -1333,6 +1343,10 @@
     gap: 20px;
     padding: 23px 25px;
     border-bottom: 1px solid #eef0f2;
+}
+
+.section-heading > div:first-child {
+    min-width: 0;
 }
 
 .section-heading span {
@@ -1531,6 +1545,7 @@
     color: #6b7280;
     font-size: 9px;
     font-weight: 800;
+    white-space: nowrap;
 }
 
 .location-status-indicator.ready {
@@ -1633,6 +1648,10 @@
     box-shadow: 0 7px 18px rgba(0,0,0,.09);
 }
 
+.attendance-action-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
 .attendance-action-button:disabled {
     opacity: .45;
     cursor: not-allowed;
@@ -1694,9 +1713,11 @@
 }
 
 @keyframes attendanceSpin {
+
     to {
         transform: rotate(360deg);
     }
+
 }
 
 .attendance-processing strong {
@@ -1782,6 +1803,10 @@
     color: #374151;
     font-size: 12px;
     vertical-align: middle;
+}
+
+.attendance-history-table tbody tr {
+    transition: background .15s ease;
 }
 
 .attendance-history-table tbody tr:hover {
@@ -2020,7 +2045,7 @@
 
 <!-- =============================================================
      JAVASCRIPT
-============================================================= -->
+============================================================== -->
 
 <script>
 
@@ -2030,6 +2055,24 @@
 /* =============================================================
    FLASK CONFIGURATION
 ============================================================= */
+
+/*
+ * IMPORTANT:
+ *
+ * PostgreSQL TIME columns are returned by psycopg as
+ * Python datetime.time objects.
+ *
+ * Passing a datetime.time directly through:
+ *
+ *     |tojson
+ *
+ * causes:
+ *
+ *     TypeError: Object of type time is not JSON serializable
+ *
+ * Therefore we explicitly convert every attendance time
+ * to a string before JSON encoding.
+ */
 
 const ATTENDANCE_CONFIG = {
 
@@ -2041,19 +2084,39 @@ const ATTENDANCE_CONFIG = {
         {% endif %},
 
     clockInStart:
-        {{ (settings.clock_in_start if settings and settings.clock_in_start else "06:00")|tojson }},
+        {% if settings and settings.clock_in_start %}
+            {{ settings.clock_in_start|string|tojson }}
+        {% else %}
+            "06:00"
+        {% endif %},
 
     clockInEnd:
-        {{ (settings.clock_in_end if settings and settings.clock_in_end else "10:00")|tojson }},
+        {% if settings and settings.clock_in_end %}
+            {{ settings.clock_in_end|string|tojson }}
+        {% else %}
+            "10:00"
+        {% endif %},
 
     clockOutStart:
-        {{ (settings.clock_out_start if settings and settings.clock_out_start else "15:00")|tojson }},
+        {% if settings and settings.clock_out_start %}
+            {{ settings.clock_out_start|string|tojson }}
+        {% else %}
+            "15:00"
+        {% endif %},
 
     clockOutEnd:
-        {{ (settings.clock_out_end if settings and settings.clock_out_end else "23:00")|tojson }},
+        {% if settings and settings.clock_out_end %}
+            {{ settings.clock_out_end|string|tojson }}
+        {% else %}
+            "23:00"
+        {% endif %},
 
     attendanceRadius:
-        {{ settings.attendance_radius if settings and settings.attendance_radius else 200 }},
+        {% if settings and settings.attendance_radius %}
+            {{ settings.attendance_radius|float }}
+        {% else %}
+            200
+        {% endif %},
 
     clockInEndpoint:
         {{ url_for("applicant_clock_in")|tojson }},
@@ -2082,29 +2145,42 @@ function updateNigeriaClock() {
         return;
     }
 
-    dateElement.textContent =
-        new Intl.DateTimeFormat(
-            "en-NG",
-            {
-                timeZone: "Africa/Lagos",
-                weekday: "long",
-                day: "2-digit",
-                month: "long",
-                year: "numeric"
-            }
-        ).format(now);
+    try {
 
-    timeElement.textContent =
-        new Intl.DateTimeFormat(
-            "en-NG",
-            {
-                timeZone: "Africa/Lagos",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: true
-            }
-        ).format(now);
+        dateElement.textContent =
+            new Intl.DateTimeFormat(
+                "en-NG",
+                {
+                    timeZone: "Africa/Lagos",
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            ).format(now);
+
+        timeElement.textContent =
+            new Intl.DateTimeFormat(
+                "en-NG",
+                {
+                    timeZone: "Africa/Lagos",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true
+                }
+            ).format(now);
+
+    }
+    catch (error) {
+
+        console.error(
+            "Nigeria clock error:",
+            error
+        );
+
+    }
+
 }
 
 
@@ -2154,12 +2230,23 @@ function timeToMinutes(value) {
         ||
         minutes > 59
     ) {
+
         return null;
+
     }
 
-    return hours * 60 + minutes;
+    return (
+        hours * 60
+        +
+        minutes
+    );
+
 }
 
+
+/* =============================================================
+   GET NIGERIA MINUTES
+============================================================= */
 
 function getNigeriaMinutes() {
 
@@ -2172,7 +2259,9 @@ function getNigeriaMinutes() {
                 minute: "2-digit",
                 hourCycle: "h23"
             }
-        ).formatToParts(new Date());
+        ).formatToParts(
+            new Date()
+        );
 
     let hour = 0;
     let minute = 0;
@@ -2189,9 +2278,18 @@ function getNigeriaMinutes() {
 
     }
 
-    return hour * 60 + minute;
+    return (
+        hour * 60
+        +
+        minute
+    );
+
 }
 
+
+/* =============================================================
+   TIME WINDOW
+============================================================= */
 
 function isWithinTimeWindow(
     currentMinutes,
@@ -2205,8 +2303,14 @@ function isWithinTimeWindow(
     const end =
         timeToMinutes(endTime);
 
-    if (start === null || end === null) {
+    if (
+        start === null
+        ||
+        end === null
+    ) {
+
         return false;
+
     }
 
     if (start <= end) {
@@ -2219,11 +2323,20 @@ function isWithinTimeWindow(
 
     }
 
+    /*
+     * Overnight window.
+     *
+     * Example:
+     *
+     * 22:00 -> 02:00
+     */
+
     return (
         currentMinutes >= start
         ||
         currentMinutes <= end
     );
+
 }
 
 
@@ -2242,6 +2355,7 @@ function escapeHtml(value) {
             : String(value);
 
     return div.innerHTML;
+
 }
 
 
@@ -2280,6 +2394,7 @@ function showResult(
 
     result.style.display =
         "block";
+
 }
 
 
@@ -2301,20 +2416,29 @@ function getCurrentLocation() {
                 );
 
                 return;
+
             }
+
 
             navigator.geolocation.getCurrentPosition(
 
                 function(position) {
 
                     const latitude =
-                        Number(position.coords.latitude);
+                        Number(
+                            position.coords.latitude
+                        );
 
                     const longitude =
-                        Number(position.coords.longitude);
+                        Number(
+                            position.coords.longitude
+                        );
 
                     const accuracy =
-                        Number(position.coords.accuracy);
+                        Number(
+                            position.coords.accuracy
+                        );
+
 
                     if (
                         !Number.isFinite(latitude)
@@ -2329,7 +2453,9 @@ function getCurrentLocation() {
                         );
 
                         return;
+
                     }
+
 
                     const latitudeElement =
                         document.getElementById(
@@ -2341,12 +2467,14 @@ function getCurrentLocation() {
                             "userLongitude"
                         );
 
+
                     if (latitudeElement) {
 
                         latitudeElement.textContent =
                             latitude.toFixed(7);
 
                     }
+
 
                     if (longitudeElement) {
 
@@ -2355,10 +2483,12 @@ function getCurrentLocation() {
 
                     }
 
+
                     const indicator =
                         document.getElementById(
                             "locationStatusIndicator"
                         );
+
 
                     if (indicator) {
 
@@ -2370,11 +2500,14 @@ function getCurrentLocation() {
 
                     }
 
+
                     resolve({
 
-                        latitude: latitude,
+                        latitude:
+                            latitude,
 
-                        longitude: longitude,
+                        longitude:
+                            longitude,
 
                         accuracy:
                             Number.isFinite(accuracy)
@@ -2385,10 +2518,12 @@ function getCurrentLocation() {
 
                 },
 
+
                 function(error) {
 
                     let message =
                         "Unable to determine your current location.";
+
 
                     if (error.code === 1) {
 
@@ -2396,12 +2531,14 @@ function getCurrentLocation() {
                             "Location permission was denied. Please allow location access for this website.";
 
                     }
+
                     else if (error.code === 2) {
 
                         message =
                             "Your device could not determine your location. Turn on GPS/location services and try again.";
 
                     }
+
                     else if (error.code === 3) {
 
                         message =
@@ -2409,10 +2546,12 @@ function getCurrentLocation() {
 
                     }
 
+
                     const indicator =
                         document.getElementById(
                             "locationStatusIndicator"
                         );
+
 
                     if (indicator) {
 
@@ -2424,11 +2563,13 @@ function getCurrentLocation() {
 
                     }
 
+
                     reject(
                         new Error(message)
                     );
 
                 },
+
 
                 {
                     enableHighAccuracy: true,
@@ -2440,6 +2581,7 @@ function getCurrentLocation() {
 
         }
     );
+
 }
 
 
@@ -2450,7 +2592,12 @@ function getCurrentLocation() {
 async function readAttendanceResponse(response) {
 
     const contentType =
-        response.headers.get("content-type") || "";
+        response.headers.get(
+            "content-type"
+        )
+        ||
+        "";
+
 
     if (
         contentType
@@ -2463,7 +2610,13 @@ async function readAttendanceResponse(response) {
             return await response.json();
 
         }
+
         catch (error) {
+
+            console.error(
+                "JSON parsing error:",
+                error
+            );
 
             throw new Error(
                 "The server returned invalid JSON."
@@ -2473,22 +2626,29 @@ async function readAttendanceResponse(response) {
 
     }
 
+
     const text =
         await response.text();
+
 
     console.error(
         "Unexpected attendance response:",
         text
     );
 
+
     if (
         response.redirected
         ||
         response.url.includes("/login")
         ||
-        text.toLowerCase().includes("<!doctype")
+        text
+            .toLowerCase()
+            .includes("<!doctype")
         ||
-        text.toLowerCase().includes("<html")
+        text
+            .toLowerCase()
+            .includes("<html")
     ) {
 
         throw new Error(
@@ -2497,14 +2657,16 @@ async function readAttendanceResponse(response) {
 
     }
 
+
     throw new Error(
         "The server returned an unexpected response."
     );
+
 }
 
 
 /* =============================================================
-   SET PROCESSING
+   PROCESSING STATE
 ============================================================= */
 
 function setProcessing(
@@ -2528,6 +2690,7 @@ function setProcessing(
             "processingMessage"
         );
 
+
     if (processing) {
 
         processing.style.display =
@@ -2537,19 +2700,30 @@ function setProcessing(
 
     }
 
-    if (processingTitle && title) {
+
+    if (
+        processingTitle
+        &&
+        title
+    ) {
 
         processingTitle.textContent =
             title;
 
     }
 
-    if (processingMessage && message) {
+
+    if (
+        processingMessage
+        &&
+        message
+    ) {
 
         processingMessage.textContent =
             message;
 
     }
+
 }
 
 
@@ -2569,12 +2743,14 @@ function restoreButtons() {
             "clockOutButton"
         );
 
+
     const hasClockIn =
         {% if attendance and attendance.clock_in %}
             true
         {% else %}
             false
         {% endif %};
+
 
     const hasClockOut =
         {% if attendance and attendance.clock_out %}
@@ -2583,6 +2759,7 @@ function restoreButtons() {
             false
         {% endif %};
 
+
     if (clockInButton) {
 
         clockInButton.disabled =
@@ -2590,12 +2767,16 @@ function restoreButtons() {
 
     }
 
+
     if (clockOutButton) {
 
         clockOutButton.disabled =
-            !hasClockIn || hasClockOut;
+            !hasClockIn
+            ||
+            hasClockOut;
 
     }
+
 }
 
 
@@ -2617,19 +2798,23 @@ function updateVerification(
                 "clockOutVerification"
             );
 
+
     if (!element) {
         return;
     }
+
 
     element.className =
         verified
             ? "verified-text"
             : "warning-text";
 
+
     element.textContent =
         verified
             ? "✓ Location verified"
             : "Location not verified";
+
 }
 
 
@@ -2644,16 +2829,20 @@ function updateDistance(distance) {
             "distanceFromCompany"
         );
 
+
     if (!element) {
         return;
     }
 
+
     const numericDistance =
         Number(distance);
+
 
     if (!Number.isFinite(numericDistance)) {
         return;
     }
+
 
     element.textContent =
         numericDistance.toLocaleString(
@@ -2664,11 +2853,12 @@ function updateDistance(distance) {
         )
         +
         " m";
+
 }
 
 
 /* =============================================================
-   UPDATE STATUS
+   UPDATE ATTENDANCE STATUS
 ============================================================= */
 
 function updateAttendanceStatus(action) {
@@ -2678,9 +2868,11 @@ function updateAttendanceStatus(action) {
             "attendanceStatus"
         );
 
+
     if (!badge) {
         return;
     }
+
 
     if (action === "clock-in") {
 
@@ -2691,6 +2883,7 @@ function updateAttendanceStatus(action) {
             "attendance-status-badge status-active";
 
     }
+
     else {
 
         badge.textContent =
@@ -2700,6 +2893,7 @@ function updateAttendanceStatus(action) {
             "attendance-status-badge status-complete";
 
     }
+
 }
 
 
@@ -2719,29 +2913,37 @@ async function recordAttendance(action) {
             "clockOutButton"
         );
 
+
     const button =
         action === "clock-in"
             ? clockInButton
             : clockOutButton;
+
 
     const locationMessage =
         document.getElementById(
             "locationMessage"
         );
 
+
     const result =
         document.getElementById(
             "attendanceResult"
         );
+
 
     if (!button || button.disabled) {
         return;
     }
 
 
-    /* Attendance enabled */
+    /* =========================================================
+       ATTENDANCE ENABLED
+    ========================================================== */
 
-    if (!ATTENDANCE_CONFIG.attendanceEnabled) {
+    if (
+        !ATTENDANCE_CONFIG.attendanceEnabled
+    ) {
 
         showResult(
             "error",
@@ -2750,23 +2952,29 @@ async function recordAttendance(action) {
         );
 
         return;
+
     }
 
 
-    /* Client-side time check */
+    /* =========================================================
+       CLIENT-SIDE TIME CHECK
+    ========================================================== */
 
     const currentMinutes =
         getNigeriaMinutes();
+
 
     const windowStart =
         action === "clock-in"
             ? ATTENDANCE_CONFIG.clockInStart
             : ATTENDANCE_CONFIG.clockOutStart;
 
+
     const windowEnd =
         action === "clock-in"
             ? ATTENDANCE_CONFIG.clockInEnd
             : ATTENDANCE_CONFIG.clockOutEnd;
+
 
     if (
         !isWithinTimeWindow(
@@ -2795,14 +3003,18 @@ async function recordAttendance(action) {
         );
 
         return;
+
     }
 
 
-    /* Disable both buttons */
+    /* =========================================================
+       DISABLE BOTH BUTTONS
+    ========================================================== */
 
     if (clockInButton) {
         clockInButton.disabled = true;
     }
+
 
     if (clockOutButton) {
         clockOutButton.disabled = true;
@@ -2831,7 +3043,9 @@ async function recordAttendance(action) {
 
     try {
 
-        /* Get fresh location */
+        /* =====================================================
+           GET FRESH LOCATION
+        ====================================================== */
 
         const position =
             await getCurrentLocation();
@@ -2852,22 +3066,33 @@ async function recordAttendance(action) {
         );
 
 
-        /* Form */
+        /* =====================================================
+           FORM DATA
+        ====================================================== */
 
         const formData =
             new FormData();
+
 
         formData.append(
             "latitude",
             String(position.latitude)
         );
 
+
         formData.append(
             "longitude",
             String(position.longitude)
         );
 
-        if (position.accuracy !== null) {
+
+        if (
+            position.accuracy !== null
+            &&
+            Number.isFinite(
+                position.accuracy
+            )
+        ) {
 
             formData.append(
                 "accuracy",
@@ -2877,14 +3102,21 @@ async function recordAttendance(action) {
         }
 
 
-        /* CSRF */
+        /* =====================================================
+           CSRF TOKEN
+        ====================================================== */
 
         const csrfInput =
             document.querySelector(
                 'input[name="csrf_token"]'
             );
 
-        if (csrfInput && csrfInput.value) {
+
+        if (
+            csrfInput
+            &&
+            csrfInput.value
+        ) {
 
             formData.append(
                 "csrf_token",
@@ -2894,7 +3126,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* Endpoint */
+        /* =====================================================
+           ENDPOINT
+        ====================================================== */
 
         const endpoint =
             action === "clock-in"
@@ -2902,21 +3136,28 @@ async function recordAttendance(action) {
                 : ATTENDANCE_CONFIG.clockOutEndpoint;
 
 
-        /* Request */
+        /* =====================================================
+           SERVER REQUEST
+        ====================================================== */
 
         const response =
             await fetch(
                 endpoint,
                 {
                     method: "POST",
+
                     body: formData,
+
                     credentials: "same-origin",
+
                     headers: {
                         "X-Requested-With":
                             "XMLHttpRequest",
+
                         "Accept":
                             "application/json"
                     },
+
                     redirect: "follow"
                 }
             );
@@ -2928,7 +3169,9 @@ async function recordAttendance(action) {
             );
 
 
-        /* Distance */
+        /* =====================================================
+           DISTANCE
+        ====================================================== */
 
         if (
             data.distance !== undefined
@@ -2943,7 +3186,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* HTTP error */
+        /* =====================================================
+           HTTP ERROR
+        ====================================================== */
 
         if (!response.ok) {
 
@@ -2956,7 +3201,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* Application error */
+        /* =====================================================
+           APPLICATION ERROR
+        ====================================================== */
 
         if (!data.success) {
 
@@ -2969,7 +3216,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* Success */
+        /* =====================================================
+           SUCCESS
+        ====================================================== */
 
         showResult(
             "success",
@@ -2984,7 +3233,9 @@ async function recordAttendance(action) {
         );
 
 
-        /* Clock-in */
+        /* =====================================================
+           CLOCK-IN TIME
+        ====================================================== */
 
         if (
             action === "clock-in"
@@ -2997,6 +3248,7 @@ async function recordAttendance(action) {
                     "clockInTime"
                 );
 
+
             if (clockInTime) {
 
                 clockInTime.textContent =
@@ -3007,7 +3259,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* Clock-out */
+        /* =====================================================
+           CLOCK-OUT TIME
+        ====================================================== */
 
         if (
             action === "clock-out"
@@ -3020,6 +3274,7 @@ async function recordAttendance(action) {
                     "clockOutTime"
                 );
 
+
             if (clockOutTime) {
 
                 clockOutTime.textContent =
@@ -3030,7 +3285,9 @@ async function recordAttendance(action) {
         }
 
 
-        /* Hours */
+        /* =====================================================
+           TOTAL HOURS
+        ====================================================== */
 
         if (
             data.total_hours !== undefined
@@ -3043,19 +3300,34 @@ async function recordAttendance(action) {
                     "totalHours"
                 );
 
+
             if (totalHours) {
 
-                totalHours.textContent =
+                const numericHours =
                     Number(
                         data.total_hours
-                    ).toFixed(2);
+                    );
+
+
+                if (
+                    Number.isFinite(
+                        numericHours
+                    )
+                ) {
+
+                    totalHours.textContent =
+                        numericHours.toFixed(2);
+
+                }
 
             }
 
         }
 
 
-        /* Verification */
+        /* =====================================================
+           LOCATION VERIFICATION
+        ====================================================== */
 
         if (
             data.location_verified !== undefined
@@ -3069,6 +3341,7 @@ async function recordAttendance(action) {
             );
 
         }
+
         else {
 
             updateVerification(
@@ -3079,16 +3352,18 @@ async function recordAttendance(action) {
         }
 
 
+        /* =====================================================
+           UPDATE STATUS
+        ====================================================== */
+
         updateAttendanceStatus(
             action
         );
 
 
-        /*
-         * Reload after successful database update.
-         * This ensures history and server-side values
-         * are completely refreshed.
-         */
+        /* =====================================================
+           REFRESH PAGE
+        ====================================================== */
 
         setTimeout(
             function() {
@@ -3099,9 +3374,12 @@ async function recordAttendance(action) {
             1200
         );
 
+
         return;
 
     }
+
+
     catch (error) {
 
         console.error(
@@ -3122,6 +3400,8 @@ async function recordAttendance(action) {
         restoreButtons();
 
     }
+
+
     finally {
 
         setProcessing(
@@ -3143,10 +3423,12 @@ document.addEventListener(
 
         restoreButtons();
 
+
         const locationMessage =
             document.getElementById(
                 "locationMessage"
             );
+
 
         if (locationMessage) {
 
