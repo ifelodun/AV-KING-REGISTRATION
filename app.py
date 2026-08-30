@@ -3518,6 +3518,24 @@ def update_application_status(application_id):
         )
     )
 
+# =========================================================
+# NIGERIA DATE / TIME HELPER
+# =========================================================
+
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+
+def get_nigeria_now():
+    """
+    Return the current date and time in Nigeria.
+
+    Nigeria uses the Africa/Lagos timezone.
+    """
+
+    return datetime.now(
+        ZoneInfo("Africa/Lagos")
+    )
 # ============================================================
 # ADMIN DASHBOARD
 # ============================================================
