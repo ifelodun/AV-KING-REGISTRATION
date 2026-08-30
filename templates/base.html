@@ -12,14 +12,10 @@
 
     <title>
         {% block title %}
-            {{ company_name or "AV KING Recruitment" }}
+            {{ company_name or "AV KING" }}
         {% endblock %}
     </title>
 
-
-    <!-- =====================================================
-         FONT
-    ====================================================== -->
 
     <link
         rel="preconnect"
@@ -37,10 +33,6 @@
         rel="stylesheet"
     >
 
-
-    <!-- =====================================================
-         GLOBAL CSS
-    ====================================================== -->
 
     <style>
 
@@ -77,13 +69,7 @@
 
         /* =====================================================
            NORMAL / PUBLIC PAGE
-           NO SIDEBAR
         ====================================================== */
-
-        .public-main {
-            width: 100%;
-            min-height: 100vh;
-        }
 
         .public-content {
             width: 100%;
@@ -97,8 +83,8 @@
 
         .admin-shell {
             display: flex;
-            width: 100%;
             min-height: 100vh;
+            width: 100%;
         }
 
 
@@ -106,36 +92,33 @@
            ADMIN SIDEBAR
         ====================================================== */
 
-        .app-sidebar {
-
+        .admin-sidebar {
             position: fixed;
 
-            left: 0;
             top: 0;
+            left: 0;
             bottom: 0;
 
             width: 260px;
+
+            display: flex;
+            flex-direction: column;
 
             background: #111827;
 
             color: #ffffff;
 
-            display: flex;
-            flex-direction: column;
-
             z-index: 1000;
 
             border-right: 1px solid #1f2937;
-
         }
 
 
         /* =====================================================
-           SIDEBAR BRAND
+           BRAND
         ====================================================== */
 
-        .app-sidebar-brand {
-
+        .admin-sidebar-brand {
             height: 82px;
 
             display: flex;
@@ -146,12 +129,10 @@
             border-bottom:
                 1px solid
                 rgba(255,255,255,.07);
-
         }
 
 
-        .app-brand-logo {
-
+        .admin-logo {
             width: 43px;
             height: 43px;
 
@@ -175,43 +156,30 @@
             font-size: 14px;
             font-weight: 800;
 
-            letter-spacing: .5px;
-
             box-shadow:
                 0 8px 20px
                 rgba(37,99,235,.25);
-
         }
 
 
-        .app-brand-text {
-
+        .admin-brand-text {
             margin-left: 11px;
-
-            min-width: 0;
-
         }
 
 
-        .app-brand-name {
-
+        .admin-brand-name {
             display: block;
 
             color: #ffffff;
 
             font-size: 14px;
-
             font-weight: 800;
 
             letter-spacing: .7px;
-
-            line-height: 1.2;
-
         }
 
 
-        .app-brand-subtitle {
-
+        .admin-brand-subtitle {
             display: block;
 
             margin-top: 4px;
@@ -219,60 +187,49 @@
             color: #94a3b8;
 
             font-size: 9px;
-
             font-weight: 700;
 
             letter-spacing: 1.3px;
-
         }
 
 
         /* =====================================================
-           SIDEBAR NAV
+           NAVIGATION
         ====================================================== */
 
-        .app-sidebar-nav {
-
+        .admin-navigation {
             flex: 1;
 
             padding: 18px 12px;
 
             overflow-y: auto;
-
         }
 
 
-        .app-nav-section-title {
-
+        .admin-nav-title {
             padding:
                 7px 12px 9px;
 
             color: #64748b;
 
             font-size: 9px;
-
             font-weight: 800;
 
             letter-spacing: 1.3px;
 
             text-transform: uppercase;
-
         }
 
 
-        .app-nav-link {
-
-            position: relative;
-
+        .admin-nav-link {
             display: flex;
-
             align-items: center;
 
             width: 100%;
 
             min-height: 44px;
 
-            padding: 0 12px;
+            padding: 0 10px;
 
             margin-bottom: 4px;
 
@@ -283,28 +240,23 @@
             text-decoration: none;
 
             font-size: 12.5px;
-
             font-weight: 600;
 
             transition:
                 background .18s ease,
                 color .18s ease;
-
         }
 
 
-        .app-nav-link:hover {
-
+        .admin-nav-link:hover {
             color: #ffffff;
 
             background:
-                rgba(255,255,255,.065);
-
+                rgba(255,255,255,.06);
         }
 
 
-        .app-nav-link.active {
-
+        .admin-nav-link.active {
             color: #ffffff;
 
             background: #2563eb;
@@ -312,17 +264,14 @@
             box-shadow:
                 0 7px 18px
                 rgba(37,99,235,.22);
-
         }
 
 
-        .app-nav-icon {
-
-            width: 32px;
-            height: 32px;
+        .admin-nav-icon {
+            width: 34px;
+            height: 34px;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
@@ -331,79 +280,56 @@
             color: #94a3b8;
 
             font-size: 15px;
-
-            border-radius: 7px;
-
         }
 
 
-        .app-nav-link:hover
-        .app-nav-icon {
-
+        .admin-nav-link.active
+        .admin-nav-icon {
             color: #ffffff;
-
         }
 
 
-        .app-nav-link.active
-        .app-nav-icon {
-
-            color: #ffffff;
-
-        }
-
-
-        .app-nav-label {
-
+        .admin-nav-label {
             flex: 1;
-
         }
 
 
-        .app-nav-divider {
-
+        .admin-nav-divider {
             height: 1px;
+
+            margin:
+                16px 8px;
 
             background:
                 rgba(255,255,255,.07);
-
-            margin:
-                15px 8px;
-
         }
 
 
         /* =====================================================
-           SIDEBAR FOOTER
+           ADMIN ACCOUNT
         ====================================================== */
 
-        .app-sidebar-footer {
-
+        .admin-sidebar-footer {
             padding: 14px;
 
             border-top:
                 1px solid
                 rgba(255,255,255,.07);
-
         }
 
 
-        .app-admin-profile {
-
+        .admin-profile {
             display: flex;
-
             align-items: center;
 
             gap: 10px;
 
             padding:
                 5px 5px 13px;
-
         }
 
 
-        .app-admin-avatar {
-
+        .admin-avatar {
             width: 38px;
             height: 38px;
 
@@ -413,54 +339,34 @@
 
             background: #263244;
 
-            border:
-                1px solid
-                rgba(255,255,255,.08);
-
             display: flex;
-
             align-items: center;
             justify-content: center;
 
             color: #ffffff;
 
             font-size: 12px;
-
             font-weight: 800;
-
         }
 
 
-        .app-admin-info {
-
-            min-width: 0;
-
-        }
-
-
-        .app-admin-name {
-
+        .admin-profile-name {
             display: block;
 
             max-width: 150px;
 
             overflow: hidden;
-
             text-overflow: ellipsis;
-
             white-space: nowrap;
 
             color: #ffffff;
 
             font-size: 12px;
-
             font-weight: 700;
-
         }
 
 
-        .app-admin-role {
-
+        .admin-profile-role {
             display: block;
 
             margin-top: 3px;
@@ -468,20 +374,15 @@
             color: #94a3b8;
 
             font-size: 10px;
-
         }
 
 
-        .app-signout {
-
+        .admin-signout {
             display: flex;
-
             align-items: center;
-
             justify-content: center;
 
             width: 100%;
-
             height: 39px;
 
             border:
@@ -495,23 +396,15 @@
             text-decoration: none;
 
             font-size: 11.5px;
-
             font-weight: 700;
-
-            transition:
-                background .18s ease,
-                color .18s ease;
-
         }
 
 
-        .app-signout:hover {
-
+        .admin-signout:hover {
             color: #ffffff;
 
             background:
                 rgba(255,255,255,.06);
-
         }
 
 
@@ -520,21 +413,17 @@
         ====================================================== */
 
         .admin-main {
-
-            width:
-                calc(100% - 260px);
+            width: calc(100% - 260px);
 
             min-height: 100vh;
 
             margin-left: 260px;
 
             background: #f5f7fb;
-
         }
 
 
         .admin-content {
-
             width: 100%;
 
             max-width: 1600px;
@@ -542,46 +431,38 @@
             margin: 0 auto;
 
             padding: 30px;
-
         }
 
 
         /* =====================================================
-           MOBILE HEADER
+           MOBILE
         ====================================================== */
 
-        .mobile-header {
-
+        .mobile-admin-header {
             display: none;
 
             height: 62px;
 
-            padding: 0 16px;
+            padding: 0 15px;
 
             align-items: center;
-
             justify-content: space-between;
 
             background: #111827;
 
             color: #ffffff;
-
         }
 
 
-        .mobile-brand {
-
+        .mobile-admin-brand {
             display: flex;
-
             align-items: center;
 
             gap: 9px;
-
         }
 
 
-        .mobile-brand-logo {
-
+        .mobile-admin-logo {
             width: 34px;
             height: 34px;
 
@@ -590,26 +471,15 @@
             background: #2563eb;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
             font-size: 11px;
-
             font-weight: 800;
-
         }
 
 
-        .mobile-brand strong {
-
-            font-size: 12px;
-
-        }
-
-
-        .mobile-menu-button {
-
+        .mobile-admin-menu {
             width: 38px;
             height: 38px;
 
@@ -622,15 +492,13 @@
 
             color: #ffffff;
 
-            cursor: pointer;
-
             font-size: 18px;
 
+            cursor: pointer;
         }
 
 
-        .sidebar-overlay {
-
+        .admin-overlay {
             display: none;
 
             position: fixed;
@@ -641,65 +509,49 @@
                 rgba(15,23,42,.45);
 
             z-index: 999;
-
         }
 
 
         /* =====================================================
-           RESPONSIVE ADMIN
+           RESPONSIVE
         ====================================================== */
 
         @media (max-width: 900px) {
 
-            .app-sidebar {
-
-                width: 245px;
-
+            .admin-sidebar {
                 transform:
                     translateX(-100%);
 
                 transition:
                     transform .25s ease;
-
             }
 
 
-            .app-sidebar.mobile-open {
-
+            .admin-sidebar.mobile-open {
                 transform:
                     translateX(0);
-
-            }
-
-
-            .sidebar-overlay.mobile-open {
-
-                display: block;
-
-            }
-
-
-            .mobile-header {
-
-                display: flex;
-
             }
 
 
             .admin-main {
-
                 width: 100%;
 
                 margin-left: 0;
+            }
 
+
+            .mobile-admin-header {
+                display: flex;
+            }
+
+
+            .admin-overlay.mobile-open {
+                display: block;
             }
 
 
             .admin-content {
-
-                padding:
-                    20px 16px 30px;
-
+                padding: 20px 16px 30px;
             }
 
         }
@@ -708,10 +560,8 @@
         @media (max-width: 480px) {
 
             .admin-content {
-
                 padding:
                     16px 12px 25px;
-
             }
 
         }
@@ -728,40 +578,42 @@
 <body>
 
 
-{% if session.get("role") == "admin" %}
+{% if session.get("admin_name") %}
 
     <!-- =====================================================
-         ADMIN LOGGED-IN LAYOUT
+         ADMIN IS LOGGED IN
+         SHOW SIDEBAR
     ====================================================== -->
+
 
     <div class="admin-shell">
 
 
         <!-- =================================================
-             ADMIN SIDEBAR
+             SIDEBAR
         ================================================== -->
 
         <aside
-            class="app-sidebar"
-            id="appSidebar"
+            class="admin-sidebar"
+            id="adminSidebar"
         >
 
 
             <!-- BRAND -->
 
-            <div class="app-sidebar-brand">
+            <div class="admin-sidebar-brand">
 
-                <div class="app-brand-logo">
+                <div class="admin-logo">
                     AV
                 </div>
 
-                <div class="app-brand-text">
+                <div class="admin-brand-text">
 
-                    <span class="app-brand-name">
+                    <span class="admin-brand-name">
                         AV KING
                     </span>
 
-                    <span class="app-brand-subtitle">
+                    <span class="admin-brand-subtitle">
                         RECRUITMENT MANAGEMENT
                     </span>
 
@@ -774,184 +626,168 @@
                  NAVIGATION
             ================================================== -->
 
-            <nav class="app-sidebar-nav">
+            <nav class="admin-navigation">
 
 
-                <div class="app-nav-section-title">
+                <div class="admin-nav-title">
                     Main Menu
                 </div>
 
 
-                <!-- DASHBOARD -->
-
                 <a
                     href="{{ url_for('admin_dashboard') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_dashboard' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ▣
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Dashboard
                     </span>
 
                 </a>
 
 
-                <!-- APPLICATIONS -->
-
                 <a
                     href="{{ url_for('admin_applications') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_applications' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ☷
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Applications
                     </span>
 
                 </a>
 
 
-                <!-- POSITIONS -->
-
                 <a
                     href="{{ url_for('admin_positions') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_positions' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ▤
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Manage Positions
                     </span>
 
                 </a>
 
 
-                <!-- INTERVIEWS -->
-
                 <a
                     href="{{ url_for('admin_interviews') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_interviews' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ◷
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Interviews
                     </span>
 
                 </a>
 
 
-                <!-- ATTENDANCE -->
-
                 <a
                     href="{{ url_for('admin_attendance') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_attendance' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ◉
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Attendance
                     </span>
 
                 </a>
 
 
-                <!-- MONTHLY ATTENDANCE -->
-
                 <a
                     href="{{ url_for('admin_monthly_attendance') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_monthly_attendance' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ▦
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Monthly Attendance
                     </span>
 
                 </a>
 
 
-                <!-- REPORTS -->
-
                 <a
                     href="{{ url_for('admin_reports') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_reports' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ▥
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Reports
                     </span>
 
                 </a>
 
 
-                <div class="app-nav-divider"></div>
+                <div class="admin-nav-divider"></div>
 
 
-                <div class="app-nav-section-title">
+                <div class="admin-nav-title">
                     System
                 </div>
 
 
-                <!-- SETTINGS -->
-
                 <a
                     href="{{ url_for('admin_settings') }}"
-                    class="app-nav-link
+                    class="admin-nav-link
                     {% if request.endpoint == 'admin_settings' %}
                         active
                     {% endif %}"
                 >
 
-                    <span class="app-nav-icon">
+                    <span class="admin-nav-icon">
                         ⚙
                     </span>
 
-                    <span class="app-nav-label">
+                    <span class="admin-nav-label">
                         Settings
                     </span>
 
@@ -965,12 +801,12 @@
                  ADMIN PROFILE
             ================================================== -->
 
-            <div class="app-sidebar-footer">
+            <div class="admin-sidebar-footer">
 
 
-                <div class="app-admin-profile">
+                <div class="admin-profile">
 
-                    <div class="app-admin-avatar">
+                    <div class="admin-avatar">
 
                         {{ session.get(
                             "admin_name",
@@ -980,9 +816,9 @@
                     </div>
 
 
-                    <div class="app-admin-info">
+                    <div>
 
-                        <span class="app-admin-name">
+                        <span class="admin-profile-name">
 
                             {{ session.get(
                                 "admin_name",
@@ -992,7 +828,7 @@
                         </span>
 
 
-                        <span class="app-admin-role">
+                        <span class="admin-profile-role">
                             Administrator
                         </span>
 
@@ -1003,12 +839,13 @@
 
                 <a
                     href="{{ url_for('admin_logout') }}"
-                    class="app-signout"
+                    class="admin-signout"
                 >
                     Sign Out
                 </a>
 
             </div>
+
 
         </aside>
 
@@ -1017,11 +854,11 @@
              MOBILE HEADER
         ================================================== -->
 
-        <header class="mobile-header">
+        <header class="mobile-admin-header">
 
-            <div class="mobile-brand">
+            <div class="mobile-admin-brand">
 
-                <div class="mobile-brand-logo">
+                <div class="mobile-admin-logo">
                     AV
                 </div>
 
@@ -1034,7 +871,7 @@
 
             <button
                 type="button"
-                class="mobile-menu-button"
+                class="mobile-admin-menu"
                 onclick="toggleAdminSidebar()"
             >
                 ☰
@@ -1044,14 +881,14 @@
 
 
         <div
-            class="sidebar-overlay"
-            id="sidebarOverlay"
+            class="admin-overlay"
+            id="adminOverlay"
             onclick="toggleAdminSidebar()"
         ></div>
 
 
         <!-- =================================================
-             ADMIN MAIN
+             ADMIN CONTENT
         ================================================== -->
 
         <main class="admin-main">
@@ -1071,44 +908,32 @@
 
 {% else %}
 
+
     <!-- =====================================================
-         PUBLIC / LOGIN / APPLICANT LAYOUT
-         NO SIDEBAR
+         USER / PUBLIC PAGE
+         NO ADMIN SIDEBAR
     ====================================================== -->
 
-    <main class="public-main">
+    <div class="public-content">
 
-        <div class="public-content">
+        {% block content %}
+        {% endblock %}
 
-            {% block content %}
-            {% endblock %}
+    </div>
 
-        </div>
-
-    </main>
 
 {% endif %}
 
-
-<!-- =========================================================
-     MOBILE SIDEBAR SCRIPT
-========================================================= -->
-
-{% if session.get("role") == "admin" %}
 
 <script>
 
 function toggleAdminSidebar() {
 
     const sidebar =
-        document.getElementById(
-            "appSidebar"
-        );
+        document.getElementById("adminSidebar");
 
     const overlay =
-        document.getElementById(
-            "sidebarOverlay"
-        );
+        document.getElementById("adminOverlay");
 
 
     if (!sidebar || !overlay) {
@@ -1123,73 +948,64 @@ function toggleAdminSidebar() {
     overlay.classList.toggle(
         "mobile-open"
     );
-
 }
 
-
-/* Close sidebar after selecting a link */
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
         document
-            .querySelectorAll(
-                ".app-nav-link"
-            )
-            .forEach(
-                function(link) {
+            .querySelectorAll(".admin-nav-link")
+            .forEach(function (link) {
 
-                    link.addEventListener(
-                        "click",
-                        function() {
+                link.addEventListener(
+                    "click",
+                    function () {
 
-                            if (
-                                window.innerWidth <= 900
-                            ) {
+                        if (
+                            window.innerWidth <= 900
+                        ) {
 
-                                const sidebar =
-                                    document.getElementById(
-                                        "appSidebar"
-                                    );
+                            const sidebar =
+                                document.getElementById(
+                                    "adminSidebar"
+                                );
 
-                                const overlay =
-                                    document.getElementById(
-                                        "sidebarOverlay"
-                                    );
+                            const overlay =
+                                document.getElementById(
+                                    "adminOverlay"
+                                );
 
 
-                                if (sidebar) {
+                            if (sidebar) {
 
-                                    sidebar.classList.remove(
-                                        "mobile-open"
-                                    );
+                                sidebar.classList.remove(
+                                    "mobile-open"
+                                );
 
-                                }
+                            }
 
 
-                                if (overlay) {
+                            if (overlay) {
 
-                                    overlay.classList.remove(
-                                        "mobile-open"
-                                    );
-
-                                }
+                                overlay.classList.remove(
+                                    "mobile-open"
+                                );
 
                             }
 
                         }
-                    );
 
-                }
-            );
+                    }
+                );
+
+            });
 
     }
 );
 
 </script>
-
-{% endif %}
 
 
 {% block scripts %}
