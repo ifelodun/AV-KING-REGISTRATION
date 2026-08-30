@@ -4,519 +4,399 @@
 Admin Dashboard | {{ company_name }}
 {% endblock %}
 
+
 {% block content %}
 
 <style>
 
 /* =========================================================
-   ADMIN DASHBOARD
-   ========================================================= */
+   DASHBOARD
+========================================================= */
 
-.admin-dashboard {
-    min-height: calc(100vh - 70px);
-    background: #f5f7fb;
-}
-
-
-/* =========================================================
-   LAYOUT
-   ========================================================= */
-
-.admin-layout {
-    display: flex;
-    min-height: calc(100vh - 70px);
-}
-
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-.admin-sidebar {
-    width: 260px;
-    flex-shrink: 0;
-    background: #111827;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 70px);
-    border-right: 1px solid #1f2937;
-}
-
-
-/* BRAND */
-
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 24px 20px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
-}
-
-.sidebar-logo {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: .5px;
-    box-shadow: 0 8px 20px rgba(37,99,235,.25);
-}
-
-.sidebar-brand strong {
-    display: block;
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: .5px;
-}
-
-.sidebar-brand small {
-    display: block;
-    margin-top: 3px;
-    color: #9ca3af;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-}
-
-
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
-
-.admin-nav {
-    flex: 1;
-    padding: 18px 12px;
-}
-
-.admin-nav a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 44px;
-    padding: 11px 13px;
-    margin-bottom: 5px;
-    border-radius: 9px;
-    color: #cbd5e1;
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 500;
-    transition: all .2s ease;
-}
-
-.admin-nav a span {
-    width: 22px;
-    text-align: center;
-    font-size: 16px;
-    opacity: .9;
-}
-
-.admin-nav a:hover {
-    color: #ffffff;
-    background: rgba(255,255,255,.07);
-}
-
-.admin-nav a.active {
-    color: #ffffff;
-    background: #2563eb;
-    box-shadow: 0 6px 16px rgba(37,99,235,.22);
-}
-
-.nav-divider {
-    height: 1px;
-    background: rgba(255,255,255,.08);
-    margin: 18px 8px;
-}
-
-
-/* =========================================================
-   SIDEBAR BOTTOM
-   ========================================================= */
-
-.sidebar-bottom {
-    padding: 16px 14px;
-    border-top: 1px solid rgba(255,255,255,.08);
-}
-
-.admin-user {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 8px 5px 14px;
-}
-
-.user-avatar {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: #374151;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.admin-user strong {
-    display: block;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.admin-user small {
-    display: block;
-    margin-top: 3px;
-    color: #9ca3af;
-    font-size: 11px;
-}
-
-.logout-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.dashboard-page {
     width: 100%;
-    min-height: 40px;
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 8px;
-    color: #d1d5db;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all .2s ease;
-}
-
-.logout-link:hover {
-    color: #ffffff;
-    background: rgba(255,255,255,.07);
 }
 
 
 /* =========================================================
-   MAIN
-   ========================================================= */
+   PAGE HEADER
+========================================================= */
 
-.admin-main {
-    flex: 1;
-    min-width: 0;
-    padding: 30px;
-}
-
-
-/* =========================================================
-   TOP BAR
-   ========================================================= */
-
-.admin-topbar {
+.dashboard-header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     gap: 25px;
-    margin-bottom: 28px;
+
+    margin-bottom: 27px;
 }
 
-.page-label {
-    display: inline-flex;
-    align-items: center;
-    color: #2563eb;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.3px;
+
+.dashboard-eyebrow {
+    display: block;
+
     margin-bottom: 7px;
-}
 
-.admin-topbar h1 {
-    margin: 0;
-    color: #111827;
-    font-size: 30px;
-    line-height: 1.2;
+    color: #2563eb;
+
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: -.5px;
+
+    letter-spacing: 1.3px;
 }
 
-.admin-topbar p {
+
+.dashboard-header h1 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 29px;
+    font-weight: 800;
+
+    letter-spacing: -.6px;
+}
+
+
+.dashboard-header p {
     margin: 8px 0 0;
+
     color: #6b7280;
-    font-size: 14px;
+
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 
 /* =========================================================
-   BUTTON
-   ========================================================= */
+   PORTAL BUTTON
+========================================================= */
 
-.dashboard-btn {
+.portal-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-height: 44px;
-    padding: 0 18px;
-    border-radius: 9px;
+
+    min-height: 43px;
+
+    padding: 0 17px;
+
+    border-radius: 8px;
+
     background: #2563eb;
+
     color: #ffffff;
+
     text-decoration: none;
-    font-size: 13px;
+
+    font-size: 12px;
     font-weight: 700;
-    white-space: nowrap;
-    box-shadow: 0 5px 14px rgba(37,99,235,.18);
-    transition: all .2s ease;
+
+    box-shadow:
+        0 6px 16px
+        rgba(37,99,235,.18);
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
 }
 
-.dashboard-btn:hover {
+
+.portal-button:hover {
     background: #1d4ed8;
+
     color: #ffffff;
+
     transform: translateY(-1px);
 }
 
 
 /* =========================================================
    STATISTICS
-   ========================================================= */
+========================================================= */
 
-.stats-grid {
+.dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 14px;
-    margin-bottom: 25px;
+
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+    gap: 13px;
+
+    margin-bottom: 23px;
 }
 
-.stat-card {
+
+.dashboard-stat {
     position: relative;
-    overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 18px;
+
     min-height: 112px;
-    box-shadow: 0 2px 7px rgba(15,23,42,.03);
-    transition: transform .2s ease, box-shadow .2s ease;
+
+    padding: 17px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 11px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 7px
+        rgba(15,23,42,.03);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
 }
 
-.stat-card:hover {
+
+.dashboard-stat:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(15,23,42,.07);
+
+    box-shadow:
+        0 8px 20px
+        rgba(15,23,42,.07);
 }
 
-.stat-card::after {
-    content: "";
-    position: absolute;
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    background: #eff6ff;
-    right: -25px;
-    top: -25px;
-}
 
-.stat-top {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.stat-icon {
+.dashboard-stat-icon {
     width: 36px;
     height: 36px;
-    border-radius: 9px;
-    background: #eff6ff;
-    color: #2563eb;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+
+    border-radius: 9px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 13px;
     font-weight: 800;
 }
 
-.stat-card span {
+
+.dashboard-stat-label {
     display: block;
-    margin-top: 15px;
+
+    margin-top: 14px;
+
     color: #6b7280;
-    font-size: 11.5px;
-    line-height: 1.3;
+
+    font-size: 10.5px;
 }
 
-.stat-card strong {
+
+.dashboard-stat-value {
     display: block;
+
     margin-top: 4px;
+
     color: #111827;
-    font-size: 24px;
-    line-height: 1;
+
+    font-size: 23px;
     font-weight: 800;
+
+    line-height: 1;
 }
 
 
 /* =========================================================
-   PANELS
-   ========================================================= */
+   PANEL
+========================================================= */
 
-.admin-panel {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 13px;
+.dashboard-panel {
     margin-bottom: 22px;
-    box-shadow: 0 2px 7px rgba(15,23,42,.03);
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 12px;
+
     overflow: hidden;
+
+    box-shadow:
+        0 2px 7px
+        rgba(15,23,42,.03);
 }
 
-.panel-heading {
+
+.dashboard-panel-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    padding: 20px 22px;
-    border-bottom: 1px solid #eef0f3;
+
+    padding: 19px 21px;
+
+    border-bottom:
+        1px solid #eef0f3;
 }
 
-.panel-heading span {
+
+.dashboard-panel-eyebrow {
     display: block;
-    color: #2563eb;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
+
     margin-bottom: 5px;
+
+    color: #2563eb;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
 }
 
-.panel-heading h2 {
+
+.dashboard-panel-title {
     margin: 0;
+
     color: #111827;
-    font-size: 17px;
+
+    font-size: 16px;
     font-weight: 750;
 }
 
-.panel-link {
+
+.dashboard-panel-link {
     color: #2563eb;
+
     text-decoration: none;
-    font-size: 12.5px;
+
+    font-size: 11.5px;
     font-weight: 700;
 }
 
-.panel-link:hover {
+
+.dashboard-panel-link:hover {
     text-decoration: underline;
 }
 
 
 /* =========================================================
    TABLE
-   ========================================================= */
+========================================================= */
 
-.table-wrapper {
+.dashboard-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
-.admin-table {
+
+.dashboard-table {
     width: 100%;
+
+    min-width: 700px;
+
     border-collapse: collapse;
-    min-width: 720px;
 }
 
-.admin-table th {
-    padding: 12px 22px;
+
+.dashboard-table th {
+    padding: 12px 21px;
+
     background: #f9fafb;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
     color: #6b7280;
+
     text-align: left;
-    font-size: 10.5px;
+
+    font-size: 9.5px;
     font-weight: 800;
-    text-transform: uppercase;
+
     letter-spacing: .7px;
-    border-bottom: 1px solid #e5e7eb;
-    white-space: nowrap;
+
+    text-transform: uppercase;
 }
 
-.admin-table td {
-    padding: 15px 22px;
+
+.dashboard-table td {
+    padding: 14px 21px;
+
+    border-bottom:
+        1px solid #f0f1f3;
+
     color: #374151;
-    font-size: 13px;
-    border-bottom: 1px solid #f0f1f3;
-    vertical-align: middle;
+
+    font-size: 12px;
 }
 
-.admin-table tbody tr:last-child td {
-    border-bottom: none;
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: 0;
 }
 
-.admin-table tbody tr {
-    transition: background .15s ease;
-}
 
-.admin-table tbody tr:hover {
+.dashboard-table tbody tr:hover {
     background: #fafcff;
 }
 
-.admin-table td strong {
+
+.dashboard-table strong {
     color: #111827;
-    font-weight: 700;
 }
 
 
 /* =========================================================
-   STATUS BADGES
-   ========================================================= */
+   STATUS
+========================================================= */
 
-.status {
+.dashboard-status {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-height: 27px;
-    padding: 4px 9px;
+
+    min-height: 25px;
+
+    padding:
+        3px 9px;
+
     border-radius: 999px;
-    font-size: 10.5px;
-    font-weight: 750;
-    white-space: nowrap;
+
     background: #f3f4f6;
+
     color: #4b5563;
+
+    font-size: 9.5px;
+    font-weight: 750;
 }
 
 
-/* PENDING */
-
-.status-pending {
-    background: #fff7ed;
-    color: #c2410c;
-}
-
-
-/* UNDER REVIEW */
-
-.status-under-review {
-    background: #eff6ff;
-    color: #1d4ed8;
-}
-
-
-/* SHORTLISTED */
-
-.status-shortlisted {
-    background: #f0fdf4;
-    color: #15803d;
-}
-
-
-/* APPROVED */
-
-.status-approved {
+.dashboard-status.status-approved {
     background: #ecfdf5;
     color: #047857;
 }
 
 
-/* REJECTED */
+.dashboard-status.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
 
-.status-rejected {
+
+.dashboard-status.status-under-review {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+
+.dashboard-status.status-shortlisted {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+
+.dashboard-status.status-rejected {
     background: #fef2f2;
     color: #b91c1c;
 }
@@ -524,128 +404,162 @@ Admin Dashboard | {{ company_name }}
 
 /* =========================================================
    EMPTY STATE
-   ========================================================= */
+========================================================= */
 
-.empty-state {
-    padding: 55px 25px;
+.dashboard-empty {
+    padding: 55px 20px;
+
     text-align: center;
 }
 
-.empty-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 14px;
-    border-radius: 50%;
-    background: #f3f4f6;
-    color: #9ca3af;
+
+.dashboard-empty-icon {
+    width: 45px;
+    height: 45px;
+
+    margin:
+        0 auto 13px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    color: #9ca3af;
+
+    font-size: 18px;
 }
 
-.empty-state h3 {
+
+.dashboard-empty h3 {
     margin: 0;
+
     color: #111827;
-    font-size: 15px;
-    font-weight: 700;
+
+    font-size: 14px;
 }
 
-.empty-state p {
+
+.dashboard-empty p {
     margin: 7px 0 0;
+
     color: #6b7280;
-    font-size: 13px;
+
+    font-size: 12px;
 }
 
 
 /* =========================================================
    QUICK ACTIONS
-   ========================================================= */
+========================================================= */
 
 .quick-actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    padding: 20px 22px 22px;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 13px;
+
+    padding: 20px;
 }
 
+
 .quick-action {
-    display: block;
-    text-decoration: none;
-    padding: 18px;
-    border: 1px solid #e5e7eb;
-    border-radius: 11px;
+    padding: 17px;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 10px;
+
     background: #ffffff;
-    transition: all .2s ease;
+
+    text-decoration: none;
+
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
 }
+
 
 .quick-action:hover {
     border-color: #bfdbfe;
+
     background: #f8fbff;
+
     transform: translateY(-2px);
-    box-shadow: 0 7px 18px rgba(15,23,42,.05);
+
+    box-shadow:
+        0 7px 18px
+        rgba(15,23,42,.05);
 }
 
+
 .quick-action-icon {
-    width: 38px;
-    height: 38px;
-    margin-bottom: 13px;
-    border-radius: 9px;
-    background: #eff6ff;
-    color: #2563eb;
+    width: 36px;
+    height: 36px;
+
+    margin-bottom: 12px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+
+    border-radius: 8px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 13px;
     font-weight: 800;
 }
 
+
 .quick-action strong {
     display: block;
+
+    margin-bottom: 5px;
+
     color: #111827;
-    font-size: 13px;
+
+    font-size: 12px;
     font-weight: 750;
-    margin-bottom: 6px;
 }
+
 
 .quick-action span {
     display: block;
+
     color: #6b7280;
-    font-size: 12px;
+
+    font-size: 11px;
+
     line-height: 1.55;
 }
 
 
 /* =========================================================
    RESPONSIVE
-   ========================================================= */
+========================================================= */
 
 @media (max-width: 1250px) {
 
-    .stats-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .dashboard-stats {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
     }
+
 
     .quick-actions {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-}
-
-
-@media (max-width: 900px) {
-
-    .admin-sidebar {
-        width: 220px;
-    }
-
-    .admin-main {
-        padding: 22px;
-    }
-
-    .admin-topbar {
-        align-items: flex-start;
-        flex-direction: column;
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
     }
 
 }
@@ -653,244 +567,68 @@ Admin Dashboard | {{ company_name }}
 
 @media (max-width: 700px) {
 
-    .admin-layout {
-        display: block;
+    .dashboard-header {
+        align-items: stretch;
+
+        flex-direction: column;
     }
 
-    .admin-sidebar {
+
+    .portal-button {
         width: 100%;
-        min-height: auto;
     }
 
-    .sidebar-brand {
-        padding: 16px 18px;
-    }
 
-    .admin-nav {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 5px;
-        padding: 12px;
-    }
+    .dashboard-stats {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
 
-    .admin-nav a {
-        margin: 0;
-    }
-
-    .nav-divider {
-        display: none;
-    }
-
-    .sidebar-bottom {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-    }
-
-    .admin-user {
-        padding: 0;
-    }
-
-    .logout-link {
-        width: auto;
-        padding: 0 15px;
-    }
-
-    .admin-main {
-        padding: 18px 14px 30px;
-    }
-
-    .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
     }
 
-    .stat-card {
-        padding: 15px;
-    }
 
     .quick-actions {
         grid-template-columns: 1fr;
-        padding: 15px;
+
+        padding: 14px;
     }
 
 }
 
 
-@media (max-width: 450px) {
+@media (max-width: 430px) {
 
-    .admin-topbar h1 {
-        font-size: 25px;
+    .dashboard-header h1 {
+        font-size: 24px;
     }
 
-    .dashboard-btn {
-        width: 100%;
+
+    .dashboard-stat {
+        padding: 14px;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
 
-    .stat-card strong {
+    .dashboard-stat-value {
         font-size: 21px;
-    }
-
-    .panel-heading {
-        padding: 17px;
     }
 
 }
 
 </style>
 
-<div class="admin-dashboard">
 
-<div class="admin-layout">
-
-```
-<!-- =====================================================
-     SIDEBAR
-     ===================================================== -->
-
-<aside class="admin-sidebar">
-
-    <div class="sidebar-brand">
-
-        <div class="sidebar-logo">
-            AV
-        </div>
-
-        <div>
-            <strong>AV KING</strong>
-            <small>RECRUITMENT</small>
-        </div>
-
-    </div>
+<div class="dashboard-page">
 
 
-    <nav class="admin-nav">
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-        <a
-            href="{{ url_for('admin_dashboard') }}"
-            class="active"
-        >
-            <span>▣</span>
-            <label>Dashboard</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_applications') }}">
-            <span>☷</span>
-            <label>Applications</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_positions') }}">
-            <span>▤</span>
-            <label>Manage Positions</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_interviews') }}">
-            <span>◷</span>
-            <label>Interviews</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_attendance') }}">
-            <span>◉</span>
-            <label>Attendance</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_monthly_attendance') }}">
-            <span>▦</span>
-            <label>Monthly Attendance</label>
-        </a>
-
-
-        <a href="{{ url_for('admin_reports') }}">
-            <span>▤</span>
-            <label>Reports</label>
-        </a>
-
-
-        <div class="nav-divider"></div>
-
-
-        <a href="{{ url_for('admin_settings') }}">
-            <span>⚙</span>
-            <label>Settings</label>
-        </a>
-
-    </nav>
-
-
-    <!-- =================================================
-         ADMIN ACCOUNT
-         ================================================= -->
-
-    <div class="sidebar-bottom">
-
-        <div class="admin-user">
-
-            <div class="user-avatar">
-
-                {{ session.get(
-                    "admin_name",
-                    "A"
-                )[0]|upper }}
-
-            </div>
-
-
-            <div>
-
-                <strong>
-                    {{ session.get(
-                        "admin_name",
-                        "Administrator"
-                    ) }}
-                </strong>
-
-                <small>
-                    Administrator
-                </small>
-
-            </div>
-
-        </div>
-
-
-        <a
-            href="{{ url_for('admin_logout') }}"
-            class="logout-link"
-        >
-            Sign Out
-        </a>
-
-    </div>
-
-</aside>
-
-
-<!-- =====================================================
-     MAIN CONTENT
-     ===================================================== -->
-
-<main class="admin-main">
-
-
-    <!-- =================================================
-         PAGE HEADER
-         ================================================= -->
-
-    <div class="admin-topbar">
+    <div class="dashboard-header">
 
         <div>
 
-            <span class="page-label">
+            <span class="dashboard-eyebrow">
                 RECRUITMENT MANAGEMENT
             </span>
 
@@ -909,154 +647,118 @@ Admin Dashboard | {{ company_name }}
         <a
             href="{{ url_for('apply') }}"
             target="_blank"
-            class="dashboard-btn"
+            class="portal-button"
         >
-            <span>↗</span>
+            ↗
             View Application Portal
         </a>
 
     </div>
 
 
-    <!-- =================================================
+    <!-- =====================================================
          STATISTICS
-         ================================================= -->
+    ====================================================== -->
 
-    <div class="stats-grid">
+    <div class="dashboard-stats">
 
 
-        <!-- TOTAL -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    #
-                </div>
-
+            <div class="dashboard-stat-icon">
+                #
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Total Applications
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ total }}
             </strong>
 
         </div>
 
 
-        <!-- PENDING -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    P
-                </div>
-
+            <div class="dashboard-stat-icon">
+                P
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Pending
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ pending }}
             </strong>
 
         </div>
 
 
-        <!-- UNDER REVIEW -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    R
-                </div>
-
+            <div class="dashboard-stat-icon">
+                R
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Under Review
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ under_review }}
             </strong>
 
         </div>
 
 
-        <!-- SHORTLISTED -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    S
-                </div>
-
+            <div class="dashboard-stat-icon">
+                S
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Shortlisted
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ shortlisted }}
             </strong>
 
         </div>
 
 
-        <!-- APPROVED -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    A
-                </div>
-
+            <div class="dashboard-stat-icon">
+                A
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Approved
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ approved }}
             </strong>
 
         </div>
 
 
-        <!-- REJECTED -->
+        <div class="dashboard-stat">
 
-        <div class="stat-card">
-
-            <div class="stat-top">
-
-                <div class="stat-icon">
-                    X
-                </div>
-
+            <div class="dashboard-stat-icon">
+                X
             </div>
 
-            <span>
+            <span class="dashboard-stat-label">
                 Rejected
             </span>
 
-            <strong>
+            <strong class="dashboard-stat-value">
                 {{ rejected }}
             </strong>
 
@@ -1065,21 +767,22 @@ Admin Dashboard | {{ company_name }}
     </div>
 
 
-    <!-- =================================================
+    <!-- =====================================================
          RECENT APPLICATIONS
-         ================================================= -->
+    ====================================================== -->
 
-    <section class="admin-panel">
+    <section class="dashboard-panel">
 
-        <div class="panel-heading">
+
+        <div class="dashboard-panel-header">
 
             <div>
 
-                <span>
+                <span class="dashboard-panel-eyebrow">
                     APPLICATION ACTIVITY
                 </span>
 
-                <h2>
+                <h2 class="dashboard-panel-title">
                     Recent Applications
                 </h2>
 
@@ -1088,7 +791,7 @@ Admin Dashboard | {{ company_name }}
 
             <a
                 href="{{ url_for('admin_applications') }}"
-                class="panel-link"
+                class="dashboard-panel-link"
             >
                 View All →
             </a>
@@ -1098,145 +801,153 @@ Admin Dashboard | {{ company_name }}
 
         {% if recent_applications %}
 
-            <div class="table-wrapper">
+        <div class="dashboard-table-wrapper">
 
-                <table class="admin-table">
+            <table class="dashboard-table">
 
-                    <thead>
+                <thead>
 
-                        <tr>
+                    <tr>
 
-                            <th>
-                                Application
-                            </th>
+                        <th>
+                            Application
+                        </th>
 
-                            <th>
-                                Applicant
-                            </th>
+                        <th>
+                            Applicant
+                        </th>
 
-                            <th>
-                                Position
-                            </th>
+                        <th>
+                            Position
+                        </th>
 
-                            <th>
-                                Status
-                            </th>
+                        <th>
+                            Status
+                        </th>
 
-                            <th>
-                                Submitted
-                            </th>
+                        <th>
+                            Submitted
+                        </th>
 
-                        </tr>
+                    </tr>
 
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for application in recent_applications %}
-
-                            <tr>
-
-                                <td>
-                                    <strong>
-                                        {{ application.application_number }}
-                                    </strong>
-                                </td>
+                </thead>
 
 
-                                <td>
+                <tbody>
 
-                                    {{ application.first_name }}
+                {% for application in recent_applications %}
 
-                                    {% if application.middle_name %}
-                                        {{ application.middle_name }}
-                                    {% endif %}
+                    <tr>
 
-                                    {{ application.last_name }}
+                        <td>
 
-                                </td>
+                            <strong>
+                                {{ application.application_number }}
+                            </strong>
 
-
-                                <td>
-                                    {{ application.position_applied }}
-                                </td>
+                        </td>
 
 
-                                <td>
+                        <td>
 
-                                    <span
-                                        class="status status-{{ application.status|lower|replace(' ', '-') }}"
-                                    >
-                                        {{ application.status }}
-                                    </span>
+                            {{ application.first_name }}
 
-                                </td>
+                            {% if application.middle_name %}
+                                {{ application.middle_name }}
+                            {% endif %}
+
+                            {{ application.last_name }}
+
+                        </td>
 
 
-                                <td>
+                        <td>
+                            {{ application.position_applied }}
+                        </td>
 
-                                    {% if application.submitted_at %}
 
-                                        {{ application.submitted_at.strftime(
-                                            "%d %b %Y"
-                                        ) }}
+                        <td>
 
-                                    {% else %}
+                            <span
+                                class="
+                                    dashboard-status
+                                    status-{{ application.status|lower|replace(' ', '-') }}
+                                "
+                            >
 
-                                        —
+                                {{ application.status }}
 
-                                    {% endif %}
+                            </span>
 
-                                </td>
+                        </td>
 
-                            </tr>
 
-                        {% endfor %}
+                        <td>
 
-                    </tbody>
+                            {% if application.submitted_at %}
 
-                </table>
+                                {{ application.submitted_at.strftime(
+                                    "%d %b %Y"
+                                ) }}
 
-            </div>
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
         {% else %}
 
-            <div class="empty-state">
+        <div class="dashboard-empty">
 
-                <div class="empty-icon">
-                    —
-                </div>
-
-                <h3>
-                    No applications yet
-                </h3>
-
-                <p>
-                    Submitted applications will appear here.
-                </p>
-
+            <div class="dashboard-empty-icon">
+                —
             </div>
+
+            <h3>
+                No applications yet
+            </h3>
+
+            <p>
+                Submitted applications will appear here.
+            </p>
+
+        </div>
 
         {% endif %}
 
     </section>
 
 
-    <!-- =================================================
+    <!-- =====================================================
          QUICK ACTIONS
-         ================================================= -->
+    ====================================================== -->
 
-    <section class="admin-panel">
+    <section class="dashboard-panel">
 
-        <div class="panel-heading">
+
+        <div class="dashboard-panel-header">
 
             <div>
 
-                <span>
+                <span class="dashboard-panel-eyebrow">
                     MANAGEMENT
                 </span>
 
-                <h2>
+                <h2 class="dashboard-panel-title">
                     Quick Actions
                 </h2>
 
@@ -1247,8 +958,6 @@ Admin Dashboard | {{ company_name }}
 
         <div class="quick-actions">
 
-
-            <!-- APPLICATIONS -->
 
             <a
                 href="{{ url_for('admin_applications') }}"
@@ -1271,8 +980,6 @@ Admin Dashboard | {{ company_name }}
             </a>
 
 
-            <!-- POSITIONS -->
-
             <a
                 href="{{ url_for('admin_positions') }}"
                 class="quick-action"
@@ -1287,14 +994,12 @@ Admin Dashboard | {{ company_name }}
                 </strong>
 
                 <span>
-                    Create, update and manage available
-                    job positions.
+                    Create and manage available
+                    recruitment positions.
                 </span>
 
             </a>
 
-
-            <!-- INTERVIEWS -->
 
             <a
                 href="{{ url_for('admin_interviews') }}"
@@ -1317,15 +1022,13 @@ Admin Dashboard | {{ company_name }}
             </a>
 
 
-            <!-- REPORTS -->
-
             <a
                 href="{{ url_for('admin_reports') }}"
                 class="quick-action"
             >
 
                 <div class="quick-action-icon">
-                    ▤
+                    ▥
                 </div>
 
                 <strong>
@@ -1343,11 +1046,6 @@ Admin Dashboard | {{ company_name }}
 
     </section>
 
-
-</main>
-```
-
-</div>
 
 </div>
 
