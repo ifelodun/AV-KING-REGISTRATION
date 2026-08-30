@@ -14661,6 +14661,61 @@ def is_time_in_window(current_time, start_time, end_time):
         or
         current_time <= end_time
     )
+
+# =========================================================
+# CALCULATE CLOCK-IN LATENESS
+# =========================================================
+
+def calculate_lateness_minutes(
+    current_time,
+    scheduled_start
+):
+    """
+    Calculate how many minutes the user is late
+    compared with the configured clock-in start time.
+
+    Example:
+        Scheduled: 08:00 AM
+        Actual:    08:15 AM
+        Result:    15 minutes
+    """
+
+    if current_time is None:
+        return 0
+
+    if scheduled_start is None:
+        return 0
+
+    try:
+
+        current_minutes = (
+            current_time.hour * 60
+            + current_time.minute
+        )
+
+        scheduled_minutes = (
+            scheduled_start.hour * 60
+            + scheduled_start.minute
+        )
+
+        lateness = (
+            current_minutes
+            - scheduled_minutes
+        )
+
+        # Never return a negative lateness.
+        return max(
+            0,
+            lateness
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Unable to calculate attendance lateness."
+        )
+
+        return 0
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
