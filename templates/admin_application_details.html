@@ -1,1247 +1,1633 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>
-    {{ application.first_name }}
-    {{ application.last_name }}
-    | Application
-</title>
+    <title>
+        {{ application.first_name }}
+        {{ application.last_name }}
+        | Application Profile
+    </title>
 
-<style>
 
-    /* =========================================================
-       RESET
-    ========================================================= */
+    <style>
 
-    * {
-        box-sizing: border-box;
-    }
+        /* =========================================================
+           GLOBAL
+        ========================================================= */
 
-    html {
-        scroll-behavior: smooth;
-    }
+        :root {
+            --primary: #0f172a;
+            --primary-hover: #1e293b;
 
-    body {
-        margin: 0;
-        font-family:
-            Inter,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Arial,
-            sans-serif;
-        background: #f5f7fa;
-        color: #172033;
-    }
+            --accent: #2563eb;
+            --accent-light: #eff6ff;
 
-    a {
-        color: inherit;
-    }
+            --success: #16a34a;
+            --success-light: #f0fdf4;
 
-    button,
-    input,
-    select,
-    textarea {
-        font: inherit;
-    }
+            --warning: #d97706;
+            --warning-light: #fffbeb;
 
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
 
-    /* =========================================================
-       ADMIN LAYOUT
-    ========================================================= */
+            --info: #0284c7;
+            --info-light: #f0f9ff;
 
-    .admin-layout {
-        min-height: 100vh;
-        display: flex;
-        background: #f5f7fa;
-    }
+            --page-bg: #f4f6f9;
+            --card-bg: #ffffff;
 
+            --border: #e5e7eb;
+            --border-light: #eef0f3;
 
-    /* =========================================================
-       SIDEBAR
-    ========================================================= */
+            --text: #172033;
+            --text-secondary: #475467;
+            --text-muted: #667085;
+            --text-light: #98a2b3;
 
-    .admin-sidebar {
-        width: 255px;
-        min-width: 255px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-        display: flex;
-        flex-direction: column;
-        background: #101828;
-        color: #ffffff;
-        border-right: 1px solid #1f2937;
-        z-index: 100;
-    }
+            --sidebar: #0b1220;
+            --sidebar-hover: #172033;
 
+            --radius: 14px;
+            --radius-small: 9px;
 
-    .sidebar-brand {
-        min-height: 82px;
-        padding: 18px 20px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-
-
-    .sidebar-logo {
-        width: 44px;
-        height: 44px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background: #ffffff;
-        color: #101828;
-        font-size: 16px;
-        font-weight: 900;
-        letter-spacing: -.5px;
-    }
-
-
-    .sidebar-brand strong {
-        display: block;
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: .2px;
-    }
-
-
-    .sidebar-brand small {
-        display: block;
-        margin-top: 3px;
-        color: #98a2b3;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 1.2px;
-    }
-
-
-    /* =========================================================
-       NAVIGATION
-    ========================================================= */
-
-    .admin-nav {
-        flex: 1;
-        padding: 18px 12px;
-        overflow-y: auto;
-    }
-
-
-    .admin-nav a {
-        min-height: 43px;
-        margin-bottom: 4px;
-        padding: 0 13px;
-        display: flex;
-        align-items: center;
-        gap: 11px;
-        border-radius: 9px;
-        color: #b8c2d1;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        transition: .18s ease;
-    }
-
-
-    .admin-nav a span {
-        width: 20px;
-        text-align: center;
-        color: #98a2b3;
-        font-size: 15px;
-    }
-
-
-    .admin-nav a:hover {
-        background: rgba(255,255,255,.06);
-        color: #ffffff;
-    }
-
-
-    .admin-nav a:hover span {
-        color: #ffffff;
-    }
-
-
-    .admin-nav a.active {
-        background: #ffffff;
-        color: #101828;
-        box-shadow: 0 4px 12px rgba(0,0,0,.12);
-    }
-
-
-    .admin-nav a.active span {
-        color: #101828;
-    }
-
-
-    .nav-divider {
-        height: 1px;
-        margin: 17px 8px;
-        background: rgba(255,255,255,.08);
-    }
-
-
-    /* =========================================================
-       SIDEBAR BOTTOM
-    ========================================================= */
-
-    .sidebar-bottom {
-        padding: 15px 14px;
-        border-top: 1px solid rgba(255,255,255,.08);
-    }
-
-
-    .admin-user {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 6px 13px;
-    }
-
-
-    .user-avatar {
-        width: 36px;
-        height: 36px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: #ffffff;
-        color: #101828;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-
-    .admin-user strong {
-        display: block;
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: #ffffff;
-        font-size: 12px;
-    }
-
-
-    .admin-user small {
-        display: block;
-        margin-top: 2px;
-        color: #98a2b3;
-        font-size: 10px;
-    }
-
-
-    .logout-link {
-        min-height: 38px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,.1);
-        border-radius: 8px;
-        color: #cbd5e1;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 700;
-        transition: .18s ease;
-    }
-
-
-    .logout-link:hover {
-        background: rgba(255,255,255,.07);
-        color: #ffffff;
-    }
-
-
-    /* =========================================================
-       MAIN
-    ========================================================= */
-
-    .admin-main {
-        flex: 1;
-        min-width: 0;
-        padding: 30px;
-    }
-
-
-    .details-container {
-        width: 100%;
-        max-width: 1500px;
-        margin: 0 auto;
-    }
-
-
-    /* =========================================================
-       TOP BAR
-    ========================================================= */
-
-    .details-topbar {
-        margin-bottom: 25px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 25px;
-    }
-
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 13px;
-        color: #667085;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 700;
-        transition: .18s ease;
-    }
-
-
-    .back-link:hover {
-        color: #101828;
-    }
-
-
-    .page-label {
-        display: block;
-        margin-bottom: 7px;
-        color: #667085;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-    }
-
-
-    .details-topbar h1 {
-        margin: 0;
-        color: #101828;
-        font-size: 30px;
-        line-height: 1.2;
-        font-weight: 800;
-        letter-spacing: -.7px;
-    }
-
-
-    .application-id {
-        margin: 7px 0 0;
-        color: #667085;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-
-    /* =========================================================
-       STATUS
-    ========================================================= */
-
-    .status {
-        display: inline-flex;
-        align-items: center;
-        min-height: 34px;
-        padding: 0 13px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: .2px;
-        border: 1px solid transparent;
-        white-space: nowrap;
-    }
-
-
-    .status-pending {
-        background: #fffaeb;
-        color: #b54708;
-        border-color: #fedf89;
-    }
-
-
-    .status-under-review {
-        background: #eff8ff;
-        color: #175cd3;
-        border-color: #b2ddff;
-    }
-
-
-    .status-shortlisted {
-        background: #ecfdf3;
-        color: #027a48;
-        border-color: #abefc6;
-    }
-
-
-    .status-approved {
-        background: #ecfdf3;
-        color: #027a48;
-        border-color: #abefc6;
-    }
-
-
-    .status-rejected {
-        background: #fef3f2;
-        color: #b42318;
-        border-color: #fecdca;
-    }
-
-
-    /* =========================================================
-       DETAILS GRID
-    ========================================================= */
-
-    .details-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 370px;
-        gap: 22px;
-        align-items: start;
-    }
-
-
-    .details-main,
-    .details-sidebar {
-        min-width: 0;
-    }
-
-
-    .details-main {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-
-    .details-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-
-    /* =========================================================
-       CARD
-    ========================================================= */
-
-    .details-card {
-        background: #ffffff;
-        border: 1px solid #e4e7ec;
-        border-radius: 14px;
-        box-shadow: 0 2px 8px rgba(16,24,40,.03);
-        overflow: hidden;
-    }
-
-
-    .details-card-heading {
-        padding: 20px 22px 17px;
-        border-bottom: 1px solid #eef0f3;
-    }
-
-
-    .details-card-heading > span {
-        display: block;
-        margin-bottom: 5px;
-        color: #98a2b3;
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-    }
-
-
-    .details-card-heading h2 {
-        margin: 0;
-        color: #101828;
-        font-size: 17px;
-        line-height: 1.3;
-        font-weight: 800;
-    }
-
-
-    .details-card-heading p {
-        margin: 7px 0 0;
-        color: #667085;
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-
-    /* =========================================================
-       INFO GRID
-    ========================================================= */
-
-    .details-info-grid {
-        padding: 21px 22px;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        gap: 20px 24px;
-    }
-
-
-    .details-info-grid > div {
-        min-width: 0;
-    }
-
-
-    .details-info-grid .full-width {
-        grid-column: 1 / -1;
-    }
-
-
-    .details-info-grid label,
-    .response-block label,
-    .metadata-card label {
-        display: block;
-        margin-bottom: 6px;
-        color: #98a2b3;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: .8px;
-        text-transform: uppercase;
-    }
-
-
-    .details-info-grid strong {
-        display: block;
-        color: #344054;
-        font-size: 13px;
-        line-height: 1.6;
-        font-weight: 600;
-        word-break: break-word;
-    }
-
-
-    /* =========================================================
-       POSITION
-    ========================================================= */
-
-    .position-highlight {
-        margin: 20px 22px;
-        padding: 18px;
-        border: 1px solid #e4e7ec;
-        border-radius: 11px;
-        background: #f8fafc;
-    }
-
-
-    .position-highlight strong {
-        display: block;
-        color: #101828;
-        font-size: 17px;
-        font-weight: 800;
-    }
-
-
-    /* =========================================================
-       TEXT CONTENT
-    ========================================================= */
-
-    .text-content {
-        color: #475467;
-        font-size: 13px;
-        line-height: 1.75;
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-
-    /* =========================================================
-       RESPONSES
-    ========================================================= */
-
-    .response-block {
-        padding: 20px 22px;
-    }
-
-
-    .response-block + .response-block {
-        border-top: 1px solid #eef0f3;
-    }
-
-
-    .response-block p {
-        margin: 0;
-        color: #475467;
-        font-size: 13px;
-        line-height: 1.75;
-        white-space: pre-wrap;
-        word-break: break-word;
-    }
-
-
-    /* =========================================================
-       FORMS
-    ========================================================= */
-
-    .details-form {
-        padding: 21px 22px;
-    }
-
-
-    .field-group {
-        margin-bottom: 17px;
-    }
-
-
-    .field-group:last-child {
-        margin-bottom: 0;
-    }
-
-
-    .field-group label {
-        display: block;
-        margin-bottom: 7px;
-        color: #344054;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-
-    .field-group input,
-    .field-group select,
-    .field-group textarea,
-    .status-select,
-    .notes-textarea {
-        width: 100%;
-        border: 1px solid #d0d5dd;
-        border-radius: 9px;
-        outline: none;
-        background: #ffffff;
-        color: #101828;
-        font-size: 13px;
-        transition: .18s ease;
-    }
-
-
-    .field-group input,
-    .field-group select,
-    .status-select {
-        height: 44px;
-        padding: 0 12px;
-    }
-
-
-    .field-group textarea,
-    .notes-textarea {
-        padding: 11px 12px;
-        line-height: 1.6;
-        resize: vertical;
-    }
-
-
-    .field-group input:focus,
-    .field-group select:focus,
-    .field-group textarea:focus,
-    .status-select:focus,
-    .notes-textarea:focus {
-        border-color: #101828;
-        box-shadow: 0 0 0 3px rgba(16,24,40,.06);
-    }
-
-
-    .field-group input::placeholder,
-    .field-group textarea::placeholder,
-    .notes-textarea::placeholder {
-        color: #98a2b3;
-    }
-
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        gap: 18px;
-    }
-
-
-    .form-grid .full-width {
-        grid-column: 1 / -1;
-    }
-
-
-    /* =========================================================
-       BUTTONS
-    ========================================================= */
-
-    .details-button {
-        width: 100%;
-        min-height: 43px;
-        padding: 0 15px;
-        border: 0;
-        border-radius: 9px;
-        background: #101828;
-        color: #ffffff;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 800;
-        transition: .18s ease;
-    }
-
-
-    .details-button:hover {
-        background: #1d2939;
-        transform: translateY(-1px);
-    }
-
-
-    .details-button:active {
-        transform: translateY(0);
-    }
-
-
-    .button-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 18px;
-    }
-
-
-    .button-row .details-button {
-        width: auto;
-        min-width: 180px;
-    }
-
-
-    /* =========================================================
-       PASSPORT
-    ========================================================= */
-
-    .passport-wrapper {
-        padding: 20px 22px 22px;
-    }
-
-
-    .passport-preview {
-        width: 100%;
-        max-height: 400px;
-        display: block;
-        object-fit: contain;
-        border: 1px solid #e4e7ec;
-        border-radius: 10px;
-        background: #f8fafc;
-    }
-
-
-    .document-empty {
-        padding: 25px 15px;
-        border: 1px dashed #d0d5dd;
-        border-radius: 10px;
-        background: #f8fafc;
-        color: #98a2b3;
-        text-align: center;
-        font-size: 12px;
-    }
-
-
-    /* =========================================================
-       DOCUMENTS
-    ========================================================= */
-
-    .documents-list {
-        padding: 17px 22px 22px;
-        display: flex;
-        flex-direction: column;
-        gap: 9px;
-    }
-
-
-    .document-link {
-        min-height: 44px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        border: 1px solid #e4e7ec;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #344054;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 700;
-        transition: .18s ease;
-    }
-
-
-    .document-link:hover {
-        border-color: #98a2b3;
-        background: #f8fafc;
-    }
-
-
-    .document-link span:last-child {
-        color: #667085;
-        font-size: 14px;
-    }
-
-
-    .document-missing {
-        padding: 7px 3px;
-        color: #98a2b3;
-        font-size: 11px;
-    }
-
-
-    /* =========================================================
-       STATUS CARD
-    ========================================================= */
-
-    .status-form {
-        padding: 20px 22px 22px;
-    }
-
-
-    .status-select {
-        height: 46px;
-        margin-bottom: 14px;
-    }
-
-
-    /* =========================================================
-       WHATSAPP
-    ========================================================= */
-
-    .whatsapp-notification-box {
-        margin-bottom: 14px;
-        padding: 15px;
-        border: 1px solid #d1fadf;
-        border-radius: 10px;
-        background: #f0fdf4;
-    }
-
-
-    .notification-label {
-        display: block;
-        margin-bottom: 4px;
-        color: #027a48;
-        font-size: 9px;
-        font-weight: 800;
-        letter-spacing: 1px;
-    }
-
-
-    .whatsapp-notification-box h3 {
-        margin: 0;
-        color: #14532d;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-
-    .whatsapp-notification-box p {
-        margin: 6px 0 13px;
-        color: #3f6212;
-        font-size: 11px;
-        line-height: 1.6;
-    }
-
-
-    .whatsapp-notification-button {
-        min-height: 38px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: #16a34a;
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 11px;
-        font-weight: 800;
-        transition: .18s ease;
-    }
-
-
-    .whatsapp-notification-button:hover {
-        background: #15803d;
-    }
-
-
-    /* =========================================================
-       NOTES
-    ========================================================= */
-
-    .notes-form {
-        padding: 20px 22px 22px;
-    }
-
-
-    .notes-textarea {
-        min-height: 145px;
-        margin-bottom: 13px;
-    }
-
-
-    /* =========================================================
-       APPLICANT MESSAGE
-    ========================================================= */
-
-    .message-form {
-        padding: 20px 22px 22px;
-    }
-
-
-    .message-form .field-group {
-        margin-bottom: 15px;
-    }
-
-
-    .message-form textarea {
-        min-height: 145px;
-    }
-
-
-    /* =========================================================
-       METADATA
-    ========================================================= */
-
-    .metadata-card {
-        padding: 20px 22px;
-    }
-
-
-    .metadata-card > div {
-        padding: 0 0 15px;
-    }
-
-
-    .metadata-card > div:last-child {
-        padding-bottom: 0;
-    }
-
-
-    .metadata-card > div + div {
-        padding-top: 15px;
-        border-top: 1px solid #eef0f3;
-    }
-
-
-    .metadata-card strong {
-        display: block;
-        color: #344054;
-        font-size: 12px;
-        line-height: 1.5;
-        font-weight: 700;
-    }
-
-
-    /* =========================================================
-       MOBILE HEADER
-    ========================================================= */
-
-    .mobile-admin-header {
-        display: none;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE
-    ========================================================= */
-
-    @media (max-width: 1200px) {
-
-        .details-grid {
-            grid-template-columns: minmax(0, 1fr) 320px;
+            --shadow:
+                0 1px 2px rgba(16, 24, 40, .03),
+                0 5px 18px rgba(16, 24, 40, .035);
         }
 
-        .admin-main {
-            padding: 24px;
+
+        * {
+            box-sizing: border-box;
         }
 
-    }
 
-
-    @media (max-width: 1000px) {
-
-        .admin-sidebar {
-            width: 220px;
-            min-width: 220px;
+        html {
+            scroll-behavior: smooth;
         }
 
-        .details-grid {
-            grid-template-columns: 1fr;
+
+        body {
+            margin: 0;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background: var(--page-bg);
+            color: var(--text);
+
+            -webkit-font-smoothing: antialiased;
         }
 
-        .details-sidebar {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0,1fr));
-            align-items: start;
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
-    }
+
+        a {
+            color: inherit;
+        }
 
 
-    @media (max-width: 760px) {
+        /* =========================================================
+           APPLICATION LAYOUT
+        ========================================================= */
 
         .admin-layout {
-            display: block;
+            min-height: 100vh;
+            display: flex;
         }
 
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
 
         .admin-sidebar {
-            position: relative;
-            width: 100%;
-            min-width: 0;
-            height: auto;
+            width: 255px;
+            min-width: 255px;
+
+            height: 100vh;
+
+            position: sticky;
+            top: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            background: var(--sidebar);
+            color: #ffffff;
+
+            border-right: 1px solid rgba(255,255,255,.06);
+
+            z-index: 100;
         }
 
+
+        /* BRAND */
 
         .sidebar-brand {
-            min-height: 68px;
+            min-height: 82px;
+
+            padding: 17px 19px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,.07);
         }
 
 
+        .sidebar-logo {
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 12px;
+
+            background: #ffffff;
+            color: var(--primary);
+
+            font-size: 14px;
+            font-weight: 900;
+
+            letter-spacing: -.5px;
+
+            box-shadow:
+                0 5px 15px rgba(0,0,0,.12);
+        }
+
+
+        .sidebar-brand strong {
+            display: block;
+
+            font-size: 14px;
+            font-weight: 850;
+
+            letter-spacing: .2px;
+        }
+
+
+        .sidebar-brand small {
+            display: block;
+
+            margin-top: 4px;
+
+            color: #94a3b8;
+
+            font-size: 8px;
+            font-weight: 800;
+
+            letter-spacing: 1.3px;
+        }
+
+
+        /* NAVIGATION */
+
         .admin-nav {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0,1fr));
-            gap: 4px;
-            padding: 12px;
+            flex: 1;
+
+            padding: 18px 11px;
+
+            overflow-y: auto;
+        }
+
+
+        .nav-section-label {
+            padding: 7px 12px 9px;
+
+            color: #64748b;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1.3px;
         }
 
 
         .admin-nav a {
-            margin: 0;
+            min-height: 44px;
+
+            margin-bottom: 3px;
+
+            padding: 0 12px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 11px;
+
+            border-radius: 9px;
+
+            color: #aeb9ca;
+
+            text-decoration: none;
+
+            font-size: 12px;
+            font-weight: 650;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
+        }
+
+
+        .admin-nav a span {
+            width: 21px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #8290a5;
+
+            font-size: 14px;
+        }
+
+
+        .admin-nav a:hover {
+            background: var(--sidebar-hover);
+            color: #ffffff;
+        }
+
+
+        .admin-nav a:hover span {
+            color: #ffffff;
+        }
+
+
+        .admin-nav a.active {
+            background: #ffffff;
+            color: var(--primary);
+
+            box-shadow:
+                0 5px 14px rgba(0,0,0,.12);
+        }
+
+
+        .admin-nav a.active span {
+            color: var(--accent);
         }
 
 
         .nav-divider {
-            display: none;
+            height: 1px;
+
+            margin: 17px 9px;
+
+            background:
+                rgba(255,255,255,.07);
         }
 
 
+        /* SIDEBAR FOOTER */
+
         .sidebar-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
+            padding: 14px;
+
+            border-top:
+                1px solid rgba(255,255,255,.07);
         }
 
 
         .admin-user {
-            padding: 5px 0;
+            min-width: 0;
+
+            padding: 5px 5px 13px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .user-avatar {
+            width: 37px;
+            height: 37px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+            color: var(--primary);
+
+            font-size: 12px;
+            font-weight: 850;
+        }
+
+
+        .admin-user strong {
+            display: block;
+
+            max-width: 150px;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
+
+            color: #ffffff;
+
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+
+        .admin-user small {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #7f8ca1;
+
+            font-size: 9px;
         }
 
 
         .logout-link {
-            width: auto;
-            min-width: 90px;
+            min-height: 39px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px solid rgba(255,255,255,.1);
+
+            border-radius: 8px;
+
+            color: #b9c3d2;
+
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 750;
+
+            transition: .18s ease;
         }
 
+
+        .logout-link:hover {
+            background:
+                rgba(255,255,255,.06);
+
+            border-color:
+                rgba(255,255,255,.15);
+
+            color: #ffffff;
+        }
+
+
+        /* =========================================================
+           MAIN
+        ========================================================= */
 
         .admin-main {
-            padding: 18px 14px 30px;
+            flex: 1;
+
+            min-width: 0;
+
+            padding: 32px;
         }
 
 
+        .details-container {
+            width: 100%;
+            max-width: 1500px;
+
+            margin: 0 auto;
+        }
+
+
+        /* =========================================================
+           PAGE HEADER
+        ========================================================= */
+
         .details-topbar {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 12px;
+            margin-bottom: 26px;
+
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            gap: 25px;
+        }
+
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 14px;
+
+            color: var(--text-muted);
+
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 750;
+
+            transition: .18s ease;
+        }
+
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+
+        .page-label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: var(--accent);
+
+            font-size: 9px;
+            font-weight: 850;
+
+            letter-spacing: 1.5px;
         }
 
 
         .details-topbar h1 {
-            font-size: 24px;
+            margin: 0;
+
+            color: var(--primary);
+
+            font-size: 29px;
+            line-height: 1.2;
+
+            font-weight: 850;
+
+            letter-spacing: -.7px;
+        }
+
+
+        .application-id {
+            margin: 7px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        .application-id::first-line {
+            color: var(--text-muted);
+        }
+
+
+        /* =========================================================
+           STATUS BADGES
+        ========================================================= */
+
+        .status {
+            min-height: 34px;
+
+            padding: 0 13px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 999px;
+
+            border: 1px solid transparent;
+
+            font-size: 10px;
+            font-weight: 850;
+
+            white-space: nowrap;
+        }
+
+
+        .status::before {
+            content: "";
+
+            width: 6px;
+            height: 6px;
+
+            margin-right: 7px;
+
+            border-radius: 50%;
+
+            background: currentColor;
+        }
+
+
+        .status-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+            border-color: #fedf89;
+        }
+
+
+        .status-under-review {
+            background: var(--info-light);
+            color: #0369a1;
+            border-color: #bae6fd;
+        }
+
+
+        .status-shortlisted {
+            background: var(--success-light);
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+
+        .status-approved {
+            background: var(--success-light);
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+
+        .status-rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+
+        /* =========================================================
+           DETAILS GRID
+        ========================================================= */
+
+        .details-grid {
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                365px;
+
+            gap: 22px;
+
+            align-items: start;
+        }
+
+
+        .details-main {
+            min-width: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 20px;
         }
 
 
         .details-sidebar {
+            min-width: 0;
+
             display: flex;
-        }
-
-    }
-
-
-    @media (max-width: 560px) {
-
-        .admin-nav {
-            grid-template-columns: 1fr;
-        }
-
-
-        .sidebar-bottom {
-            align-items: stretch;
             flex-direction: column;
+
+            gap: 20px;
         }
 
 
-        .logout-link {
-            width: 100%;
+        /* =========================================================
+           CARDS
+        ========================================================= */
+
+        .details-card {
+            background: var(--card-bg);
+
+            border:
+                1px solid var(--border);
+
+            border-radius: var(--radius);
+
+            box-shadow: var(--shadow);
+
+            overflow: hidden;
         }
 
 
         .details-card-heading {
-            padding: 17px 16px 14px;
+            padding: 19px 22px 17px;
+
+            border-bottom:
+                1px solid var(--border-light);
         }
 
 
+        .details-card-heading > span {
+            display: block;
+
+            margin-bottom: 5px;
+
+            color: var(--text-light);
+
+            font-size: 8px;
+            font-weight: 850;
+
+            letter-spacing: 1.5px;
+        }
+
+
+        .details-card-heading h2 {
+            margin: 0;
+
+            color: var(--primary);
+
+            font-size: 16px;
+            line-height: 1.3;
+
+            font-weight: 800;
+        }
+
+
+        .details-card-heading p {
+            max-width: 700px;
+
+            margin: 7px 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 11px;
+            line-height: 1.65;
+        }
+
+
+        /* =========================================================
+           INFORMATION GRID
+        ========================================================= */
+
         .details-info-grid {
-            padding: 17px 16px;
-            grid-template-columns: 1fr;
-            gap: 17px;
+            padding: 22px;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 21px 27px;
+        }
+
+
+        .details-info-grid > div {
+            min-width: 0;
         }
 
 
         .details-info-grid .full-width {
-            grid-column: auto;
+            grid-column: 1 / -1;
         }
 
 
-        .form-grid {
-            grid-template-columns: 1fr;
+        .details-info-grid label,
+        .response-block label,
+        .metadata-card label {
+            display: block;
+
+            margin-bottom: 6px;
+
+            color: var(--text-light);
+
+            font-size: 9px;
+            font-weight: 850;
+
+            letter-spacing: .8px;
+
+            text-transform: uppercase;
         }
 
 
-        .form-grid .full-width {
-            grid-column: auto;
+        .details-info-grid strong {
+            display: block;
+
+            color: #344054;
+
+            font-size: 12px;
+            line-height: 1.6;
+
+            font-weight: 650;
+
+            word-break: break-word;
         }
 
+
+        /* =========================================================
+           POSITION
+        ========================================================= */
+
+        .position-highlight {
+            margin: 20px 22px;
+
+            padding: 19px;
+
+            border:
+                1px solid #dbe4ef;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f8fafc,
+                    #f1f5f9
+                );
+        }
+
+
+        .position-highlight::before {
+            content: "POSITION";
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: var(--accent);
+
+            font-size: 8px;
+            font-weight: 850;
+
+            letter-spacing: 1.3px;
+        }
+
+
+        .position-highlight strong {
+            display: block;
+
+            color: var(--primary);
+
+            font-size: 17px;
+            font-weight: 850;
+        }
+
+
+        /* =========================================================
+           TEXT
+        ========================================================= */
+
+        .text-content {
+            color: var(--text-secondary);
+
+            font-size: 12px;
+            line-height: 1.8;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+
+        /* =========================================================
+           RESPONSES
+        ========================================================= */
+
+        .response-block {
+            padding: 20px 22px;
+        }
+
+
+        .response-block + .response-block {
+            border-top:
+                1px solid var(--border-light);
+        }
+
+
+        .response-block p {
+            margin: 0;
+
+            color: var(--text-secondary);
+
+            font-size: 12px;
+            line-height: 1.8;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+
+        /* =========================================================
+           FORMS
+        ========================================================= */
 
         .details-form,
         .status-form,
         .notes-form,
-        .message-form,
-        .metadata-card,
-        .passport-wrapper,
-        .documents-list {
-            padding-left: 16px;
-            padding-right: 16px;
+        .message-form {
+            padding: 22px;
         }
 
 
-        .response-block {
-            padding: 17px 16px;
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 18px;
         }
 
+
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+
+        .field-group {
+            margin-bottom: 0;
+        }
+
+
+        .field-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #344054;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+
+        .field-group input,
+        .field-group select,
+        .field-group textarea,
+        .status-select,
+        .notes-textarea {
+            width: 100%;
+
+            border:
+                1px solid #d0d5dd;
+
+            border-radius: 9px;
+
+            outline: none;
+
+            background: #ffffff;
+
+            color: var(--primary);
+
+            font-size: 12px;
+
+            transition:
+                border .18s ease,
+                box-shadow .18s ease;
+        }
+
+
+        .field-group input,
+        .field-group select,
+        .status-select {
+            height: 44px;
+
+            padding: 0 12px;
+        }
+
+
+        .field-group textarea,
+        .notes-textarea {
+            padding: 11px 12px;
+
+            line-height: 1.65;
+
+            resize: vertical;
+        }
+
+
+        .field-group input:hover,
+        .field-group select:hover,
+        .field-group textarea:hover {
+            border-color: #98a2b3;
+        }
+
+
+        .field-group input:focus,
+        .field-group select:focus,
+        .field-group textarea:focus,
+        .status-select:focus,
+        .notes-textarea:focus {
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(37,99,235,.09);
+        }
+
+
+        .field-group input::placeholder,
+        .field-group textarea::placeholder,
+        .notes-textarea::placeholder {
+            color: #a0a9b7;
+        }
+
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
 
         .button-row {
-            display: block;
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 19px;
+        }
+
+
+        .details-button {
+            min-height: 43px;
+
+            padding: 0 17px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            background: var(--primary);
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            font-size: 11px;
+            font-weight: 800;
+
+            transition:
+                background .18s ease,
+                transform .18s ease,
+                box-shadow .18s ease;
+        }
+
+
+        .details-button:hover {
+            background: var(--primary-hover);
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 5px 12px rgba(15,23,42,.14);
+        }
+
+
+        .details-button:active {
+            transform: translateY(0);
         }
 
 
         .button-row .details-button {
-            width: 100%;
+            min-width: 190px;
         }
 
-    }
 
-</style>
+        /* =========================================================
+           PASSPORT
+        ========================================================= */
 
+        .passport-wrapper {
+            padding: 20px 22px 22px;
+        }
+
+
+        .passport-preview {
+            width: 100%;
+
+            max-height: 390px;
+
+            display: block;
+
+            object-fit: contain;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 10px;
+
+            background: #f8fafc;
+        }
+
+
+        .document-empty {
+            min-height: 190px;
+
+            padding: 25px 15px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px dashed #cbd5e1;
+
+            border-radius: 10px;
+
+            background: #f8fafc;
+
+            color: var(--text-light);
+
+            text-align: center;
+
+            font-size: 11px;
+        }
+
+
+        /* =========================================================
+           DOCUMENTS
+        ========================================================= */
+
+        .documents-list {
+            padding: 17px 22px 22px;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 9px;
+        }
+
+
+        .document-link {
+            min-height: 48px;
+
+            padding: 0 13px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 12px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            color: #344054;
+
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 750;
+
+            transition:
+                border .18s ease,
+                background .18s ease,
+                transform .18s ease;
+        }
+
+
+        .document-link:hover {
+            border-color: #b8c2d1;
+
+            background: #f8fafc;
+
+            transform: translateY(-1px);
+        }
+
+
+        .document-link span:first-child {
+            display: flex;
+            align-items: center;
+
+            gap: 9px;
+        }
+
+
+        .document-link span:first-child::before {
+            content: "↳";
+
+            width: 25px;
+            height: 25px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 7px;
+
+            background: #f1f5f9;
+
+            color: var(--accent);
+
+            font-size: 11px;
+        }
+
+
+        .document-link span:last-child {
+            color: var(--text-muted);
+
+            font-size: 14px;
+        }
+
+
+        .document-missing {
+            padding: 9px 3px;
+
+            color: var(--text-light);
+
+            font-size: 10px;
+        }
+
+
+        /* =========================================================
+           STATUS FORM
+        ========================================================= */
+
+        .status-form > label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #344054;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+
+        .status-select {
+            height: 45px;
+
+            margin-bottom: 14px;
+        }
+
+
+        /* =========================================================
+           WHATSAPP
+        ========================================================= */
+
+        .whatsapp-notification-box {
+            margin-bottom: 14px;
+
+            padding: 16px;
+
+            border:
+                1px solid #bbf7d0;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f0fdf4,
+                    #ecfdf5
+                );
+        }
+
+
+        .notification-label {
+            display: block;
+
+            margin-bottom: 5px;
+
+            color: #15803d;
+
+            font-size: 8px;
+            font-weight: 850;
+
+            letter-spacing: 1px;
+        }
+
+
+        .whatsapp-notification-box h3 {
+            margin: 0;
+
+            color: #14532d;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+
+        .whatsapp-notification-box p {
+            margin: 6px 0 13px;
+
+            color: #3f6212;
+
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+
+        .whatsapp-notification-button {
+            min-height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background: #16a34a;
+
+            color: #ffffff;
+
+            text-decoration: none;
+
+            font-size: 10px;
+            font-weight: 800;
+
+            transition: .18s ease;
+        }
+
+
+        .whatsapp-notification-button:hover {
+            background: #15803d;
+
+            transform: translateY(-1px);
+        }
+
+
+        /* =========================================================
+           NOTES
+        ========================================================= */
+
+        .notes-textarea {
+            min-height: 145px;
+
+            margin-bottom: 13px;
+        }
+
+
+        /* =========================================================
+           MESSAGE
+        ========================================================= */
+
+        .message-form .field-group {
+            margin-bottom: 16px;
+        }
+
+
+        .message-form textarea {
+            min-height: 145px;
+        }
+
+
+        /* =========================================================
+           METADATA
+        ========================================================= */
+
+        .metadata-card {
+            padding: 20px 22px;
+        }
+
+
+        .metadata-card > div {
+            padding-bottom: 15px;
+        }
+
+
+        .metadata-card > div:last-child {
+            padding-bottom: 0;
+        }
+
+
+        .metadata-card > div + div {
+            padding-top: 15px;
+
+            border-top:
+                1px solid var(--border-light);
+        }
+
+
+        .metadata-card strong {
+            display: block;
+
+            color: #344054;
+
+            font-size: 11px;
+            line-height: 1.5;
+
+            font-weight: 700;
+        }
+
+
+        /* =========================================================
+           MOBILE TOP BAR
+        ========================================================= */
+
+        .mobile-admin-header {
+            display: none;
+        }
+
+
+        /* =========================================================
+           SCROLLBAR
+        ========================================================= */
+
+        .admin-nav::-webkit-scrollbar {
+            width: 5px;
+        }
+
+
+        .admin-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+
+        .admin-nav::-webkit-scrollbar-thumb {
+            background: #273449;
+
+            border-radius: 10px;
+        }
+
+
+        /* =========================================================
+           TABLET
+        ========================================================= */
+
+        @media (max-width: 1200px) {
+
+            .admin-main {
+                padding: 25px;
+            }
+
+
+            .details-grid {
+                grid-template-columns:
+                    minmax(0, 1fr)
+                    320px;
+            }
+
+        }
+
+
+        @media (max-width: 1000px) {
+
+            .admin-sidebar {
+                width: 220px;
+                min-width: 220px;
+            }
+
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .details-sidebar {
+                display: grid;
+
+                grid-template-columns:
+                    repeat(2, minmax(0,1fr));
+
+                align-items: start;
+            }
+
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 760px) {
+
+            .admin-layout {
+                display: block;
+            }
+
+
+            .admin-sidebar {
+                position: relative;
+
+                width: 100%;
+                min-width: 0;
+
+                height: auto;
+            }
+
+
+            .sidebar-brand {
+                min-height: 70px;
+            }
+
+
+            .admin-nav {
+                display: grid;
+
+                grid-template-columns:
+                    repeat(2, minmax(0,1fr));
+
+                gap: 4px;
+
+                padding: 12px;
+            }
+
+
+            .admin-nav a {
+                margin: 0;
+            }
+
+
+            .nav-section-label,
+            .nav-divider {
+                display: none;
+            }
+
+
+            .sidebar-bottom {
+                display: flex;
+
+                align-items: center;
+                justify-content: space-between;
+
+                gap: 12px;
+            }
+
+
+            .admin-user {
+                padding: 5px 0;
+            }
+
+
+            .logout-link {
+                width: auto;
+
+                min-width: 90px;
+            }
+
+
+            .admin-main {
+                padding: 19px 14px 35px;
+            }
+
+
+            .details-topbar {
+                align-items: flex-start;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+
+            .details-topbar h1 {
+                font-size: 24px;
+            }
+
+
+            .details-sidebar {
+                display: flex;
+            }
+
+        }
+
+
+        /* =========================================================
+           SMALL MOBILE
+        ========================================================= */
+
+        @media (max-width: 560px) {
+
+            .admin-nav {
+                grid-template-columns: 1fr;
+            }
+
+
+            .sidebar-bottom {
+                align-items: stretch;
+
+                flex-direction: column;
+            }
+
+
+            .logout-link {
+                width: 100%;
+            }
+
+
+            .details-card-heading {
+                padding: 17px 16px 15px;
+            }
+
+
+            .details-info-grid {
+                padding: 18px 16px;
+
+                grid-template-columns: 1fr;
+
+                gap: 18px;
+            }
+
+
+            .details-info-grid .full-width {
+                grid-column: auto;
+            }
+
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .form-grid .full-width {
+                grid-column: auto;
+            }
+
+
+            .details-form,
+            .status-form,
+            .notes-form,
+            .message-form,
+            .metadata-card,
+            .passport-wrapper,
+            .documents-list {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+
+            .response-block {
+                padding: 18px 16px;
+            }
+
+
+            .button-row {
+                display: block;
+            }
+
+
+            .button-row .details-button {
+                width: 100%;
+            }
+
+
+            .details-topbar h1 {
+                font-size: 22px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
+
 
 <div class="admin-layout">
 
-<!-- =========================================================
-     ADMIN SIDEBAR
-========================================================== -->
 
-<aside class="admin-sidebar">
+    <!-- =========================================================
+         ADMIN SIDEBAR
+    ========================================================== -->
 
-    <div class="sidebar-brand">
-
-        <div class="sidebar-logo">
-            AV
-        </div>
-
-        <div>
-            <strong>AV KING</strong>
-            <small>RECRUITMENT PORTAL</small>
-        </div>
-
-    </div>
+    <aside class="admin-sidebar">
 
 
-    <nav class="admin-nav">
+        <!-- BRAND -->
 
-        <a href="{{ url_for('admin_dashboard') }}">
-            <span>▣</span>
-            <strong>Dashboard</strong>
-        </a>
+        <div class="sidebar-brand">
 
-
-        <a
-            href="{{ url_for('admin_applications') }}"
-            class="active"
-        >
-            <span>☷</span>
-            <strong>Applications</strong>
-        </a>
-
-
-        <a href="{{ url_for('admin_positions') }}">
-            <span>◈</span>
-            <strong>Manage Positions</strong>
-        </a>
-
-
-        <a href="{{ url_for('admin_interviews') }}">
-            <span>◷</span>
-            <strong>Interviews</strong>
-        </a>
-
-
-        <a href="{{ url_for('admin_attendance') }}">
-            <span>✓</span>
-            <strong>Attendance</strong>
-        </a>
-
-
-        <a href="{{ url_for('admin_monthly_attendance') }}">
-            <span>▤</span>
-            <strong>Monthly Attendance</strong>
-        </a>
-
-
-        <a href="{{ url_for('admin_reports') }}">
-            <span>▥</span>
-            <strong>Reports</strong>
-        </a>
-
-
-        <div class="nav-divider"></div>
-
-
-        <a href="{{ url_for('admin_settings') }}">
-            <span>⚙</span>
-            <strong>Settings</strong>
-        </a>
-
-    </nav>
-
-
-    <div class="sidebar-bottom">
-
-        <div class="admin-user">
-
-            <div class="user-avatar">
-                {{ session.get("admin_name", "A")[0]|upper }}
+            <div class="sidebar-logo">
+                AV
             </div>
 
             <div>
 
                 <strong>
-                    {{ session.get(
-                        "admin_name",
-                        "Administrator"
-                    ) }}
+                    AV KING
                 </strong>
 
                 <small>
-                    Administrator
+                    RECRUITMENT PORTAL
                 </small>
 
             </div>
@@ -1249,585 +1635,1238 @@
         </div>
 
 
-        <a
-            href="{{ url_for('admin_logout') }}"
-            class="logout-link"
-        >
-            Sign Out
-        </a>
 
-    </div>
+        <!-- NAVIGATION -->
 
-</aside>
+        <nav class="admin-nav">
 
 
-<!-- =========================================================
-     MAIN CONTENT
-========================================================== -->
-
-<main class="admin-main">
-
-    <div class="details-container">
+            <div class="nav-section-label">
+                MAIN MENU
+            </div>
 
 
-        <!-- =====================================================
-             PAGE HEADER
-        ====================================================== -->
+            <a href="{{ url_for('admin_dashboard') }}">
 
-        <header class="details-topbar">
+                <span>▣</span>
 
-            <div>
+                <strong>
+                    Dashboard
+                </strong>
 
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="back-link"
-                >
-                    ← Back to Applications
-                </a>
+            </a>
 
 
-                <span class="page-label">
-                    APPLICATION PROFILE
-                </span>
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="active"
+            >
+
+                <span>☷</span>
+
+                <strong>
+                    Applications
+                </strong>
+
+            </a>
 
 
-                <h1>
+            <a href="{{ url_for('admin_positions') }}">
 
-                    {{ application.first_name }}
+                <span>◈</span>
 
-                    {% if application.middle_name %}
-                        {{ application.middle_name }}
-                    {% endif %}
+                <strong>
+                    Manage Positions
+                </strong>
 
-                    {{ application.last_name }}
-
-                </h1>
+            </a>
 
 
-                <p class="application-id">
-                    Application No:
-                    {{ application.application_number }}
-                </p>
+            <a href="{{ url_for('admin_interviews') }}">
+
+                <span>◷</span>
+
+                <strong>
+                    Interviews
+                </strong>
+
+            </a>
+
+
+            <div class="nav-section-label">
+                REPORTING
+            </div>
+
+
+            <a href="{{ url_for('admin_attendance') }}">
+
+                <span>✓</span>
+
+                <strong>
+                    Attendance
+                </strong>
+
+            </a>
+
+
+            <a href="{{ url_for('admin_monthly_attendance') }}">
+
+                <span>▤</span>
+
+                <strong>
+                    Monthly Attendance
+                </strong>
+
+            </a>
+
+
+            <a href="{{ url_for('admin_reports') }}">
+
+                <span>▥</span>
+
+                <strong>
+                    Reports
+                </strong>
+
+            </a>
+
+
+            <div class="nav-divider"></div>
+
+
+            <div class="nav-section-label">
+                SYSTEM
+            </div>
+
+
+            <a href="{{ url_for('admin_settings') }}">
+
+                <span>⚙</span>
+
+                <strong>
+                    Settings
+                </strong>
+
+            </a>
+
+        </nav>
+
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="sidebar-bottom">
+
+
+            <div class="admin-user">
+
+                <div class="user-avatar">
+
+                    {{ session.get(
+                        "admin_name",
+                        "A"
+                    )[0]|upper }}
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+
+                        {{ session.get(
+                            "admin_name",
+                            "Administrator"
+                        ) }}
+
+                    </strong>
+
+
+                    <small>
+                        Administrator
+                    </small>
+
+                </div>
 
             </div>
 
 
-            <div>
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="logout-link"
+            >
+                Sign Out
+            </a>
 
-                <span
-                    class="status status-{{ application.status|lower|replace(' ', '-') }}"
-                >
-                    {{ application.status }}
-                </span>
+        </div>
 
-            </div>
-
-        </header>
-
+    </aside>
 
 
-        <!-- =====================================================
-             DETAILS
-        ====================================================== -->
 
-        <div class="details-grid">
+    <!-- =========================================================
+         MAIN CONTENT
+    ========================================================== -->
+
+    <main class="admin-main">
 
 
-            <!-- =================================================
-                 MAIN COLUMN
-            ================================================= -->
+        <div class="details-container">
 
-            <div class="details-main">
+
+            <!-- =====================================================
+                 PAGE HEADER
+            ====================================================== -->
+
+            <header class="details-topbar">
+
+
+                <div>
+
+
+                    <a
+                        href="{{ url_for('admin_applications') }}"
+                        class="back-link"
+                    >
+                        ← Back to Applications
+                    </a>
+
+
+                    <span class="page-label">
+                        APPLICATION PROFILE
+                    </span>
+
+
+                    <h1>
+
+                        {{ application.first_name }}
+
+                        {% if application.middle_name %}
+                            {{ application.middle_name }}
+                        {% endif %}
+
+                        {{ application.last_name }}
+
+                    </h1>
+
+
+                    <p class="application-id">
+
+                        Application No:
+                        {{ application.application_number }}
+
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="status status-{{ application.status|lower|replace(' ', '-') }}"
+                    >
+                        {{ application.status }}
+                    </span>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- =====================================================
+                 DETAILS GRID
+            ====================================================== -->
+
+            <div class="details-grid">
 
 
                 <!-- =================================================
-                     PERSONAL INFORMATION
+                     MAIN COLUMN
                 ================================================= -->
 
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            PERSONAL INFORMATION
-                        </span>
-
-                        <h2>
-                            Applicant Details
-                        </h2>
-
-                    </div>
+                <div class="details-main">
 
 
-                    <div class="details-info-grid">
+                    <!-- PERSONAL INFORMATION -->
 
-                        <div>
+                    <section class="details-card">
 
-                            <label>
-                                Full Name
-                            </label>
 
-                            <strong>
+                        <div class="details-card-heading">
 
-                                {{ application.first_name }}
+                            <span>
+                                PERSONAL INFORMATION
+                            </span>
 
-                                {% if application.middle_name %}
-                                    {{ application.middle_name }}
-                                {% endif %}
-
-                                {{ application.last_name }}
-
-                            </strong>
+                            <h2>
+                                Applicant Details
+                            </h2>
 
                         </div>
 
 
-                        <div>
+                        <div class="details-info-grid">
 
-                            <label>
-                                Gender
-                            </label>
 
-                            <strong>
-                                {{ application.gender or "—" }}
-                            </strong>
+                            <div>
 
-                        </div>
+                                <label>
+                                    Full Name
+                                </label>
 
+                                <strong>
 
-                        <div>
+                                    {{ application.first_name }}
 
-                            <label>
-                                Date of Birth
-                            </label>
+                                    {% if application.middle_name %}
+                                        {{ application.middle_name }}
+                                    {% endif %}
 
-                            <strong>
-                                {{ application.date_of_birth or "—" }}
-                            </strong>
+                                    {{ application.last_name }}
 
-                        </div>
+                                </strong>
 
+                            </div>
 
-                        <div>
 
-                            <label>
-                                Phone
-                            </label>
+                            <div>
 
-                            <strong>
-                                {{ application.phone or "—" }}
-                            </strong>
+                                <label>
+                                    Gender
+                                </label>
 
-                        </div>
+                                <strong>
+                                    {{ application.gender or "—" }}
+                                </strong>
 
+                            </div>
 
-                        <div>
 
-                            <label>
-                                Email
-                            </label>
+                            <div>
 
-                            <strong>
-                                {{ application.email or "—" }}
-                            </strong>
+                                <label>
+                                    Date of Birth
+                                </label>
 
-                        </div>
+                                <strong>
+                                    {{ application.date_of_birth or "—" }}
+                                </strong>
 
+                            </div>
 
-                        <div>
 
-                            <label>
-                                State
-                            </label>
+                            <div>
 
-                            <strong>
-                                {{ application.state or "—" }}
-                            </strong>
+                                <label>
+                                    Phone
+                                </label>
 
-                        </div>
+                                <strong>
+                                    {{ application.phone or "—" }}
+                                </strong>
 
+                            </div>
 
-                        <div>
 
-                            <label>
-                                LGA
-                            </label>
+                            <div>
 
-                            <strong>
-                                {{ application.lga or "—" }}
-                            </strong>
+                                <label>
+                                    Email
+                                </label>
 
-                        </div>
+                                <strong>
+                                    {{ application.email or "—" }}
+                                </strong>
 
+                            </div>
 
-                        <div class="full-width">
 
-                            <label>
-                                Residential Address
-                            </label>
+                            <div>
 
-                            <strong>
-                                {{ application.address or "—" }}
-                            </strong>
+                                <label>
+                                    State
+                                </label>
 
-                        </div>
+                                <strong>
+                                    {{ application.state or "—" }}
+                                </strong>
 
-                    </div>
+                            </div>
 
-                </section>
 
+                            <div>
 
+                                <label>
+                                    LGA
+                                </label>
 
-                <!-- =================================================
-                     POSITION
-                ================================================== -->
+                                <strong>
+                                    {{ application.lga or "—" }}
+                                </strong>
 
-                <section class="details-card">
+                            </div>
 
-                    <div class="details-card-heading">
 
-                        <span>
-                            RECRUITMENT
-                        </span>
+                            <div class="full-width">
 
-                        <h2>
-                            Position Applied For
-                        </h2>
+                                <label>
+                                    Residential Address
+                                </label>
 
-                    </div>
+                                <strong>
+                                    {{ application.address or "—" }}
+                                </strong>
 
-
-                    <div class="position-highlight">
-
-                        <strong>
-                            {{ application.position_applied or "—" }}
-                        </strong>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     EDUCATION
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            EDUCATION
-                        </span>
-
-                        <h2>
-                            Academic Background
-                        </h2>
-
-                    </div>
-
-
-                    <div class="details-info-grid">
-
-                        <div>
-
-                            <label>
-                                Highest Qualification
-                            </label>
-
-                            <strong>
-                                {{ application.highest_qualification or "—" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Course / Field
-                            </label>
-
-                            <strong>
-                                {{ application.course_of_study or "—" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="full-width">
-
-                            <label>
-                                Institution
-                            </label>
-
-                            <strong>
-                                {{ application.institution or "—" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Graduation Year
-                            </label>
-
-                            <strong>
-                                {{ application.graduation_year or "—" }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     WORK EXPERIENCE
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            EXPERIENCE
-                        </span>
-
-                        <h2>
-                            Work History
-                        </h2>
-
-                    </div>
-
-
-                    <div class="details-info-grid">
-
-                        <div>
-
-                            <label>
-                                Previous Employer
-                            </label>
-
-                            <strong>
-                                {{ application.previous_employer or "—" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Previous Position
-                            </label>
-
-                            <strong>
-                                {{ application.previous_position or "—" }}
-                            </strong>
-
-                        </div>
-
-
-                        <div class="full-width">
-
-                            <label>
-                                Work Experience
-                            </label>
-
-                            <div class="text-content">
-                                {{ application.work_experience
-                                or "No work experience was provided." }}
                             </div>
 
                         </div>
 
-                    </div>
-
-                </section>
+                    </section>
 
 
 
-                <!-- =================================================
-                     APPLICANT RESPONSES
-                ================================================== -->
+                    <!-- POSITION -->
 
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            APPLICATION
-                        </span>
-
-                        <h2>
-                            Applicant Responses
-                        </h2>
-
-                    </div>
+                    <section class="details-card">
 
 
-                    <div class="response-block">
+                        <div class="details-card-heading">
 
-                        <label>
-                            Why do you want to work with us?
-                        </label>
+                            <span>
+                                RECRUITMENT
+                            </span>
 
-                        <p>
-                            {{ application.reason_for_applying
-                            or "No response provided." }}
-                        </p>
+                            <h2>
+                                Position Applied For
+                            </h2>
 
-                    </div>
+                        </div>
 
 
-                    <div class="response-block">
+                        <div class="position-highlight">
 
-                        <label>
-                            Additional Information
-                        </label>
+                            <strong>
+                                {{ application.position_applied or "—" }}
+                            </strong>
 
-                        <p>
-                            {{ application.additional_information
-                            or "No additional information provided." }}
-                        </p>
+                        </div>
 
-                    </div>
-
-                </section>
+                    </section>
 
 
 
-                <!-- =================================================
-                     INTERVIEW
-                ================================================== -->
+                    <!-- EDUCATION -->
 
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            INTERVIEW
-                        </span>
-
-                        <h2>
-                            Interview Scheduling
-                        </h2>
-
-                        <p>
-                            Schedule or update the applicant's
-                            interview. The details will be displayed
-                            in the applicant portal.
-                        </p>
-
-                    </div>
+                    <section class="details-card">
 
 
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'update_application_interview',
-                            application_id=application.id
-                        ) }}"
-                        class="details-form"
-                    >
+                        <div class="details-card-heading">
 
-                        <div class="form-grid">
+                            <span>
+                                EDUCATION
+                            </span>
+
+                            <h2>
+                                Academic Background
+                            </h2>
+
+                        </div>
 
 
-                            <div class="field-group">
+                        <div class="details-info-grid">
 
-                                <label for="interview_date">
-                                    Interview Date & Time
+
+                            <div>
+
+                                <label>
+                                    Highest Qualification
                                 </label>
 
-                                <input
-                                    type="datetime-local"
-                                    id="interview_date"
-                                    name="interview_date"
-                                    value="{% if application.interview_date %}{{ application.interview_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                                <strong>
+                                    {{ application.highest_qualification or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    Course / Field
+                                </label>
+
+                                <strong>
+                                    {{ application.course_of_study or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="full-width">
+
+                                <label>
+                                    Institution
+                                </label>
+
+                                <strong>
+                                    {{ application.institution or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    Graduation Year
+                                </label>
+
+                                <strong>
+                                    {{ application.graduation_year or "—" }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- WORK EXPERIENCE -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                EXPERIENCE
+                            </span>
+
+                            <h2>
+                                Work History
+                            </h2>
+
+                        </div>
+
+
+                        <div class="details-info-grid">
+
+
+                            <div>
+
+                                <label>
+                                    Previous Employer
+                                </label>
+
+                                <strong>
+                                    {{ application.previous_employer or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    Previous Position
+                                </label>
+
+                                <strong>
+                                    {{ application.previous_position or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div class="full-width">
+
+                                <label>
+                                    Work Experience
+                                </label>
+
+                                <div class="text-content">
+
+                                    {{ application.work_experience
+                                    or "No work experience was provided." }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- APPLICANT RESPONSES -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                APPLICATION
+                            </span>
+
+                            <h2>
+                                Applicant Responses
+                            </h2>
+
+                        </div>
+
+
+                        <div class="response-block">
+
+                            <label>
+                                Why do you want to work with us?
+                            </label>
+
+                            <p>
+
+                                {{ application.reason_for_applying
+                                or "No response provided." }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div class="response-block">
+
+                            <label>
+                                Additional Information
+                            </label>
+
+                            <p>
+
+                                {{ application.additional_information
+                                or "No additional information provided." }}
+
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- INTERVIEW -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                INTERVIEW
+                            </span>
+
+                            <h2>
+                                Interview Scheduling
+                            </h2>
+
+                            <p>
+                                Schedule or update the applicant's
+                                interview. The details will be displayed
+                                in the applicant portal.
+                            </p>
+
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'update_application_interview',
+                                application_id=application.id
+                            ) }}"
+                            class="details-form"
+                        >
+
+
+                            <div class="form-grid">
+
+
+                                <div class="field-group">
+
+                                    <label for="interview_date">
+                                        Interview Date & Time
+                                    </label>
+
+                                    <input
+                                        type="datetime-local"
+                                        id="interview_date"
+                                        name="interview_date"
+                                        value="{% if application.interview_date %}{{ application.interview_date.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                                    >
+
+                                </div>
+
+
+                                <div class="field-group">
+
+                                    <label for="interview_location">
+                                        Interview Location
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="interview_location"
+                                        name="interview_location"
+                                        value="{{ application.interview_location or '' }}"
+                                        placeholder="e.g. AV KING Head Office"
+                                    >
+
+                                </div>
+
+
+                                <div class="field-group">
+
+                                    <label for="interview_status">
+                                        Interview Status
+                                    </label>
+
+
+                                    {% set current_interview_status =
+                                        application.interview_status
+                                        or "Scheduled"
+                                    %}
+
+
+                                    <select
+                                        id="interview_status"
+                                        name="interview_status"
+                                    >
+
+                                        <option
+                                            value="Scheduled"
+                                            {% if current_interview_status == "Scheduled" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            Scheduled
+                                        </option>
+
+
+                                        <option
+                                            value="Completed"
+                                            {% if current_interview_status == "Completed" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            Completed
+                                        </option>
+
+
+                                        <option
+                                            value="Rescheduled"
+                                            {% if current_interview_status == "Rescheduled" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            Rescheduled
+                                        </option>
+
+
+                                        <option
+                                            value="Cancelled"
+                                            {% if current_interview_status == "Cancelled" %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            Cancelled
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="field-group full-width">
+
+                                    <label for="interview_notes">
+                                        Interview Instructions
+                                    </label>
+
+                                    <textarea
+                                        id="interview_notes"
+                                        name="interview_notes"
+                                        rows="5"
+                                        placeholder="Enter interview instructions for the applicant..."
+                                    >{{ application.interview_notes or '' }}</textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="button-row">
+
+                                <button
+                                    type="submit"
+                                    class="details-button"
+                                >
+                                    Save Interview Details
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </section>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     RIGHT SIDEBAR
+                ================================================== -->
+
+                <aside class="details-sidebar">
+
+
+                    <!-- PASSPORT -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                APPLICANT
+                            </span>
+
+                            <h2>
+                                Passport Photograph
+                            </h2>
+
+                        </div>
+
+
+                        <div class="passport-wrapper">
+
+                            {% if application.passport_filename %}
+
+                                <img
+                                    src="{{ url_for(
+                                        'admin_application_file',
+                                        filename=application.passport_filename
+                                    ) }}"
+                                    class="passport-preview"
+                                    alt="Applicant passport photograph"
                                 >
 
-                            </div>
+                            {% else %}
+
+                                <div class="document-empty">
+                                    No passport photograph uploaded.
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    </section>
 
 
-                            <div class="field-group">
 
-                                <label for="interview_location">
-                                    Interview Location
-                                </label>
+                    <!-- DOCUMENTS -->
 
-                                <input
-                                    type="text"
-                                    id="interview_location"
-                                    name="interview_location"
-                                    value="{{ application.interview_location or '' }}"
-                                    placeholder="e.g. AV KING Head Office"
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                DOCUMENTS
+                            </span>
+
+                            <h2>
+                                Applicant Attachments
+                            </h2>
+
+                        </div>
+
+
+                        <div class="documents-list">
+
+
+                            {% if application.cv_filename %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.cv_filename
+                                    ) }}"
+                                    class="document-link"
                                 >
 
-                            </div>
+                                    <span>
+                                        Curriculum Vitae
+                                    </span>
+
+                                    <span>
+                                        ↓
+                                    </span>
+
+                                </a>
+
+                            {% else %}
+
+                                <div class="document-missing">
+                                    No CV uploaded.
+                                </div>
+
+                            {% endif %}
+
+
+
+                            {% if application.qualification_filename %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.qualification_filename
+                                    ) }}"
+                                    class="document-link"
+                                >
+
+                                    <span>
+                                        Qualification / Result
+                                    </span>
+
+                                    <span>
+                                        ↓
+                                    </span>
+
+                                </a>
+
+                            {% else %}
+
+                                <div class="document-missing">
+                                    No qualification document uploaded.
+                                </div>
+
+                            {% endif %}
+
+
+
+                            {% if application.passport_filename %}
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.passport_filename
+                                    ) }}"
+                                    class="document-link"
+                                >
+
+                                    <span>
+                                        Passport Photograph
+                                    </span>
+
+                                    <span>
+                                        ↓
+                                    </span>
+
+                                </a>
+
+                            {% else %}
+
+                                <div class="document-missing">
+                                    No passport document available.
+                                </div>
+
+                            {% endif %}
+
+
+
+                            <a
+                                href="{{ url_for(
+                                    'download_applicant_biodata',
+                                    application_id=application.id
+                                ) }}"
+                                class="document-link"
+                            >
+
+                                <span>
+                                    Applicant Biodata
+                                </span>
+
+                                <span>
+                                    ↓
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- APPLICATION STATUS -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                RECRUITMENT
+                            </span>
+
+                            <h2>
+                                Application Status
+                            </h2>
+
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'update_application_status',
+                                application_id=application.id
+                            ) }}"
+                            class="status-form"
+                        >
+
+
+                            <label for="status">
+                                Current Status
+                            </label>
+
+
+                            <select
+                                id="status"
+                                name="status"
+                                class="status-select"
+                            >
+
+                                <option
+                                    value="Pending"
+                                    {% if application.status == "Pending" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Pending
+                                </option>
+
+
+                                <option
+                                    value="Under Review"
+                                    {% if application.status == "Under Review" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Under Review
+                                </option>
+
+
+                                <option
+                                    value="Shortlisted"
+                                    {% if application.status == "Shortlisted" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Shortlisted
+                                </option>
+
+
+                                <option
+                                    value="Approved"
+                                    {% if application.status == "Approved" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Approved
+                                </option>
+
+
+                                <option
+                                    value="Rejected"
+                                    {% if application.status == "Rejected" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Rejected
+                                </option>
+
+                            </select>
+
+
+
+                            {% if application.status == "Shortlisted" %}
+
+                                <div class="whatsapp-notification-box">
+
+                                    <span class="notification-label">
+                                        SHORTLISTED APPLICANT
+                                    </span>
+
+                                    <h3>
+                                        Applicant Notification
+                                    </h3>
+
+                                    <p>
+                                        This applicant has been
+                                        shortlisted. You can notify
+                                        them through WhatsApp.
+                                    </p>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'send_application_whatsapp',
+                                            application_id=application.id
+                                        ) }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="whatsapp-notification-button"
+                                    >
+                                        Send WhatsApp Notification
+                                    </a>
+
+                                </div>
+
+                            {% endif %}
+
+
+                            <button
+                                type="submit"
+                                class="details-button"
+                            >
+                                Update Application Status
+                            </button>
+
+                        </form>
+
+                    </section>
+
+
+
+                    <!-- INTERNAL NOTES -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                INTERNAL
+                            </span>
+
+                            <h2>
+                                Recruitment Notes
+                            </h2>
+
+                            <p>
+                                These notes are for administrators
+                                and are not shown to the applicant.
+                            </p>
+
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'update_application_notes',
+                                application_id=application.id
+                            ) }}"
+                            class="notes-form"
+                        >
+
+                            <textarea
+                                name="admin_notes"
+                                class="notes-textarea"
+                                rows="7"
+                                placeholder="Add internal recruitment notes..."
+                            >{{ application.admin_notes or "" }}</textarea>
+
+
+                            <button
+                                type="submit"
+                                class="details-button"
+                            >
+                                Save Recruitment Notes
+                            </button>
+
+                        </form>
+
+                    </section>
+
+
+
+                    <!-- APPLICANT MESSAGE -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                COMMUNICATION
+                            </span>
+
+                            <h2>
+                                Send Applicant Message
+                            </h2>
+
+                            <p>
+                                Send a message that the applicant
+                                can view from their portal.
+                            </p>
+
+                        </div>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'send_applicant_message',
+                                application_id=application.id
+                            ) }}"
+                            class="message-form"
+                        >
 
 
                             <div class="field-group">
 
-                                <label for="interview_status">
-                                    Interview Status
+                                <label for="message_type">
+                                    Message Type
                                 </label>
-
-
-                                {% set current_interview_status =
-                                    application.interview_status
-                                    or "Scheduled"
-                                %}
-
 
                                 <select
-                                    id="interview_status"
-                                    name="interview_status"
+                                    id="message_type"
+                                    name="message_type"
                                 >
 
-                                    <option
-                                        value="Scheduled"
-                                        {% if current_interview_status == "Scheduled" %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Scheduled
+                                    <option value="General">
+                                        General
                                     </option>
 
-
-                                    <option
-                                        value="Completed"
-                                        {% if current_interview_status == "Completed" %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Completed
+                                    <option value="Interview">
+                                        Interview
                                     </option>
 
-
-                                    <option
-                                        value="Rescheduled"
-                                        {% if current_interview_status == "Rescheduled" %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Rescheduled
+                                    <option value="Shortlisting">
+                                        Shortlisting
                                     </option>
 
+                                    <option value="Application">
+                                        Application Update
+                                    </option>
 
-                                    <option
-                                        value="Cancelled"
-                                        {% if current_interview_status == "Cancelled" %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Cancelled
+                                    <option value="Important">
+                                        Important
                                     </option>
 
                                 </select>
@@ -1835,707 +2874,208 @@
                             </div>
 
 
-                            <div class="field-group full-width">
+                            <div class="field-group">
 
-                                <label for="interview_notes">
-                                    Interview Instructions
+                                <label for="subject">
+                                    Subject
                                 </label>
 
-                                <textarea
-                                    id="interview_notes"
-                                    name="interview_notes"
-                                    rows="5"
-                                    placeholder="Enter interview instructions for the applicant..."
-                                >{{ application.interview_notes or '' }}</textarea>
+                                <input
+                                    type="text"
+                                    id="subject"
+                                    name="subject"
+                                    placeholder="Enter message subject"
+                                    required
+                                >
 
                             </div>
 
-                        </div>
 
+                            <div class="field-group">
 
-                        <div class="button-row">
+                                <label for="message">
+                                    Message
+                                </label>
+
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    rows="7"
+                                    placeholder="Write your message to the applicant..."
+                                    required
+                                ></textarea>
+
+                            </div>
+
 
                             <button
                                 type="submit"
                                 class="details-button"
                             >
-                                Save Interview Details
+                                Send Message
                             </button>
+
+                        </form>
+
+                    </section>
+
+
+
+                    <!-- PORTAL INFORMATION -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                APPLICANT PORTAL
+                            </span>
+
+                            <h2>
+                                Portal Information
+                            </h2>
 
                         </div>
 
-                    </form>
 
-                </section>
+                        <div class="metadata-card">
+
+
+                            <div>
+
+                                <label>
+                                    Portal Access
+                                </label>
+
+                                <strong>
+
+                                    {% if application.portal_active %}
+                                        Active
+                                    {% else %}
+                                        Disabled
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    Last Login
+                                </label>
+
+                                <strong>
+
+                                    {% if application.last_login %}
+
+                                        {{ application.last_login.strftime(
+                                            "%d %B %Y, %I:%M %p"
+                                        ) }}
+
+                                    {% else %}
+
+                                        Never
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- SUBMISSION INFORMATION -->
+
+                    <section class="details-card">
+
+
+                        <div class="details-card-heading">
+
+                            <span>
+                                RECORD INFORMATION
+                            </span>
+
+                            <h2>
+                                Application Timeline
+                            </h2>
+
+                        </div>
+
+
+                        <div class="metadata-card">
+
+
+                            <div>
+
+                                <label>
+                                    Submitted
+                                </label>
+
+                                <strong>
+
+                                    {% if application.submitted_at %}
+
+                                        {{ application.submitted_at.strftime(
+                                            "%d %B %Y, %I:%M %p"
+                                        ) }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    Last Updated
+                                </label>
+
+                                <strong>
+
+                                    {% if application.updated_at %}
+
+                                        {{ application.updated_at.strftime(
+                                            "%d %B %Y, %I:%M %p"
+                                        ) }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                </aside>
 
             </div>
 
-
-
-            <!-- =================================================
-                 RIGHT SIDEBAR
-            ================================================== -->
-
-            <aside class="details-sidebar">
-
-
-                <!-- =================================================
-                     PASSPORT
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            APPLICANT
-                        </span>
-
-                        <h2>
-                            Passport Photograph
-                        </h2>
-
-                    </div>
-
-
-                    <div class="passport-wrapper">
-
-                        {% if application.passport_filename %}
-
-                            <img
-                                src="{{ url_for(
-                                    'admin_application_file',
-                                    filename=application.passport_filename
-                                ) }}"
-                                class="passport-preview"
-                                alt="Applicant passport photograph"
-                            >
-
-                        {% else %}
-
-                            <div class="document-empty">
-                                No passport photograph uploaded.
-                            </div>
-
-                        {% endif %}
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     DOCUMENTS
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            DOCUMENTS
-                        </span>
-
-                        <h2>
-                            Applicant Attachments
-                        </h2>
-
-                    </div>
-
-
-                    <div class="documents-list">
-
-
-                        {% if application.cv_filename %}
-
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.cv_filename
-                                ) }}"
-                                class="document-link"
-                            >
-
-                                <span>
-                                    Curriculum Vitae
-                                </span>
-
-                                <span>
-                                    ↓
-                                </span>
-
-                            </a>
-
-                        {% else %}
-
-                            <div class="document-missing">
-                                No CV uploaded.
-                            </div>
-
-                        {% endif %}
-
-
-
-                        {% if application.qualification_filename %}
-
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.qualification_filename
-                                ) }}"
-                                class="document-link"
-                            >
-
-                                <span>
-                                    Qualification / Result
-                                </span>
-
-                                <span>
-                                    ↓
-                                </span>
-
-                            </a>
-
-                        {% else %}
-
-                            <div class="document-missing">
-                                No qualification document uploaded.
-                            </div>
-
-                        {% endif %}
-
-
-
-                        {% if application.passport_filename %}
-
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.passport_filename
-                                ) }}"
-                                class="document-link"
-                            >
-
-                                <span>
-                                    Passport Photograph
-                                </span>
-
-                                <span>
-                                    ↓
-                                </span>
-
-                            </a>
-
-                        {% else %}
-
-                            <div class="document-missing">
-                                No passport document available.
-                            </div>
-
-                        {% endif %}
-
-
-
-                        <a
-                            href="{{ url_for(
-                                'download_applicant_biodata',
-                                application_id=application.id
-                            ) }}"
-                            class="document-link"
-                        >
-
-                            <span>
-                                Applicant Biodata
-                            </span>
-
-                            <span>
-                                ↓
-                            </span>
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     APPLICATION STATUS
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            RECRUITMENT
-                        </span>
-
-                        <h2>
-                            Application Status
-                        </h2>
-
-                    </div>
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'update_application_status',
-                            application_id=application.id
-                        ) }}"
-                        class="status-form"
-                    >
-
-                        <label
-                            for="status"
-                            style="
-                                display:block;
-                                margin-bottom:7px;
-                                color:#344054;
-                                font-size:11px;
-                                font-weight:800;
-                            "
-                        >
-                            Current Status
-                        </label>
-
-
-                        <select
-                            id="status"
-                            name="status"
-                            class="status-select"
-                        >
-
-                            <option
-                                value="Pending"
-                                {% if application.status == "Pending" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Pending
-                            </option>
-
-
-                            <option
-                                value="Under Review"
-                                {% if application.status == "Under Review" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Under Review
-                            </option>
-
-
-                            <option
-                                value="Shortlisted"
-                                {% if application.status == "Shortlisted" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Shortlisted
-                            </option>
-
-
-                            <option
-                                value="Approved"
-                                {% if application.status == "Approved" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Approved
-                            </option>
-
-
-                            <option
-                                value="Rejected"
-                                {% if application.status == "Rejected" %}
-                                    selected
-                                {% endif %}
-                            >
-                                Rejected
-                            </option>
-
-                        </select>
-
-
-
-                        {% if application.status == "Shortlisted" %}
-
-                            <div class="whatsapp-notification-box">
-
-                                <span class="notification-label">
-                                    SHORTLISTED APPLICANT
-                                </span>
-
-                                <h3>
-                                    Applicant Notification
-                                </h3>
-
-                                <p>
-                                    This applicant has been
-                                    shortlisted. You can notify
-                                    them through WhatsApp.
-                                </p>
-
-
-                                <a
-                                    href="{{ url_for(
-                                        'send_application_whatsapp',
-                                        application_id=application.id
-                                    ) }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="whatsapp-notification-button"
-                                >
-                                    Send WhatsApp Notification
-                                </a>
-
-                            </div>
-
-                        {% endif %}
-
-
-
-                        <button
-                            type="submit"
-                            class="details-button"
-                        >
-                            Update Application Status
-                        </button>
-
-                    </form>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     INTERNAL NOTES
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            INTERNAL
-                        </span>
-
-                        <h2>
-                            Recruitment Notes
-                        </h2>
-
-                        <p>
-                            These notes are for administrators
-                            and are not shown to the applicant.
-                        </p>
-
-                    </div>
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'update_application_notes',
-                            application_id=application.id
-                        ) }}"
-                        class="notes-form"
-                    >
-
-                        <textarea
-                            name="admin_notes"
-                            class="notes-textarea"
-                            rows="7"
-                            placeholder="Add internal recruitment notes..."
-                        >{{ application.admin_notes or "" }}</textarea>
-
-
-                        <button
-                            type="submit"
-                            class="details-button"
-                        >
-                            Save Recruitment Notes
-                        </button>
-
-                    </form>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     APPLICANT MESSAGE
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            COMMUNICATION
-                        </span>
-
-                        <h2>
-                            Send Applicant Message
-                        </h2>
-
-                        <p>
-                            Send a message that the applicant
-                            can view from their portal.
-                        </p>
-
-                    </div>
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for(
-                            'send_applicant_message',
-                            application_id=application.id
-                        ) }}"
-                        class="message-form"
-                    >
-
-
-                        <div class="field-group">
-
-                            <label for="message_type">
-                                Message Type
-                            </label>
-
-                            <select
-                                id="message_type"
-                                name="message_type"
-                            >
-
-                                <option value="General">
-                                    General
-                                </option>
-
-                                <option value="Interview">
-                                    Interview
-                                </option>
-
-                                <option value="Shortlisting">
-                                    Shortlisting
-                                </option>
-
-                                <option value="Application">
-                                    Application Update
-                                </option>
-
-                                <option value="Important">
-                                    Important
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="field-group">
-
-                            <label for="subject">
-                                Subject
-                            </label>
-
-                            <input
-                                type="text"
-                                id="subject"
-                                name="subject"
-                                placeholder="Enter message subject"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="field-group">
-
-                            <label for="message">
-                                Message
-                            </label>
-
-                            <textarea
-                                id="message"
-                                name="message"
-                                rows="7"
-                                placeholder="Write your message to the applicant..."
-                                required
-                            ></textarea>
-
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            class="details-button"
-                        >
-                            Send Message
-                        </button>
-
-                    </form>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     PORTAL INFORMATION
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            APPLICANT PORTAL
-                        </span>
-
-                        <h2>
-                            Portal Information
-                        </h2>
-
-                    </div>
-
-
-                    <div class="metadata-card">
-
-                        <div>
-
-                            <label>
-                                Portal Access
-                            </label>
-
-                            <strong>
-
-                                {% if application.portal_active %}
-                                    Active
-                                {% else %}
-                                    Disabled
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Last Login
-                            </label>
-
-                            <strong>
-
-                                {% if application.last_login %}
-
-                                    {{ application.last_login.strftime(
-                                        "%d %B %Y, %I:%M %p"
-                                    ) }}
-
-                                {% else %}
-
-                                    Never
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     SUBMISSION INFORMATION
-                ================================================== -->
-
-                <section class="details-card">
-
-                    <div class="details-card-heading">
-
-                        <span>
-                            RECORD INFORMATION
-                        </span>
-
-                        <h2>
-                            Application Timeline
-                        </h2>
-
-                    </div>
-
-
-                    <div class="metadata-card">
-
-                        <div>
-
-                            <label>
-                                Submitted
-                            </label>
-
-                            <strong>
-
-                                {% if application.submitted_at %}
-
-                                    {{ application.submitted_at.strftime(
-                                        "%d %B %Y, %I:%M %p"
-                                    ) }}
-
-                                {% else %}
-
-                                    —
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
-                                Last Updated
-                            </label>
-
-                            <strong>
-
-                                {% if application.updated_at %}
-
-                                    {{ application.updated_at.strftime(
-                                        "%d %B %Y, %I:%M %p"
-                                    ) }}
-
-                                {% else %}
-
-                                    —
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-            </aside>
-
         </div>
 
-    </div>
-
-</main>
+    </main>
 
 </div>
+
 
 </body>
 
