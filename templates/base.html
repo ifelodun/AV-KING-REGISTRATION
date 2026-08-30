@@ -1,984 +1,296 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        {% block title %}
-            {{ company_name|default("AV KING VETERINARY BUSINESS SUITE") }}
-        {% endblock %}
-    </title>
-
-    <meta
-        name="description"
-        content="AV KING Veterinary Business Suite"
-    >
-
-    <!-- =====================================================
-         FONTS
-         ===================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
-
-
-    <!-- =====================================================
-         GLOBAL CSS
-         ===================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
-
-    {% block extra_css %}
-    {% endblock %}
-
-
-    <!-- =====================================================
-         PAGE-SPECIFIC HEAD
-         ===================================================== -->
-
-    {% block head %}
-    {% endblock %}
-
-</head>
-
-
-<body>
-
 <!-- =========================================================
-     MOBILE OVERLAY
+     APPLICATION SIDEBAR
      ========================================================= -->
 
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
+{% if session.get("admin_logged_in") or session.get("role") == "admin" %}
+
+<aside class="app-sidebar" id="appSidebar">
+
+    <!-- BRAND -->
+    <div class="sidebar-brand">
+
+        <a href="{{ url_for('admin_dashboard') }}">
+
+            {% if company_logo %}
+                <img
+                    src="{{ url_for('static', filename='uploads/' ~ company_logo) }}"
+                    alt="{{ company_name or 'Company Logo' }}"
+                    class="sidebar-logo"
+                >
+            {% endif %}
+
+            <div class="sidebar-brand-text">
+                <strong>
+                    {{ company_name or "AV KING VET DRUG VENTURE" }}
+                </strong>
+
+                <small>
+                    ADMINISTRATION
+                </small>
+            </div>
+
+        </a>
+
+    </div>
 
 
-<!-- =========================================================
-     APPLICATION WRAPPER
-     ========================================================= -->
+    <!-- ADMIN NAVIGATION -->
+    <nav class="sidebar-navigation">
 
-<div class="app-shell">
+        <!-- OVERVIEW -->
+        <div class="sidebar-section">
 
-
-    <!-- =====================================================
-         SIDEBAR
-         ONLY SHOWN WHEN USER IS LOGGED IN
-         ===================================================== -->
-
-    {% if session.get("role") in ["admin", "applicant", "worker"] %}
-
-    <aside
-        class="app-sidebar"
-        id="appSidebar"
-    >
-
-        <!-- =================================================
-             SIDEBAR BRAND
-             ================================================= -->
-
-        <div class="sidebar-brand">
+            <div class="sidebar-section-title">
+                OVERVIEW
+            </div>
 
             <a
-                href="{{
-                    url_for(
-                        'admin_dashboard'
-                    )
-                    if session.get('role') == 'admin'
-                    else url_for('worker_dashboard')
-                }}"
-                class="sidebar-brand-link"
+                href="{{ url_for('admin_dashboard') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
             >
-
-                <div class="sidebar-logo">
-
-                    {% if company_logo %}
-
-                        <img
-                            src="{{ url_for(
-                                'static',
-                                filename='uploads/' ~ company_logo
-                            ) }}"
-                            alt="{{ company_name|default('AV KING') }}"
-                        >
-
-                    {% else %}
-
-                        <span>AV</span>
-
-                    {% endif %}
-
-                </div>
-
-
-                <div class="sidebar-brand-text">
-
-                    <strong>
-                        {{ company_name|default("AV KING") }}
-                    </strong>
-
-                    <small>
-                        VETERINARY BUSINESS SUITE
-                    </small>
-
-                </div>
-
+                <span class="sidebar-icon">⌂</span>
+                <span>Dashboard</span>
             </a>
-
-
-            <!-- MOBILE CLOSE BUTTON -->
-
-            <button
-                type="button"
-                class="sidebar-close"
-                id="sidebarClose"
-                aria-label="Close navigation"
-            >
-                &times;
-            </button>
 
         </div>
 
 
-        <!-- =================================================
-             SIDEBAR USER
-             ================================================= -->
+        <!-- RECRUITMENT -->
+        <div class="sidebar-section">
+
+            <div class="sidebar-section-title">
+                RECRUITMENT
+            </div>
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_applications' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">▤</span>
+                <span>Applications</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_interviews') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_interviews' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">◷</span>
+                <span>Interviews</span>
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_reports') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_reports' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">▥</span>
+                <span>Reports</span>
+            </a>
+
+        </div>
+
+
+        <!-- STAFF -->
+        <div class="sidebar-section">
+
+            <div class="sidebar-section-title">
+                STAFF MANAGEMENT
+            </div>
+
+            {# 
+               IMPORTANT:
+               Only use this link if your Flask route is actually
+               named admin_workers.
+            #}
+
+            {% if 'admin_workers' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('admin_workers') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_workers' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">♙</span>
+                <span>Workers</span>
+            </a>
+
+            {% endif %}
+
+
+            {# Attendance route #}
+
+            {% if 'admin_attendance' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('admin_attendance') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_attendance' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">◷</span>
+                <span>Attendance</span>
+            </a>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- SYSTEM -->
+        <div class="sidebar-section">
+
+            <div class="sidebar-section-title">
+                SYSTEM
+            </div>
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_settings' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- ADMIN ACCOUNT -->
+    <div class="sidebar-account">
 
         <div class="sidebar-user">
 
             <div class="sidebar-user-avatar">
-
-                {% if session.get("role") == "admin" %}
-
-                    A
-
-                {% else %}
-
-                    {{ (
-                        session.get("username")
-                        or session.get("worker_name")
-                        or session.get("name")
-                        or "U"
-                    )[0]|upper }}
-
-                {% endif %}
-
+                {{ (session.get("admin_name") or "A")[0]|upper }}
             </div>
-
 
             <div class="sidebar-user-info">
 
                 <strong>
-
-                    {% if session.get("role") == "admin" %}
-
-                        Administrator
-
-                    {% else %}
-
-                        {{ session.get("worker_name")
-                           or session.get("name")
-                           or session.get("username")
-                           or "Applicant" }}
-
-                    {% endif %}
-
-                </strong>
-
-
-                <span>
-
-                    {% if session.get("role") == "admin" %}
-
-                        Administrator
-
-                    {% else %}
-
-                        Applicant
-
-                    {% endif %}
-
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- =================================================
-             NAVIGATION
-             ================================================= -->
-
-        <nav class="sidebar-navigation">
-
-
-            <!-- =================================================
-                 ADMIN NAVIGATION
-                 ================================================= -->
-
-            {% if session.get("role") == "admin" %}
-
-
-            <div class="sidebar-section">
-
-                <span class="sidebar-section-title">
-                    OVERVIEW
-                </span>
-
-
-                <a
-                    href="{{ url_for('admin_dashboard') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_dashboard' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <rect
-                                x="3"
-                                y="3"
-                                width="7"
-                                height="7"
-                                rx="1"
-                            />
-                            <rect
-                                x="14"
-                                y="3"
-                                width="7"
-                                height="7"
-                                rx="1"
-                            />
-                            <rect
-                                x="3"
-                                y="14"
-                                width="7"
-                                height="7"
-                                rx="1"
-                            />
-                            <rect
-                                x="14"
-                                y="14"
-                                width="7"
-                                height="7"
-                                rx="1"
-                            />
-                        </svg>
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Dashboard
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 RECRUITMENT
-                 ================================================= -->
-
-            <div class="sidebar-section">
-
-                <span class="sidebar-section-title">
-                    RECRUITMENT
-                </span>
-
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_applications' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M8 6h13"
-                            />
-                            <path
-                                d="M8 12h13"
-                            />
-                            <path
-                                d="M8 18h13"
-                            />
-                            <path
-                                d="M3 6h.01"
-                            />
-                            <path
-                                d="M3 12h.01"
-                            />
-                            <path
-                                d="M3 18h.01"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Applications
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_interviews') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_interviews' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <rect
-                                x="3"
-                                y="4"
-                                width="18"
-                                height="17"
-                                rx="2"
-                            />
-                            <path
-                                d="M16 2v4"
-                            />
-                            <path
-                                d="M8 2v4"
-                            />
-                            <path
-                                d="M3 10h18"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Interviews
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_reports' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M4 19V5"
-                            />
-                            <path
-                                d="M4 19h17"
-                            />
-                            <rect
-                                x="7"
-                                y="12"
-                                width="3"
-                                height="5"
-                                rx=".5"
-                            />
-                            <rect
-                                x="12"
-                                y="9"
-                                width="3"
-                                height="8"
-                                rx=".5"
-                            />
-                            <rect
-                                x="17"
-                                y="6"
-                                width="3"
-                                height="11"
-                                rx=".5"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Reports
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 STAFF / ATTENDANCE
-                 ================================================= -->
-
-            <div class="sidebar-section">
-
-                <span class="sidebar-section-title">
-                    STAFF MANAGEMENT
-                </span>
-
-
-                <a
-                    href="{{ url_for('admin_workers') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_workers' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                            />
-                            <circle
-                                cx="9"
-                                cy="7"
-                                r="4"
-                            />
-                            <path
-                                d="M22 21v-2a4 4 0 0 0-3-3.87"
-                            />
-                            <path
-                                d="M16 3.13a4 4 0 0 1 0 7.75"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Workers
-                    </span>
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_attendance') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_attendance' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="9"
-                            />
-                            <path
-                                d="M12 7v5l3 2"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Attendance
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
-                 SYSTEM
-                 ================================================= -->
-
-            <div class="sidebar-section">
-
-                <span class="sidebar-section-title">
-                    SYSTEM
-                </span>
-
-
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_settings' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="3"
-                            />
-                            <path
-                                d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V22h-2.55v-.11a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 8.2 17a1.7 1.7 0 0 0-1.55-1H6.5v-2.55h.11a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06a1.7 1.7 0 0 0 1.88.34 1.7 1.7 0 0 0 1-1.55V7h2.55v.11a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.55 1h.11v2.55h-.11a1.7 1.7 0 0 0-1.55 1z"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Settings
-                    </span>
-
-                </a>
-
-            </div>
-
-
-            {% endif %}
-
-
-            <!-- =================================================
-                 APPLICANT / WORKER NAVIGATION
-                 ONLY ATTENDANCE
-                 ================================================= -->
-
-            {% if session.get("role") in ["applicant", "worker"] %}
-
-            <div class="sidebar-section">
-
-                <span class="sidebar-section-title">
-                    MY PORTAL
-                </span>
-
-
-                <a
-                    href="{{ url_for('worker_dashboard') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'worker_dashboard' %}
-                        active
-                    {% endif %}"
-                >
-
-                    <span class="sidebar-link-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="9"
-                            />
-                            <path
-                                d="M12 7v5l3 2"
-                            />
-                        </svg>
-
-                    </span>
-
-                    <span class="sidebar-link-text">
-                        Attendance
-                    </span>
-
-                </a>
-
-            </div>
-
-            {% endif %}
-
-        </nav>
-
-
-        <!-- =================================================
-             SIDEBAR FOOTER
-             ================================================= -->
-
-        <div class="sidebar-footer">
-
-            <a
-                href="{{ url_for('admin_logout' if session.get('role') == 'admin' else 'logout') }}"
-                class="sidebar-signout"
-            >
-
-                <span class="sidebar-link-icon">
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
-                        <path
-                            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                        />
-                        <polyline
-                            points="16 17 21 12 16 7"
-                        />
-                        <line
-                            x1="21"
-                            y1="12"
-                            x2="9"
-                            y2="12"
-                        />
-                    </svg>
-
-                </span>
-
-                <span>
-                    Sign Out
-                </span>
-
-            </a>
-
-
-            <div class="sidebar-version">
-                AV KING • Secure Portal
-            </div>
-
-        </div>
-
-    </aside>
-
-    {% endif %}
-
-
-    <!-- =========================================================
-         MAIN AREA
-         ========================================================= -->
-
-    <main
-        class="
-            app-main
-            {% if session.get('role') in ['admin', 'applicant', 'worker'] %}
-                has-sidebar
-            {% endif %}
-        "
-    >
-
-        <!-- =====================================================
-             MOBILE TOP BAR
-             ===================================================== -->
-
-        {% if session.get("role") in ["admin", "applicant", "worker"] %}
-
-        <header class="mobile-topbar">
-
-            <button
-                type="button"
-                class="mobile-menu-button"
-                id="sidebarOpen"
-                aria-label="Open navigation"
-            >
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-            </button>
-
-
-            <div class="mobile-brand">
-
-                <strong>
-                    {{ company_name|default("AV KING") }}
+                    {{ session.get("admin_name") or "Administrator" }}
                 </strong>
 
                 <small>
-
-                    {% if session.get("role") == "admin" %}
-                        Administration
-                    {% else %}
-                        Applicant Portal
-                    {% endif %}
-
+                    Administrator
                 </small>
 
             </div>
 
-        </header>
-
-        {% endif %}
+        </div>
 
 
-        <!-- =====================================================
-             FLASH MESSAGES
-             ===================================================== -->
+        <a
+            href="{{ url_for('admin_logout') }}"
+            class="sidebar-logout"
+        >
+            <span>⇥</span>
+            <span>Sign Out</span>
+        </a>
 
-        {% with messages = get_flashed_messages(
-            with_categories=true
-        ) %}
+    </div>
 
-            {% if messages %}
+</aside>
 
-            <div class="flash-container">
 
-                {% for category, message in messages %}
+{% elif session.get("applicant_logged_in") or session.get("role") == "applicant" %}
 
-                <div
-                    class="
-                        flash-message
-                        flash-{{ category }}
-                    "
+<!-- =========================================================
+     APPLICANT SIDEBAR
+     ========================================================= -->
+
+<aside class="app-sidebar applicant-sidebar" id="appSidebar">
+
+    <!-- BRAND -->
+    <div class="sidebar-brand">
+
+        <a href="{{ url_for('applicant_portal') }}">
+
+            {% if company_logo %}
+                <img
+                    src="{{ url_for('static', filename='uploads/' ~ company_logo) }}"
+                    alt="Company Logo"
+                    class="sidebar-logo"
                 >
+            {% endif %}
 
-                    <span class="flash-icon">
+            <div class="sidebar-brand-text">
 
-                        {% if category == "success" %}
-                            ✓
-                        {% elif category == "danger" or category == "error" %}
-                            !
-                        {% elif category == "warning" %}
-                            !
-                        {% else %}
-                            i
-                        {% endif %}
+                <strong>
+                    {{ company_name or "AV KING VET DRUG VENTURE" }}
+                </strong>
 
-                    </span>
-
-                    <span class="flash-text">
-                        {{ message }}
-                    </span>
-
-                    <button
-                        type="button"
-                        class="flash-close"
-                        onclick="this.parentElement.remove()"
-                        aria-label="Close"
-                    >
-                        &times;
-                    </button>
-
-                </div>
-
-                {% endfor %}
+                <small>
+                    APPLICANT PORTAL
+                </small>
 
             </div>
 
+        </a>
+
+    </div>
+
+
+    <!-- APPLICANT NAVIGATION -->
+    <nav class="sidebar-navigation">
+
+        <div class="sidebar-section">
+
+            <div class="sidebar-section-title">
+                MY PORTAL
+            </div>
+
+
+            <!-- ONLY ATTENDANCE -->
+            {% if 'applicant_portal' in current_app.view_functions %}
+
+            <a
+                href="{{ url_for('applicant_portal') }}"
+                class="sidebar-link {% if request.endpoint == 'applicant_portal' %}active{% endif %}"
+            >
+                <span class="sidebar-icon">◷</span>
+                <span>Attendance</span>
+            </a>
+
             {% endif %}
 
-        {% endwith %}
+        </div>
+
+    </nav>
 
 
-        <!-- =====================================================
-             PAGE CONTENT
-             ===================================================== -->
+    <!-- APPLICANT ACCOUNT -->
+    <div class="sidebar-account">
 
-        <div class="page-content">
+        <div class="sidebar-user">
 
-            {% block content %}
-            {% endblock %}
+            <div class="sidebar-user-avatar">
+                {{ (session.get("applicant_name") or "A")[0]|upper }}
+            </div>
+
+            <div class="sidebar-user-info">
+
+                <strong>
+                    {{ session.get("applicant_name") or "Applicant" }}
+                </strong>
+
+                <small>
+                    Applicant
+                </small>
+
+            </div>
 
         </div>
 
 
-        <!-- =====================================================
-             FOOTER
-             ===================================================== -->
+        <a
+            href="{{ url_for('applicant_logout') }}"
+            class="sidebar-logout"
+        >
+            <span>⇥</span>
+            <span>Sign Out</span>
+        </a>
 
-        {% block footer %}
-        {% endblock %}
+    </div>
 
-    </main>
+</aside>
 
-</div>
-
-
-<!-- =========================================================
-     SIDEBAR JAVASCRIPT
-     ========================================================= -->
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const sidebar =
-        document.getElementById("appSidebar");
-
-    const overlay =
-        document.getElementById("sidebarOverlay");
-
-    const openButton =
-        document.getElementById("sidebarOpen");
-
-    const closeButton =
-        document.getElementById("sidebarClose");
-
-
-    function openSidebar() {
-
-        if (!sidebar) {
-            return;
-        }
-
-        sidebar.classList.add("sidebar-open");
-
-        if (overlay) {
-            overlay.classList.add("overlay-visible");
-        }
-
-        document.body.classList.add(
-            "sidebar-is-open"
-        );
-    }
-
-
-    function closeSidebar() {
-
-        if (!sidebar) {
-            return;
-        }
-
-        sidebar.classList.remove("sidebar-open");
-
-        if (overlay) {
-            overlay.classList.remove(
-                "overlay-visible"
-            );
-        }
-
-        document.body.classList.remove(
-            "sidebar-is-open"
-        );
-    }
-
-
-    if (openButton) {
-
-        openButton.addEventListener(
-            "click",
-            openSidebar
-        );
-
-    }
-
-
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            "click",
-            closeSidebar
-        );
-
-    }
-
-
-    if (overlay) {
-
-        overlay.addEventListener(
-            "click",
-            closeSidebar
-        );
-
-    }
-
-
-    /*
-     * Close mobile sidebar when a navigation
-     * link is selected.
-     */
-
-    if (sidebar) {
-
-        const links =
-            sidebar.querySelectorAll(
-                "a"
-            );
-
-        links.forEach(function (link) {
-
-            link.addEventListener(
-                "click",
-                function () {
-
-                    if (
-                        window.innerWidth <= 900
-                    ) {
-
-                        closeSidebar();
-
-                    }
-
-                }
-            );
-
-        });
-
-    }
-
-
-    /*
-     * Automatically close sidebar when
-     * screen becomes desktop-sized.
-     */
-
-    window.addEventListener(
-        "resize",
-        function () {
-
-            if (
-                window.innerWidth > 900
-            ) {
-
-                closeSidebar();
-
-            }
-
-        }
-    );
-
-});
-
-</script>
-
-
-{% block scripts %}
-{% endblock %}
-
-</body>
-</html>
+{% endif %}
