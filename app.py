@@ -13317,592 +13317,398 @@ def applicant_attendance():
 # APPLICANT CLOCK IN
 # =========================================================
 @app.route(
-    "/applicant/attendance/clock-in",
-    methods=["POST"]
+    "/applicant/login",
+    methods=["GET", "POST"]
 )
-def applicant_clock_in():
+def applicant_login():
 
     # =========================================================
-    # AUTHENTICATION
+    # GET COMPANY LOGO
     # =========================================================
 
-    applicant_id = session.get("applicant_id")
+    def get_company_logo():
 
-    if not applicant_id:
+        conn = get_db()
 
-        return jsonify({
-            "success": False,
-            "message": (
-                "Your applicant session has expired. "
-                "Please log in again."
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT logo
+                    FROM company_settings
+                    ORDER BY id ASC
+                    LIMIT 1
+                    """
+                )
+
+                row = cur.fetchone()
+
+                if row:
+                    return row["logo"]
+
+                return None
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to load company logo."
             )
-        }), 401
+
+            return None
+
+        finally:
+
+            conn.close()
 
 
     # =========================================================
-    # EXACT NIGERIA TIME
+    # ALREADY LOGGED IN
     # =========================================================
 
-    nigeria_now = get_nigeria_now()
+    if session.get("applicant_id"):
 
-    nigeria_date = nigeria_now.date()
-
-    nigeria_time = nigeria_now.time()
-
-
-    # =========================================================
-    # GET GPS
-    # =========================================================
-
-    latitude_raw = request.form.get(
-        "latitude",
-        ""
-    ).strip()
-
-    longitude_raw = request.form.get(
-        "longitude",
-        ""
-    ).strip()
-
-
-    try:
-
-        latitude = float(
-            latitude_raw
+        return redirect(
+            url_for("applicant_portal")
         )
 
-        longitude = float(
-            longitude_raw
+
+    # =========================================================
+    # GET REQUEST
+    # =========================================================
+
+    if request.method == "GET":
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
         )
 
-    except (
-        ValueError,
-        TypeError
-    ):
 
-        return jsonify({
-            "success": False,
-            "message": (
-                "Unable to determine your location. "
-                "Please allow location access and try again."
-            )
-        }), 400
+    # =========================================================
+    # FORM DATA
+    # =========================================================
+
+    application_number = (
+        request.form.get(
+            "application_number",
+            ""
+        )
+        or ""
+    ).strip().upper()
+
+    password = (
+        request.form.get(
+            "password",
+            ""
+        )
+        or ""
+    )
 
 
     # =========================================================
-    # VALIDATE GPS
+    # VALIDATE INPUT
     # =========================================================
 
-    if not -90 <= latitude <= 90:
+    if not application_number or not password:
 
-        return jsonify({
-            "success": False,
-            "message": "Invalid latitude received from your device."
-        }), 400
+        flash(
+            "Please enter your application number and password.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
 
 
-    if not -180 <= longitude <= 180:
-
-        return jsonify({
-            "success": False,
-            "message": "Invalid longitude received from your device."
-        }), 400
-
+    # =========================================================
+    # FIND APPLICANT
+    # =========================================================
 
     conn = get_db()
-
 
     try:
 
         with conn.cursor() as cur:
 
-            # =================================================
-            # GET APPLICANT
-            # =================================================
-
             cur.execute(
                 """
                 SELECT
                     id,
+                    application_number,
                     first_name,
                     last_name,
-                    status,
-                    portal_active
-
+                    password_hash,
+                    portal_active,
+                    status
                 FROM applications
-
-                WHERE id = %s
-
+                WHERE UPPER(application_number) = %s
                 LIMIT 1
                 """,
                 (
-                    applicant_id,
+                    application_number,
                 )
             )
 
             applicant = cur.fetchone()
 
+    except Exception:
 
-            if not applicant:
+        app.logger.exception(
+            "Unable to find applicant during login."
+        )
 
-                return jsonify({
-                    "success": False,
-                    "message": "Applicant account not found."
-                }), 404
+        conn.close()
 
+        flash(
+            "Unable to process your login. Please try again.",
+            "error"
+        )
 
-            # =================================================
-            # APPROVAL
-            # =================================================
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
 
-            if str(
-                applicant["status"]
-            ).strip().lower() != "approved":
+    finally:
 
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "Only approved applicants can "
-                        "clock attendance."
-                    )
-                }), 403
-
-
-            # =================================================
-            # PORTAL ACTIVE
-            # =================================================
-
-            if not applicant["portal_active"]:
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "Your applicant portal has been disabled."
-                    )
-                }), 403
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
-            # =================================================
-            # GET ATTENDANCE SETTINGS
-            # =================================================
+    # =========================================================
+    # APPLICANT NOT FOUND
+    # =========================================================
+
+    if not applicant:
+
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+
+    # =========================================================
+    # PORTAL DISABLED
+    # =========================================================
+
+    if not applicant["portal_active"]:
+
+        flash(
+            "Your applicant portal has been disabled.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+
+    # =========================================================
+    # PASSWORD NOT ACTIVATED
+    # =========================================================
+
+    if not applicant["password_hash"]:
+
+        flash(
+            "Your applicant portal account has not been activated yet.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+
+    # =========================================================
+    # CHECK PASSWORD
+    # =========================================================
+
+    try:
+
+        password_valid = check_password_hash(
+            applicant["password_hash"],
+            password
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Applicant password verification failed."
+        )
+
+        password_valid = False
+
+
+    # =========================================================
+    # INVALID PASSWORD
+    # =========================================================
+
+    if not password_valid:
+
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+
+    # =========================================================
+    # LOGIN SUCCESS
+    # =========================================================
+
+    # Completely remove any previous session.
+    session.clear()
+
+
+    # =========================================================
+    # APPLICANT ID
+    # =========================================================
+
+    applicant_id = applicant["id"]
+
+    if not applicant_id:
+
+        flash(
+            "Unable to create your applicant session. Please try again.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
+
+
+    # =========================================================
+    # APPLICANT NAME
+    # =========================================================
+
+    first_name = (
+        applicant["first_name"]
+        or ""
+    ).strip()
+
+    last_name = (
+        applicant["last_name"]
+        or ""
+    ).strip()
+
+    applicant_name = " ".join(
+        part
+        for part in [
+            first_name,
+            last_name
+        ]
+        if part
+    ).strip()
+
+
+    # =========================================================
+    # CREATE APPLICANT SESSION
+    # =========================================================
+
+    session["applicant_id"] = applicant_id
+
+    session["applicant_application_number"] = (
+        applicant["application_number"]
+    )
+
+    session["applicant_name"] = applicant_name
+
+    session["applicant_logged_in"] = True
+
+
+    # =========================================================
+    # ROLE
+    # =========================================================
+
+    # Used by base.html to identify the applicant
+    # and display only the applicant navigation.
+
+    session["role"] = "applicant"
+
+
+    # =========================================================
+    # ATTENDANCE COMPATIBILITY
+    # =========================================================
+
+    # Keep the applicant's database ID available to
+    # attendance-related pages as well.
+
+    session["worker_id"] = applicant_id
+
+
+    # =========================================================
+    # PERMANENT SESSION
+    # =========================================================
+
+    session.permanent = True
+
+    session.modified = True
+
+
+    # =========================================================
+    # UPDATE LAST LOGIN
+    # =========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
 
             cur.execute(
                 """
-                SELECT
-                    attendance_enabled,
-
-                    company_latitude,
-                    company_longitude,
-
-                    attendance_radius,
-
-                    clock_in_start,
-                    clock_in_end,
-
-                    clock_out_start,
-                    clock_out_end,
-
-                    late_after_minutes,
-                    early_before_minutes
-
-                FROM company_settings
-
-                ORDER BY id ASC
-
-                LIMIT 1
-                """
-            )
-
-            settings = cur.fetchone()
-
-
-            if not settings:
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "Attendance settings have not "
-                        "been configured."
-                    )
-                }), 400
-
-
-            # =================================================
-            # ATTENDANCE ENABLED
-            # =================================================
-
-            if not settings["attendance_enabled"]:
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "Attendance is currently disabled "
-                        "by the administrator."
-                    )
-                }), 403
-
-
-            # =================================================
-            # COMPANY LOCATION
-            # =================================================
-
-            if (
-                settings["company_latitude"] is None
-                or
-                settings["company_longitude"] is None
-            ):
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "The company attendance location "
-                        "has not been configured."
-                    )
-                }), 400
-
-
-            # =================================================
-            # ATTENDANCE WINDOW
-            # =================================================
-
-            clock_in_start = normalize_db_time(
-                settings["clock_in_start"],
-                time(6, 0)
-            )
-
-            clock_in_end = normalize_db_time(
-                settings["clock_in_end"],
-                time(10, 0)
-            )
-
-
-            # =================================================
-            # CHECK CLOCK-IN WINDOW
-            # =================================================
-
-            if not is_time_in_window(
-                nigeria_time,
-                clock_in_start,
-                clock_in_end
-            ):
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "Clock-in is not currently available. "
-                        f"Clock-in window is "
-                        f"{clock_in_start.strftime('%I:%M %p')} "
-                        f"to "
-                        f"{clock_in_end.strftime('%I:%M %p')}."
-                    ),
-                    "current_time": nigeria_now.strftime(
-                        "%I:%M:%S %p"
-                    ),
-                    "clock_in_start": clock_in_start.strftime(
-                        "%I:%M %p"
-                    ),
-                    "clock_in_end": clock_in_end.strftime(
-                        "%I:%M %p"
-                    )
-                }), 403
-
-
-            # =================================================
-            # GPS DISTANCE
-            # =================================================
-
-            distance = calculate_distance_meters(
-                latitude,
-                longitude,
-                float(
-                    settings["company_latitude"]
-                ),
-                float(
-                    settings["company_longitude"]
-                )
-            )
-
-
-            radius = int(
-                settings["attendance_radius"]
-                or 200
-            )
-
-
-            # =================================================
-            # LOCATION CHECK
-            # =================================================
-
-            if distance > radius:
-
-                return jsonify({
-                    "success": False,
-                    "message": (
-                        "You are outside the company "
-                        "attendance area. "
-                        f"Distance: {round(distance)} metres. "
-                        f"Allowed radius: {radius} metres."
-                    ),
-                    "distance": round(distance),
-                    "allowed_radius": radius
-                }), 403
-
-
-            # =================================================
-            # CHECK TODAY'S RECORD
-            # =================================================
-
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    clock_in,
-                    clock_out
-
-                FROM attendance
-
-                WHERE worker_id = %s
-
-                AND attendance_date = %s
-
-                LIMIT 1
+                UPDATE applications
+                SET
+                    last_login = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
                 """,
                 (
                     applicant_id,
-                    nigeria_date
                 )
             )
 
-            existing = cur.fetchone()
-
-
-            # =================================================
-            # ALREADY CLOCKED IN
-            # =================================================
-
-            if (
-                existing
-                and existing["clock_in"] is not None
-            ):
-
-                existing_time = (
-                    existing["clock_in"]
-                )
-
-                if hasattr(
-                    existing_time,
-                    "strftime"
-                ):
-
-                    formatted_time = (
-                        existing_time.strftime(
-                            "%I:%M %p"
-                        )
-                    )
-
-                else:
-
-                    formatted_time = str(
-                        existing_time
-                    )
-
-
-                return jsonify({
-                    "success": False,
-                    "already_clocked_in": True,
-                    "message": (
-                        "You have already clocked in today."
-                    ),
-                    "clock_in": formatted_time
-                }), 409
-
-
-            # =================================================
-            # CALCULATE LATE STATUS
-            # =================================================
-
-            late_after_minutes = int(
-                settings["late_after_minutes"]
-                or 15
-            )
-
-            late_minutes = calculate_lateness_minutes(
-                nigeria_time,
-                clock_in_start
-            )
-
-
-            if late_minutes >= late_after_minutes:
-
-                attendance_status = "Late"
-
-            else:
-
-                attendance_status = "Present"
-
-
-            # =================================================
-            # DATABASE TIME
-            #
-            # Store Nigeria wall-clock time as a naive
-            # timestamp because your attendance columns are
-            # currently TIMESTAMP.
-            # =================================================
-
-            db_clock_in = nigeria_now.replace(
-                tzinfo=None
-            )
-
-
-            # =================================================
-            # SAVE
-            # =================================================
-
-            if existing:
-
-                cur.execute(
-                    """
-                    UPDATE attendance
-
-                    SET
-                        clock_in = %s,
-
-                        clock_in_latitude = %s,
-
-                        clock_in_longitude = %s,
-
-                        clock_in_location_verified = TRUE,
-
-                        status = %s,
-
-                        updated_at = %s
-
-                    WHERE id = %s
-                    """,
-                    (
-                        db_clock_in,
-                        latitude,
-                        longitude,
-                        attendance_status,
-                        db_clock_in,
-                        existing["id"]
-                    )
-                )
-
-            else:
-
-                cur.execute(
-                    """
-                    INSERT INTO attendance
-                    (
-                        worker_id,
-                        attendance_date,
-
-                        clock_in,
-
-                        clock_in_latitude,
-                        clock_in_longitude,
-
-                        clock_in_location_verified,
-
-                        status,
-
-                        created_at,
-                        updated_at
-                    )
-
-                    VALUES
-                    (
-                        %s,
-                        %s,
-
-                        %s,
-
-                        %s,
-                        %s,
-
-                        TRUE,
-
-                        %s,
-
-                        %s,
-                        %s
-                    )
-                    """,
-                    (
-                        applicant_id,
-                        nigeria_date,
-
-                        db_clock_in,
-
-                        latitude,
-                        longitude,
-
-                        attendance_status,
-
-                        db_clock_in,
-                        db_clock_in
-                    )
-                )
-
-
-            conn.commit()
-
-
-            # =================================================
-            # RESPONSE
-            # =================================================
-
-            return jsonify({
-                "success": True,
-
-                "message": (
-                    "Clock-in recorded successfully."
-                ),
-
-                "clock_in": nigeria_now.strftime(
-                    "%I:%M %p"
-                ),
-
-                "status": attendance_status,
-
-                "clock_in_location_verified": True,
-
-                "distance": round(
-                    distance
-                ),
-
-                "allowed_radius": radius,
-
-                "current_time": nigeria_now.strftime(
-                    "%I:%M:%S %p"
-                ),
-
-                "timezone": "Africa/Lagos"
-
-            }), 200
-
+        conn.commit()
 
     except Exception:
 
         conn.rollback()
 
         app.logger.exception(
-            "Applicant clock-in error"
+            "Unable to update applicant last login."
         )
-
-        return jsonify({
-            "success": False,
-            "message": (
-                "Unable to record clock-in. "
-                "Please try again."
-            )
-        }), 500
-
 
     finally:
 
         conn.close()
+
+
+    # =========================================================
+    # REDIRECT TO APPLICANT PORTAL
+    # =========================================================
+
+    return redirect(
+        url_for("applicant_portal")
+    )
 # =========================================================
 # APPLICANT CLOCK OUT
 # =========================================================
