@@ -1522,74 +1522,28 @@ def get_company_settings():
 # =========================================================
 # ADMIN LOGIN
 # =========================================================
-
 @app.route(
     "/admin/login",
     methods=["GET", "POST"]
 )
 def admin_login():
 
-    # =====================================================
+    # =========================================================
     # IF ALREADY LOGGED IN
-    # =====================================================
+    # =========================================================
 
-    if admin_required():
+    if session.get("admin_id"):
 
         return redirect(
             url_for("admin_dashboard")
         )
 
-
-    # =====================================================
+    # =========================================================
     # LOAD COMPANY SETTINGS
-    # =====================================================
+    # Used for company name, motto and logo
+    # =========================================================
 
-    settings = get_company_settings()
-
-
-    # =====================================================
-    # POST LOGIN
-    # =====================================================
-
-    if request.method == "POST":
-
-        username = (
-            request.form.get(
-                "username",
-                ""
-            )
-            .strip()
-        )
-
-        password = (
-            request.form.get(
-                "password",
-                ""
-            )
-            .strip()
-        )
-
-
-        # =================================================
-        # VALIDATION
-        # =================================================
-
-        if not username or not password:
-
-            flash(
-                "Please enter your username and password.",
-                "error"
-            )
-
-            return render_template(
-                "admin_login.html",
-                settings=settings
-            )
-
-
-        # =================================================
-        # GET ADMIN ACCOUNT
-        # =================================================
+    def get_login_settings():
 
         conn = get_db()
 
@@ -1601,142 +1555,255 @@ def admin_login():
                     """
                     SELECT
                         id,
-                        admin_username,
-                        admin_password_hash
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
                     FROM company_settings
-                    ORDER BY id ASC
+                    ORDER BY id DESC
                     LIMIT 1
                     """
                 )
 
-                admin = cur.fetchone()
-
+                return cur.fetchone()
 
         except Exception:
 
-            app.logger.exception(
-                "Error loading admin account."
-            )
+            conn.rollback()
 
-            admin = None
+            return None
 
         finally:
 
             conn.close()
 
+    # =========================================================
+    # GET REQUEST
+    # =========================================================
 
-        # =================================================
-        # CHECK ACCOUNT
-        # =================================================
+    if request.method == "GET":
 
-        if not admin:
+        settings = get_login_settings()
 
-            flash(
-                "Admin account has not been configured.",
-                "error"
+        return render_template(
+            "admin_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # GET LOGIN DETAILS
+    # =========================================================
+
+    username = (
+        request.form.get(
+            "username",
+            ""
+        )
+        .strip()
+    )
+
+    password = request.form.get(
+        "password",
+        ""
+    )
+
+    # =========================================================
+    # VALIDATE INPUT
+    # =========================================================
+
+    if not username or not password:
+
+        flash(
+            "Please enter your username and password.",
+            "error"
+        )
+
+        settings = get_login_settings()
+
+        return render_template(
+            "admin_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # CONNECT TO DATABASE
+    # =========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # FIND ADMIN
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    username,
+                    password_hash,
+                    full_name
+                FROM admin_users
+                WHERE username = %s
+                LIMIT 1
+                """,
+                (username,)
             )
 
-            return render_template(
-                "admin_login.html",
-                settings=settings
+            admin = cur.fetchone()
+
+            # ================================================
+            # ADMIN NOT FOUND
+            # ================================================
+
+            if not admin:
+
+                flash(
+                    "Invalid username or password.",
+                    "error"
+                )
+
+                settings = get_login_settings()
+
+                return render_template(
+                    "admin_login.html",
+                    settings=settings
+                )
+
+            # ================================================
+            # CHECK PASSWORD HASH
+            # ================================================
+
+            stored_password = (
+                admin.get("password_hash")
+                if isinstance(admin, dict)
+                else None
             )
 
+            if not stored_password:
 
-        stored_username = (
-            admin["admin_username"]
-        )
+                app.logger.error(
+                    "Admin account %s has no password_hash.",
+                    admin["id"]
+                )
 
-        stored_password_hash = (
-            admin["admin_password_hash"]
-        )
+                flash(
+                    "This administrator account has not been configured correctly.",
+                    "error"
+                )
 
+                settings = get_login_settings()
 
-        # =================================================
-        # VERIFY USERNAME
-        # =================================================
+                return render_template(
+                    "admin_login.html",
+                    settings=settings
+                )
 
-        username_valid = (
-            username.lower()
-            ==
-            str(
-                stored_username
-                or ""
-            ).lower()
-        )
-
-
-        # =================================================
-        # VERIFY PASSWORD
-        # =================================================
-
-        password_valid = False
-
-        if stored_password_hash:
+            # ================================================
+            # VERIFY PASSWORD
+            # ================================================
 
             try:
 
                 password_valid = check_password_hash(
-                    stored_password_hash,
+                    stored_password,
                     password
                 )
 
             except Exception:
 
                 app.logger.exception(
-                    "Error verifying admin password."
+                    "Error checking admin password for username: %s",
+                    username
                 )
 
+                password_valid = False
 
-        # =================================================
-        # INVALID LOGIN
-        # =================================================
+            if not password_valid:
 
-        if not username_valid or not password_valid:
+                flash(
+                    "Invalid username or password.",
+                    "error"
+                )
 
-            flash(
-                "Invalid admin username or password.",
-                "error"
+                settings = get_login_settings()
+
+                return render_template(
+                    "admin_login.html",
+                    settings=settings
+                )
+
+            # ================================================
+            # UPDATE LAST LOGIN
+            # ================================================
+
+            cur.execute(
+                """
+                UPDATE admin_users
+                SET last_login = CURRENT_TIMESTAMP
+                WHERE id = %s
+                """,
+                (admin["id"],)
             )
 
-            return render_template(
-                "admin_login.html",
-                settings=settings
-            )
+        conn.commit()
 
+    except Exception:
 
-        # =================================================
-        # LOGIN SUCCESS
-        # =================================================
+        conn.rollback()
 
-        session.clear()
-
-        session["role"] = "admin"
-
-        session["admin_logged_in"] = True
-
-        session["admin_id"] = admin["id"]
-
-        session["admin_username"] = (
-            admin["admin_username"]
+        app.logger.exception(
+            "Admin login error for username: %s",
+            username
         )
 
-
-        # =================================================
-        # REDIRECT
-        # =================================================
-
-        return redirect(
-            url_for("admin_dashboard")
+        flash(
+            "Unable to login at the moment. Please try again.",
+            "error"
         )
 
+        settings = get_login_settings()
 
-    # =====================================================
-    # GET
-    # =====================================================
+        return render_template(
+            "admin_login.html",
+            settings=settings
+        )
 
-    return render_template(
-        "admin_login.html",
-        settings=settings
+    finally:
+
+        conn.close()
+
+    # =========================================================
+    # LOGIN SUCCESS
+    # =========================================================
+
+    session.clear()
+
+    session["admin_id"] = admin["id"]
+
+    session["admin_username"] = admin["username"]
+
+    session["admin_name"] = (
+        admin["full_name"]
+        or admin["username"]
+    )
+
+    # Optional explicit admin login flag
+    session["admin_logged_in"] = True
+
+    # =========================================================
+    # REDIRECT TO ADMIN DASHBOARD
+    # =========================================================
+
+    return redirect(
+        url_for("admin_dashboard")
     )
 
 # ============================================================
@@ -7547,48 +7614,14 @@ def applicant_required():
 # =========================================================
 # APPLICANT LOGIN
 # =========================================================
-
-@app.route(
-    "/applicant/login",
-    methods=["GET", "POST"]
-)
+@app.route("/applicant/login", methods=["GET", "POST"])
 def applicant_login():
 
-    settings = get_company_settings()
+    # =========================================================
+    # GET REQUEST
+    # =========================================================
 
-
-    if request.method == "POST":
-
-        application_number = (
-            request.form.get(
-                "application_number",
-                ""
-            )
-            .strip()
-            .upper()
-        )
-
-        password = (
-            request.form.get(
-                "password",
-                ""
-            )
-            .strip()
-        )
-
-
-        if not application_number or not password:
-
-            flash(
-                "Please enter your application number and password.",
-                "error"
-            )
-
-            return render_template(
-                "applicant_login.html",
-                settings=settings
-            )
-
+    if request.method == "GET":
 
         conn = get_db()
 
@@ -7598,140 +7631,370 @@ def applicant_login():
 
                 cur.execute(
                     """
-                    SELECT *
-                    FROM applications
-                    WHERE UPPER(application_number) = %s
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
                     LIMIT 1
-                    """,
-                    (
-                        application_number,
-                    )
+                    """
                 )
 
-                applicant = cur.fetchone()
-
-
-        except Exception:
-
-            app.logger.exception(
-                "Error during applicant login."
-            )
-
-            applicant = None
+                settings = cur.fetchone()
 
         finally:
 
             conn.close()
 
+        # -----------------------------------------------------
+        # SHOW LOGIN PAGE WITH COMPANY LOGO
+        # -----------------------------------------------------
 
-        if not applicant:
-
-            flash(
-                "Invalid application number or password.",
-                "error"
-            )
-
-            return render_template(
-                "applicant_login.html",
-                settings=settings
-            )
-
-
-        stored_password = (
-            applicant["portal_password"]
+        return render_template(
+            "applicant_login.html",
+            settings=settings
         )
 
+    # =========================================================
+    # GET LOGIN DETAILS
+    # =========================================================
 
-        password_valid = False
-
-
-        if stored_password:
-
-            try:
-
-                password_valid = check_password_hash(
-                    stored_password,
-                    password
-                )
-
-            except Exception:
-
-                # If your existing applicant passwords
-                # are stored differently, keep your
-                # existing password verification here.
-                password_valid = (
-                    stored_password == password
-                )
-
-
-        if not password_valid:
-
-            flash(
-                "Invalid application number or password.",
-                "error"
-            )
-
-            return render_template(
-                "applicant_login.html",
-                settings=settings
-            )
-
-
-        # =====================================================
-        # CHECK APPLICATION STATUS
-        # =====================================================
-
-        status = (
-            applicant["application_status"]
-            or ""
-        ).strip().lower()
-
-
-        if status not in [
-            "approved",
-            "shortlisted"
-        ]:
-
-            flash(
-                "Your application has not been approved for portal access.",
-                "error"
-            )
-
-            return render_template(
-                "applicant_login.html",
-                settings=settings
-            )
-
-
-        # =====================================================
-        # LOGIN
-        # =====================================================
-
-        session.clear()
-
-        session["role"] = "applicant"
-
-        session["applicant_id"] = (
-            applicant["id"]
+    application_number = (
+        request.form.get(
+            "application_number",
+            ""
         )
-
-        session["application_number"] = (
-            applicant["application_number"]
-        )
-
-
-        return redirect(
-            url_for(
-                "applicant_dashboard"
-            )
-        )
-
-
-    return render_template(
-        "applicant_login.html",
-        settings=settings
+        .strip()
+        .upper()
     )
 
+    password = request.form.get(
+        "password",
+        ""
+    )
+
+    # =========================================================
+    # VALIDATE INPUT
+    # =========================================================
+
+    if not application_number or not password:
+
+        flash(
+            "Please enter your application number and password.",
+            "error"
+        )
+
+        # Load settings again so the logo remains visible
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+        return render_template(
+            "applicant_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # FIND APPLICANT
+    # =========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    last_name,
+                    password_hash,
+                    portal_active,
+                    status
+                FROM applications
+                WHERE UPPER(application_number) = %s
+                LIMIT 1
+                """,
+                (application_number,)
+            )
+
+            applicant = cur.fetchone()
+
+    finally:
+
+        conn.close()
+
+    # =========================================================
+    # APPLICANT NOT FOUND
+    # =========================================================
+
+    if not applicant:
+
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
+
+        # Load company settings for logo
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+        return render_template(
+            "applicant_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # CHECK PORTAL STATUS
+    # =========================================================
+
+    if not applicant["portal_active"]:
+
+        flash(
+            "Your applicant portal has been disabled.",
+            "error"
+        )
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+        return render_template(
+            "applicant_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # CHECK PASSWORD ACTIVATION
+    # =========================================================
+
+    if not applicant["password_hash"]:
+
+        flash(
+            "Your applicant portal account has not been activated yet.",
+            "error"
+        )
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+        return render_template(
+            "applicant_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # CHECK PASSWORD
+    # =========================================================
+
+    if not check_password_hash(
+        applicant["password_hash"],
+        password
+    ):
+
+        flash(
+            "Invalid application number or password.",
+            "error"
+        )
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_motto,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        company_website,
+                        footer_text,
+                        logo
+                    FROM company_settings
+                    ORDER BY id DESC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+        return render_template(
+            "applicant_login.html",
+            settings=settings
+        )
+
+    # =========================================================
+    # LOGIN SUCCESS
+    # =========================================================
+
+    session.clear()
+
+    session["applicant_id"] = applicant["id"]
+
+    session["applicant_application_number"] = (
+        applicant["application_number"]
+    )
+
+    session["applicant_name"] = (
+        applicant["first_name"]
+        + " "
+        + applicant["last_name"]
+    )
+
+    # =========================================================
+    # UPDATE LAST LOGIN
+    # =========================================================
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                UPDATE applications
+                SET
+                    last_login = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+                """,
+                (applicant["id"],)
+            )
+
+        conn.commit()
+
+    except Exception:
+
+        conn.rollback()
+        raise
+
+    finally:
+
+        conn.close()
+
+    return redirect(
+        url_for("applicant_portal")
+    )
 
 
 # ============================================================
