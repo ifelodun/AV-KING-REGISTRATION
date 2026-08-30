@@ -4,6 +4,10 @@
 
 <style>
 
+    /* =========================================================
+       APPLICANT LOGIN PAGE
+    ========================================================= */
+
     .applicant-login-wrapper {
         min-height: 75vh;
         display: flex;
@@ -12,6 +16,10 @@
         padding: 40px 20px;
     }
 
+
+    /* =========================================================
+       LOGIN CARD
+    ========================================================= */
 
     .applicant-login-card {
         width: 100%;
@@ -22,24 +30,30 @@
         box-shadow:
             0 12px 40px rgba(0, 0, 0, 0.08);
         border: 1px solid #e5e7eb;
+        box-sizing: border-box;
     }
 
 
-    .portal-brand {
+    /* =========================================================
+       BRANDING
+    ========================================================= */
+
+    .applicant-login-brand {
         text-align: center;
         margin-bottom: 30px;
     }
 
 
-    .portal-logo {
-        width: 72px;
-        height: 72px;
+    .applicant-login-logo {
+        width: 90px;
+        height: 90px;
         object-fit: contain;
-        margin-bottom: 15px;
+        display: block;
+        margin: 0 auto 15px;
     }
 
 
-    .portal-brand h1 {
+    .applicant-login-brand h1 {
         margin: 0;
         font-size: 25px;
         font-weight: 700;
@@ -47,12 +61,16 @@
     }
 
 
-    .portal-brand p {
+    .applicant-login-brand p {
         margin: 8px 0 0;
         color: #6b7280;
         font-size: 14px;
     }
 
+
+    /* =========================================================
+       PORTAL TITLE
+    ========================================================= */
 
     .portal-title {
         text-align: center;
@@ -64,6 +82,7 @@
         margin: 0;
         color: #111827;
         font-size: 22px;
+        font-weight: 700;
     }
 
 
@@ -73,6 +92,10 @@
         font-size: 14px;
     }
 
+
+    /* =========================================================
+       FORM
+    ========================================================= */
 
     .form-group {
         margin-bottom: 20px;
@@ -97,6 +120,8 @@
         font-size: 15px;
         outline: none;
         transition: 0.2s ease;
+        background: #ffffff;
+        color: #111827;
     }
 
 
@@ -106,6 +131,15 @@
             0 0 0 3px rgba(37, 99, 235, 0.10);
     }
 
+
+    .form-group input::placeholder {
+        color: #9ca3af;
+    }
+
+
+    /* =========================================================
+       LOGIN BUTTON
+    ========================================================= */
 
     .login-button {
         width: 100%;
@@ -126,6 +160,15 @@
     }
 
 
+    .login-button:active {
+        transform: translateY(1px);
+    }
+
+
+    /* =========================================================
+       HELP TEXT
+    ========================================================= */
+
     .login-help {
         margin-top: 22px;
         text-align: center;
@@ -140,11 +183,17 @@
     }
 
 
+    /* =========================================================
+       APPLICATION LINK
+    ========================================================= */
+
     .application-link {
         text-align: center;
         margin-top: 25px;
         padding-top: 20px;
         border-top: 1px solid #e5e7eb;
+        color: #6b7280;
+        font-size: 14px;
     }
 
 
@@ -160,11 +209,16 @@
     }
 
 
+    /* =========================================================
+       FLASH MESSAGES
+    ========================================================= */
+
     .flash-message {
         padding: 12px 14px;
         border-radius: 10px;
         margin-bottom: 20px;
         font-size: 14px;
+        line-height: 1.5;
     }
 
 
@@ -182,14 +236,36 @@
     }
 
 
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
     @media (max-width: 600px) {
+
+        .applicant-login-wrapper {
+            padding: 25px 15px;
+        }
+
 
         .applicant-login-card {
             padding: 28px 22px;
+            border-radius: 15px;
         }
 
-        .portal-brand h1 {
+
+        .applicant-login-logo {
+            width: 78px;
+            height: 78px;
+        }
+
+
+        .applicant-login-brand h1 {
             font-size: 21px;
+        }
+
+
+        .portal-title h2 {
+            font-size: 20px;
         }
 
     }
@@ -203,39 +279,46 @@
 
 
         <!-- ==================================================
-             BRANDING
-             ================================================== -->
+             COMPANY BRANDING
+        ================================================== -->
 
-       <div class="applicant-login-brand">
+        <div class="applicant-login-brand">
 
-    {% if settings and settings.logo %}
-        <img
-            src="{{ url_for('static', filename=settings.logo) }}"
-            alt="{{ settings.company_name or 'Company Logo' }}"
-            class="applicant-login-logo"
-        >
-    {% endif %}
+            {% if company_logo %}
 
-    <h1>
-        {{ settings.company_name if settings else 'AV KING' }}
-    </h1>
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/' + company_logo
+                    ) }}"
+                    alt="Company Logo"
+                    class="applicant-login-logo"
+                >
 
-    {% if settings and settings.company_motto %}
-        <p>{{ settings.company_motto }}</p>
-    {% endif %}
-
-</div>
+            {% endif %}
 
 
-        <!-- ==================================================
-             TITLE
-             ================================================== -->
+            <h1>
+                AV KING
+            </h1>
 
-        <div class="portal-title">
 
             <p>
                 Applicant Portal
             </p>
+
+        </div>
+
+
+        <!-- ==================================================
+             LOGIN TITLE
+        ================================================== -->
+
+        <div class="portal-title">
+
+            <h2>
+                Applicant Login
+            </h2>
 
             <p>
                 Sign in to track your recruitment application.
@@ -246,7 +329,7 @@
 
         <!-- ==================================================
              FLASH MESSAGES
-             ================================================== -->
+        ================================================== -->
 
         {% with messages = get_flashed_messages(
             with_categories=true
@@ -278,13 +361,15 @@
 
         <!-- ==================================================
              LOGIN FORM
-             ================================================== -->
+        ================================================== -->
 
         <form
             method="POST"
             action="{{ url_for('applicant_login') }}"
         >
 
+
+            <!-- APPLICATION NUMBER -->
 
             <div class="form-group">
 
@@ -293,6 +378,7 @@
                 >
                     Application Number
                 </label>
+
 
                 <input
                     type="text"
@@ -306,6 +392,8 @@
             </div>
 
 
+            <!-- PASSWORD -->
+
             <div class="form-group">
 
                 <label
@@ -313,6 +401,7 @@
                 >
                     Password
                 </label>
+
 
                 <input
                     type="password"
@@ -325,6 +414,8 @@
 
             </div>
 
+
+            <!-- SIGN IN -->
 
             <button
                 type="submit"
@@ -339,7 +430,7 @@
 
         <!-- ==================================================
              HELP
-             ================================================== -->
+        ================================================== -->
 
         <div class="login-help">
 
@@ -355,7 +446,7 @@
 
         <!-- ==================================================
              NEW APPLICANT
-             ================================================== -->
+        ================================================== -->
 
         <div class="application-link">
 
