@@ -1395,6 +1395,30 @@
                         </a>
 
 
+<a href="{{ url_for('admin_attendance') }}"
+   class="sidebar-link {% if request.endpoint == 'admin_attendance' %}active{% endif %}">
+    <span class="sidebar-link-icon">📊</span>
+    <span class="sidebar-link-text">Admin Attendance</span>
+</a>
+
+<a href="{{ url_for('monthly_attendance') }}"
+   class="sidebar-link {% if request.endpoint == 'monthly_attendance' %}active{% endif %}">
+    <span class="sidebar-link-icon">📅</span>
+    <span class="sidebar-link-text">Monthly Attendance</span>
+</a>
+
+<a href="{{ url_for('admin_positions') }}"
+   class="sidebar-link {% if request.endpoint == 'admin_positions' %}active{% endif %}">
+    <span class="sidebar-link-icon">💼</span>
+    <span class="sidebar-link-text">Positions</span>
+</a>
+
+<a href="{{ url_for('applicant_messages') }}"
+   class="sidebar-link {% if request.endpoint == 'applicant_messages' %}active{% endif %}">
+    <span class="sidebar-link-icon">💬</span>
+    <span class="sidebar-link-text">Applicant Messages</span>
+</a>
+
                         <a
                             href="{{ url_for('admin_reports') }}"
                             class="sidebar-link
