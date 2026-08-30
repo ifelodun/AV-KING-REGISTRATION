@@ -7585,10 +7585,7 @@ def applicant_required():
 # =========================================================
 # APPLICANT LOGIN
 # =========================================================
-@app.route(
-    "/applicant/login",
-    methods=["GET", "POST"]
-)
+@app.route("/applicant/login", methods=["GET", "POST"])
 def applicant_login():
 
     # =========================================================
@@ -7631,29 +7628,18 @@ def applicant_login():
 
             conn.close()
 
-
-    # =========================================================
-    # ALREADY LOGGED IN
-    # =========================================================
-
-    if session.get("applicant_id"):
-
-        return redirect(
-            url_for("applicant_portal")
-        )
-
-
     # =========================================================
     # GET REQUEST
     # =========================================================
 
     if request.method == "GET":
 
+        company_logo = get_company_logo()
+
         return render_template(
             "applicant_login.html",
-            company_logo=get_company_logo()
+            company_logo=company_logo
         )
-
 
     # =========================================================
     # FORM DATA
@@ -7664,17 +7650,14 @@ def applicant_login():
             "application_number",
             ""
         )
-        or ""
-    ).strip().upper()
-
-    password = (
-        request.form.get(
-            "password",
-            ""
-        )
-        or ""
+        .strip()
+        .upper()
     )
 
+    password = request.form.get(
+        "password",
+        ""
+    )
 
     # =========================================================
     # VALIDATE INPUT
@@ -7691,7 +7674,6 @@ def applicant_login():
             "applicant_login.html",
             company_logo=get_company_logo()
         )
-
 
     # =========================================================
     # FIND APPLICANT
@@ -7717,33 +7699,14 @@ def applicant_login():
                 WHERE UPPER(application_number) = %s
                 LIMIT 1
                 """,
-                (
-                    application_number,
-                )
+                (application_number,)
             )
 
             applicant = cur.fetchone()
 
-    except Exception:
-
-        app.logger.exception(
-            "Unable to find applicant during login."
-        )
-
-        flash(
-            "Unable to process your login. Please try again.",
-            "error"
-        )
-
-        return render_template(
-            "applicant_login.html",
-            company_logo=get_company_logo()
-        )
-
     finally:
 
         conn.close()
-
 
     # =========================================================
     # APPLICANT NOT FOUND
@@ -7761,7 +7724,6 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
-
     # =========================================================
     # PORTAL DISABLED
     # =========================================================
@@ -7778,7 +7740,6 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
-
     # =========================================================
     # PASSWORD NOT ACTIVATED
     # =========================================================
@@ -7794,7 +7755,6 @@ def applicant_login():
             "applicant_login.html",
             company_logo=get_company_logo()
         )
-
 
     # =========================================================
     # CHECK PASSWORD
@@ -7815,11 +7775,6 @@ def applicant_login():
 
         password_valid = False
 
-
-    # =========================================================
-    # INVALID PASSWORD
-    # =========================================================
-
     if not password_valid:
 
         flash(
@@ -7832,17 +7787,11 @@ def applicant_login():
             company_logo=get_company_logo()
         )
 
-
     # =========================================================
     # LOGIN SUCCESS
     # =========================================================
 
     session.clear()
-
-
-    # =========================================================
-    # APPLICANT SESSION
-    # =========================================================
 
     session["applicant_id"] = applicant["id"]
 
@@ -7851,34 +7800,12 @@ def applicant_login():
     )
 
     session["applicant_name"] = (
-        (
-            applicant["first_name"]
-            or ""
-        ).strip()
+        applicant["first_name"]
         + " "
-        + (
-            applicant["last_name"]
-            or ""
-        ).strip()
-    ).strip()
+        + applicant["last_name"]
+    )
 
     session["applicant_logged_in"] = True
-
-
-    # =========================================================
-    # ROLE
-    # =========================================================
-
-    session["role"] = "applicant"
-
-
-    # =========================================================
-    # SESSION
-    # =========================================================
-
-    session.permanent = True
-    session.modified = True
-
 
     # =========================================================
     # UPDATE LAST LOGIN
@@ -7898,9 +7825,7 @@ def applicant_login():
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 """,
-                (
-                    applicant["id"],
-                )
+                (applicant["id"],)
             )
 
         conn.commit()
@@ -7917,7 +7842,6 @@ def applicant_login():
 
         conn.close()
 
-
     # =========================================================
     # REDIRECT
     # =========================================================
@@ -7925,7 +7849,6 @@ def applicant_login():
     return redirect(
         url_for("applicant_portal")
     )
-
 
 # ============================================================
 # APPLICANT LOGOUT
