@@ -7548,10 +7548,10 @@ def applicant_required():
 def applicant_login():
 
     # =========================================================
-    # GET REQUEST
+    # GET COMPANY LOGO
     # =========================================================
 
-    if request.method == "GET":
+    def get_company_logo():
 
         conn = get_db()
 
@@ -7561,38 +7561,47 @@ def applicant_login():
 
                 cur.execute(
                     """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
+                    SELECT logo
                     FROM company_settings
-                    ORDER BY id DESC
+                    ORDER BY id ASC
                     LIMIT 1
                     """
                 )
 
-                settings = cur.fetchone()
+                row = cur.fetchone()
+
+                if row:
+                    return row["logo"]
+
+                return None
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to load company logo."
+            )
+
+            return None
 
         finally:
 
             conn.close()
 
-        # -----------------------------------------------------
-        # SHOW LOGIN PAGE WITH COMPANY LOGO
-        # -----------------------------------------------------
+    # =========================================================
+    # GET REQUEST
+    # =========================================================
+
+    if request.method == "GET":
+
+        company_logo = get_company_logo()
 
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=company_logo
         )
 
     # =========================================================
-    # GET LOGIN DETAILS
+    # FORM DATA
     # =========================================================
 
     application_number = (
@@ -7620,39 +7629,9 @@ def applicant_login():
             "error"
         )
 
-        # Load settings again so the logo remains visible
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
-                    FROM company_settings
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-
-                settings = cur.fetchone()
-
-        finally:
-
-            conn.close()
-
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=get_company_logo()
         )
 
     # =========================================================
@@ -7699,43 +7678,13 @@ def applicant_login():
             "error"
         )
 
-        # Load company settings for logo
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
-                    FROM company_settings
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-
-                settings = cur.fetchone()
-
-        finally:
-
-            conn.close()
-
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=get_company_logo()
         )
 
     # =========================================================
-    # CHECK PORTAL STATUS
+    # PORTAL DISABLED
     # =========================================================
 
     if not applicant["portal_active"]:
@@ -7745,42 +7694,13 @@ def applicant_login():
             "error"
         )
 
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
-                    FROM company_settings
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-
-                settings = cur.fetchone()
-
-        finally:
-
-            conn.close()
-
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=get_company_logo()
         )
 
     # =========================================================
-    # CHECK PASSWORD ACTIVATION
+    # PASSWORD NOT ACTIVATED
     # =========================================================
 
     if not applicant["password_hash"]:
@@ -7790,86 +7710,40 @@ def applicant_login():
             "error"
         )
 
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
-                    FROM company_settings
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-
-                settings = cur.fetchone()
-
-        finally:
-
-            conn.close()
-
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=get_company_logo()
         )
 
     # =========================================================
     # CHECK PASSWORD
     # =========================================================
 
-    if not check_password_hash(
-        applicant["password_hash"],
-        password
-    ):
+    try:
+
+        password_valid = check_password_hash(
+            applicant["password_hash"],
+            password
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Applicant password verification failed."
+        )
+
+        password_valid = False
+
+    if not password_valid:
 
         flash(
             "Invalid application number or password.",
             "error"
         )
 
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        company_name,
-                        company_motto,
-                        company_email,
-                        company_phone,
-                        company_address,
-                        company_website,
-                        footer_text,
-                        logo
-                    FROM company_settings
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-
-                settings = cur.fetchone()
-
-        finally:
-
-            conn.close()
-
         return render_template(
             "applicant_login.html",
-            settings=settings
+            company_logo=get_company_logo()
         )
 
     # =========================================================
@@ -7889,6 +7763,8 @@ def applicant_login():
         + " "
         + applicant["last_name"]
     )
+
+    session["applicant_logged_in"] = True
 
     # =========================================================
     # UPDATE LAST LOGIN
@@ -7916,11 +7792,18 @@ def applicant_login():
     except Exception:
 
         conn.rollback()
-        raise
+
+        app.logger.exception(
+            "Unable to update applicant last login."
+        )
 
     finally:
 
         conn.close()
+
+    # =========================================================
+    # REDIRECT
+    # =========================================================
 
     return redirect(
         url_for("applicant_portal")
