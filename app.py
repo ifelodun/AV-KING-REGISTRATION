@@ -280,11 +280,14 @@ def generate_application_number(conn):
 # HOME
 # ============================================================
 
+
 @app.route("/")
 def home():
-
     return render_template(
-        "home.html"
+        "careers.html",
+        company_name=company_name,
+        company_logo=company_logo,
+        current_year=datetime.now().year
     )
 
 @app.context_processor
