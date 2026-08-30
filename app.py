@@ -14716,6 +14716,62 @@ def calculate_lateness_minutes(
         )
 
         return 0
+
+# =========================================================
+# CALCULATE EARLY CLOCK-OUT MINUTES
+# =========================================================
+
+def calculate_early_clockout_minutes(
+    current_time,
+    scheduled_end
+):
+    """
+    Calculate how many minutes early a worker clocks out
+    compared with the configured clock-out end time.
+
+    Example:
+        Scheduled end: 05:00 PM
+        Actual clock-out: 04:30 PM
+        Result: 30 minutes early
+    """
+
+    if current_time is None:
+        return 0
+
+    if scheduled_end is None:
+        return 0
+
+    try:
+
+        current_minutes = (
+            current_time.hour * 60
+            + current_time.minute
+        )
+
+        scheduled_end_minutes = (
+            scheduled_end.hour * 60
+            + scheduled_end.minute
+        )
+
+        early_minutes = (
+            scheduled_end_minutes
+            - current_minutes
+        )
+
+        # If the person clocks out after the scheduled
+        # end time, they are not early.
+        return max(
+            0,
+            early_minutes
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Unable to calculate early clock-out minutes."
+        )
+
+        return 0
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
