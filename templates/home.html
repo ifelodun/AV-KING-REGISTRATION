@@ -6,7 +6,81 @@ Careers | {{ company_name }}
 
 {% block content %}
 
-<main class="careers-page">
+<!-- =========================================================
+     PUBLIC CAREERS PAGE
+     ========================================================= -->
+
+<div class="careers-page">
+
+    <!-- =====================================================
+         PUBLIC HEADER
+         ===================================================== -->
+
+    <header class="careers-header">
+
+        <div class="careers-header-inner">
+
+            <a
+                href="{{ url_for('index') }}"
+                class="careers-brand"
+            >
+
+                {% if company_logo %}
+                    <img
+                        src="{{ company_logo }}"
+                        alt="{{ company_name }}"
+                        class="careers-logo"
+                    >
+                {% else %}
+                    <div class="careers-logo-placeholder">
+                        AV
+                    </div>
+                {% endif %}
+
+                <div class="careers-brand-text">
+
+                    <strong>
+                        {{ company_name }}
+                    </strong>
+
+                    <span>
+                        VETERINARY BUSINESS SUITE
+                    </span>
+
+                </div>
+
+            </a>
+
+
+            <nav class="careers-nav">
+
+                <a
+                    href="{{ url_for('index') }}"
+                    class="careers-nav-link active"
+                >
+                    Home
+                </a>
+
+                <a
+                    href="{{ url_for('apply') }}"
+                    class="careers-nav-link"
+                >
+                    Careers
+                </a>
+
+                <a
+                    href="{{ url_for('applicant_login') }}"
+                    class="careers-login"
+                >
+                    Applicant Login
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
 
     <!-- =====================================================
          HERO
@@ -14,56 +88,137 @@ Careers | {{ company_name }}
 
     <section class="careers-hero">
 
-        <div class="careers-hero-overlay"></div>
+        <div class="careers-hero-container">
 
-        <div class="careers-container careers-hero-content">
+            <div class="careers-hero-content">
 
-            <div class="careers-eyebrow">
-                <span class="eyebrow-line"></span>
-                CAREERS & RECRUITMENT
-                <span class="eyebrow-line"></span>
+                <div class="careers-eyebrow">
+                    <span></span>
+                    CAREERS & RECRUITMENT
+                </div>
+
+
+                <h1>
+                    Build Your Future
+                    <strong>With {{ company_name }}</strong>
+                </h1>
+
+
+                <p class="careers-hero-description">
+                    We are looking for dedicated, responsible and
+                    qualified individuals to join our growing team.
+                    Take the next step in your career with us.
+                </p>
+
+
+                <div class="careers-hero-actions">
+
+                    <a
+                        href="{{ url_for('apply') }}"
+                        class="careers-btn careers-btn-primary"
+                    >
+                        <span>Apply Now</span>
+                        <span class="careers-arrow">→</span>
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('applicant_login') }}"
+                        class="careers-btn careers-btn-outline"
+                    >
+                        Applicant Login
+                    </a>
+
+                </div>
+
+
+                <div class="careers-hero-trust">
+
+                    <div class="trust-item">
+                        <strong>01</strong>
+                        <span>Professional</span>
+                    </div>
+
+                    <div class="trust-line"></div>
+
+                    <div class="trust-item">
+                        <strong>02</strong>
+                        <span>Growth Focused</span>
+                    </div>
+
+                    <div class="trust-line"></div>
+
+                    <div class="trust-item">
+                        <strong>03</strong>
+                        <span>Secure Portal</span>
+                    </div>
+
+                </div>
+
             </div>
 
-            <h1>
-                Build Your Future With
-                <span>{{ company_name }}</span>
-            </h1>
 
-            <p class="careers-hero-description">
-                We are looking for dedicated, responsible and
-                qualified individuals to join our growing team
-                and contribute to our continued success.
-            </p>
+            <!-- =================================================
+                 HERO VISUAL
+                 ================================================= -->
 
-            <div class="careers-hero-actions">
+            <div class="careers-hero-visual">
 
-                <a
-                    href="{{ url_for('apply') }}"
-                    class="careers-btn careers-btn-primary"
-                >
-                    <span>Apply Now</span>
-                    <span class="btn-arrow">→</span>
-                </a>
+                <div class="hero-circle hero-circle-one"></div>
 
-                <a
-                    href="{{ url_for('applicant_login') }}"
-                    class="careers-btn careers-btn-outline"
-                >
-                    Applicant Login
-                </a>
+                <div class="hero-circle hero-circle-two"></div>
+
+
+                <div class="career-showcase-card">
+
+                    <div class="showcase-top">
+
+                        <div class="showcase-icon">
+                            ✓
+                        </div>
+
+                        <span>
+                            OPEN OPPORTUNITIES
+                        </span>
+
+                    </div>
+
+
+                    <div class="showcase-main">
+
+                        <span class="showcase-label">
+                            YOUR NEXT STEP
+                        </span>
+
+                        <h2>
+                            Start your
+                            professional journey.
+                        </h2>
+
+                        <p>
+                            Submit your application through
+                            our secure recruitment portal.
+                        </p>
+
+                    </div>
+
+
+                    <div class="showcase-bottom">
+
+                        <span>
+                            {{ company_name }}
+                        </span>
+
+                        <span class="showcase-status">
+                            ● Recruiting
+                        </span>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <div class="careers-hero-note">
-                <span class="note-dot"></span>
-                Secure online application portal
-            </div>
-
-        </div>
-
-        <div class="hero-scroll-indicator">
-            <span></span>
-            Scroll to explore
         </div>
 
     </section>
@@ -75,75 +230,25 @@ Careers | {{ company_name }}
 
     <section class="careers-introduction">
 
-        <div class="careers-container">
-
-            <div class="intro-grid">
-
-                <div class="intro-label">
-
-                    <span>
-                        OPPORTUNITIES
-                    </span>
-
-                </div>
-
-                <div class="intro-content">
-
-                    <h2>
-                        Your next opportunity
-                        could start here.
-                    </h2>
-
-                    <p>
-                        At {{ company_name }}, we value people who are
-                        committed, responsible and ready to make a
-                        meaningful contribution. We provide an
-                        organized environment where hardworking
-                        individuals can develop their abilities
-                        and grow professionally.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         WHY JOIN US
-         ===================================================== -->
-
-    <section class="careers-benefits">
-
-        <div class="careers-container">
+        <div class="careers-section-container">
 
             <div class="careers-section-heading">
 
-                <div class="heading-label">
+                <span>
                     WHY JOIN US
-                </div>
+                </span>
 
                 <h2>
                     More than a job.
                     <br>
-                    An opportunity to grow.
+                    <strong>A place to grow.</strong>
                 </h2>
-
-                <p>
-                    We are building a team of people who value
-                    professionalism, responsibility and continuous
-                    improvement.
-                </p>
 
             </div>
 
 
             <div class="careers-feature-grid">
 
-                <!-- CARD 01 -->
 
                 <article class="careers-feature-card">
 
@@ -153,28 +258,26 @@ Careers | {{ company_name }}
 
                     <div class="feature-card-content">
 
+                        <div class="feature-card-icon">
+                            ◆
+                        </div>
+
                         <h3>
                             Professional Environment
                         </h3>
 
                         <p>
-                            Work within a structured environment
-                            that encourages professionalism,
-                            accountability and excellent service.
+                            Work in a structured environment
+                            where professionalism, responsibility
+                            and excellent service are valued.
                         </p>
 
-                    </div>
-
-                    <div class="feature-card-arrow">
-                        →
                     </div>
 
                 </article>
 
 
-                <!-- CARD 02 -->
-
-                <article class="careers-feature-card">
+                <article class="careers-feature-card featured">
 
                     <div class="feature-number">
                         02
@@ -182,26 +285,24 @@ Careers | {{ company_name }}
 
                     <div class="feature-card-content">
 
+                        <div class="feature-card-icon">
+                            ↗
+                        </div>
+
                         <h3>
                             Career Development
                         </h3>
 
                         <p>
-                            Develop valuable skills and gain
-                            practical experience while working
-                            alongside a growing team.
+                            Develop your skills, gain valuable
+                            experience and grow as part of a
+                            forward-looking organization.
                         </p>
 
                     </div>
 
-                    <div class="feature-card-arrow">
-                        →
-                    </div>
-
                 </article>
 
-
-                <!-- CARD 03 -->
 
                 <article class="careers-feature-card">
 
@@ -211,23 +312,24 @@ Careers | {{ company_name }}
 
                     <div class="feature-card-content">
 
+                        <div class="feature-card-icon">
+                            ✓
+                        </div>
+
                         <h3>
-                            Growth Opportunities
+                            Simple Application
                         </h3>
 
                         <p>
-                            Join an organization where hardworking
-                            and responsible individuals can build
-                            a meaningful professional future.
+                            Complete your application online
+                            through our secure and convenient
+                            recruitment portal.
                         </p>
 
                     </div>
 
-                    <div class="feature-card-arrow">
-                        →
-                    </div>
-
                 </article>
+
 
             </div>
 
@@ -240,32 +342,28 @@ Careers | {{ company_name }}
          APPLICATION PROCESS
          ===================================================== -->
 
-    <section class="application-process">
+    <section class="careers-process">
 
-        <div class="careers-container">
+        <div class="careers-section-container">
 
-            <div class="process-header">
+            <div class="careers-process-heading">
 
-                <div class="heading-label">
+                <span>
                     HOW IT WORKS
-                </div>
+                </span>
 
                 <h2>
-                    A simple application process.
+                    Your application,
+                    <strong>made simple.</strong>
                 </h2>
-
-                <p>
-                    Complete your application online and
-                    keep track of your application through
-                    your applicant portal.
-                </p>
 
             </div>
 
 
-            <div class="process-grid">
+            <div class="careers-process-grid">
 
-                <div class="process-item">
+
+                <div class="process-step">
 
                     <div class="process-number">
                         01
@@ -273,20 +371,22 @@ Careers | {{ company_name }}
 
                     <div>
                         <h3>
-                            Submit Application
+                            Start Application
                         </h3>
 
                         <p>
-                            Complete the online application
-                            form and provide the required
-                            information.
+                            Begin your application by providing
+                            your basic information.
                         </p>
                     </div>
 
                 </div>
 
 
-                <div class="process-item">
+                <div class="process-connector"></div>
+
+
+                <div class="process-step">
 
                     <div class="process-number">
                         02
@@ -294,19 +394,22 @@ Careers | {{ company_name }}
 
                     <div>
                         <h3>
-                            Application Review
+                            Complete Details
                         </h3>
 
                         <p>
-                            Our recruitment team will review
-                            your submitted application.
+                            Provide your qualifications,
+                            experience and supporting documents.
                         </p>
                     </div>
 
                 </div>
 
 
-                <div class="process-item">
+                <div class="process-connector"></div>
+
+
+                <div class="process-step">
 
                     <div class="process-number">
                         03
@@ -314,12 +417,12 @@ Careers | {{ company_name }}
 
                     <div>
                         <h3>
-                            Track Your Application
+                            Track Application
                         </h3>
 
                         <p>
-                            Log in to your applicant portal
-                            to view your application status.
+                            Sign in to your applicant portal
+                            to follow your application status.
                         </p>
                     </div>
 
@@ -336,49 +439,48 @@ Careers | {{ company_name }}
          FINAL CTA
          ===================================================== -->
 
-    <section class="careers-cta">
+    <section class="careers-final-cta">
 
-        <div class="careers-container">
+        <div class="careers-final-inner">
 
-            <div class="careers-cta-box">
+            <div>
 
-                <div class="cta-content">
+                <span>
+                    READY TO TAKE THE NEXT STEP?
+                </span>
 
-                    <span>
-                        READY TO TAKE THE NEXT STEP?
-                    </span>
+                <h2>
+                    Your next opportunity
+                    starts here.
+                </h2>
 
-                    <h2>
-                        Start your application today.
-                    </h2>
+                <p>
+                    Join {{ company_name }} and become part
+                    of a team committed to professionalism,
+                    growth and excellent service.
+                </p>
 
-                    <p>
-                        Take the first step toward joining
-                        {{ company_name }}.
-                    </p>
-
-                </div>
+            </div>
 
 
-                <div class="cta-actions">
+            <div class="careers-final-actions">
 
-                    <a
-                        href="{{ url_for('apply') }}"
-                        class="careers-btn careers-btn-gold"
-                    >
-                        Start Application
-                        <span>→</span>
-                    </a>
+                <a
+                    href="{{ url_for('apply') }}"
+                    class="careers-btn careers-btn-white"
+                >
+                    Start Application
+                    <span>→</span>
+                </a>
 
-                    <a
-                        href="{{ url_for('applicant_login') }}"
-                        class="cta-login-link"
-                    >
-                        Already applied?
-                        <strong>Applicant Login</strong>
-                    </a>
 
-                </div>
+                <a
+                    href="{{ url_for('applicant_login') }}"
+                    class="careers-text-link"
+                >
+                    Already applied?
+                    <strong>Login to portal</strong>
+                </a>
 
             </div>
 
@@ -386,6 +488,67 @@ Careers | {{ company_name }}
 
     </section>
 
-</main>
+
+    <!-- =====================================================
+         PUBLIC FOOTER
+         ===================================================== -->
+
+    <footer class="careers-footer">
+
+        <div class="careers-footer-inner">
+
+            <div class="careers-footer-brand">
+
+                <div class="careers-footer-logo">
+                    AV
+                </div>
+
+                <div>
+
+                    <strong>
+                        {{ company_name }}
+                    </strong>
+
+                    <span>
+                        VETERINARY BUSINESS SUITE
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="careers-footer-links">
+
+                <a href="{{ url_for('apply') }}">
+                    Apply
+                </a>
+
+                <a href="{{ url_for('applicant_login') }}">
+                    Applicant Login
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="careers-footer-bottom">
+
+            <span>
+                © {{ current_year or 2026 }}
+                {{ company_name }}.
+                All rights reserved.
+            </span>
+
+            <span>
+                Professional • Secure • Reliable
+            </span>
+
+        </div>
+
+    </footer>
+
+</div>
 
 {% endblock %}
