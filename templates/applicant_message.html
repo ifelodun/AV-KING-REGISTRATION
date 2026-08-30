@@ -4,258 +4,634 @@
 {{ message.subject or "Message" }} | AV KING Recruitment
 {% endblock %}
 
-
 {% block content %}
 
 <style>
 
+    /* =========================================================
+       MESSAGE PAGE
+    ========================================================= */
+
     .message-page {
-
-        max-width: 850px;
-
+        max-width: 980px;
         margin: 0 auto;
+        padding: 45px 24px 80px;
+    }
 
-        padding: 35px 20px 60px;
 
+    /* =========================================================
+       TOP NAVIGATION
+    ========================================================= */
+
+    .message-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 25px;
     }
 
 
     .back-link {
-
         display: inline-flex;
-
-        margin-bottom: 20px;
-
-        color: #4b5563;
-
+        align-items: center;
+        gap: 9px;
+        color: #475569;
         text-decoration: none;
-
         font-size: 14px;
-
-        font-weight: 600;
-
+        font-weight: 700;
+        transition: all 0.2s ease;
     }
 
 
     .back-link:hover {
-
-        color: #111827;
-
+        color: #0f172a;
+        transform: translateX(-2px);
     }
 
 
-    .message-container {
-
+    .back-icon {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
         background: #ffffff;
+        font-size: 17px;
+    }
 
-        border: 1px solid #e5e7eb;
 
-        border-radius: 18px;
+    /* =========================================================
+       MESSAGE CARD
+    ========================================================= */
 
-        padding: 30px;
+    .message-container {
+        position: relative;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        box-shadow:
+            0 4px 6px rgba(15, 23, 42, 0.03),
+            0 15px 35px rgba(15, 23, 42, 0.06);
+    }
 
+
+    /* =========================================================
+       CARD HEADER
+    ========================================================= */
+
+    .message-header {
+        padding: 32px 36px 28px;
+        border-bottom: 1px solid #eef2f7;
+        background:
+            linear-gradient(
+                180deg,
+                #ffffff 0%,
+                #f8fafc 100%
+            );
+    }
+
+
+    .message-header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+
+    .message-heading-area {
+        min-width: 0;
     }
 
 
     .message-label {
-
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 10px;
+        color: #64748b;
         font-size: 11px;
-
-        letter-spacing: 1px;
-
+        line-height: 1;
+        letter-spacing: 1.3px;
         text-transform: uppercase;
-
-        color: #6b7280;
-
         font-weight: 800;
+    }
 
+
+    .message-label::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #16a34a;
+        box-shadow: 0 0 0 4px #dcfce7;
     }
 
 
     .message-title {
-
-        margin: 7px 0 10px;
-
-        color: #111827;
-
-        font-size: 25px;
-
-        line-height: 1.3;
-
+        margin: 0;
+        color: #0f172a;
+        font-size: 30px;
+        line-height: 1.25;
+        letter-spacing: -0.5px;
+        font-weight: 800;
+        word-break: break-word;
     }
 
 
-    .message-meta {
+    /* =========================================================
+       MESSAGE ICON
+    ========================================================= */
 
+    .message-icon {
+        flex: 0 0 auto;
+        width: 54px;
+        height: 54px;
         display: flex;
-
-        flex-wrap: wrap;
-
-        gap: 10px;
-
         align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        color: #2563eb;
+        font-size: 23px;
+    }
 
-        margin-bottom: 25px;
 
-        padding-bottom: 20px;
+    /* =========================================================
+       META INFORMATION
+    ========================================================= */
 
-        border-bottom: 1px solid #e5e7eb;
-
+    .message-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
     }
 
 
     .message-type {
-
-        padding: 6px 10px;
-
-        border-radius: 999px;
-
-        background: #f3f4f6;
-
-        color: #374151;
-
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 5px 11px;
+        border-radius: 8px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        color: #334155;
         font-size: 11px;
-
-        font-weight: 750;
-
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
     }
 
 
     .message-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 500;
+    }
 
-        color: #9ca3af;
 
-        font-size: 12px;
+    .message-date::before {
+        content: "•";
+        color: #cbd5e1;
+    }
 
+
+    /* =========================================================
+       MESSAGE CONTENT
+    ========================================================= */
+
+    .message-content {
+        padding: 36px;
+    }
+
+
+    .content-label {
+        margin-bottom: 16px;
+        color: #94a3b8;
+        font-size: 10px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        font-weight: 800;
     }
 
 
     .message-body {
-
-        color: #374151;
-
-        font-size: 15px;
-
-        line-height: 1.8;
-
+        max-width: 780px;
+        color: #334155;
+        font-size: 16px;
+        line-height: 1.85;
         white-space: pre-line;
-
+        overflow-wrap: anywhere;
     }
 
+
+    /* =========================================================
+       RECRUITMENT NOTICE
+    ========================================================= */
+
+    .message-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-top: 30px;
+        padding: 16px 18px;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+
+    .notice-icon {
+        flex: 0 0 auto;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #dbeafe;
+        color: #2563eb;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .notice-text {
+        color: #475569;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+
+    .notice-text strong {
+        display: block;
+        margin-bottom: 2px;
+        color: #1e3a8a;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
 
     .message-footer {
-
-        margin-top: 30px;
-
-        padding-top: 20px;
-
-        border-top: 1px solid #f3f4f6;
-
-        color: #6b7280;
-
-        font-size: 13px;
-
+        margin: 0 36px;
+        padding: 22px 0 28px;
+        border-top: 1px solid #eef2f7;
     }
 
 
-    @media (max-width: 600px) {
+    .footer-brand {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+
+    .footer-motto {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       ACTIONS
+    ========================================================= */
+
+    .message-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+
+    .message-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+
+
+    .message-action-primary {
+        background: #0f172a;
+        color: #ffffff;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
+    }
+
+
+    .message-action-primary:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+    }
+
+
+    .message-action-secondary {
+        background: #ffffff;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+
+    .message-action-secondary:hover {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 700px) {
 
         .message-page {
+            padding: 25px 14px 55px;
+        }
 
-            padding: 25px 12px 45px;
 
+        .message-topbar {
+            margin-bottom: 18px;
         }
 
 
         .message-container {
+            border-radius: 16px;
+        }
 
-            padding: 20px;
 
+        .message-header {
+            padding: 24px 20px;
+        }
+
+
+        .message-header-top {
+            gap: 15px;
+        }
+
+
+        .message-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 19px;
         }
 
 
         .message-title {
+            font-size: 23px;
+        }
 
+
+        .message-content {
+            padding: 25px 20px;
+        }
+
+
+        .message-body {
+            font-size: 15px;
+            line-height: 1.75;
+        }
+
+
+        .message-footer {
+            margin: 0 20px;
+            padding-bottom: 23px;
+        }
+
+
+        .message-actions {
+            justify-content: stretch;
+            flex-direction: column;
+        }
+
+
+        .message-action {
+            width: 100%;
+        }
+
+    }
+
+
+    @media (max-width: 430px) {
+
+        .message-header-top {
+            align-items: center;
+        }
+
+
+        .message-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+
+        .message-title {
             font-size: 21px;
+        }
 
+
+        .message-meta {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+
+        .message-date::before {
+            display: none;
         }
 
     }
 
 </style>
 
-
 <div class="message-page">
 
+
+<!-- =====================================================
+     TOP BAR
+====================================================== -->
+
+<div class="message-topbar">
 
     <a
         href="{{ url_for('applicant_messages') }}"
         class="back-link"
     >
-        ← Back to Messages
-    </a>
 
-
-    <div class="message-container">
-
-
-        <span class="message-label">
-            Recruitment Message
+        <span class="back-icon">
+            ←
         </span>
 
+        <span>
+            Back to Messages
+        </span>
 
-        <h1 class="message-title">
+    </a>
 
-            {{ message.subject or "Message" }}
-
-        </h1>
-
-
-        <div class="message-meta">
+</div>
 
 
-            <span class="message-type">
+<!-- =====================================================
+     MESSAGE CONTAINER
+====================================================== -->
 
-                {{ message.message_type or "General" }}
-
-            </span>
+<article class="message-container">
 
 
-            {% if message.created_at %}
+    <!-- =================================================
+         MESSAGE HEADER
+    ================================================== -->
 
-                <span class="message-date">
+    <header class="message-header">
 
-                    {{ message.created_at.strftime(
-                        "%d %B %Y at %I:%M %p"
-                    ) }}
+        <div class="message-header-top">
 
+
+            <div class="message-heading-area">
+
+                <span class="message-label">
+                    Recruitment Message
                 </span>
 
-            {% endif %}
+
+                <h1 class="message-title">
+                    {{ message.subject or "Message" }}
+                </h1>
 
 
+                <div class="message-meta">
+
+                    <span class="message-type">
+                        {{ message.message_type or "General" }}
+                    </span>
+
+
+                    {% if message.created_at %}
+
+                        <span class="message-date">
+
+                            {{ message.created_at.strftime(
+                                "%d %B %Y at %I:%M %p"
+                            ) }}
+
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="message-icon"
+                aria-hidden="true"
+            >
+                ✉
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         MESSAGE BODY
+    ================================================== -->
+
+    <div class="message-content">
+
+        <div class="content-label">
+            Message Details
         </div>
 
 
         <div class="message-body">
-
             {{ message.message }}
+        </div>
+
+
+        <div class="message-notice">
+
+            <div class="notice-icon">
+                i
+            </div>
+
+
+            <div class="notice-text">
+
+                <strong>
+                    Official Recruitment Communication
+                </strong>
+
+                This message was sent through the official
+                AV KING Recruitment Portal. Please keep this
+                message for your records.
+
+            </div>
 
         </div>
 
 
-        <div class="message-footer">
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
 
-            AV KING Recruitment Team
+        <div class="message-actions">
 
-            <br>
-
-            Your needs, Our Priority
+            <a
+                href="{{ url_for('applicant_messages') }}"
+                class="message-action message-action-secondary"
+            >
+                ← All Messages
+            </a>
 
         </div>
-
 
     </div>
+
+
+    <!-- =================================================
+         MESSAGE FOOTER
+    ================================================== -->
+
+    <footer class="message-footer">
+
+        <div class="footer-brand">
+            AV KING Recruitment Team
+        </div>
+
+        <div class="footer-motto">
+            Your needs, Our Priority
+        </div>
+
+    </footer>
+
+
+</article>
+
 
 </div>
 
