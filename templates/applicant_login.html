@@ -1,466 +1,1156 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
+<head>
 
-<style>
+    <meta charset="UTF-8">
 
-    /* =========================================================
-       APPLICANT LOGIN PAGE
-    ========================================================= */
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    .applicant-login-wrapper {
-        min-height: 75vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-    }
+    <title>
+        Applicant Login | {{ company_name or "AV KING" }}
+    </title>
 
+    <meta
+        name="description"
+        content="Applicant portal login"
+    >
 
-    /* =========================================================
-       LOGIN CARD
-    ========================================================= */
+    <style>
 
-    .applicant-login-card {
-        width: 100%;
-        max-width: 460px;
-        background: #ffffff;
-        border-radius: 18px;
-        padding: 40px;
-        box-shadow:
-            0 12px 40px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e5e7eb;
-        box-sizing: border-box;
-    }
+        /* =========================================================
+           RESET
+        ========================================================= */
 
-
-    /* =========================================================
-       BRANDING
-    ========================================================= */
-
-    .applicant-login-brand {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-
-    .applicant-login-logo {
-        width: 90px;
-        height: 90px;
-        object-fit: contain;
-        display: block;
-        margin: 0 auto 15px;
-    }
-
-
-    .applicant-login-brand h1 {
-        margin: 0;
-        font-size: 25px;
-        font-weight: 700;
-        color: #111827;
-    }
-
-
-    .applicant-login-brand p {
-        margin: 8px 0 0;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-
-    /* =========================================================
-       PORTAL TITLE
-    ========================================================= */
-
-    .portal-title {
-        text-align: center;
-        margin-bottom: 25px;
-    }
-
-
-    .portal-title h2 {
-        margin: 0;
-        color: #111827;
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-
-    .portal-title p {
-        margin: 7px 0 0;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-
-    /* =========================================================
-       FORM
-    ========================================================= */
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        color: #374151;
-    }
-
-
-    .form-group input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 13px 14px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        font-size: 15px;
-        outline: none;
-        transition: 0.2s ease;
-        background: #ffffff;
-        color: #111827;
-    }
-
-
-    .form-group input:focus {
-        border-color: #2563eb;
-        box-shadow:
-            0 0 0 3px rgba(37, 99, 235, 0.10);
-    }
-
-
-    .form-group input::placeholder {
-        color: #9ca3af;
-    }
-
-
-    /* =========================================================
-       LOGIN BUTTON
-    ========================================================= */
-
-    .login-button {
-        width: 100%;
-        border: none;
-        border-radius: 10px;
-        padding: 14px;
-        font-size: 15px;
-        font-weight: 700;
-        cursor: pointer;
-        color: #ffffff;
-        background: #111827;
-        transition: 0.2s ease;
-    }
-
-
-    .login-button:hover {
-        background: #1f2937;
-    }
-
-
-    .login-button:active {
-        transform: translateY(1px);
-    }
-
-
-    /* =========================================================
-       HELP TEXT
-    ========================================================= */
-
-    .login-help {
-        margin-top: 22px;
-        text-align: center;
-        color: #6b7280;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-
-    .login-help strong {
-        color: #374151;
-    }
-
-
-    /* =========================================================
-       APPLICATION LINK
-    ========================================================= */
-
-    .application-link {
-        text-align: center;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-
-    .application-link a {
-        color: #2563eb;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-
-    .application-link a:hover {
-        text-decoration: underline;
-    }
-
-
-    /* =========================================================
-       FLASH MESSAGES
-    ========================================================= */
-
-    .flash-message {
-        padding: 12px 14px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-size: 14px;
-        line-height: 1.5;
-    }
-
-
-    .flash-error {
-        background: #fef2f2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
-    }
-
-
-    .flash-success {
-        background: #f0fdf4;
-        color: #166534;
-        border: 1px solid #bbf7d0;
-    }
-
-
-    /* =========================================================
-       MOBILE
-    ========================================================= */
-
-    @media (max-width: 600px) {
-
-        .applicant-login-wrapper {
-            padding: 25px 15px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
 
-        .applicant-login-card {
-            padding: 28px 22px;
-            border-radius: 15px;
+        html,
+        body {
+            min-height: 100%;
         }
 
 
-        .applicant-login-logo {
-            width: 78px;
-            height: 78px;
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            background: #f5f7fb;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
         }
 
 
-        .applicant-login-brand h1 {
-            font-size: 21px;
+        button,
+        input {
+            font: inherit;
         }
 
 
-        .portal-title h2 {
+        a {
+            text-decoration: none;
+        }
+
+
+        /* =========================================================
+           PAGE
+        ========================================================= */
+
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            background: #f5f7fb;
+        }
+
+
+        /* =========================================================
+           LEFT BRAND PANEL
+        ========================================================= */
+
+        .login-brand-panel {
+            position: relative;
+            width: 46%;
+            min-height: 100vh;
+            overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            padding: 48px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #0f172a 0%,
+                    #172554 48%,
+                    #1e3a8a 100%
+                );
+
+            color: #ffffff;
+        }
+
+
+        .brand-background-circle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+
+        .brand-circle-one {
+            width: 430px;
+            height: 430px;
+            right: -190px;
+            top: -150px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.025);
+        }
+
+
+        .brand-circle-two {
+            width: 520px;
+            height: 520px;
+            left: -330px;
+            bottom: -250px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.02);
+        }
+
+
+        .brand-content,
+        .brand-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+
+        /* =========================================================
+           BRAND
+        ========================================================= */
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+
+        .brand-logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 7px;
+        }
+
+
+        .brand-logo-placeholder {
             font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
-    }
 
-</style>
-
-
-<div class="applicant-login-wrapper">
-
-    <div class="applicant-login-card">
+        .brand-name {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
 
 
-        <!-- ==================================================
-             COMPANY BRANDING
-        ================================================== -->
+        .brand-name strong {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
 
-        <div class="applicant-login-brand">
 
-            {% if company_logo %}
+        .brand-name span {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.4px;
+            color: rgba(255,255,255,0.68);
+        }
 
-                <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/' + company_logo
-                    ) }}"
-                    alt="Company Logo"
-                    class="applicant-login-logo"
+
+        /* =========================================================
+           BRAND MESSAGE
+        ========================================================= */
+
+        .brand-message {
+            max-width: 520px;
+            margin-top: auto;
+            margin-bottom: auto;
+            padding: 80px 0;
+        }
+
+
+        .brand-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            margin-bottom: 24px;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
+            color: rgba(255,255,255,0.65);
+        }
+
+
+        .brand-eyebrow::before {
+            content: "";
+            width: 25px;
+            height: 2px;
+            background: rgba(255,255,255,0.55);
+            border-radius: 10px;
+        }
+
+
+        .brand-message h1 {
+            font-size: clamp(38px, 4vw, 58px);
+            line-height: 1.04;
+            letter-spacing: -2px;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+
+        .brand-message h1 span {
+            display: block;
+            color: #bfdbfe;
+        }
+
+
+        .brand-message p {
+            max-width: 480px;
+
+            font-size: 16px;
+            line-height: 1.8;
+
+            color: rgba(255,255,255,0.72);
+        }
+
+
+        /* =========================================================
+           BRAND FEATURES
+        ========================================================= */
+
+        .brand-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 38px;
+        }
+
+
+        .brand-feature {
+            padding: 16px;
+
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+
+
+        .brand-feature strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+
+        .brand-feature span {
+            display: block;
+            font-size: 11px;
+            color: rgba(255,255,255,0.55);
+        }
+
+
+        /* =========================================================
+           BRAND FOOTER
+        ========================================================= */
+
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.10);
+
+            font-size: 11px;
+            color: rgba(255,255,255,0.48);
+        }
+
+
+        /* =========================================================
+           RIGHT LOGIN PANEL
+        ========================================================= */
+
+        .login-form-panel {
+            width: 54%;
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 50px;
+            background: #f8fafc;
+        }
+
+
+        .login-container {
+            width: 100%;
+            max-width: 470px;
+        }
+
+
+        /* =========================================================
+           TOP NAVIGATION
+        ========================================================= */
+
+        .login-topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+
+            margin-bottom: 55px;
+        }
+
+
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 9px 14px;
+
+            border-radius: 9px;
+
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: 0.2s ease;
+        }
+
+
+        .home-link:hover {
+            color: #1e3a8a;
+            background: #eef2ff;
+        }
+
+
+        /* =========================================================
+           LOGIN HEADING
+        ========================================================= */
+
+        .login-heading {
+            margin-bottom: 30px;
+        }
+
+
+        .login-heading .eyebrow {
+            display: block;
+            margin-bottom: 11px;
+
+            color: #2563eb;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+
+
+        .login-heading h2 {
+            font-size: 34px;
+            line-height: 1.15;
+            letter-spacing: -1px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+
+        .login-heading p {
+            margin-top: 10px;
+
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+
+        /* =========================================================
+           FLASH MESSAGES
+        ========================================================= */
+
+        .flash-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+
+            padding: 13px 15px;
+            margin-bottom: 22px;
+
+            border-radius: 11px;
+
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+
+        .flash-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+
+        .flash-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+
+        .flash-error .flash-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+
+        .flash-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+
+        .flash-success .flash-icon {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+
+        /* =========================================================
+           FORM CARD
+        ========================================================= */
+
+        .login-card {
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 8px 30px rgba(15,23,42,0.05);
+        }
+
+
+        /* =========================================================
+           FORM GROUP
+        ========================================================= */
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+
+        .form-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 8px;
+        }
+
+
+        .form-label-row label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+
+        .required {
+            color: #dc2626;
+        }
+
+
+        .input-wrapper {
+            position: relative;
+        }
+
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #94a3b8;
+
+            pointer-events: none;
+
+            font-size: 15px;
+        }
+
+
+        .form-input {
+            width: 100%;
+            height: 49px;
+
+            padding: 0 14px 0 43px;
+
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+
+            background: #ffffff;
+            color: #0f172a;
+
+            outline: none;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+
+        .form-input:hover {
+            border-color: #cbd5e1;
+        }
+
+
+        .form-input:focus {
+            border-color: #2563eb;
+            background: #ffffff;
+
+            box-shadow:
+                0 0 0 3px rgba(37,99,235,0.10);
+        }
+
+
+        .form-input::placeholder {
+            color: #a1aab8;
+        }
+
+
+        /* =========================================================
+           SIGN IN BUTTON
+        ========================================================= */
+
+        .login-button {
+            width: 100%;
+            height: 50px;
+
+            border: 0;
+            border-radius: 10px;
+
+            background: #0f172a;
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+
+        .login-button:hover {
+            background: #1e293b;
+
+            box-shadow:
+                0 7px 18px rgba(15,23,42,0.15);
+        }
+
+
+        .login-button:active {
+            transform: translateY(1px);
+        }
+
+
+        /* =========================================================
+           SECURITY NOTICE
+        ========================================================= */
+
+        .security-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+
+            margin-top: 20px;
+            padding: 13px;
+
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #edf0f4;
+        }
+
+
+        .security-icon {
+            width: 25px;
+            height: 25px;
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 7px;
+
+            background: #eff6ff;
+            color: #2563eb;
+
+            font-size: 12px;
+        }
+
+
+        .security-notice p {
+            color: #64748b;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+
+        .security-notice strong {
+            color: #334155;
+        }
+
+
+        /* =========================================================
+           REGISTER LINK
+        ========================================================= */
+
+        .register-section {
+            text-align: center;
+
+            margin-top: 26px;
+            padding-top: 23px;
+
+            border-top: 1px solid #e5e7eb;
+
+            color: #64748b;
+            font-size: 13px;
+        }
+
+
+        .register-section a {
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+
+        .register-section a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            .login-page {
+                display: block;
+            }
+
+
+            .login-brand-panel {
+                width: 100%;
+                min-height: auto;
+                padding: 28px 25px;
+            }
+
+
+            .brand-message {
+                padding: 55px 0 45px;
+            }
+
+
+            .brand-message h1 {
+                font-size: 40px;
+            }
+
+
+            .brand-features {
+                display: none;
+            }
+
+
+            .brand-footer {
+                display: none;
+            }
+
+
+            .login-form-panel {
+                width: 100%;
+                min-height: auto;
+                padding: 35px 20px 50px;
+            }
+
+
+            .login-topbar {
+                margin-bottom: 35px;
+            }
+        }
+
+
+        @media (max-width: 520px) {
+
+            .login-brand-panel {
+                padding: 22px 18px;
+            }
+
+
+            .brand-logo {
+                width: 50px;
+                height: 50px;
+            }
+
+
+            .brand-message {
+                padding: 45px 0 35px;
+            }
+
+
+            .brand-message h1 {
+                font-size: 34px;
+                letter-spacing: -1.2px;
+            }
+
+
+            .brand-message p {
+                font-size: 14px;
+            }
+
+
+            .login-form-panel {
+                padding: 25px 15px 40px;
+            }
+
+
+            .login-topbar {
+                margin-bottom: 28px;
+            }
+
+
+            .login-heading h2 {
+                font-size: 29px;
+            }
+
+
+            .login-card {
+                padding: 22px 18px;
+                border-radius: 14px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="login-page">
+
+
+    <!-- =========================================================
+         BRAND PANEL
+    ========================================================= -->
+
+    <section class="login-brand-panel">
+
+        <div class="brand-background-circle brand-circle-one"></div>
+        <div class="brand-background-circle brand-circle-two"></div>
+
+
+        <div class="brand-content">
+
+
+            <!-- BRAND HEADER -->
+
+            <div class="brand-header">
+
+                <div class="brand-logo">
+
+                    {% if company_logo %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' + company_logo
+                            ) }}"
+                            alt="{{ company_name or 'Company' }} Logo"
+                        >
+
+                    {% else %}
+
+                        <div class="brand-logo-placeholder">
+                            AV
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="brand-name">
+
+                    <strong>
+                        {{ company_name or "AV KING" }}
+                    </strong>
+
+                    <span>
+                        VETERINARY BUSINESS SUITE
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- BRAND MESSAGE -->
+
+            <div class="brand-message">
+
+                <span class="brand-eyebrow">
+                    APPLICANT PORTAL
+                </span>
+
+
+                <h1>
+                    Your career
+                    <span>starts here.</span>
+                </h1>
+
+
+                <p>
+                    Access your recruitment portal to track
+                    your application, view updates and stay
+                    informed throughout the recruitment process.
+                </p>
+
+
+                <div class="brand-features">
+
+                    <div class="brand-feature">
+                        <strong>01</strong>
+                        <span>Secure Access</span>
+                    </div>
+
+
+                    <div class="brand-feature">
+                        <strong>02</strong>
+                        <span>Application Tracking</span>
+                    </div>
+
+
+                    <div class="brand-feature">
+                        <strong>03</strong>
+                        <span>Recruitment Updates</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BRAND FOOTER -->
+
+        <div class="brand-footer">
+
+            <span>
+                © {{ current_year or 2026 }}
+                {{ company_name or "AV KING" }}
+            </span>
+
+            <span>
+                Professional • Secure • Reliable
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         LOGIN PANEL
+    ========================================================= -->
+
+    <main class="login-form-panel">
+
+        <div class="login-container">
+
+
+            <!-- TOP LINK -->
+
+            <div class="login-topbar">
+
+                <a
+                    href="{{ url_for('home') }}"
+                    class="home-link"
+                >
+                    ← Back to Home
+                </a>
+
+            </div>
+
+
+            <!-- HEADING -->
+
+            <div class="login-heading">
+
+                <span class="eyebrow">
+                    Applicant Access
+                </span>
+
+                <h2>
+                    Welcome back
+                </h2>
+
+                <p>
+                    Sign in to access your applicant portal
+                    and track your recruitment application.
+                </p>
+
+            </div>
+
+
+            <!-- FLASH MESSAGES -->
+
+            {% with messages = get_flashed_messages(
+                with_categories=true
+            ) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div
+                            class="flash-message
+                            {% if category == 'error' or category == 'danger' %}
+                                flash-error
+                            {% else %}
+                                flash-success
+                            {% endif %}"
+                        >
+
+                            <div class="flash-icon">
+
+                                {% if category == 'error' or category == 'danger' %}
+                                    !
+                                {% else %}
+                                    ✓
+                                {% endif %}
+
+                            </div>
+
+                            <div>
+                                {{ message }}
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- LOGIN CARD -->
+
+            <div class="login-card">
+
+                <form
+                    method="POST"
+                    action="{{ url_for('applicant_login') }}"
+                    autocomplete="on"
                 >
 
-            {% endif %}
+
+                    <!-- APPLICATION NUMBER -->
+
+                    <div class="form-group">
+
+                        <div class="form-label-row">
+
+                            <label for="application_number">
+                                Application Number
+                                <span class="required">*</span>
+                            </label>
+
+                        </div>
 
 
-            <h1>
-                AV KING
-            </h1>
+                        <div class="input-wrapper">
 
+                            <span class="input-icon">
+                                #
+                            </span>
 
-            <p>
-                Applicant Portal
-            </p>
+                            <input
+                                type="text"
+                                id="application_number"
+                                name="application_number"
+                                class="form-input"
+                                placeholder="e.g. AV-APP-00001"
+                                autocomplete="username"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                required
+                            >
 
-        </div>
-
-
-        <!-- ==================================================
-             LOGIN TITLE
-        ================================================== -->
-
-        <div class="portal-title">
-
-            <h2>
-                Applicant Login
-            </h2>
-
-            <p>
-                Sign in to track your recruitment application.
-            </p>
-
-        </div>
-
-
-        <!-- ==================================================
-             FLASH MESSAGES
-        ================================================== -->
-
-        {% with messages = get_flashed_messages(
-            with_categories=true
-        ) %}
-
-            {% if messages %}
-
-                {% for category, message in messages %}
-
-                    <div
-                        class="flash-message
-                        {% if category == 'error' %}
-                            flash-error
-                        {% else %}
-                            flash-success
-                        {% endif %}"
-                    >
-
-                        {{ message }}
+                        </div>
 
                     </div>
 
-                {% endfor %}
 
-            {% endif %}
+                    <!-- PASSWORD -->
 
-        {% endwith %}
+                    <div class="form-group">
 
+                        <div class="form-label-row">
 
-        <!-- ==================================================
-             LOGIN FORM
-        ================================================== -->
+                            <label for="password">
+                                Password
+                                <span class="required">*</span>
+                            </label>
 
-        <form
-            method="POST"
-            action="{{ url_for('applicant_login') }}"
-        >
+                        </div>
 
 
-            <!-- APPLICATION NUMBER -->
+                        <div class="input-wrapper">
 
-            <div class="form-group">
+                            <span class="input-icon">
+                                •••
+                            </span>
 
-                <label
-                    for="application_number"
-                >
-                    Application Number
-                </label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-input"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
 
 
-                <input
-                    type="text"
-                    id="application_number"
-                    name="application_number"
-                    placeholder="e.g. AV-APP-00001"
-                    autocomplete="username"
-                    required
-                >
+                    <!-- LOGIN BUTTON -->
+
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Sign In to Applicant Portal
+                    </button>
+
+
+                </form>
+
+
+                <!-- SECURITY NOTICE -->
+
+                <div class="security-notice">
+
+                    <div class="security-icon">
+                        ✓
+                    </div>
+
+                    <p>
+                        <strong>Your information is protected.</strong>
+                        Use your application number and the password
+                        you created during your application.
+                    </p>
+
+                </div>
+
+
+                <!-- APPLICATION LINK -->
+
+                <div class="register-section">
+
+                    Don't have an application yet?
+
+                    <a href="{{ url_for('apply') }}">
+                        Start an Application
+                    </a>
+
+                </div>
 
             </div>
 
-
-            <!-- PASSWORD -->
-
-            <div class="form-group">
-
-                <label
-                    for="password"
-                >
-                    Password
-                </label>
-
-
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-            </div>
-
-
-            <!-- SIGN IN -->
-
-            <button
-                type="submit"
-                class="login-button"
-            >
-                Sign In
-            </button>
-
-
-        </form>
-
-
-        <!-- ==================================================
-             HELP
-        ================================================== -->
-
-        <div class="login-help">
-
-            Use the
-            <strong>
-                application number
-            </strong>
-            you received after submitting your application
-            and the password you created.
-
         </div>
 
-
-        <!-- ==================================================
-             NEW APPLICANT
-        ================================================== -->
-
-        <div class="application-link">
-
-            Don't have an application yet?
-
-            <a href="{{ url_for('apply') }}">
-                Apply Now
-            </a>
-
-        </div>
-
-
-    </div>
+    </main>
 
 </div>
 
-{% endblock %}
+
+</body>
+
+</html>
