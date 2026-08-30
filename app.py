@@ -13118,22 +13118,21 @@ def get_today_attendance(
 # =========================================================
 # APPLICANT ATTENDANCE PAGE
 # =========================================================
-
 @app.route("/applicant/attendance")
 def applicant_attendance():
-
-    from datetime import datetime, time
-
-    # =====================================================
+    # =========================================================
     # NIGERIA TIMEZONE
-    # =====================================================
+    # =========================================================
 
-    nigeria_now = get_nigeria_now()
+    from zoneinfo import ZoneInfo
+
+    NIGERIA_TZ = ZoneInfo("Africa/Lagos")
+
+    nigeria_now = datetime.now(NIGERIA_TZ)
     nigeria_today = nigeria_now.date()
-
-    # =====================================================
-    # AUTHENTICATION
-    # =====================================================
+    # =========================================================
+    # APPLICANT AUTHENTICATION
+    # =========================================================
 
     applicant_id = session.get("applicant_id")
 
@@ -13143,27 +13142,9 @@ def applicant_attendance():
             url_for("applicant_login")
         )
 
-    # =====================================================
-    # DEFAULT VALUES
-    #
-    # Prevent variables from being undefined if a
-    # database error occurs.
-    # =====================================================
-
-    conn = None
-
-    applicant = None
-    settings = None
-    today_attendance = None
-    attendance_history = []
-
-    # =====================================================
-    # DATABASE
-    # =====================================================
+    conn = get_db()
 
     try:
-
-        conn = get_db()
 
         with conn.cursor() as cur:
 
@@ -13189,16 +13170,11 @@ def applicant_attendance():
 
                 LIMIT 1
                 """,
-                (
-                    applicant_id,
-                )
+                (applicant_id,)
             )
 
             applicant = cur.fetchone()
 
-            # =================================================
-            # APPLICANT NOT FOUND
-            # =================================================
 
             if not applicant:
 
@@ -13213,15 +13189,12 @@ def applicant_attendance():
                     url_for("applicant_login")
                 )
 
+
             # =================================================
             # APPROVAL CHECK
             # =================================================
 
-            applicant_status = str(
-                applicant["status"] or ""
-            ).strip().lower()
-
-            if applicant_status != "approved":
+            if applicant["status"] != "Approved":
 
                 flash(
                     "Attendance is available only to approved applicants.",
@@ -13232,34 +13205,30 @@ def applicant_attendance():
                     url_for("applicant_portal")
                 )
 
+
             # =================================================
-            # PORTAL ACTIVE CHECK
+            # PORTAL CHECK
             # =================================================
 
-            portal_active = applicant["portal_active"]
-
-            if not portal_active:
+            if not applicant["portal_active"]:
 
                 flash(
                     "Your applicant portal has been disabled.",
                     "error"
                 )
 
-                session.clear()
-
                 return redirect(
                     url_for("applicant_login")
                 )
 
+
             # =================================================
-            # GET ATTENDANCE SETTINGS
+            # GET COMPANY ATTENDANCE SETTINGS
             # =================================================
 
             cur.execute(
                 """
                 SELECT
-                    id,
-
                     attendance_enabled,
 
                     company_latitude,
@@ -13286,14 +13255,9 @@ def applicant_attendance():
 
             settings = cur.fetchone()
 
+
             # =================================================
-            # TODAY'S ATTENDANCE
-            #
-            # IMPORTANT:
-            # Do NOT use CURRENT_DATE because PostgreSQL's
-            # timezone may not be Africa/Lagos.
-            #
-            # We explicitly use Nigeria's date.
+            # GET TODAY'S ATTENDANCE
             # =================================================
 
             cur.execute(
@@ -13326,22 +13290,20 @@ def applicant_attendance():
 
                 WHERE worker_id = %s
 
-                AND attendance_date = %s
+                AND attendance_date = CURRENT_DATE
 
                 ORDER BY id DESC
 
                 LIMIT 1
                 """,
-                (
-                    applicant_id,
-                    nigeria_today
-                )
+                (applicant_id,)
             )
 
             today_attendance = cur.fetchone()
 
+
             # =================================================
-            # ATTENDANCE HISTORY
+            # GET RECENT ATTENDANCE HISTORY
             # =================================================
 
             cur.execute(
@@ -13370,12 +13332,11 @@ def applicant_attendance():
 
                 LIMIT 30
                 """,
-                (
-                    applicant_id,
-                )
+                (applicant_id,)
             )
 
             attendance_history = cur.fetchall()
+
 
     except Exception:
 
@@ -13388,40 +13349,41 @@ def applicant_attendance():
             "error"
         )
 
+        today_attendance = None
+        attendance_history = []
+        settings = None
+
+
     finally:
 
-        if conn is not None:
+        conn.close()
 
-            try:
-                conn.close()
-            except Exception:
-                pass
 
-    # =====================================================
-    # RENDER
-    # =====================================================
+    # =========================================================
+    # RENDER ATTENDANCE PAGE
+    # =========================================================
 
     return render_template(
         "applicant_attendance.html",
 
+        # Applicant information
         application=applicant,
-
         applicant=applicant,
 
+        # IMPORTANT:
+        # Your HTML uses "attendance", so we provide it.
         attendance=today_attendance,
 
+        # Also provide the original variable in case
+        # another part of your template uses it.
         today_attendance=today_attendance,
 
+        # Company attendance settings
         settings=settings,
 
-        attendance_history=attendance_history,
-
-        nigeria_now=nigeria_now,
-
-        nigeria_today=nigeria_today
+        # History
+        attendance_history=attendance_history
     )
-
-
 # =========================================================
 # APPLICANT CLOCK IN
 # =========================================================
