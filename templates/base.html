@@ -21,19 +21,7 @@
         content="AV KING Veterinary Business Suite"
     >
 
-    <meta
-        name="theme-color"
-        content="#073b26"
-    >
-
-    <!-- =====================================================
-         GOOGLE FONT
-         ===================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
 
     <link
         rel="preconnect"
@@ -46,51 +34,34 @@
         rel="stylesheet"
     >
 
-
-    <!-- =====================================================
-         BASE CSS
-         ===================================================== -->
-
     <style>
 
         /* =====================================================
-           GLOBAL VARIABLES
+           ROOT VARIABLES
            ===================================================== */
 
         :root {
 
             --brand-green: #087443;
             --brand-green-dark: #055a34;
-            --brand-green-deep: #073b26;
             --brand-green-light: #eaf7f0;
 
-            --brand-white: #ffffff;
+            --sidebar-bg: #062f20;
+            --sidebar-bg-2: #041f15;
+
+            --white: #ffffff;
 
             --text-dark: #14251d;
             --text: #26362f;
             --muted: #718078;
-            --muted-light: #9aa8a1;
 
             --background: #f5f8f6;
-            --surface: #ffffff;
 
             --border: #e1e9e4;
-            --border-light: #edf2ef;
 
             --danger: #c0392b;
-            --danger-light: #fff2f1;
 
-            --warning: #a56b00;
-            --warning-light: #fff9e9;
-
-            --success: #176438;
-            --success-light: #effaf3;
-
-            --info: #17633f;
-            --info-light: #eef7f3;
-
-            --shadow-xs:
-                0 1px 4px rgba(10, 45, 28, .04);
+            --sidebar-width: 270px;
 
             --shadow-sm:
                 0 2px 10px rgba(10, 45, 28, .05);
@@ -101,13 +72,9 @@
             --shadow-lg:
                 0 20px 50px rgba(10, 45, 28, .12);
 
-            --radius-xs: 6px;
             --radius-sm: 8px;
-            --radius: 12px;
-            --radius-lg: 18px;
-            --radius-xl: 24px;
-
-            --sidebar-width: 270px;
+            --radius: 14px;
+            --radius-lg: 20px;
 
         }
 
@@ -117,31 +84,21 @@
            ===================================================== */
 
         * {
-
             margin: 0;
-
             padding: 0;
-
             box-sizing: border-box;
-
         }
 
 
         html {
-
             width: 100%;
-
-            min-height: 100%;
-
             scroll-behavior: smooth;
-
         }
 
 
         body {
 
             width: 100%;
-
             min-height: 100vh;
 
             font-family:
@@ -150,29 +107,20 @@
                 Helvetica,
                 sans-serif;
 
-            background:
-                var(--background);
+            background: var(--background);
 
-            color:
-                var(--text);
+            color: var(--text);
 
             line-height: 1.6;
 
             overflow-x: hidden;
 
-            -webkit-font-smoothing: antialiased;
-
-            text-rendering: optimizeLegibility;
-
         }
 
 
         a {
-
             color: inherit;
-
             text-decoration: none;
-
         }
 
 
@@ -180,36 +128,13 @@
         input,
         select,
         textarea {
-
             font-family: inherit;
-
-        }
-
-
-        button {
-
-            border: 0;
-
         }
 
 
         img {
-
             max-width: 100%;
-
-            height: auto;
-
-        }
-
-
-        ::selection {
-
-            background:
-                rgba(8,116,67,.16);
-
-            color:
-                var(--text-dark);
-
+            display: block;
         }
 
 
@@ -220,7 +145,6 @@
         .app-shell {
 
             width: 100%;
-
             min-height: 100vh;
 
         }
@@ -235,39 +159,28 @@
             position: fixed;
 
             top: 0;
-
             left: 0;
-
             bottom: 0;
 
-            width:
-                var(--sidebar-width);
+            width: var(--sidebar-width);
 
             background:
                 linear-gradient(
                     180deg,
-                    #073b26 0%,
-                    #052c1d 100%
+                    var(--sidebar-bg) 0%,
+                    var(--sidebar-bg-2) 100%
                 );
 
-            color:
-                #ffffff;
+            color: var(--white);
 
-            display:
-                flex;
-
-            flex-direction:
-                column;
+            display: flex;
+            flex-direction: column;
 
             z-index: 1000;
 
-            border-right:
-                1px solid
-                rgba(255,255,255,.04);
-
             box-shadow:
                 8px 0 30px
-                rgba(3,37,23,.12);
+                rgba(3, 37, 23, .14);
 
         }
 
@@ -278,19 +191,16 @@
 
         .sidebar-brand {
 
-            min-height: 82px;
+            min-height: 88px;
 
             padding:
-                15px 18px;
+                16px 18px;
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            gap:
-                12px;
+            gap: 12px;
 
             border-bottom:
                 1px solid
@@ -299,76 +209,17 @@
         }
 
 
-        /* =====================================================
-           SIDEBAR LOGO WRAPPER
-           ===================================================== */
+        /*
+         * PROFESSIONAL LOGO CONTAINER
+         *
+         * The logo is deliberately given a white background
+         * so that transparent company logos remain visible.
+         */
 
         .sidebar-logo-wrapper {
 
-            width: 48px;
-
-            height: 48px;
-
-            flex-shrink: 0;
-
-            position: relative;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius:
-                12px;
-
-            background:
-                #ffffff;
-
-            overflow:
-                hidden;
-
-            box-shadow:
-                0 5px 15px
-                rgba(0,0,0,.15);
-
-        }
-
-
-        /* =====================================================
-           ACTUAL COMPANY LOGO
-           ===================================================== */
-
-        .sidebar-logo {
-
-            width: 100%;
-
-            height: 100%;
-
-            display: block;
-
-            object-fit: contain;
-
-            padding: 4px;
-
-            background:
-                #ffffff;
-
-            border-radius:
-                12px;
-
-        }
-
-
-        /* =====================================================
-           LOGO FALLBACK
-           ===================================================== */
-
-        .sidebar-logo-placeholder {
-
-            width: 48px;
-
-            height: 48px;
+            width: 52px;
+            height: 52px;
 
             flex-shrink: 0;
 
@@ -378,25 +229,15 @@
 
             justify-content: center;
 
-            border-radius:
-                12px;
+            background: #ffffff;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffffff,
-                    #eaf7f0
-                );
+            border-radius: 12px;
 
-            color:
-                var(--brand-green);
+            overflow: hidden;
 
-            font-size: 15px;
-
-            font-weight: 900;
-
-            letter-spacing:
-                -.5px;
+            border:
+                1px solid
+                rgba(255,255,255,.15);
 
             box-shadow:
                 0 5px 15px
@@ -405,18 +246,48 @@
         }
 
 
-        /* =====================================================
-           SIDEBAR BRAND TEXT
-           ===================================================== */
+        .sidebar-logo {
+
+            width: 100%;
+            height: 100%;
+
+            padding: 5px;
+
+            object-fit: contain;
+
+            background: #ffffff;
+
+        }
+
+
+        .sidebar-logo-placeholder {
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            background: #ffffff;
+
+            color: var(--brand-green);
+
+            font-size: 15px;
+
+            font-weight: 900;
+
+            letter-spacing: -.5px;
+
+        }
+
 
         .sidebar-brand-text {
 
             min-width: 0;
 
             flex: 1;
-
-            overflow:
-                hidden;
 
         }
 
@@ -425,14 +296,13 @@
 
             display: block;
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
             font-size: 13px;
 
             font-weight: 800;
 
-            line-height: 1.3;
+            line-height: 1.25;
 
             white-space: nowrap;
 
@@ -450,26 +320,21 @@
             margin-top: 4px;
 
             color:
-                rgba(255,255,255,.52);
+                rgba(255,255,255,.48);
 
             font-size: 8px;
 
-            font-weight: 600;
+            font-weight: 700;
 
-            letter-spacing:
-                1px;
+            letter-spacing: 1px;
 
-            text-transform:
-                uppercase;
+            text-transform: uppercase;
 
-            white-space:
-                nowrap;
+            white-space: nowrap;
 
-            overflow:
-                hidden;
+            overflow: hidden;
 
-            text-overflow:
-                ellipsis;
+            text-overflow: ellipsis;
 
         }
 
@@ -481,10 +346,10 @@
         .sidebar-user {
 
             margin:
-                17px 14px 9px;
+                18px 14px 12px;
 
             padding:
-                13px;
+                13px 14px;
 
             background:
                 rgba(255,255,255,.055);
@@ -501,60 +366,47 @@
 
         .sidebar-user-label {
 
-            margin-bottom:
-                5px;
+            margin-bottom: 4px;
 
             color:
-                rgba(255,255,255,.40);
+                rgba(255,255,255,.38);
 
-            font-size:
-                8px;
+            font-size: 8px;
 
-            font-weight:
-                800;
+            font-weight: 800;
 
-            letter-spacing:
-                1.1px;
+            letter-spacing: 1px;
 
-            text-transform:
-                uppercase;
+            text-transform: uppercase;
 
         }
 
 
         .sidebar-user-name {
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
-            font-size:
-                12px;
+            font-size: 12px;
 
-            font-weight:
-                700;
+            font-weight: 700;
 
-            white-space:
-                nowrap;
+            white-space: nowrap;
 
-            overflow:
-                hidden;
+            overflow: hidden;
 
-            text-overflow:
-                ellipsis;
+            text-overflow: ellipsis;
 
         }
 
 
         .sidebar-user-role {
 
-            margin-top:
-                3px;
+            margin-top: 3px;
 
             color:
                 rgba(255,255,255,.52);
 
-            font-size:
-                9px;
+            font-size: 9px;
 
         }
 
@@ -567,65 +419,37 @@
 
             flex: 1;
 
-            min-height: 0;
-
             overflow-y: auto;
 
-            overflow-x: hidden;
-
             padding:
-                10px 12px 20px;
+                8px 12px 18px;
 
         }
 
 
         .sidebar-navigation::-webkit-scrollbar {
-
-            width:
-                4px;
-
+            width: 4px;
         }
 
 
         .sidebar-navigation::-webkit-scrollbar-track {
-
-            background:
-                transparent;
-
+            background: transparent;
         }
 
 
         .sidebar-navigation::-webkit-scrollbar-thumb {
 
             background:
-                rgba(255,255,255,.13);
+                rgba(255,255,255,.12);
 
-            border-radius:
-                20px;
-
-        }
-
-
-        .sidebar-navigation {
-
-            scrollbar-width:
-                thin;
-
-            scrollbar-color:
-                rgba(255,255,255,.13)
-                transparent;
+            border-radius: 20px;
 
         }
 
-
-        /* =====================================================
-           SIDEBAR SECTIONS
-           ===================================================== */
 
         .sidebar-section {
 
-            margin-bottom:
-                21px;
+            margin-bottom: 20px;
 
         }
 
@@ -636,70 +460,51 @@
                 0 10px 8px;
 
             color:
-                rgba(255,255,255,.36);
+                rgba(255,255,255,.34);
 
-            font-size:
-                8px;
+            font-size: 8px;
 
-            font-weight:
-                800;
+            font-weight: 800;
 
-            letter-spacing:
-                1.3px;
+            letter-spacing: 1.3px;
 
-            text-transform:
-                uppercase;
+            text-transform: uppercase;
 
         }
 
 
-        /* =====================================================
-           SIDEBAR LINKS
-           ===================================================== */
-
         .sidebar-link {
 
-            position:
-                relative;
+            position: relative;
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            width:
-                100%;
+            width: 100%;
 
-            min-height:
-                44px;
+            min-height: 44px;
 
-            margin-bottom:
-                4px;
+            margin-bottom: 4px;
 
             padding:
                 6px 10px;
 
-            gap:
-                11px;
+            gap: 11px;
 
-            border-radius:
-                10px;
+            border-radius: 10px;
 
             color:
                 rgba(255,255,255,.66);
 
-            font-size:
-                11px;
+            font-size: 12px;
 
-            font-weight:
-                600;
+            font-weight: 600;
 
             transition:
                 background .2s ease,
                 color .2s ease,
-                transform .2s ease,
-                box-shadow .2s ease;
+                transform .2s ease;
 
         }
 
@@ -707,10 +512,9 @@
         .sidebar-link:hover {
 
             background:
-                rgba(255,255,255,.075);
+                rgba(255,255,255,.07);
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
             transform:
                 translateX(2px);
@@ -722,40 +526,32 @@
 
             background:
                 linear-gradient(
-                    135deg,
-                    #087443,
-                    #06653a
+                    90deg,
+                    var(--brand-green),
+                    #096f41
                 );
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
             box-shadow:
                 0 6px 18px
-                rgba(0,0,0,.16);
+                rgba(0,0,0,.15);
 
         }
 
 
         .sidebar-link.active::before {
 
-            content:
-                "";
+            content: "";
 
-            position:
-                absolute;
+            position: absolute;
 
-            left:
-                0;
+            left: 0;
 
-            top:
-                9px;
+            top: 9px;
+            bottom: 9px;
 
-            bottom:
-                9px;
-
-            width:
-                3px;
+            width: 3px;
 
             border-radius:
                 0 5px 5px 0;
@@ -768,47 +564,25 @@
 
         .sidebar-link-icon {
 
-            width:
-                32px;
+            width: 32px;
+            height: 32px;
 
-            height:
-                32px;
+            flex-shrink: 0;
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
+            justify-content: center;
 
-            justify-content:
-                center;
-
-            flex-shrink:
-                0;
-
-            border-radius:
-                8px;
+            border-radius: 8px;
 
             background:
-                rgba(255,255,255,.065);
+                rgba(255,255,255,.06);
 
             color:
                 rgba(255,255,255,.76);
 
-            font-size:
-                14px;
-
-            transition:
-                .2s ease;
-
-        }
-
-
-        .sidebar-link:hover
-        .sidebar-link-icon {
-
-            background:
-                rgba(255,255,255,.10);
+            font-size: 14px;
 
         }
 
@@ -819,20 +593,13 @@
             background:
                 rgba(255,255,255,.14);
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
         }
 
 
         .sidebar-link-text {
-
-            flex:
-                1;
-
-            min-width:
-                0;
-
+            flex: 1;
         }
 
 
@@ -854,32 +621,25 @@
 
         .sidebar-signout {
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            gap:
-                11px;
+            gap: 11px;
 
-            min-height:
-                44px;
+            min-height: 44px;
 
             padding:
                 6px 10px;
 
-            border-radius:
-                10px;
+            border-radius: 10px;
 
             color:
                 #ffb4ad;
 
-            font-size:
-                11px;
+            font-size: 12px;
 
-            font-weight:
-                700;
+            font-weight: 700;
 
             transition:
                 .2s ease;
@@ -892,40 +652,25 @@
             background:
                 rgba(220,38,38,.12);
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
         }
 
 
         .sidebar-signout-icon {
 
-            width:
-                32px;
+            width: 32px;
+            height: 32px;
 
-            height:
-                32px;
+            display: flex;
 
-            display:
-                flex;
+            align-items: center;
+            justify-content: center;
 
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            flex-shrink:
-                0;
-
-            border-radius:
-                8px;
+            border-radius: 8px;
 
             background:
                 rgba(220,38,38,.10);
-
-            font-size:
-                15px;
 
         }
 
@@ -936,39 +681,63 @@
 
         .app-main {
 
-            min-height:
-                100vh;
+            min-height: 100vh;
 
             margin-left:
                 var(--sidebar-width);
 
             width:
                 calc(
-                    100% - var(--sidebar-width)
+                    100% -
+                    var(--sidebar-width)
                 );
 
             padding:
                 25px 30px 45px;
 
-            display:
-                flex;
+            display: flex;
 
-            justify-content:
-                center;
+            justify-content: center;
 
         }
 
 
         .app-content {
 
-            width:
-                100%;
+            width: 100%;
 
-            max-width:
-                1500px;
+            max-width: 1500px;
 
-            margin:
-                0 auto;
+            margin: 0 auto;
+
+        }
+
+
+        /* =====================================================
+           PUBLIC PAGES
+           ===================================================== */
+
+        body.public-page {
+
+            background: #ffffff;
+
+        }
+
+
+        body.public-page .app-main {
+
+            margin-left: 0;
+
+            width: 100%;
+
+            padding: 0;
+
+        }
+
+
+        body.public-page .app-content {
+
+            max-width: none;
 
         }
 
@@ -979,17 +748,15 @@
 
         .app-topbar {
 
-            min-height:
-                62px;
+            min-height: 62px;
 
-            margin-bottom:
-                20px;
+            margin-bottom: 22px;
 
             padding:
-                0 17px;
+                0 18px;
 
             background:
-                var(--surface);
+                #ffffff;
 
             border:
                 1px solid
@@ -998,14 +765,11 @@
             border-radius:
                 12px;
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            justify-content:
-                space-between;
+            justify-content: space-between;
 
             box-shadow:
                 var(--shadow-sm);
@@ -1015,17 +779,11 @@
 
         .topbar-left {
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            gap:
-                9px;
-
-            min-width:
-                0;
+            gap: 9px;
 
         }
 
@@ -1035,14 +793,9 @@
             color:
                 var(--text-dark);
 
-            font-size:
-                12px;
+            font-size: 13px;
 
-            font-weight:
-                800;
-
-            white-space:
-                nowrap;
+            font-weight: 800;
 
         }
 
@@ -1052,9 +805,6 @@
             color:
                 #c7d2cc;
 
-            font-size:
-                12px;
-
         }
 
 
@@ -1063,57 +813,33 @@
             color:
                 var(--muted);
 
-            font-size:
-                10px;
-
-            white-space:
-                nowrap;
-
-            overflow:
-                hidden;
-
-            text-overflow:
-                ellipsis;
+            font-size: 11px;
 
         }
 
 
         .topbar-user {
 
-            display:
-                flex;
+            display: flex;
 
-            align-items:
-                center;
+            align-items: center;
 
-            gap:
-                9px;
-
-            flex-shrink:
-                0;
+            gap: 9px;
 
         }
 
 
         .topbar-avatar {
 
-            width:
-                36px;
+            width: 36px;
+            height: 36px;
 
-            height:
-                36px;
+            display: flex;
 
-            display:
-                flex;
+            align-items: center;
+            justify-content: center;
 
-            align-items:
-                center;
-
-            justify-content:
-                center;
-
-            border-radius:
-                50%;
+            border-radius: 50%;
 
             background:
                 var(--brand-green-light);
@@ -1121,57 +847,37 @@
             color:
                 var(--brand-green);
 
-            font-size:
-                11px;
+            font-size: 11px;
 
-            font-weight:
-                800;
+            font-weight: 800;
 
         }
 
 
         .topbar-user-info strong {
 
-            display:
-                block;
+            display: block;
 
             color:
                 var(--text-dark);
 
-            font-size:
-                10px;
+            font-size: 10px;
 
-            font-weight:
-                800;
-
-            max-width:
-                180px;
-
-            white-space:
-                nowrap;
-
-            overflow:
-                hidden;
-
-            text-overflow:
-                ellipsis;
+            font-weight: 800;
 
         }
 
 
         .topbar-user-info span {
 
-            display:
-                block;
+            display: block;
 
-            margin-top:
-                1px;
+            margin-top: 1px;
 
             color:
                 var(--muted);
 
-            font-size:
-                8px;
+            font-size: 8px;
 
         }
 
@@ -1182,22 +888,17 @@
 
         .flash-container {
 
-            margin-bottom:
-                18px;
+            margin-bottom: 18px;
 
         }
 
 
         .flash-message {
 
-            position:
-                relative;
-
             padding:
                 12px 15px;
 
-            margin-bottom:
-                8px;
+            margin-bottom: 8px;
 
             border:
                 1px solid
@@ -1212,104 +913,53 @@
             color:
                 var(--text);
 
-            font-size:
-                11px;
+            font-size: 12px;
 
-            font-weight:
-                600;
-
-            box-shadow:
-                var(--shadow-xs);
+            font-weight: 600;
 
         }
 
 
         .flash-message.success {
 
-            background:
-                var(--success-light);
+            background: #effaf3;
 
-            border-color:
-                #bfe5cc;
+            border-color: #bfe5cc;
 
-            color:
-                var(--success);
+            color: #176438;
 
         }
 
 
         .flash-message.error {
 
-            background:
-                var(--danger-light);
+            background: #fff2f1;
 
-            border-color:
-                #f2c4c0;
+            border-color: #f2c4c0;
 
-            color:
-                #9f2f27;
+            color: #9f2f27;
 
         }
 
 
         .flash-message.warning {
 
-            background:
-                var(--warning-light);
+            background: #fff9e9;
 
-            border-color:
-                #efdca4;
+            border-color: #efdca4;
 
-            color:
-                #8a6500;
+            color: #8a6500;
 
         }
 
 
         .flash-message.info {
 
-            background:
-                var(--info-light);
+            background: #eef7f3;
 
-            border-color:
-                #c5e1d2;
+            border-color: #c5e1d2;
 
-            color:
-                var(--info);
-
-        }
-
-
-        /* =====================================================
-           PUBLIC PAGES
-           ===================================================== */
-
-        body.public-page {
-
-            background:
-                #ffffff;
-
-        }
-
-
-        body.public-page .app-main {
-
-            margin-left:
-                0;
-
-            width:
-                100%;
-
-            padding:
-                0;
-
-        }
-
-
-        body.public-page .app-content {
-
-            max-width:
-                none;
+            color: #17633f;
 
         }
 
@@ -1320,167 +970,56 @@
 
         .sidebar-mobile-button {
 
-            display:
-                none;
+            display: none;
 
-            position:
-                fixed;
+            position: fixed;
 
-            top:
-                12px;
+            top: 12px;
+            left: 12px;
 
-            left:
-                12px;
+            width: 44px;
+            height: 44px;
 
-            width:
-                44px;
+            border: none;
 
-            height:
-                44px;
-
-            border:
-                none;
-
-            border-radius:
-                10px;
+            border-radius: 10px;
 
             background:
                 var(--brand-green);
 
-            color:
-                #ffffff;
+            color: #ffffff;
 
-            z-index:
-                1200;
+            z-index: 1200;
 
-            align-items:
-                center;
+            align-items: center;
+            justify-content: center;
 
-            justify-content:
-                center;
+            font-size: 18px;
 
-            font-size:
-                18px;
-
-            cursor:
-                pointer;
+            cursor: pointer;
 
             box-shadow:
                 0 7px 20px
                 rgba(8,116,67,.25);
 
-            transition:
-                .2s ease;
-
         }
 
-
-        .sidebar-mobile-button:hover {
-
-            background:
-                var(--brand-green-dark);
-
-            transform:
-                translateY(-1px);
-
-        }
-
-
-        .sidebar-mobile-button:active {
-
-            transform:
-                scale(.96);
-
-        }
-
-
-        /* =====================================================
-           SIDEBAR OVERLAY
-           ===================================================== */
 
         .sidebar-overlay {
 
-            display:
-                none;
+            display: none;
 
-            position:
-                fixed;
+            position: fixed;
 
-            inset:
-                0;
+            inset: 0;
 
             background:
-                rgba(4,35,22,.50);
+                rgba(4,35,22,.52);
 
             backdrop-filter:
                 blur(2px);
 
-            -webkit-backdrop-filter:
-                blur(2px);
-
-            z-index:
-                900;
-
-        }
-
-
-        /* =====================================================
-           FOCUS ACCESSIBILITY
-           ===================================================== */
-
-        .sidebar-link:focus-visible,
-        .sidebar-signout:focus-visible,
-        .sidebar-mobile-button:focus-visible {
-
-            outline:
-                2px solid
-                rgba(255,255,255,.75);
-
-            outline-offset:
-                2px;
-
-        }
-
-
-        /* =====================================================
-           TABLET
-           ===================================================== */
-
-        @media (max-width: 1100px) {
-
-            :root {
-
-                --sidebar-width:
-                    245px;
-
-            }
-
-
-            .app-main {
-
-                padding:
-                    22px 20px 40px;
-
-            }
-
-
-            .sidebar-brand {
-
-                padding-left:
-                    15px;
-
-                padding-right:
-                    15px;
-
-            }
-
-
-            .sidebar-brand-text strong {
-
-                font-size:
-                    12px;
-
-            }
+            z-index: 900;
 
         }
 
@@ -1493,21 +1032,13 @@
 
             .app-sidebar {
 
-                width:
-                    280px;
-
-                max-width:
-                    86vw;
+                width: 280px;
 
                 transform:
                     translateX(-100%);
 
                 transition:
                     transform .25s ease;
-
-                box-shadow:
-                    15px 0 40px
-                    rgba(0,0,0,.20);
 
             }
 
@@ -1522,27 +1053,23 @@
 
             .sidebar-mobile-button {
 
-                display:
-                    flex;
+                display: flex;
 
             }
 
 
             .sidebar-overlay.mobile-open {
 
-                display:
-                    block;
+                display: block;
 
             }
 
 
             .app-main {
 
-                width:
-                    100%;
+                width: 100%;
 
-                margin-left:
-                    0;
+                margin-left: 0;
 
                 padding:
                     68px 14px 30px;
@@ -1552,104 +1079,34 @@
 
             body.public-page .app-main {
 
-                padding:
-                    0;
+                padding: 0;
 
             }
 
 
             .app-topbar {
 
-                display:
-                    none;
-
-            }
-
-
-            .flash-container {
-
-                margin-top:
-                    0;
+                display: none;
 
             }
 
         }
 
 
-        /* =====================================================
-           SMALL MOBILE
-           ===================================================== */
-
         @media (max-width: 480px) {
 
             .app-main {
 
-                padding-left:
-                    10px;
-
-                padding-right:
-                    10px;
+                padding-left: 10px;
+                padding-right: 10px;
 
             }
 
 
             .sidebar-mobile-button {
 
-                top:
-                    10px;
-
-                left:
-                    10px;
-
-                width:
-                    42px;
-
-                height:
-                    42px;
-
-            }
-
-
-            .sidebar-brand {
-
-                min-height:
-                    76px;
-
-            }
-
-
-            .sidebar-logo-wrapper,
-            .sidebar-logo-placeholder {
-
-                width:
-                    44px;
-
-                height:
-                    44px;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           REDUCED MOTION
-           ===================================================== */
-
-        @media (prefers-reduced-motion: reduce) {
-
-            html {
-
-                scroll-behavior:
-                    auto;
-
-            }
-
-
-            * {
-
-                transition:
-                    none !important;
+                top: 10px;
+                left: 10px;
 
             }
 
@@ -1663,19 +1120,8 @@
 </head>
 
 
-<!-- =========================================================
-     BODY
-     ========================================================= -->
-
 <body
-    class="
-        {% if session.get('admin_logged_in')
-              or session.get('applicant_logged_in') %}
-            authenticated-page
-        {% else %}
-            public-page
-        {% endif %}
-    "
+    class="{% if session.get('admin_logged_in') or session.get('applicant_logged_in') %}authenticated-page{% else %}public-page{% endif %}"
 >
 
 
@@ -1690,9 +1136,7 @@
           or session.get("applicant_logged_in") %}
 
 
-        <!-- =================================================
-             MOBILE MENU BUTTON
-             ================================================= -->
+        <!-- MOBILE MENU BUTTON -->
 
         <button
             type="button"
@@ -1706,14 +1150,9 @@
         </button>
 
 
-        <!-- =================================================
-             MOBILE OVERLAY
-             ================================================= -->
-
         <div
             class="sidebar-overlay"
             id="sidebarOverlay"
-            aria-hidden="true"
         ></div>
 
 
@@ -1724,7 +1163,6 @@
         <aside
             class="app-sidebar"
             id="appSidebar"
-            aria-label="Main navigation"
         >
 
 
@@ -1735,39 +1173,34 @@
             <div class="sidebar-brand">
 
 
-                {% set sidebar_logo = none %}
+                <div class="sidebar-logo-wrapper">
 
 
-                {# -------------------------------------------------
-                   Prefer the logo from company settings.
-                   ------------------------------------------------- #}
+                    {#
+                        IMPORTANT:
 
-                {% if settings is defined
-                      and settings
-                      and settings.logo %}
+                        We check both possible variables.
+
+                        1. company_logo
+                        2. settings.logo
+
+                        This allows the logo to continue working
+                        regardless of which variable your route
+                        provides.
+                    #}
+
 
                     {% set sidebar_logo =
-                        settings.logo
+                        company_logo
+                        or (
+                            settings.logo
+                            if settings and settings.logo
+                            else none
+                        )
                     %}
 
 
-                {# -------------------------------------------------
-                   Fallback for routes that provide company_logo.
-                   ------------------------------------------------- #}
-
-                {% elif company_logo is defined
-                      and company_logo %}
-
-                    {% set sidebar_logo =
-                        company_logo %}
-
-                {% endif %}
-
-
-                {% if sidebar_logo %}
-
-
-                    <div class="sidebar-logo-wrapper">
+                    {% if sidebar_logo %}
 
                         <img
                             src="{{ url_for(
@@ -1775,47 +1208,34 @@
                                 filename='uploads/' ~ sidebar_logo
                             ) }}"
                             class="sidebar-logo"
-                            alt="{{ company_name or 'AV KING Veterinary Business Suite' }} Logo"
-                            loading="eager"
-                            onerror="
-                                this.style.display='none';
-                                this.parentElement
-                                    .querySelector('.sidebar-logo-fallback')
-                                    .style.display='flex';
-                            "
+                            alt="{{ company_name or 'Company' }} logo"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         >
 
 
-                        <!-- Image loading fallback -->
+                        <!-- FALLBACK IF IMAGE CANNOT LOAD -->
 
                         <div
-                            class="sidebar-logo-placeholder sidebar-logo-fallback"
+                            class="sidebar-logo-placeholder"
                             style="display:none;"
                         >
                             AV
                         </div>
 
-                    </div>
+
+                    {% else %}
+
+                        <!-- DEFAULT LOGO -->
+
+                        <div class="sidebar-logo-placeholder">
+                            AV
+                        </div>
+
+                    {% endif %}
 
 
-                {% else %}
+                </div>
 
-
-                    <!-- No logo has been uploaded -->
-
-                    <div class="sidebar-logo-placeholder">
-
-                        AV
-
-                    </div>
-
-
-                {% endif %}
-
-
-                <!-- =================================================
-                     COMPANY NAME
-                     ================================================= -->
 
                 <div class="sidebar-brand-text">
 
@@ -1846,40 +1266,35 @@
 
                 {% if session.get("admin_logged_in") %}
 
-
                     <div class="sidebar-user-name">
 
-                        {{ session.get("admin_name")
-                           or session.get("admin_username")
-                           or "Administrator" }}
+                        {{
+                            session.get("admin_name")
+                            or session.get("admin_username")
+                            or "Administrator"
+                        }}
 
                     </div>
 
-
                     <div class="sidebar-user-role">
-
                         Administrator
-
                     </div>
 
 
                 {% elif session.get("applicant_logged_in") %}
 
-
                     <div class="sidebar-user-name">
 
-                        {{ session.get("applicant_name")
-                           or "Applicant" }}
+                        {{
+                            session.get("applicant_name")
+                            or "Applicant"
+                        }}
 
                     </div>
-
 
                     <div class="sidebar-user-role">
-
                         Applicant Portal
-
                     </div>
-
 
                 {% endif %}
 
@@ -1890,7 +1305,10 @@
                  NAVIGATION
                  ================================================= -->
 
-            <nav class="sidebar-navigation">
+            <nav
+                class="sidebar-navigation"
+                aria-label="Main navigation"
+            >
 
 
                 <!-- =================================================
@@ -1900,9 +1318,7 @@
                 {% if session.get("admin_logged_in") %}
 
 
-                    <!-- =================================================
-                         OVERVIEW
-                         ================================================= -->
+                    <!-- OVERVIEW -->
 
                     <div class="sidebar-section">
 
@@ -1932,9 +1348,7 @@
                     </div>
 
 
-                    <!-- =================================================
-                         RECRUITMENT
-                         ================================================= -->
+                    <!-- RECRUITMENT -->
 
                     <div class="sidebar-section">
 
@@ -2002,9 +1416,7 @@
                     </div>
 
 
-                    <!-- =================================================
-                         ADMINISTRATION
-                         ================================================= -->
+                    <!-- ADMINISTRATION -->
 
                     <div class="sidebar-section">
 
@@ -2087,7 +1499,6 @@
 
                 {% if session.get("admin_logged_in") %}
 
-
                     <a
                         href="{{ url_for('admin_logout') }}"
                         class="sidebar-signout"
@@ -2106,7 +1517,6 @@
 
                 {% elif session.get("applicant_logged_in") %}
 
-
                     <a
                         href="{{ url_for('applicant_logout') }}"
                         class="sidebar-signout"
@@ -2122,7 +1532,6 @@
 
                     </a>
 
-
                 {% endif %}
 
 
@@ -2136,7 +1545,7 @@
 
 
     <!-- =========================================================
-         MAIN APPLICATION CONTENT
+         MAIN CONTENT
          ========================================================= -->
 
     <main class="app-main">
@@ -2145,7 +1554,7 @@
 
 
             <!-- =================================================
-                 AUTHENTICATED TOP BAR
+                 TOP BAR
                  ================================================= -->
 
             {% if session.get("admin_logged_in")
@@ -2155,10 +1564,7 @@
                 <div class="app-topbar">
 
 
-                    <!-- LEFT -->
-
                     <div class="topbar-left">
-
 
                         <div class="topbar-title">
 
@@ -2184,9 +1590,11 @@
 
                             {% if request.endpoint %}
 
-                                {{ request.endpoint
-                                   |replace("_", " ")
-                                   |title }}
+                                {{
+                                    request.endpoint
+                                    |replace("_", " ")
+                                    |title
+                                }}
 
                             {% else %}
 
@@ -2196,20 +1604,15 @@
 
                         </div>
 
-
                     </div>
 
-
-                    <!-- RIGHT -->
 
                     <div class="topbar-user">
 
 
                         <div class="topbar-avatar">
 
-
                             {% if session.get("admin_logged_in") %}
-
 
                                 {{
                                     (
@@ -2219,9 +1622,7 @@
                                     )[0]|upper
                                 }}
 
-
                             {% else %}
-
 
                                 {{
                                     (
@@ -2230,56 +1631,48 @@
                                     )[0]|upper
                                 }}
 
-
                             {% endif %}
-
 
                         </div>
 
 
                         <div class="topbar-user-info">
 
-
                             <strong>
-
 
                                 {% if session.get("admin_logged_in") %}
 
-                                    {{ session.get("admin_name")
-                                       or session.get("admin_username")
-                                       or "Administrator" }}
-
+                                    {{
+                                        session.get("admin_name")
+                                        or session.get("admin_username")
+                                        or "Administrator"
+                                    }}
 
                                 {% else %}
 
-                                    {{ session.get("applicant_name")
-                                       or "Applicant" }}
-
+                                    {{
+                                        session.get("applicant_name")
+                                        or "Applicant"
+                                    }}
 
                                 {% endif %}
-
 
                             </strong>
 
 
                             <span>
 
-
                                 {% if session.get("admin_logged_in") %}
 
                                     Administrator
-
 
                                 {% else %}
 
                                     Applicant
 
-
                                 {% endif %}
 
-
                             </span>
-
 
                         </div>
 
@@ -2306,28 +1699,21 @@
 
                 {% if messages %}
 
-
                     <div class="flash-container">
-
 
                         {% for category, message in messages %}
 
-
                             <div
                                 class="flash-message {{ category }}"
-                                role="alert"
                             >
 
                                 {{ message }}
 
                             </div>
 
-
                         {% endfor %}
 
-
                     </div>
-
 
                 {% endif %}
 
@@ -2351,7 +1737,7 @@
 
 
 <!-- =========================================================
-     MOBILE SIDEBAR JAVASCRIPT
+     SIDEBAR JAVASCRIPT
      ========================================================= -->
 
 <script>
@@ -2379,10 +1765,6 @@
         );
 
 
-    /* =====================================================
-       OPEN SIDEBAR
-       ===================================================== */
-
     function openSidebar() {
 
         if (!sidebar) {
@@ -2401,11 +1783,6 @@
                 "mobile-open"
             );
 
-            overlay.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
         }
 
 
@@ -2416,23 +1793,10 @@
                 "true"
             );
 
-            button.setAttribute(
-                "aria-label",
-                "Close navigation"
-            );
-
         }
-
-
-        document.body.style.overflow =
-            "hidden";
 
     }
 
-
-    /* =====================================================
-       CLOSE SIDEBAR
-       ===================================================== */
 
     function closeSidebar() {
 
@@ -2452,11 +1816,6 @@
                 "mobile-open"
             );
 
-            overlay.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-
         }
 
 
@@ -2467,23 +1826,10 @@
                 "false"
             );
 
-            button.setAttribute(
-                "aria-label",
-                "Open navigation"
-            );
-
         }
-
-
-        document.body.style.overflow =
-            "";
 
     }
 
-
-    /* =====================================================
-       TOGGLE SIDEBAR
-       ===================================================== */
 
     function toggleSidebar() {
 
@@ -2509,10 +1855,6 @@
     }
 
 
-    /* =====================================================
-       MOBILE BUTTON
-       ===================================================== */
-
     if (button) {
 
         button.addEventListener(
@@ -2523,10 +1865,6 @@
     }
 
 
-    /* =====================================================
-       OVERLAY
-       ===================================================== */
-
     if (overlay) {
 
         overlay.addEventListener(
@@ -2536,10 +1874,6 @@
 
     }
 
-
-    /* =====================================================
-       CLOSE AFTER NAVIGATION
-       ===================================================== */
 
     document
         .querySelectorAll(
@@ -2565,10 +1899,6 @@
         });
 
 
-    /* =====================================================
-       ESCAPE KEY
-       ===================================================== */
-
     document.addEventListener(
         "keydown",
         function (event) {
@@ -2584,10 +1914,6 @@
         }
     );
 
-
-    /* =====================================================
-       RESET WHEN RESIZING TO DESKTOP
-       ===================================================== */
 
     window.addEventListener(
         "resize",
@@ -2605,32 +1931,14 @@
     );
 
 
-    /* =====================================================
-       PREVENT SIDEBAR FROM REMAINING OPEN AFTER PAGE LOAD
-       ===================================================== */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
-
-            closeSidebar();
-
-        }
-    );
-
-
 })();
 
 </script>
 
 
-<!-- =========================================================
-     PAGE-SPECIFIC JAVASCRIPT
-     ========================================================= -->
-
 {% block scripts %}{% endblock %}
-
 
 </body>
 
 </html>
+
