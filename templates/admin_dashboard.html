@@ -1,810 +1,2074 @@
 {% extends "base.html" %}
 
-{% block title %}
-Admin Dashboard | {{ company_name }}
-{% endblock %}
-
-
 {% block content %}
 
-<div class="admin-layout">
+<style>
+
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
+
+:root {
+    --admin-primary: #0f172a;
+    --admin-primary-2: #111827;
+    --admin-accent: #16a34a;
+    --admin-accent-dark: #15803d;
+
+    --admin-bg: #f4f7fb;
+    --admin-card: #ffffff;
+
+    --admin-text: #0f172a;
+    --admin-muted: #64748b;
+    --admin-border: #e2e8f0;
+
+    --sidebar-width: 250px;
+    --header-height: 72px;
+}
 
 
-    <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+/* =========================================================
+   PAGE
+========================================================= */
 
-    <aside class="admin-sidebar">
+.admin-dashboard-page {
 
-        <div class="sidebar-brand">
+    min-height: calc(100vh - 80px);
 
-            <div class="sidebar-logo">
-                AV
-            </div>
+    background: var(--admin-bg);
 
-            <div>
+    color: var(--admin-text);
 
-                <strong>
-                    AV KING
-                </strong>
-
-                <small>
-                    RECRUITMENT
-                </small>
-
-            </div>
-
-        </div>
+}
 
 
-        <nav class="admin-nav">
+/* =========================================================
+   DASHBOARD LAYOUT
+========================================================= */
 
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="active"
-            >
-                <span>▣</span>
-                Dashboard
-            </a>
+.admin-dashboard-layout {
 
+    display: flex;
 
-            <a href="{{ url_for('admin_applications') }}">
+    min-height: calc(100vh - 80px);
 
-                <span>☷</span>
-
-                Applications
-
-            </a>
-<a href="{{ url_for('admin_positions') }}">
-    Manage Positions
-</a>
-
-            <a href="{{ url_for('admin_interviews') }}">
-    <span>◷</span>
-    Interviews
-            </a>
-
-            <a href="{{ url_for('admin_attendance') }}">
-    Attendance
-</a>
-            <a href="{{ url_for('admin_monthly_attendance') }}">
-   Montly Attendance
-</a>
-            <a href="{{ url_for('admin_reports') }}">
-        <span>▤</span>
-        Reports
-            </a>
-
-            <div class="nav-divider"></div>
+}
 
 
-            <a href="{{ url_for('admin_settings') }}">
-    <span>⚙</span>
-    Settings
-            </a>
+/* =========================================================
+   SIDEBAR
+========================================================= */
 
-        </nav>
+.admin-sidebar {
+
+    width: var(--sidebar-width);
+
+    flex-shrink: 0;
+
+    background: #071a13;
+
+    color: #ffffff;
+
+    display: flex;
+
+    flex-direction: column;
+
+    position: sticky;
+
+    top: 0;
+
+    height: calc(100vh - 80px);
+
+    overflow-y: auto;
+
+}
+
+
+/* =========================================================
+   SIDEBAR BRAND
+========================================================= */
+
+.admin-sidebar-brand {
+
+    padding: 25px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+}
+
+
+.admin-sidebar-logo {
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 11px;
+
+    background: #16a34a;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    flex-shrink: 0;
+
+}
+
+
+.admin-sidebar-logo img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+
+    background: #ffffff;
+
+    padding: 4px;
+
+}
+
+
+.admin-sidebar-logo-placeholder {
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+    color: #052e16;
+
+}
+
+
+.admin-sidebar-company {
+
+    min-width: 0;
+
+}
+
+
+.admin-sidebar-company strong {
+
+    display: block;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.admin-sidebar-company span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #86efac;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.admin-nav {
+
+    padding: 20px 12px;
+
+    flex: 1;
+
+}
+
+
+.admin-nav-section-title {
+
+    padding: 0 12px;
+
+    margin: 8px 0 10px;
+
+    color: #64748b;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+
+    text-transform: uppercase;
+
+}
+
+
+.admin-nav a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    min-height: 43px;
+
+    padding: 0 13px;
+
+    margin-bottom: 5px;
+
+    border-radius: 9px;
+
+    color: #94a3b8;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    transition: .2s ease;
+
+}
+
+
+.admin-nav a:hover {
+
+    background: rgba(255,255,255,.06);
+
+    color: #ffffff;
+
+}
+
+
+.admin-nav a.active {
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.12);
+
+}
+
+
+.admin-nav-icon {
+
+    width: 21px;
+
+    height: 21px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 13px;
+
+    flex-shrink: 0;
+
+}
+
+
+.admin-nav a.active .admin-nav-icon {
+
+    color: #16a34a;
+
+}
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+========================================================= */
+
+.admin-sidebar-footer {
+
+    padding: 15px 12px;
+
+    border-top: 1px solid rgba(255,255,255,.08);
+
+}
+
+
+.admin-sidebar-footer a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 11px 13px;
+
+    border-radius: 9px;
+
+    color: #fca5a5;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+}
+
+
+.admin-sidebar-footer a:hover {
+
+    background: rgba(239,68,68,.10);
+
+}
+
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.admin-main {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.admin-topbar {
+
+    height: var(--header-height);
+
+    background: #ffffff;
+
+    border-bottom: 1px solid var(--admin-border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 30px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 10;
+
+}
+
+
+.admin-topbar-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+
+.admin-mobile-menu {
+
+    display: none;
+
+    width: 38px;
+
+    height: 38px;
+
+    border: 1px solid var(--admin-border);
+
+    background: #ffffff;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+}
+
+
+.admin-topbar-title {
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    color: var(--admin-text);
+
+}
+
+
+.admin-topbar-subtitle {
+
+    color: var(--admin-muted);
+
+    font-size: 11px;
+
+}
+
+
+.admin-profile {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+
+.admin-avatar {
+
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 50%;
+
+    background: #0f172a;
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+}
+
+
+.admin-profile-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.admin-profile-name {
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    color: #0f172a;
+
+}
+
+
+.admin-profile-role {
+
+    margin-top: 2px;
+
+    font-size: 10px;
+
+    color: #94a3b8;
+
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.admin-content {
+
+    padding: 32px;
+
+    max-width: 1500px;
+
+}
+
+
+/* =========================================================
+   PAGE HEADING
+========================================================= */
+
+.admin-page-heading {
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 28px;
+
+}
+
+
+.admin-heading-label {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: #15803d;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 8px;
+
+}
+
+
+.admin-heading-label::before {
+
+    content: "";
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #16a34a;
+
+}
+
+
+.admin-page-heading h1 {
+
+    margin: 0;
+
+    font-size: 32px;
+
+    line-height: 1.15;
+
+    font-weight: 900;
+
+    letter-spacing: -.8px;
+
+    color: #0f172a;
+
+}
+
+
+.admin-page-heading p {
+
+    margin: 8px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   PRIMARY ACTION
+========================================================= */
+
+.admin-primary-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 43px;
+
+    padding: 0 17px;
+
+    border-radius: 9px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    box-shadow: 0 5px 15px rgba(37,99,235,.18);
+
+    transition: .2s ease;
+
+}
+
+
+.admin-primary-button:hover {
+
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   STATISTICS GRID
+========================================================= */
+
+.admin-stats-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 28px;
+
+}
+
+
+.admin-stat-card {
+
+    background: #ffffff;
+
+    border: 1px solid var(--admin-border);
+
+    border-radius: 14px;
+
+    padding: 21px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    box-shadow:
+        0 3px 12px rgba(15,23,42,.025);
+
+    transition: .2s ease;
+
+}
+
+
+.admin-stat-card:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 25px rgba(15,23,42,.07);
+
+}
+
+
+.admin-stat-left {
+
+    min-width: 0;
+
+}
+
+
+.admin-stat-label {
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+}
+
+
+.admin-stat-value {
+
+    margin-top: 6px;
+
+    color: #0f172a;
+
+    font-size: 28px;
+
+    line-height: 1;
+
+    font-weight: 900;
+
+}
+
+
+.admin-stat-description {
+
+    margin-top: 8px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+}
+
+
+.admin-stat-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    color: #0f172a;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    flex-shrink: 0;
+
+}
+
+
+.admin-stat-card.pending .admin-stat-icon {
+
+    background: #fff7ed;
+
+    color: #c2410c;
+
+}
+
+
+.admin-stat-card.review .admin-stat-icon {
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+}
+
+
+.admin-stat-card.shortlisted .admin-stat-icon {
+
+    background: #f0fdf4;
+
+    color: #15803d;
+
+}
+
+
+.admin-stat-card.approved .admin-stat-icon {
+
+    background: #ecfdf5;
+
+    color: #059669;
+
+}
+
+
+.admin-stat-card.rejected .admin-stat-icon {
+
+    background: #fef2f2;
+
+    color: #dc2626;
+
+}
+
+
+/* =========================================================
+   LOWER GRID
+========================================================= */
+
+.admin-dashboard-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.6fr)
+        minmax(280px, .8fr);
+
+    gap: 20px;
+
+}
+
+
+/* =========================================================
+   DASHBOARD PANEL
+========================================================= */
+
+.admin-panel {
+
+    background: #ffffff;
+
+    border: 1px solid var(--admin-border);
+
+    border-radius: 15px;
+
+    overflow: hidden;
+
+}
+
+
+.admin-panel-header {
+
+    padding: 18px 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid #eef2f7;
+
+}
+
+
+.admin-panel-title {
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    color: #0f172a;
+
+}
+
+
+.admin-panel-subtitle {
+
+    margin-top: 3px;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+}
+
+
+.admin-panel-link {
+
+    color: #2563eb;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    text-decoration: none;
+
+}
+
+
+.admin-panel-link:hover {
+
+    text-decoration: underline;
+
+}
+
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.admin-quick-actions {
+
+    padding: 18px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+}
+
+
+.admin-action {
+
+    min-height: 88px;
+
+    padding: 14px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 11px;
+
+    text-decoration: none;
+
+    background: #ffffff;
+
+    transition: .2s ease;
+
+}
+
+
+.admin-action:hover {
+
+    border-color: #cbd5e1;
+
+    background: #f8fafc;
+
+    transform: translateY(-1px);
+
+}
+
+
+.admin-action-icon {
+
+    width: 30px;
+
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: #f1f5f9;
+
+    color: #0f172a;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    margin-bottom: 9px;
+
+}
+
+
+.admin-action strong {
+
+    display: block;
+
+    color: #0f172a;
+
+    font-size: 11px;
+
+}
+
+
+.admin-action span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+
+}
+
+
+/* =========================================================
+   APPLICATION STATUS
+========================================================= */
+
+.admin-status-list {
+
+    padding: 8px 20px 18px;
+
+}
+
+
+.admin-status-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #f1f5f9;
+
+}
+
+
+.admin-status-row:last-child {
+
+    border-bottom: 0;
+
+}
+
+
+.admin-status-name {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    color: #475569;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+}
+
+
+.admin-status-dot {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #94a3b8;
+
+}
+
+
+.admin-status-number {
+
+    color: #0f172a;
+
+    font-size: 13px;
+
+    font-weight: 900;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .admin-stats-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+
+    .admin-dashboard-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+
+@media (max-width: 800px) {
+
+    .admin-sidebar {
+
+        position: fixed;
+
+        left: -270px;
+
+        top: 0;
+
+        height: 100vh;
+
+        z-index: 100;
+
+        transition: .25s ease;
+
+        box-shadow: 15px 0 35px rgba(0,0,0,.12);
+
+    }
+
+
+    .admin-sidebar.open {
+
+        left: 0;
+
+    }
+
+
+    .admin-mobile-menu {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+    }
+
+
+    .admin-topbar {
+
+        padding: 0 18px;
+
+    }
+
+
+    .admin-content {
+
+        padding: 24px 18px;
+
+    }
+
+
+    .admin-page-heading {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .admin-stats-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .admin-content {
+
+        padding: 20px 14px;
+
+    }
+
+
+    .admin-page-heading h1 {
+
+        font-size: 27px;
+
+    }
+
+
+    .admin-profile-info {
+
+        display: none;
+
+    }
+
+
+    .admin-topbar-title {
+
+        display: none;
+
+    }
+
+
+    .admin-quick-actions {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
+
+
+<div class="admin-dashboard-page">
+
+    <div class="admin-dashboard-layout">
 
 
         <!-- =================================================
-             ADMIN USER
-             ================================================= -->
+             SIDEBAR
+        ================================================== -->
 
-        <div class="sidebar-bottom">
+        <aside class="admin-sidebar" id="adminSidebar">
 
-            <div class="admin-user">
 
-                <div class="user-avatar">
+            <!-- BRAND -->
 
-                    {{ session.get(
-                        "admin_name",
-                        "A"
-                    )[0]|upper }}
+            <div class="admin-sidebar-brand">
+
+                <div class="admin-sidebar-logo">
+
+                    {% if settings and settings.logo %}
+
+                        <img
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/' ~ settings.logo
+                            ) }}"
+                            alt="Company Logo"
+                        >
+
+                    {% else %}
+
+                        <span class="admin-sidebar-logo-placeholder">
+                            AV
+                        </span>
+
+                    {% endif %}
 
                 </div>
 
 
-                <div>
+                <div class="admin-sidebar-company">
 
                     <strong>
-
-                        {{ session.get(
-                            "admin_name",
-                            "Administrator"
-                        ) }}
-
+                        {{ settings.company_name
+                           if settings and settings.company_name
+                           else "AV KING" }}
                     </strong>
 
-
-                    <small>
-                        Administrator
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <a
-                href="{{ url_for('admin_logout') }}"
-                class="logout-link"
-            >
-
-                Sign Out
-
-            </a>
-
-        </div>
-
-    </aside>
-
-
-
-    <!-- =====================================================
-         MAIN CONTENT
-         ===================================================== -->
-
-    <main class="admin-main">
-
-
-        <!-- =================================================
-             TOP BAR
-             ================================================= -->
-
-        <div class="admin-topbar">
-
-            <div>
-
-                <span class="page-label">
-
-                    RECRUITMENT MANAGEMENT
-
-                </span>
-
-
-                <h1>
-                    Dashboard
-                </h1>
-
-
-                <p>
-
-                    Overview of your recruitment
-                    applications.
-
-                </p>
-
-            </div>
-
-
-            <a
-                href="{{ url_for('apply') }}"
-                target="_blank"
-                class="btn btn-primary"
-            >
-
-                View Application Portal
-
-            </a>
-
-        </div>
-
-
-
-        <!-- =================================================
-             STATISTICS
-             ================================================= -->
-
-        <div class="stats-grid">
-
-
-            <!-- TOTAL -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    #
-                </div>
-
-
-                <div>
-
                     <span>
-                        Total Applications
+                        RECRUITMENT MANAGEMENT
                     </span>
 
-
-                    <strong>
-                        {{ total }}
-                    </strong>
-
                 </div>
 
             </div>
 
 
+            <!-- NAVIGATION -->
 
-            <!-- PENDING -->
+            <nav class="admin-nav">
 
-            <div class="stat-card">
 
-                <div class="stat-icon">
-                    P
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Pending
-                    </span>
-
-
-                    <strong>
-                        {{ pending }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- UNDER REVIEW -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    R
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Under Review
-                    </span>
-
-
-                    <strong>
-                        {{ under_review }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- SHORTLISTED -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    S
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Shortlisted
-                    </span>
-
-
-                    <strong>
-                        {{ shortlisted }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- APPROVED -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    A
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Approved
-                    </span>
-
-
-                    <strong>
-                        {{ approved }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- REJECTED -->
-
-            <div class="stat-card">
-
-                <div class="stat-icon">
-                    R
-                </div>
-
-
-                <div>
-
-                    <span>
-                        Rejected
-                    </span>
-
-
-                    <strong>
-                        {{ rejected }}
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             RECENT APPLICATIONS
-             ================================================= -->
-
-        <section class="admin-panel">
-
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <span>
-                        APPLICATION ACTIVITY
-                    </span>
-
-
-                    <h2>
-                        Recent Applications
-                    </h2>
-
+                <div class="admin-nav-section-title">
+                    Main Menu
                 </div>
 
 
                 <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="panel-link"
+                    href="{{ url_for('admin_dashboard') }}"
+                    class="active"
                 >
 
-                    View All
+                    <span class="admin-nav-icon">
+                        ▣
+                    </span>
+
+                    Dashboard
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▤
+                    </span>
+
+                    Applications
+
+                </a>
+
+
+                {% if 'admin_positions' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_positions') }}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ◈
+                        </span>
+
+                        Manage Positions
+
+                    </a>
+
+                {% endif %}
+
+
+                {% if 'admin_interviews' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_interviews') }}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ◷
+                        </span>
+
+                        Interviews
+
+                    </a>
+
+                {% endif %}
+
+
+                {% if 'admin_attendance' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_attendance') }}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ◉
+                        </span>
+
+                        Attendance
+
+                    </a>
+
+                {% endif %}
+
+
+                {% if 'admin_monthly_attendance' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_monthly_attendance') }}"
+                    >
+
+                        <span class="admin-nav-icon">
+                            ▦
+                        </span>
+
+                        Monthly Attendance
+
+                    </a>
+
+                {% endif %}
+
+
+                <a
+                    href="{{ url_for('admin_reports') }}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ▤
+                    </span>
+
+                    Reports
+
+                </a>
+
+
+                <div class="admin-nav-section-title">
+                    System
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin_settings') }}"
+                >
+
+                    <span class="admin-nav-icon">
+                        ⚙
+                    </span>
+
+                    Settings
+
+                </a>
+
+
+            </nav>
+
+
+            <!-- SIGN OUT -->
+
+            <div class="admin-sidebar-footer">
+
+                <a
+                    href="{{ url_for('admin_logout') }}"
+                >
+
+                    <span>
+                        ↪
+                    </span>
+
+                    Sign Out
 
                 </a>
 
             </div>
 
+        </aside>
+
+
+        <!-- =================================================
+             MAIN
+        ================================================== -->
+
+        <main class="admin-main">
 
 
             <!-- =================================================
-                 APPLICATION TABLE
-                 ================================================= -->
+                 TOP BAR
+            ================================================== -->
 
-            {% if recent_applications %}
+            <header class="admin-topbar">
 
 
-                <div class="table-wrapper">
+                <div class="admin-topbar-left">
 
-
-                    <table class="admin-table">
-
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Application
-                                </th>
-
-
-                                <th>
-                                    Applicant
-                                </th>
-
-
-                                <th>
-                                    Position
-                                </th>
-
-
-                                <th>
-                                    Status
-                                </th>
-
-
-                                <th>
-                                    Submitted
-                                </th>
-
-
-                            </tr>
-
-                        </thead>
-
-
-
-                        <tbody>
-
-
-                            {% for application in recent_applications %}
-
-
-                                <tr>
-
-
-                                    <!-- APPLICATION NUMBER -->
-
-                                    <td>
-
-                                        <strong>
-
-                                            {{ application.application_number }}
-
-                                        </strong>
-
-                                    </td>
-
-
-
-                                    <!-- APPLICANT -->
-
-                                    <td>
-
-                                        {{ application.first_name }}
-
-
-                                        {% if application.middle_name %}
-
-                                            {{ application.middle_name }}
-
-                                        {% endif %}
-
-
-                                        {{ application.last_name }}
-
-                                    </td>
-
-
-
-                                    <!-- POSITION -->
-
-                                    <td>
-
-                                        {{ application.position_applied }}
-
-                                    </td>
-
-
-
-                                    <!-- STATUS -->
-
-                                    <td>
-
-                                        <span
-                                            class="status status-{{ application.status|lower|replace(' ', '-') }}"
-                                        >
-
-                                            {{ application.status }}
-
-                                        </span>
-
-                                    </td>
-
-
-
-                                    <!-- DATE -->
-
-                                    <td>
-
-                                        {% if application.submitted_at %}
-
-                                            {{ application.submitted_at.strftime(
-                                                "%d %b %Y"
-                                            ) }}
-
-                                        {% else %}
-
-                                            —
-
-                                        {% endif %}
-
-                                    </td>
-
-
-                                </tr>
-
-
-                            {% endfor %}
-
-
-                        </tbody>
-
-
-                    </table>
-
-
-                </div>
-
-
-            {% else %}
-
-
-                <!-- =================================================
-                     EMPTY STATE
-                     ================================================= -->
-
-                <div class="empty-state">
+                    <button
+                        type="button"
+                        class="admin-mobile-menu"
+                        onclick="toggleAdminSidebar()"
+                        aria-label="Open menu"
+                    >
+                        ☰
+                    </button>
 
 
                     <div>
-                        —
+
+                        <div class="admin-topbar-title">
+                            Administrator Portal
+                        </div>
+
+                        <div class="admin-topbar-subtitle">
+                            Recruitment Management System
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-profile">
+
+                    <div class="admin-avatar">
+
+                        {{
+                            (
+                                session.get(
+                                    "admin_name",
+                                    session.get(
+                                        "admin_username",
+                                        "A"
+                                    )
+                                )[:1]
+                            )|upper
+                        }}
+
                     </div>
 
 
-                    <h3>
+                    <div class="admin-profile-info">
 
-                        No applications yet
+                        <span class="admin-profile-name">
 
-                    </h3>
+                            {{
+                                session.get(
+                                    "admin_name",
+                                    session.get(
+                                        "admin_username",
+                                        "Administrator"
+                                    )
+                                )
+                            }}
+
+                        </span>
 
 
-                    <p>
+                        <span class="admin-profile-role">
+                            Administrator
+                        </span>
 
-                        Submitted applications will
-                        appear here.
+                    </div>
 
-                    </p>
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 CONTENT
+            ================================================== -->
+
+            <div class="admin-content">
+
+
+                <!-- PAGE HEADING -->
+
+                <div class="admin-page-heading">
+
+                    <div>
+
+                        <div class="admin-heading-label">
+                            Recruitment Management
+                        </div>
+
+                        <h1>
+                            Dashboard
+                        </h1>
+
+                        <p>
+                            Overview of your recruitment applications
+                            and workforce activities.
+                        </p>
+
+                    </div>
+
+
+                    <a
+                        href="{{ url_for('apply') }}"
+                        class="admin-primary-button"
+                    >
+
+                        <span>
+                            +
+                        </span>
+
+                        View Application Portal
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     STATISTICS
+                ================================================== -->
+
+                <div class="admin-stats-grid">
+
+
+                    <!-- TOTAL -->
+
+                    <div class="admin-stat-card">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Total Applications
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ total_applications|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                All submitted applications
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            #
+                        </div>
+
+                    </div>
+
+
+                    <!-- PENDING -->
+
+                    <div class="admin-stat-card pending">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Pending
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ pending_applications|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                Awaiting processing
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            P
+                        </div>
+
+                    </div>
+
+
+                    <!-- REVIEW -->
+
+                    <div class="admin-stat-card review">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Under Review
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ under_review|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                Currently being reviewed
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            R
+                        </div>
+
+                    </div>
+
+
+                    <!-- SHORTLISTED -->
+
+                    <div class="admin-stat-card shortlisted">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Shortlisted
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ shortlisted|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                Selected for next stage
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            S
+                        </div>
+
+                    </div>
+
+
+                    <!-- APPROVED -->
+
+                    <div class="admin-stat-card approved">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Approved
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ approved|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                Successful applications
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            A
+                        </div>
+
+                    </div>
+
+
+                    <!-- REJECTED -->
+
+                    <div class="admin-stat-card rejected">
+
+                        <div class="admin-stat-left">
+
+                            <div class="admin-stat-label">
+                                Rejected
+                            </div>
+
+                            <div class="admin-stat-value">
+                                {{ rejected|default(0) }}
+                            </div>
+
+                            <div class="admin-stat-description">
+                                Unsuccessful applications
+                            </div>
+
+                        </div>
+
+                        <div class="admin-stat-icon">
+                            R
+                        </div>
+
+                    </div>
 
 
                 </div>
 
 
-            {% endif %}
+                <!-- =================================================
+                     LOWER DASHBOARD
+                ================================================== -->
+
+                <div class="admin-dashboard-grid">
 
 
-        </section>
+                    <!-- APPLICATION STATUS -->
+
+                    <section class="admin-panel">
+
+                        <div class="admin-panel-header">
+
+                            <div>
+
+                                <div class="admin-panel-title">
+                                    Application Overview
+                                </div>
+
+                                <div class="admin-panel-subtitle">
+                                    Current recruitment pipeline
+                                </div>
+
+                            </div>
 
 
+                            <a
+                                href="{{ url_for('admin_applications') }}"
+                                class="admin-panel-link"
+                            >
+                                View All
+                            </a>
 
-        <!-- =================================================
-             QUICK ACTIONS
-             ================================================= -->
-
-        <section class="admin-panel">
-
-
-            <div class="panel-heading">
-
-                <div>
-
-                    <span>
-                        MANAGEMENT
-                    </span>
+                        </div>
 
 
-                    <h2>
-                        Quick Actions
-                    </h2>
+                        <div class="admin-status-list">
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span class="admin-status-dot"></span>
+
+                                    Total Applications
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ total_applications|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span
+                                        class="admin-status-dot"
+                                        style="background:#f59e0b;"
+                                    ></span>
+
+                                    Pending
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ pending_applications|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span
+                                        class="admin-status-dot"
+                                        style="background:#2563eb;"
+                                    ></span>
+
+                                    Under Review
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ under_review|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span
+                                        class="admin-status-dot"
+                                        style="background:#16a34a;"
+                                    ></span>
+
+                                    Shortlisted
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ shortlisted|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span
+                                        class="admin-status-dot"
+                                        style="background:#059669;"
+                                    ></span>
+
+                                    Approved
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ approved|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="admin-status-row">
+
+                                <div class="admin-status-name">
+
+                                    <span
+                                        class="admin-status-dot"
+                                        style="background:#dc2626;"
+                                    ></span>
+
+                                    Rejected
+
+                                </div>
+
+                                <span class="admin-status-number">
+                                    {{ rejected|default(0) }}
+                                </span>
+
+                            </div>
+
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- QUICK ACTIONS -->
+
+                    <section class="admin-panel">
+
+                        <div class="admin-panel-header">
+
+                            <div>
+
+                                <div class="admin-panel-title">
+                                    Quick Actions
+                                </div>
+
+                                <div class="admin-panel-subtitle">
+                                    Frequently used tools
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="admin-quick-actions">
+
+
+                            <a
+                                href="{{ url_for('admin_applications') }}"
+                                class="admin-action"
+                            >
+
+                                <div class="admin-action-icon">
+                                    ▤
+                                </div>
+
+                                <strong>
+                                    Applications
+                                </strong>
+
+                                <span>
+                                    Review applicants
+                                </span>
+
+                            </a>
+
+
+                            <a
+                                href="{{ url_for('admin_settings') }}"
+                                class="admin-action"
+                            >
+
+                                <div class="admin-action-icon">
+                                    ⚙
+                                </div>
+
+                                <strong>
+                                    Settings
+                                </strong>
+
+                                <span>
+                                    Company configuration
+                                </span>
+
+                            </a>
+
+
+                            {% if 'admin_interviews' in current_app.view_functions %}
+
+                                <a
+                                    href="{{ url_for('admin_interviews') }}"
+                                    class="admin-action"
+                                >
+
+                                    <div class="admin-action-icon">
+                                        ◷
+                                    </div>
+
+                                    <strong>
+                                        Interviews
+                                    </strong>
+
+                                    <span>
+                                        Manage interviews
+                                    </span>
+
+                                </a>
+
+                            {% endif %}
+
+
+                            <a
+                                href="{{ url_for('admin_reports') }}"
+                                class="admin-action"
+                            >
+
+                                <div class="admin-action-icon">
+                                    ▥
+                                </div>
+
+                                <strong>
+                                    Reports
+                                </strong>
+
+                                <span>
+                                    View recruitment reports
+                                </span>
+
+                            </a>
+
+
+                        </div>
+
+                    </section>
+
 
                 </div>
 
-            </div>
-
-
-
-            <div
-                style="
-                    display:grid;
-                    grid-template-columns:
-                        repeat(
-                            auto-fit,
-                            minmax(220px, 1fr)
-                        );
-                    gap:16px;
-                "
-            >
-
-
-                <!-- APPLICATIONS -->
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    style="
-                        text-decoration:none;
-                        padding:20px;
-                        border:1px solid #e5e7eb;
-                        border-radius:12px;
-                        background:#ffffff;
-                        display:block;
-                    "
-                >
-
-                    <strong
-                        style="
-                            display:block;
-                            color:#111827;
-                            margin-bottom:6px;
-                        "
-                    >
-
-                        Manage Applications
-
-                    </strong>
-
-
-                    <span
-                        style="
-                            color:#6b7280;
-                            font-size:14px;
-                        "
-                    >
-
-                        Review, shortlist and update
-                        applicant status.
-
-                    </span>
-
-                </a>
-
-
-
-                <!-- APPLICATION PORTAL -->
-
-                <a
-                    href="{{ url_for('apply') }}"
-                    target="_blank"
-                    style="
-                        text-decoration:none;
-                        padding:20px;
-                        border:1px solid #e5e7eb;
-                        border-radius:12px;
-                        background:#ffffff;
-                        display:block;
-                    "
-                >
-
-                    <strong
-                        style="
-                            display:block;
-                            color:#111827;
-                            margin-bottom:6px;
-                        "
-                    >
-
-                        Application Portal
-
-                    </strong>
-
-
-                    <span
-                        style="
-                            color:#6b7280;
-                            font-size:14px;
-                        "
-                    >
-
-                        Open the public worker
-                        application form.
-
-                    </span>
-
-                </a>
-
-
-
-                <!-- INTERVIEWS -->
-
-                <a
-                    href="#"
-                    style="
-                        text-decoration:none;
-                        padding:20px;
-                        border:1px solid #e5e7eb;
-                        border-radius:12px;
-                        background:#ffffff;
-                        display:block;
-                    "
-                >
-
-                    <strong
-                        style="
-                            display:block;
-                            color:#111827;
-                            margin-bottom:6px;
-                        "
-                    >
-
-                        Interview Management
-
-                    </strong>
-
-
-                    <span
-                        style="
-                            color:#6b7280;
-                            font-size:14px;
-                        "
-                    >
-
-                        Manage shortlisted applicant
-                        interviews.
-
-                    </span>
-
-                </a>
-
-
-
-                <!-- REPORTS -->
-
-                <a
-                    href="#"
-                    style="
-                        text-decoration:none;
-                        padding:20px;
-                        border:1px solid #e5e7eb;
-                        border-radius:12px;
-                        background:#ffffff;
-                        display:block;
-                    "
-                >
-
-                    <strong
-                        style="
-                            display:block;
-                            color:#111827;
-                            margin-bottom:6px;
-                        "
-                    >
-
-                        Recruitment Reports
-
-                    </strong>
-
-
-                    <span
-                        style="
-                            color:#6b7280;
-                            font-size:14px;
-                        "
-                    >
-
-                        View recruitment statistics
-                        and reports.
-
-                    </span>
-
-                </a>
-
 
             </div>
 
+        </main>
 
-        </section>
-
-
-    </main>
-
+    </div>
 
 </div>
 
+
+<script>
+
+function toggleAdminSidebar() {
+
+    const sidebar =
+        document.getElementById(
+            "adminSidebar"
+        );
+
+    if (!sidebar) {
+        return;
+    }
+
+    sidebar.classList.toggle("open");
+
+}
+
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        const sidebar =
+            document.getElementById(
+                "adminSidebar"
+            );
+
+        const button =
+            document.querySelector(
+                ".admin-mobile-menu"
+            );
+
+        if (
+            window.innerWidth <= 800 &&
+            sidebar &&
+            sidebar.classList.contains("open") &&
+            !sidebar.contains(event.target) &&
+            !button.contains(event.target)
+        ) {
+
+            sidebar.classList.remove("open");
+
+        }
+
+    }
+);
+
+</script>
 
 {% endblock %}
