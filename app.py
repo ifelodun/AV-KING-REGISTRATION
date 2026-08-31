@@ -10139,20 +10139,21 @@ def admin_settings():
                     ).strip()
                 )
 
+
+                if application_status not in (
+                    "Open",
+                    "Closed"
+                ):
+
+                    application_status = "Open"
+
+
                 application_deadline = (
                     request.form.get(
                         "application_deadline",
                         ""
                     ).strip()
                 )
-
-
-                if application_status not in [
-                    "Open",
-                    "Closed"
-                ]:
-
-                    application_status = "Open"
 
 
                 if not application_deadline:
@@ -10192,27 +10193,17 @@ def admin_settings():
 
                 try:
 
-                    if latitude_raw:
+                    company_latitude = (
+                        float(latitude_raw)
+                        if latitude_raw
+                        else None
+                    )
 
-                        company_latitude = float(
-                            latitude_raw
-                        )
-
-                    else:
-
-                        company_latitude = None
-
-
-                    if longitude_raw:
-
-                        company_longitude = float(
-                            longitude_raw
-                        )
-
-                    else:
-
-                        company_longitude = None
-
+                    company_longitude = (
+                        float(longitude_raw)
+                        if longitude_raw
+                        else None
+                    )
 
                 except (
                     ValueError,
@@ -10225,9 +10216,7 @@ def admin_settings():
                     )
 
                     return redirect(
-                        url_for(
-                            "admin_settings"
-                        )
+                        url_for("admin_settings")
                     )
 
 
@@ -10249,9 +10238,7 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for(
-                                "admin_settings"
-                            )
+                            url_for("admin_settings")
                         )
 
 
@@ -10273,9 +10260,7 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for(
-                                "admin_settings"
-                            )
+                            url_for("admin_settings")
                         )
 
 
@@ -10302,16 +10287,7 @@ def admin_settings():
                     TypeError
                 ):
 
-                    flash(
-                        "Attendance radius must be a valid number.",
-                        "error"
-                    )
-
-                    return redirect(
-                        url_for(
-                            "admin_settings"
-                        )
-                    )
+                    attendance_radius = 100
 
 
                 if attendance_radius < 20:
@@ -10358,7 +10334,7 @@ def admin_settings():
 
 
                 # =================================================
-                # TIME VALIDATION
+                # VALIDATE WORKING HOURS
                 # =================================================
 
                 try:
@@ -10383,7 +10359,10 @@ def admin_settings():
                         "%H:%M"
                     )
 
-                except ValueError:
+                except (
+                    ValueError,
+                    TypeError
+                ):
 
                     flash(
                         "Please provide valid attendance times.",
@@ -10391,9 +10370,7 @@ def admin_settings():
                     )
 
                     return redirect(
-                        url_for(
-                            "admin_settings"
-                        )
+                        url_for("admin_settings")
                     )
 
 
@@ -10497,9 +10474,7 @@ def admin_settings():
                     )
 
                     return redirect(
-                        url_for(
-                            "admin_settings"
-                        )
+                        url_for("admin_settings")
                     )
 
 
@@ -10520,9 +10495,7 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for(
-                                "admin_settings"
-                            )
+                            url_for("admin_settings")
                         )
 
 
@@ -10537,9 +10510,7 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for(
-                                "admin_settings"
-                            )
+                            url_for("admin_settings")
                         )
 
 
@@ -10551,10 +10522,10 @@ def admin_settings():
 
 
                 # =================================================
-                # LOGO
+                # CLOUDINARY LOGO
                 # =================================================
 
-                logo_filename = None
+                logo_url = None
 
                 logo_file = request.files.get(
                     "logo"
@@ -10566,16 +10537,33 @@ def admin_settings():
                     and logo_file.filename
                 ):
 
-                    original_filename = (
-                        secure_filename(
-                            logo_file.filename
-                        )
+                    # -------------------------------------------------
+                    # Validate extension
+                    # -------------------------------------------------
+
+                    original_filename = secure_filename(
+                        logo_file.filename
                     )
 
 
-                    # =================================================
-                    # ALLOWED LOGO EXTENSIONS
-                    # =================================================
+                    if "." not in original_filename:
+
+                        flash(
+                            "Invalid logo file.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    extension = (
+                        original_filename
+                        .rsplit(".", 1)[1]
+                        .lower()
+                    )
+
 
                     allowed_extensions = {
                         "png",
@@ -10585,37 +10573,7 @@ def admin_settings():
                     }
 
 
-                    if (
-                        "."
-                        not in original_filename
-                    ):
-
-                        flash(
-                            "Invalid logo file.",
-                            "error"
-                        )
-
-                        return redirect(
-                            url_for(
-                                "admin_settings"
-                            )
-                        )
-
-
-                    extension = (
-                        original_filename
-                        .rsplit(
-                            ".",
-                            1
-                        )[1]
-                        .lower()
-                    )
-
-
-                    if (
-                        extension
-                        not in allowed_extensions
-                    ):
+                    if extension not in allowed_extensions:
 
                         flash(
                             "Invalid logo format. "
@@ -10624,91 +10582,107 @@ def admin_settings():
                         )
 
                         return redirect(
-                            url_for(
-                                "admin_settings"
+                            url_for("admin_settings")
+                        )
+
+
+                    # -------------------------------------------------
+                    # Check Cloudinary configuration
+                    # -------------------------------------------------
+
+                    cloud_name = os.environ.get(
+                        "CLOUDINARY_CLOUD_NAME"
+                    )
+
+                    api_key = os.environ.get(
+                        "CLOUDINARY_API_KEY"
+                    )
+
+                    api_secret = os.environ.get(
+                        "CLOUDINARY_API_SECRET"
+                    )
+
+
+                    if not all([
+                        cloud_name,
+                        api_key,
+                        api_secret
+                    ]):
+
+                        app.logger.error(
+                            "Cloudinary environment variables are missing."
+                        )
+
+                        flash(
+                            "Cloudinary is not configured correctly. "
+                            "Please check the Render environment variables.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
+
+
+                    # -------------------------------------------------
+                    # Upload to Cloudinary
+                    # -------------------------------------------------
+
+                    try:
+
+                        upload_result = (
+                            cloudinary.uploader.upload(
+                                logo_file,
+                                folder="avking/company",
+                                public_id="company_logo",
+                                overwrite=True,
+                                resource_type="image",
+                                transformation=[
+                                    {
+                                        "width": 1000,
+                                        "height": 1000,
+                                        "crop": "limit",
+                                        "quality": "auto"
+                                    }
+                                ]
                             )
                         )
 
 
-                    # =================================================
-                    # UPLOAD DIRECTORY
-                    # =================================================
-
-                    upload_folder = os.path.join(
-                        app.root_path,
-                        "static",
-                        "uploads"
-                    )
-
-
-                    os.makedirs(
-                        upload_folder,
-                        exist_ok=True
-                    )
-
-
-                    # =================================================
-                    # UNIQUE FILE NAME
-                    # =================================================
-
-                    logo_filename = (
-                        "company_logo_"
-                        + uuid.uuid4().hex
-                        + "."
-                        + extension
-                    )
-
-
-                    logo_path = os.path.join(
-                        upload_folder,
-                        logo_filename
-                    )
-
-
-                    # =================================================
-                    # SAVE LOGO
-                    # =================================================
-
-                    logo_file.save(
-                        logo_path
-                    )
-
-
-                    # =================================================
-                    # DELETE OLD LOGO
-                    # =================================================
-
-                    if existing_settings:
-
-                        old_logo = (
-                            existing_settings["logo"]
+                        logo_url = (
+                            upload_result.get(
+                                "secure_url"
+                            )
                         )
 
 
-                        if old_logo:
+                        if not logo_url:
 
-                            old_logo_path = os.path.join(
-                                upload_folder,
-                                old_logo
+                            raise RuntimeError(
+                                "Cloudinary did not return a secure URL."
                             )
 
 
-                            try:
+                        app.logger.info(
+                            "Company logo uploaded successfully to Cloudinary."
+                        )
 
-                                if os.path.exists(
-                                    old_logo_path
-                                ):
 
-                                    os.remove(
-                                        old_logo_path
-                                    )
+                    except Exception:
 
-                            except Exception:
+                        app.logger.exception(
+                            "Cloudinary logo upload failed."
+                        )
 
-                                app.logger.warning(
-                                    "Could not delete old company logo.",
-                                    exc_info=True
-                                )
+                        flash(
+                            "Unable to upload company logo. "
+                            "Please try again.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for("admin_settings")
+                        )
 
 
                 # =================================================
@@ -10798,7 +10772,7 @@ def admin_settings():
                             application_status,
                             application_deadline,
 
-                            logo_filename,
+                            logo_url,
 
                             admin_username,
                             admin_password_hash,
@@ -10834,14 +10808,15 @@ def admin_settings():
 
 
                     # =================================================
-                    # UPDATE COMPANY + ATTENDANCE SETTINGS
+                    # UPDATE WITH NEW LOGO
                     # =================================================
 
-                    if logo_filename:
+                    if logo_url:
 
                         cur.execute(
                             """
                             UPDATE company_settings
+
                             SET
 
                                 company_name = %s,
@@ -10887,7 +10862,7 @@ def admin_settings():
                                 application_status,
                                 application_deadline,
 
-                                logo_filename,
+                                logo_url,
 
                                 admin_username,
 
@@ -10912,11 +10887,16 @@ def admin_settings():
                         )
 
 
+                    # =================================================
+                    # UPDATE WITHOUT CHANGING LOGO
+                    # =================================================
+
                     else:
 
                         cur.execute(
                             """
                             UPDATE company_settings
+
                             SET
 
                                 company_name = %s,
@@ -11047,7 +11027,10 @@ def admin_settings():
 
     except Exception:
 
-        conn.rollback()
+        try:
+            conn.rollback()
+        except Exception:
+            pass
 
         app.logger.exception(
             "Error updating company settings"
