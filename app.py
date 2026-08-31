@@ -974,6 +974,8 @@ def apply():
 
     conn = get_db()
 
+    uploaded_cloudinary_public_ids = []
+
     try:
 
         with conn.cursor() as cur:
@@ -1073,7 +1075,7 @@ def apply():
 
 
             # ==================================================
-            # GENERATE APPLICATION NUMBER FIRST
+            # GENERATE APPLICATION NUMBER
             # ==================================================
 
             application_number = (
@@ -1097,7 +1099,7 @@ def apply():
 
 
             # ==================================================
-            # INITIALIZE FILE NAMES
+            # INITIALIZE CLOUDINARY URL VARIABLES
             # ==================================================
 
             passport_filename = None
@@ -1106,100 +1108,248 @@ def apply():
 
 
             # ==================================================
-            # ENSURE UPLOAD DIRECTORY EXISTS
+            # VERIFY CLOUDINARY CONFIGURATION
             # ==================================================
 
-            os.makedirs(
-                app.config["UPLOAD_FOLDER"],
-                exist_ok=True
+            cloudinary_cloud_name = os.getenv(
+                "CLOUDINARY_CLOUD_NAME"
+            )
+
+            cloudinary_api_key = os.getenv(
+                "CLOUDINARY_API_KEY"
+            )
+
+            cloudinary_api_secret = os.getenv(
+                "CLOUDINARY_API_SECRET"
             )
 
 
+            if not cloudinary_cloud_name:
+
+                raise RuntimeError(
+                    "CLOUDINARY_CLOUD_NAME is not configured."
+                )
+
+
+            if not cloudinary_api_key:
+
+                raise RuntimeError(
+                    "CLOUDINARY_API_KEY is not configured."
+                )
+
+
+            if not cloudinary_api_secret:
+
+                raise RuntimeError(
+                    "CLOUDINARY_API_SECRET is not configured."
+                )
+
+
             # ==================================================
-            # SAVE PASSPORT
+            # UPLOAD PASSPORT TO CLOUDINARY
             # ==================================================
 
             if passport and passport.filename:
 
-                original = secure_filename(
-                    passport.filename
-                )
+                try:
 
-                passport_filename = (
-                    f"{application_number}_passport_{original}"
-                )
+                    passport_result = (
+                        cloudinary.uploader.upload(
+                            passport,
+                            folder="av_king/applicants/passports",
+                            public_id=(
+                                f"{application_number}_passport"
+                            ),
+                            resource_type="image",
+                            overwrite=False
+                        )
+                    )
 
-                passport_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    passport_filename
-                )
 
-                passport.save(
-                    passport_path
-                )
+                    passport_filename = (
+                        passport_result.get(
+                            "secure_url"
+                        )
+                    )
 
-                app.logger.info(
-                    "PASSPORT SAVED: %s",
-                    passport_path
-                )
+
+                    passport_public_id = (
+                        passport_result.get(
+                            "public_id"
+                        )
+                    )
+
+
+                    if passport_public_id:
+
+                        uploaded_cloudinary_public_ids.append(
+                            (
+                                passport_public_id,
+                                "image"
+                            )
+                        )
+
+
+                    if not passport_filename:
+
+                        raise RuntimeError(
+                            "Cloudinary did not return a passport URL."
+                        )
+
+
+                    app.logger.info(
+                        "PASSPORT UPLOADED TO CLOUDINARY: %s",
+                        passport_filename
+                    )
+
+
+                except Exception:
+
+                    app.logger.exception(
+                        "Error uploading applicant passport to Cloudinary"
+                    )
+
+                    raise RuntimeError(
+                        "Unable to upload passport photograph. Please try again."
+                    )
 
 
             # ==================================================
-            # SAVE CV
+            # UPLOAD CV TO CLOUDINARY
             # ==================================================
 
             if cv and cv.filename:
 
-                original = secure_filename(
-                    cv.filename
-                )
+                try:
 
-                cv_filename = (
-                    f"{application_number}_cv_{original}"
-                )
+                    cv_result = (
+                        cloudinary.uploader.upload(
+                            cv,
+                            folder="av_king/applicants/cvs",
+                            public_id=(
+                                f"{application_number}_cv"
+                            ),
+                            resource_type="raw",
+                            overwrite=False
+                        )
+                    )
 
-                cv_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    cv_filename
-                )
 
-                cv.save(
-                    cv_path
-                )
+                    cv_filename = (
+                        cv_result.get(
+                            "secure_url"
+                        )
+                    )
 
-                app.logger.info(
-                    "CV SAVED: %s",
-                    cv_path
-                )
+
+                    cv_public_id = (
+                        cv_result.get(
+                            "public_id"
+                        )
+                    )
+
+
+                    if cv_public_id:
+
+                        uploaded_cloudinary_public_ids.append(
+                            (
+                                cv_public_id,
+                                "raw"
+                            )
+                        )
+
+
+                    if not cv_filename:
+
+                        raise RuntimeError(
+                            "Cloudinary did not return a CV URL."
+                        )
+
+
+                    app.logger.info(
+                        "CV UPLOADED TO CLOUDINARY: %s",
+                        cv_filename
+                    )
+
+
+                except Exception:
+
+                    app.logger.exception(
+                        "Error uploading applicant CV to Cloudinary"
+                    )
+
+                    raise RuntimeError(
+                        "Unable to upload CV. Please try again."
+                    )
 
 
             # ==================================================
-            # SAVE QUALIFICATION
+            # UPLOAD QUALIFICATION TO CLOUDINARY
             # ==================================================
 
             if qualification and qualification.filename:
 
-                original = secure_filename(
-                    qualification.filename
-                )
+                try:
 
-                qualification_filename = (
-                    f"{application_number}_qualification_{original}"
-                )
+                    qualification_result = (
+                        cloudinary.uploader.upload(
+                            qualification,
+                            folder="av_king/applicants/qualifications",
+                            public_id=(
+                                f"{application_number}_qualification"
+                            ),
+                            resource_type="raw",
+                            overwrite=False
+                        )
+                    )
 
-                qualification_path = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    qualification_filename
-                )
 
-                qualification.save(
-                    qualification_path
-                )
+                    qualification_filename = (
+                        qualification_result.get(
+                            "secure_url"
+                        )
+                    )
 
-                app.logger.info(
-                    "QUALIFICATION SAVED: %s",
-                    qualification_path
-                )
+
+                    qualification_public_id = (
+                        qualification_result.get(
+                            "public_id"
+                        )
+                    )
+
+
+                    if qualification_public_id:
+
+                        uploaded_cloudinary_public_ids.append(
+                            (
+                                qualification_public_id,
+                                "raw"
+                            )
+                        )
+
+
+                    if not qualification_filename:
+
+                        raise RuntimeError(
+                            "Cloudinary did not return a qualification URL."
+                        )
+
+
+                    app.logger.info(
+                        "QUALIFICATION UPLOADED TO CLOUDINARY: %s",
+                        qualification_filename
+                    )
+
+
+                except Exception:
+
+                    app.logger.exception(
+                        "Error uploading qualification to Cloudinary"
+                    )
+
+                    raise RuntimeError(
+                        "Unable to upload qualification document. Please try again."
+                    )
 
 
             # ==================================================
@@ -1338,11 +1488,12 @@ def apply():
                 )
             )
 
+
             application = cur.fetchone()
 
 
         # ====================================================
-        # COMMIT
+        # COMMIT DATABASE TRANSACTION
         # ====================================================
 
         conn.commit()
@@ -1362,7 +1513,44 @@ def apply():
             "Error submitting application"
         )
 
-        raise
+
+        # ====================================================
+        # CLEAN UP CLOUDINARY FILES IF DATABASE INSERT FAILS
+        # ====================================================
+
+        for public_id, resource_type in (
+            uploaded_cloudinary_public_ids
+        ):
+
+            try:
+
+                cloudinary.uploader.destroy(
+                    public_id,
+                    resource_type=resource_type
+                )
+
+                app.logger.info(
+                    "Removed Cloudinary upload after failed application: %s",
+                    public_id
+                )
+
+            except Exception:
+
+                app.logger.exception(
+                    "Unable to clean up Cloudinary file: %s",
+                    public_id
+                )
+
+
+        flash(
+            "We could not submit your application at this time. Please try again.",
+            "error"
+        )
+
+
+        return render_template(
+            "apply.html"
+        ), 500
 
 
     finally:
