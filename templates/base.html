@@ -1,1154 +1,1282 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <meta
-        name="description"
-        content="{{ company_name or 'AV KING VETERINARY BUSINESS SUITE' }}"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        {% block title %}
-            {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}
-        {% endblock %}
-    </title>
+<meta
+    name="description"
+    content="{{ company_name or 'AV KING VETERINARY BUSINESS SUITE' }}"
+>
 
-    <style>
-
-        /* =========================================================
-           RESET
-           ========================================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-
-            background: #f5f7f6;
-            color: #14213d;
-            line-height: 1.6;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button,
-        input,
-        textarea,
-        select {
-            font: inherit;
-        }
-
-        img {
-            max-width: 100%;
-        }
+<title>
+    {% block title %}
+        {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}
+    {% endblock %}
+</title>
 
 
-        /* =========================================================
-           VARIABLES
-           ========================================================= */
+<style>
 
-        :root {
+    /* =========================================================
+       RESET
+       ========================================================= */
 
-            --brand-green: #087443;
-            --brand-green-dark: #065a35;
-            --brand-green-light: #eaf6ef;
+    *,
+    *::before,
+    *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-            --accent: #d4a017;
+    html {
+        scroll-behavior: smooth;
+    }
 
-            --text-dark: #14213d;
-            --text: #344054;
-            --muted: #667085;
+    body {
+        font-family:
+            Inter,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Arial,
+            sans-serif;
 
-            --white: #ffffff;
+        background: #f5f7f6;
+        color: #14213d;
+        line-height: 1.6;
+    }
 
-            --background: #f5f7f6;
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
 
-            --border: #e3e9e5;
+    button,
+    input,
+    textarea,
+    select {
+        font: inherit;
+    }
 
-            --danger: #c0392b;
-
-            --warning: #b7791f;
-
-            --sidebar-width: 250px;
-
-            --radius: 13px;
-
-            --shadow-sm:
-                0 4px 18px rgba(16, 24, 40, 0.055);
-
-            --shadow:
-                0 12px 35px rgba(16, 24, 40, 0.08);
-        }
-
-
-        /* =========================================================
-           APP SHELL
-           ========================================================= */
-
-        .app-shell {
-            min-height: 100vh;
-        }
+    img {
+        max-width: 100%;
+    }
 
 
-        /* =========================================================
-           SIDEBAR
-           ========================================================= */
+    /* =========================================================
+       VARIABLES
+       ========================================================= */
+
+    :root {
+
+        --brand-green: #087443;
+        --brand-green-dark: #065a35;
+        --brand-green-light: #eaf6ef;
+
+        --accent: #d4a017;
+
+        --text-dark: #14213d;
+        --text: #344054;
+        --muted: #667085;
+
+        --white: #ffffff;
+
+        --background: #f5f7f6;
+
+        --border: #e3e9e5;
+
+        --danger: #c0392b;
+
+        --warning: #b7791f;
+
+        --sidebar-width: 250px;
+
+        --radius: 13px;
+
+        --shadow-sm:
+            0 4px 18px rgba(16, 24, 40, 0.055);
+
+        --shadow:
+            0 12px 35px rgba(16, 24, 40, 0.08);
+    }
+
+
+    /* =========================================================
+       APP SHELL
+       ========================================================= */
+
+    .app-shell {
+        min-height: 100vh;
+    }
+
+
+    /* =========================================================
+       SIDEBAR
+       ========================================================= */
+
+    .admin-sidebar {
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        bottom: 0;
+
+        width: var(--sidebar-width);
+
+        background: #ffffff;
+
+        border-right: 1px solid var(--border);
+
+        z-index: 1100;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow-y: auto;
+
+        transition: transform .25s ease;
+
+        scrollbar-width: thin;
+    }
+
+
+    .admin-sidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .admin-sidebar::-webkit-scrollbar-thumb {
+        background: #d7e1db;
+        border-radius: 10px;
+    }
+
+
+    /* =========================================================
+       SIDEBAR BRAND
+       ========================================================= */
+
+    .sidebar-brand {
+
+        min-height: 76px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 11px;
+
+        padding: 14px 18px;
+
+        border-bottom: 1px solid var(--border);
+
+        flex-shrink: 0;
+    }
+
+
+    .sidebar-logo {
+
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+
+        border-radius: 10px;
+
+        object-fit: contain;
+
+        border: 1px solid var(--border);
+
+        background: #ffffff;
+    }
+
+
+    .sidebar-logo-placeholder {
+
+        width: 42px;
+        height: 42px;
+
+        min-width: 42px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        background: var(--brand-green);
+
+        color: #ffffff;
+
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+
+    .sidebar-brand-text {
+
+        min-width: 0;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    .sidebar-company {
+
+        color: var(--text-dark);
+
+        font-size: 12px;
+
+        font-weight: 850;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+
+    .sidebar-subtitle {
+
+        margin-top: 2px;
+
+        color: var(--brand-green);
+
+        font-size: 8px;
+
+        font-weight: 800;
+
+        letter-spacing: .8px;
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       SIDEBAR CONTENT
+       ========================================================= */
+
+    .sidebar-content {
+
+        flex: 1;
+
+        padding: 18px 12px;
+
+        overflow-y: auto;
+    }
+
+
+    .sidebar-section-title {
+
+        padding: 0 10px 8px;
+
+        color: #98a2b3;
+
+        font-size: 8px;
+
+        font-weight: 850;
+
+        letter-spacing: 1.1px;
+
+        text-transform: uppercase;
+    }
+
+
+    .sidebar-nav {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 3px;
+
+        margin-bottom: 22px;
+    }
+
+
+    .sidebar-link {
+
+        min-height: 42px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+
+        padding: 9px 11px;
+
+        border-radius: 9px;
+
+        color: #475467;
+
+        font-size: 11px;
+
+        font-weight: 650;
+
+        transition:
+            background .18s ease,
+            color .18s ease,
+            transform .18s ease;
+    }
+
+
+    .sidebar-link:hover {
+
+        background: var(--brand-green-light);
+
+        color: var(--brand-green);
+
+        transform: translateX(2px);
+    }
+
+
+    .sidebar-link.active {
+
+        background: var(--brand-green-light);
+
+        color: var(--brand-green);
+
+        font-weight: 800;
+    }
+
+
+    .sidebar-icon {
+
+        width: 25px;
+        height: 25px;
+
+        min-width: 25px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 7px;
+
+        background: #f4f7f5;
+
+        font-size: 12px;
+    }
+
+
+    .sidebar-link.active .sidebar-icon {
+
+        background: #ffffff;
+
+        color: var(--brand-green);
+    }
+
+
+    /* =========================================================
+       SIDEBAR USER FOOTER
+       ========================================================= */
+
+    .sidebar-footer {
+
+        padding: 12px;
+
+        border-top: 1px solid var(--border);
+
+        flex-shrink: 0;
+    }
+
+
+    .sidebar-user {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        padding: 10px;
+
+        border-radius: 10px;
+
+        background: #f8faf9;
+    }
+
+
+    .sidebar-user-avatar {
+
+        width: 34px;
+        height: 34px;
+
+        min-width: 34px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 9px;
+
+        background: var(--brand-green);
+
+        color: #ffffff;
+
+        font-size: 11px;
+
+        font-weight: 850;
+    }
+
+
+    .sidebar-user-info {
+
+        min-width: 0;
+
+        display: flex;
+
+        flex-direction: column;
+    }
+
+
+    .sidebar-user-name {
+
+        color: var(--text-dark);
+
+        font-size: 10px;
+
+        font-weight: 800;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+
+    .sidebar-user-role {
+
+        margin-top: 2px;
+
+        color: var(--muted);
+
+        font-size: 8px;
+    }
+
+
+    .sidebar-logout {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        margin-top: 7px;
+
+        padding: 9px 10px;
+
+        border-radius: 8px;
+
+        color: #b42318;
+
+        font-size: 10px;
+
+        font-weight: 750;
+
+        transition: background .18s ease;
+    }
+
+
+    .sidebar-logout:hover {
+
+        background: #fff1f0;
+    }
+
+
+    /* =========================================================
+       MAIN CONTENT
+       ========================================================= */
+
+    .admin-main {
+
+        min-height: 100vh;
+
+        margin-left: var(--sidebar-width);
+
+        padding: 28px;
+
+        transition: margin-left .25s ease;
+    }
+
+
+    .admin-container {
+
+        width: 100%;
+
+        max-width: 1500px;
+
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       TOP BAR
+       ========================================================= */
+
+    .admin-topbar {
+
+        min-height: 54px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 22px;
+
+        padding-bottom: 17px;
+
+        border-bottom: 1px solid var(--border);
+    }
+
+
+    .topbar-left {
+
+        min-width: 0;
+    }
+
+
+    .topbar-company {
+
+        color: var(--text-dark);
+
+        font-size: 11px;
+
+        font-weight: 800;
+    }
+
+
+    .topbar-system {
+
+        margin-top: 2px;
+
+        color: var(--muted);
+
+        font-size: 9px;
+    }
+
+
+    .topbar-right {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+    }
+
+
+    .topbar-admin {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 7px 10px;
+
+        border: 1px solid var(--border);
+
+        border-radius: 8px;
+
+        background: #ffffff;
+
+        color: var(--text);
+
+        font-size: 9px;
+
+        font-weight: 700;
+    }
+
+
+    .topbar-dot {
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #219653;
+    }
+
+
+    /* =========================================================
+       MOBILE MENU
+       ========================================================= */
+
+    .sidebar-toggle {
+
+        display: none;
+
+        width: 38px;
+        height: 38px;
+
+        margin-right: 10px;
+
+        border: 1px solid var(--border);
+
+        border-radius: 9px;
+
+        background: #ffffff;
+
+        color: var(--text-dark);
+
+        cursor: pointer;
+    }
+
+
+    .sidebar-overlay {
+
+        display: none;
+
+        position: fixed;
+
+        inset: 0;
+
+        background: rgba(16, 24, 40, .38);
+
+        z-index: 1050;
+    }
+
+
+    /* =========================================================
+       FLASH MESSAGES
+       ========================================================= */
+
+    .flash-container {
+
+        margin-bottom: 18px;
+    }
+
+
+    .flash-message {
+
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 10px;
+
+        padding: 11px 13px;
+
+        margin-bottom: 8px;
+
+        border: 1px solid var(--border);
+
+        border-radius: 9px;
+
+        background: #ffffff;
+
+        color: var(--text);
+
+        box-shadow: var(--shadow-sm);
+
+        font-size: 10px;
+    }
+
+
+    .flash-message.success {
+
+        border-color: #cce8d7;
+
+        background: #f1faf4;
+
+        color: #176438;
+    }
+
+
+    .flash-message.error {
+
+        border-color: #f0d2cf;
+
+        background: #fff7f6;
+
+        color: #b42318;
+    }
+
+
+    .flash-message.warning {
+
+        border-color: #ead9b3;
+
+        background: #fffbf0;
+
+        color: #8a6116;
+    }
+
+
+    .flash-message.info {
+
+        border-color: #cfe0ef;
+
+        background: #f4f9fd;
+
+        color: #175a85;
+    }
+
+
+    /* =========================================================
+       GLOBAL CARD
+       ========================================================= */
+
+    .card {
+
+        background: #ffffff;
+
+        border: 1px solid var(--border);
+
+        border-radius: var(--radius);
+
+        box-shadow: var(--shadow-sm);
+    }
+
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .admin-footer {
+
+        margin-top: 35px;
+
+        padding-top: 18px;
+
+        border-top: 1px solid var(--border);
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        color: #98a2b3;
+
+        font-size: 8px;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @media (max-width: 900px) {
 
         .admin-sidebar {
 
-            position: fixed;
-
-            top: 0;
-            left: 0;
-            bottom: 0;
-
-            width: var(--sidebar-width);
-
-            background: #ffffff;
-
-            border-right: 1px solid var(--border);
-
-            z-index: 1100;
-
-            display: flex;
-            flex-direction: column;
-
-            overflow-y: auto;
-
-            transition:
-                transform .25s ease;
+            transform: translateX(-100%);
         }
 
+        .admin-sidebar.open {
 
-        .sidebar-brand {
-
-            min-height: 76px;
-
-            display: flex;
-            align-items: center;
-
-            gap: 11px;
-
-            padding: 14px 18px;
-
-            border-bottom: 1px solid var(--border);
+            transform: translateX(0);
         }
-
-
-        .sidebar-logo {
-
-            width: 42px;
-            height: 42px;
-
-            min-width: 42px;
-
-            border-radius: 10px;
-
-            object-fit: contain;
-
-            border: 1px solid var(--border);
-
-            background: #ffffff;
-        }
-
-
-        .sidebar-logo-placeholder {
-
-            width: 42px;
-            height: 42px;
-
-            min-width: 42px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background: var(--brand-green);
-
-            color: #ffffff;
-
-            font-size: 14px;
-            font-weight: 900;
-        }
-
-
-        .sidebar-brand-text {
-
-            min-width: 0;
-
-            display: flex;
-            flex-direction: column;
-        }
-
-
-        .sidebar-company {
-
-            color: var(--text-dark);
-
-            font-size: 12px;
-
-            font-weight: 850;
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-        }
-
-
-        .sidebar-subtitle {
-
-            margin-top: 2px;
-
-            color: var(--brand-green);
-
-            font-size: 8px;
-
-            font-weight: 800;
-
-            letter-spacing: .8px;
-
-            white-space: nowrap;
-        }
-
-
-        /* =========================================================
-           SIDEBAR NAVIGATION
-           ========================================================= */
-
-        .sidebar-content {
-
-            flex: 1;
-
-            padding: 18px 12px;
-        }
-
-
-        .sidebar-section-title {
-
-            padding:
-                0 10px
-                8px;
-
-            color: #98a2b3;
-
-            font-size: 8px;
-
-            font-weight: 850;
-
-            letter-spacing: 1.1px;
-
-            text-transform: uppercase;
-        }
-
-
-        .sidebar-nav {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 3px;
-
-            margin-bottom: 20px;
-        }
-
-
-        .sidebar-link {
-
-            min-height: 42px;
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 11px;
-
-            padding: 9px 11px;
-
-            border-radius: 9px;
-
-            color: #475467;
-
-            font-size: 11px;
-
-            font-weight: 650;
-
-            transition:
-                background .18s ease,
-                color .18s ease,
-                transform .18s ease;
-        }
-
-
-        .sidebar-link:hover {
-
-            background: var(--brand-green-light);
-
-            color: var(--brand-green);
-
-            transform: translateX(2px);
-        }
-
-
-        .sidebar-link.active {
-
-            background: var(--brand-green-light);
-
-            color: var(--brand-green);
-
-            font-weight: 800;
-        }
-
-
-        .sidebar-icon {
-
-            width: 25px;
-            height: 25px;
-
-            min-width: 25px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 7px;
-
-            background: #f4f7f5;
-
-            font-size: 12px;
-        }
-
-
-        .sidebar-link.active .sidebar-icon {
-
-            background: #ffffff;
-
-            color: var(--brand-green);
-        }
-
-
-        /* =========================================================
-           SIDEBAR FOOTER
-           ========================================================= */
-
-        .sidebar-footer {
-
-            padding: 12px;
-
-            border-top: 1px solid var(--border);
-        }
-
-
-        .sidebar-user {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 10px;
-
-            padding: 10px;
-
-            border-radius: 10px;
-
-            background: #f8faf9;
-        }
-
-
-        .sidebar-user-avatar {
-
-            width: 34px;
-            height: 34px;
-
-            min-width: 34px;
-
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 9px;
-
-            background: var(--brand-green);
-
-            color: #ffffff;
-
-            font-size: 11px;
-
-            font-weight: 850;
-        }
-
-
-        .sidebar-user-info {
-
-            min-width: 0;
-
-            display: flex;
-
-            flex-direction: column;
-        }
-
-
-        .sidebar-user-name {
-
-            color: var(--text-dark);
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-        }
-
-
-        .sidebar-user-role {
-
-            margin-top: 2px;
-
-            color: var(--muted);
-
-            font-size: 8px;
-        }
-
-
-        .sidebar-logout {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            margin-top: 7px;
-
-            padding: 9px 10px;
-
-            border-radius: 8px;
-
-            color: #b42318;
-
-            font-size: 10px;
-
-            font-weight: 750;
-        }
-
-
-        .sidebar-logout:hover {
-
-            background: #fff1f0;
-        }
-
-
-        /* =========================================================
-           MAIN CONTENT
-           ========================================================= */
 
         .admin-main {
 
-            min-height: 100vh;
+            margin-left: 0;
 
-            margin-left: var(--sidebar-width);
-
-            padding: 28px;
-
-            transition:
-                margin-left .25s ease;
+            padding: 20px;
         }
 
-
-        .admin-container {
-
-            width: 100%;
-
-            max-width: 1500px;
-
-            margin: 0 auto;
-        }
-
-
-        /* =========================================================
-           TOP BAR
-           ========================================================= */
-
-        .admin-topbar {
-
-            min-height: 54px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            margin-bottom: 22px;
-
-            padding-bottom: 17px;
-
-            border-bottom: 1px solid var(--border);
-        }
-
-
-        .topbar-left {
-
-            min-width: 0;
-        }
-
-
-        .topbar-company {
-
-            color: var(--text-dark);
-
-            font-size: 11px;
-
-            font-weight: 800;
-        }
-
-
-        .topbar-system {
-
-            margin-top: 2px;
-
-            color: var(--muted);
-
-            font-size: 9px;
-        }
-
-
-        .topbar-right {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-        }
-
-
-        .topbar-admin {
+        .sidebar-toggle {
 
             display: inline-flex;
 
             align-items: center;
 
-            gap: 7px;
-
-            padding: 7px 10px;
-
-            border: 1px solid var(--border);
-
-            border-radius: 8px;
-
-            background: #ffffff;
-
-            color: var(--text);
-
-            font-size: 9px;
-
-            font-weight: 700;
+            justify-content: center;
         }
 
+        .sidebar-overlay.open {
 
-        .topbar-dot {
-
-            width: 6px;
-            height: 6px;
-
-            border-radius: 50%;
-
-            background: #219653;
+            display: block;
         }
 
+        .admin-topbar {
 
-        /* =========================================================
-           MOBILE MENU BUTTON
-           ========================================================= */
+            padding-bottom: 14px;
+        }
+    }
 
-        .sidebar-toggle {
 
-            display: none;
+    @media (max-width: 600px) {
 
-            width: 38px;
-            height: 38px;
+        .admin-main {
 
-            border: 1px solid var(--border);
-
-            border-radius: 9px;
-
-            background: #ffffff;
-
-            color: var(--text-dark);
-
-            cursor: pointer;
+            padding: 15px;
         }
 
-
-        .sidebar-overlay {
-
-            display: none;
-
-            position: fixed;
-
-            inset: 0;
-
-            background:
-                rgba(16, 24, 40, .38);
-
-            z-index: 1050;
-        }
-
-
-        /* =========================================================
-           FLASH MESSAGES
-           ========================================================= */
-
-        .flash-container {
-
-            margin-bottom: 18px;
-        }
-
-
-        .flash-message {
-
-            display: flex;
+        .admin-topbar {
 
             align-items: flex-start;
-
-            gap: 10px;
-
-            padding: 11px 13px;
-
-            margin-bottom: 8px;
-
-            border: 1px solid var(--border);
-
-            border-radius: 9px;
-
-            background: #ffffff;
-
-            color: var(--text);
-
-            box-shadow: var(--shadow-sm);
-
-            font-size: 10px;
         }
 
+        .topbar-right {
 
-        .flash-message.success {
-
-            border-color: #cce8d7;
-
-            background: #f1faf4;
-
-            color: #176438;
+            flex-shrink: 0;
         }
 
+        .topbar-admin {
 
-        .flash-message.error {
-
-            border-color: #f0d2cf;
-
-            background: #fff7f6;
-
-            color: #b42318;
+            display: none;
         }
-
-
-        .flash-message.warning {
-
-            border-color: #ead9b3;
-
-            background: #fffbf0;
-
-            color: #8a6116;
-        }
-
-
-        .flash-message.info {
-
-            border-color: #cfe0ef;
-
-            background: #f4f9fd;
-
-            color: #175a85;
-        }
-
-
-        /* =========================================================
-           GLOBAL CARD
-           ========================================================= */
-
-        .card {
-
-            background: #ffffff;
-
-            border: 1px solid var(--border);
-
-            border-radius: var(--radius);
-
-            box-shadow: var(--shadow-sm);
-        }
-
-
-        /* =========================================================
-           FOOTER
-           ========================================================= */
 
         .admin-footer {
 
-            margin-top: 35px;
+            flex-direction: column;
 
-            padding-top: 18px;
-
-            border-top: 1px solid var(--border);
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            color: #98a2b3;
-
-            font-size: 8px;
+            align-items: flex-start;
         }
+    }
+
+</style>
 
 
-        /* =========================================================
-           RESPONSIVE
-           ========================================================= */
+{% block head %}{% endblock %}
 
-        @media (max-width: 900px) {
-
-            .admin-sidebar {
-
-                transform: translateX(-100%);
-            }
-
-            .admin-sidebar.open {
-
-                transform: translateX(0);
-            }
-
-            .admin-main {
-
-                margin-left: 0;
-
-                padding: 20px;
-            }
-
-            .sidebar-toggle {
-
-                display: inline-flex;
-
-                align-items: center;
-
-                justify-content: center;
-            }
-
-            .sidebar-overlay.open {
-
-                display: block;
-            }
-
-            .admin-topbar {
-
-                padding-bottom: 14px;
-            }
-        }
-
-
-        @media (max-width: 600px) {
-
-            .admin-main {
-
-                padding: 15px;
-            }
-
-            .admin-topbar {
-
-                align-items: flex-start;
-            }
-
-            .topbar-right {
-
-                flex-shrink: 0;
-            }
-
-            .topbar-admin {
-
-                display: none;
-            }
-
-            .admin-footer {
-
-                flex-direction: column;
-
-                align-items: flex-start;
-            }
-        }
-
-    </style>
-
-
-    {% block head %}{% endblock %}
 
 </head>
 
-
 <body>
-
 
 {% if session.get("role") == "admin" %}
 
 <div class="app-shell">
 
 
-    <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+<!-- =====================================================
+     ADMIN SIDEBAR
+     ===================================================== -->
 
-    <aside
-        class="admin-sidebar"
-        id="adminSidebar"
-    >
+<aside
+    class="admin-sidebar"
+    id="adminSidebar"
+>
 
-        <div class="sidebar-brand">
 
-            {% if company_logo %}
+    <!-- BRAND -->
 
-                <img
-                    src="{{ company_logo }}"
-                    alt="{{ company_name or 'Company Logo' }}"
-                    class="sidebar-logo"
+    <div class="sidebar-brand">
+
+        {% if company_logo %}
+
+            <img
+                src="{{ company_logo }}"
+                alt="{{ company_name or 'Company Logo' }}"
+                class="sidebar-logo"
+                onerror="this.style.display='none'; document.getElementById('sidebarLogoPlaceholder').style.display='flex';"
+            >
+
+            <div
+                class="sidebar-logo-placeholder"
+                id="sidebarLogoPlaceholder"
+                style="display:none;"
+            >
+                AV
+            </div>
+
+        {% else %}
+
+            <div class="sidebar-logo-placeholder">
+                AV
+            </div>
+
+        {% endif %}
+
+
+        <div class="sidebar-brand-text">
+
+            <div class="sidebar-company">
+
+                {{ company_name or "AV KING VET" }}
+
+            </div>
+
+            <div class="sidebar-subtitle">
+
+                ADMINISTRATION
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SIDEBAR CONTENT -->
+
+    <div class="sidebar-content">
+
+
+        <!-- =================================================
+             MAIN
+             ================================================= -->
+
+        <div class="sidebar-section-title">
+            Main
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <!-- DASHBOARD -->
+
+            <a
+                href="{{ url_for('admin_dashboard') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◫
+                </span>
+
+                <span>
+                    Dashboard
+                </span>
+
+            </a>
+
+
+            <!-- APPLICATIONS -->
+
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_applications' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ☷
+                </span>
+
+                <span>
+                    Applications
+                </span>
+
+            </a>
+
+
+            <!-- POSITIONS -->
+
+            <a
+                href="{{ url_for('admin_positions') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_positions' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◈
+                </span>
+
+                <span>
+                    Positions
+                </span>
+
+            </a>
+
+
+            <!-- WORKERS -->
+
+            <a
+                href="{{ url_for('admin_workers') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_workers' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ◉
+                </span>
+
+                <span>
+                    Workers
+                </span>
+
+            </a>
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="{{ url_for('admin_reports') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_reports' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ▤
+                </span>
+
+                <span>
+                    Reports
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- =================================================
+             MANAGEMENT
+             ================================================= -->
+
+        <div class="sidebar-section-title">
+            Management
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <!-- SETTINGS -->
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="sidebar-link {% if request.endpoint == 'admin_settings' %}active{% endif %}"
+            >
+
+                <span class="sidebar-icon">
+                    ⚙
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
+            </a>
+
+
+            <!-- LOGOUT -->
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="sidebar-logout"
+            >
+
+                <span>
+                    ↪
+                </span>
+
+                <span>
+                    Sign out
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+    </div>
+
+
+    <!-- =================================================
+         SIDEBAR USER
+         ================================================= -->
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-user">
+
+            <div class="sidebar-user-avatar">
+                A
+            </div>
+
+
+            <div class="sidebar-user-info">
+
+                <div class="sidebar-user-name">
+
+                    {{ session.get("admin_username")
+                       or "Administrator" }}
+
+                </div>
+
+
+                <div class="sidebar-user-role">
+
+                    System Administrator
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</aside>
+
+
+<!-- =====================================================
+     SIDEBAR OVERLAY
+     ===================================================== -->
+
+<div
+    class="sidebar-overlay"
+    id="sidebarOverlay"
+></div>
+
+
+<!-- =====================================================
+     MAIN
+     ===================================================== -->
+
+<main class="admin-main">
+
+    <div class="admin-container">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <div class="admin-topbar">
+
+
+            <div class="topbar-left">
+
+
+                <button
+                    type="button"
+                    class="sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Open navigation"
+                    aria-controls="adminSidebar"
+                    aria-expanded="false"
                 >
+                    ☰
+                </button>
 
-            {% else %}
 
-                <div class="sidebar-logo-placeholder">
-                    AV
+                <span class="topbar-company">
+
+                    {{ company_name
+                       or "AV KING VETERINARY BUSINESS SUITE" }}
+
+                </span>
+
+
+                <div class="topbar-system">
+
+                    Administration Control Panel
+
+                </div>
+
+
+            </div>
+
+
+            <div class="topbar-right">
+
+
+                <div class="topbar-admin">
+
+                    <span class="topbar-dot"></span>
+
+                    {{ session.get("admin_username")
+                       or "Administrator" }}
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             FLASH MESSAGES
+             ================================================= -->
+
+        {% with messages =
+            get_flashed_messages(with_categories=true)
+        %}
+
+            {% if messages %}
+
+                <div class="flash-container">
+
+                    {% for category, message in messages %}
+
+                        <div
+                            class="flash-message {{ category }}"
+                            role="alert"
+                        >
+
+                            {{ message }}
+
+                        </div>
+
+                    {% endfor %}
+
                 </div>
 
             {% endif %}
 
+        {% endwith %}
 
-            <div class="sidebar-brand-text">
 
-                <div class="sidebar-company">
-                    {{ company_name or "AV KING VET" }}
-                </div>
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
 
-                <div class="sidebar-subtitle">
-                    ADMINISTRATION
-                </div>
+        {% block content %}
+        {% endblock %}
 
-            </div>
 
-        </div>
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
 
+        <footer class="admin-footer">
 
-        <div class="sidebar-content">
+            <span>
 
+                © {{ current_year or 2026 }}
 
-            <div class="sidebar-section-title">
-                Main
-            </div>
+                {{ company_name
+                   or "AV KING VETERINARY BUSINESS SUITE" }}.
 
+                All rights reserved.
 
-            <nav class="sidebar-nav">
+            </span>
 
-                <a
-                    href="{{ url_for('admin_dashboard') }}"
-                    class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
-                >
 
-                    <span class="sidebar-icon">
-                        ◫
-                    </span>
+            <span>
+                Professional • Secure • Reliable
+            </span>
 
-                    Dashboard
+        </footer>
 
-                </a>
 
+    </div>
 
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="sidebar-link {% if request.endpoint == 'admin_applications' %}active{% endif %}"
-                >
-
-                    <span class="sidebar-icon">
-                        ☷
-                    </span>
-
-                    Applications
-
-                </a>
-
-
-                {% if 'admin_workers' in current_app.view_functions %}
-
-                <a
-                    href="{{ url_for('admin_workers') }}"
-                    class="sidebar-link {% if request.endpoint == 'admin_workers' %}active{% endif %}"
-                >
-
-                    <span class="sidebar-icon">
-                        ◉
-                    </span>
-
-                    Workers
-
-                </a>
-
-                {% endif %}
-
-
-                {% if 'admin_reports' in current_app.view_functions %}
-
-                <a
-                    href="{{ url_for('admin_reports') }}"
-                    class="sidebar-link {% if request.endpoint == 'admin_reports' %}active{% endif %}"
-                >
-
-                    <span class="sidebar-icon">
-                        ▤
-                    </span>
-
-                    Reports
-
-                </a>
-
-                {% endif %}
-
-            </nav>
-
-
-            <div class="sidebar-section-title">
-                Management
-            </div>
-
-
-            <nav class="sidebar-nav">
-
-                <a
-                    href="{{ url_for('admin_settings') }}"
-                    class="sidebar-link {% if request.endpoint == 'admin_settings' %}active{% endif %}"
-                >
-
-                    <span class="sidebar-icon">
-                        ⚙
-                    </span>
-
-                    Settings
-
-                </a>
-
-
-                <a
-                    href="{{ url_for('admin_logout') }}"
-                    class="sidebar-logout"
-                >
-
-                    <span>
-                        ↪
-                    </span>
-
-                    Sign out
-
-                </a>
-
-            </nav>
-
-
-        </div>
-
-
-        <div class="sidebar-footer">
-
-            <div class="sidebar-user">
-
-                <div class="sidebar-user-avatar">
-                    A
-                </div>
-
-                <div class="sidebar-user-info">
-
-                    <div class="sidebar-user-name">
-
-                        {{ session.get("admin_username")
-                           or "Administrator" }}
-
-                    </div>
-
-                    <div class="sidebar-user-role">
-                        System Administrator
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </aside>
-
-
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-    ></div>
-
-
-    <!-- =====================================================
-         MAIN
-         ===================================================== -->
-
-    <main class="admin-main">
-
-        <div class="admin-container">
-
-
-            <!-- TOP BAR -->
-
-            <div class="admin-topbar">
-
-
-                <div class="topbar-left">
-
-                    <button
-                        type="button"
-                        class="sidebar-toggle"
-                        id="sidebarToggle"
-                        aria-label="Open navigation"
-                    >
-                        ☰
-                    </button>
-
-                    <span class="topbar-company">
-                        {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}
-                    </span>
-
-                    <div class="topbar-system">
-                        Administration Control Panel
-                    </div>
-
-                </div>
-
-
-                <div class="topbar-right">
-
-                    <div class="topbar-admin">
-
-                        <span class="topbar-dot"></span>
-
-                        {{ session.get("admin_username")
-                           or "Administrator" }}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- FLASH MESSAGES -->
-
-            {% with messages = get_flashed_messages(with_categories=true) %}
-
-                {% if messages %}
-
-                    <div class="flash-container">
-
-                        {% for category, message in messages %}
-
-                            <div
-                                class="flash-message {{ category }}"
-                            >
-
-                                {{ message }}
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                {% endif %}
-
-            {% endwith %}
-
-
-            <!-- PAGE CONTENT -->
-
-            {% block content %}
-
-            {% endblock %}
-
-
-            <!-- FOOTER -->
-
-            <footer class="admin-footer">
-
-                <span>
-
-                    © {{ current_year or 2026 }}
-                    {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}.
-                    All rights reserved.
-
-                </span>
-
-                <span>
-                    Professional • Secure • Reliable
-                </span>
-
-            </footer>
-
-
-        </div>
-
-    </main>
+</main>
 
 
 </div>
-
 
 {% else %}
 
@@ -1158,12 +1286,18 @@
 
 {% block public_content %}
 
-    {% block content_public %}{% endblock %}
+
+{% block content_public %}
+{% endblock %}
+
 
 {% endblock %}
 
 {% endif %}
 
+<!-- =========================================================
+     SIDEBAR JAVASCRIPT
+     ========================================================= -->
 
 <script>
 
@@ -1194,6 +1328,14 @@
             overlay.classList.add("open");
         }
 
+        if (toggle) {
+            toggle.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+        }
+
+        document.body.style.overflow = "hidden";
     }
 
 
@@ -1209,6 +1351,14 @@
             overlay.classList.remove("open");
         }
 
+        if (toggle) {
+            toggle.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+        }
+
+        document.body.style.overflow = "";
     }
 
 
@@ -1216,7 +1366,22 @@
 
         toggle.addEventListener(
             "click",
-            openSidebar
+            function () {
+
+                if (
+                    sidebar &&
+                    sidebar.classList.contains("open")
+                ) {
+
+                    closeSidebar();
+
+                } else {
+
+                    openSidebar();
+
+                }
+
+            }
         );
 
     }
@@ -1254,14 +1419,46 @@
         });
 
 
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Escape" &&
+                sidebar &&
+                sidebar.classList.contains("open")
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
+
+
+    window.addEventListener(
+        "resize",
+        function () {
+
+            if (
+                window.innerWidth > 900
+            ) {
+
+                closeSidebar();
+
+            }
+
+        }
+    );
+
+
 })();
 
 </script>
 
-
-{% block scripts %}{% endblock %}
-
+{% block scripts %}
+{% endblock %}
 
 </body>
 </html>
-
