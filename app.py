@@ -101,7 +101,16 @@ NIGERIA_TZ = ZoneInfo("Africa/Lagos")
 
 load_dotenv()
 
+import os
+import cloudinary
+import cloudinary.uploader
 
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
+)
 # ============================================================
 # APPLICATION
 # ============================================================
@@ -16457,16 +16466,9 @@ def calculate_early_clockout_minutes(
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
-if __name__ == "__main__":
-    with app.app_context():
-        init_db()
-        create_initial_admin()
-
-    app.run(
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 5000)),
-        debug=False
-    )
+with app.app_context():
+    init_db()
+    create_initial_admin()
 # ============================================================
 # RUN APPLICATION
 # ============================================================
