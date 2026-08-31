@@ -1,1515 +1,1808 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="{{ company_name }} Careers and Recruitment Portal"
-    >
-
-    <title>
-        Careers | {{ company_name }}
-    </title>
-
-    <style>
-
-        /* =========================================================
-           RESET
-           ========================================================= */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-
-            background: #f7f9fc;
-            color: #14213d;
-            line-height: 1.6;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        img {
-            max-width: 100%;
-            display: block;
-        }
-
-        button,
-        input,
-        textarea,
-        select {
-            font: inherit;
-        }
 
 
-        /* =========================================================
-           VARIABLES
-           ========================================================= */
+<meta charset="UTF-8">
 
-        :root {
-            --primary: #0f5132;
-            --primary-dark: #093b25;
-            --primary-light: #e9f5ef;
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-            --accent: #d4a017;
+<meta
+    name="description"
+    content="{{ company_name or 'AV KING VETERINARY BUSINESS SUITE' }} Careers and Recruitment Portal"
+>
 
-            --dark: #14213d;
-            --muted: #667085;
+<meta name="theme-color" content="#0f5132">
 
-            --white: #ffffff;
-            --background: #f7f9fc;
-            --border: #e5e9ef;
+<title>
+    Careers | {{ company_name or "AV KING VETERINARY BUSINESS SUITE" }}
+</title>
 
-            --shadow:
-                0 20px 50px rgba(15, 81, 50, 0.10);
+<style>
 
-            --container: 1180px;
-        }
+    /* =========================================================
+       RESET
+       ========================================================= */
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        font-family:
+            Inter,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Arial,
+            sans-serif;
+
+        background: #f7f9fc;
+        color: #14213d;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    img {
+        max-width: 100%;
+        display: block;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+        font: inherit;
+    }
 
 
-        /* =========================================================
-           CONTAINER
-           ========================================================= */
+    /* =========================================================
+       VARIABLES
+       ========================================================= */
 
-        .container {
-            width: min(
-                calc(100% - 40px),
-                var(--container)
+    :root {
+
+        --primary: #0f5132;
+        --primary-dark: #093b25;
+        --primary-light: #e9f5ef;
+
+        --accent: #d4a017;
+
+        --dark: #14213d;
+        --muted: #667085;
+        --muted-light: #98a2b3;
+
+        --white: #ffffff;
+        --background: #f7f9fc;
+
+        --border: #e5e9ef;
+
+        --shadow-sm:
+            0 8px 25px rgba(20, 33, 61, 0.06);
+
+        --shadow:
+            0 20px 50px rgba(15, 81, 50, 0.10);
+
+        --container: 1180px;
+    }
+
+
+    /* =========================================================
+       CONTAINER
+       ========================================================= */
+
+    .container {
+
+        width: min(
+            calc(100% - 40px),
+            var(--container)
+        );
+
+        margin: 0 auto;
+    }
+
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .site-header {
+
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+
+        background:
+            rgba(255, 255, 255, 0.96);
+
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+
+        border-bottom:
+            1px solid var(--border);
+    }
+
+    .header-inner {
+
+        min-height: 78px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 30px;
+    }
+
+
+    /* =========================================================
+       BRAND
+       ========================================================= */
+
+    .brand {
+
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+
+        min-width: 0;
+    }
+
+    .brand-logo {
+
+        width: 48px;
+        height: 48px;
+
+        padding: 3px;
+
+        border-radius: 12px;
+
+        object-fit: contain;
+
+        border:
+            1px solid var(--border);
+
+        background: var(--white);
+    }
+
+    .brand-placeholder {
+
+        width: 48px;
+        height: 48px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 12px;
+
+        background: var(--primary);
+        color: var(--white);
+
+        font-weight: 900;
+        font-size: 16px;
+    }
+
+    .brand-text {
+
+        display: flex;
+        flex-direction: column;
+
+        min-width: 0;
+
+        line-height: 1.2;
+    }
+
+    .brand-name {
+
+        max-width: 350px;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        font-size: 15px;
+        font-weight: 800;
+
+        color: var(--dark);
+    }
+
+    .brand-subtitle {
+
+        margin-top: 4px;
+
+        font-size: 9px;
+        font-weight: 800;
+
+        letter-spacing: 1.3px;
+
+        color: var(--primary);
+    }
+
+
+    /* =========================================================
+       NAVIGATION
+       ========================================================= */
+
+    .main-nav {
+
+        display: flex;
+        align-items: center;
+
+        gap: 6px;
+    }
+
+    .nav-link {
+
+        padding: 10px 14px;
+
+        border-radius: 8px;
+
+        color: #475467;
+
+        font-size: 13px;
+        font-weight: 650;
+
+        transition:
+            color .2s ease,
+            background .2s ease;
+    }
+
+    .nav-link:hover {
+
+        color: var(--primary);
+
+        background:
+            var(--primary-light);
+    }
+
+    .nav-login {
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-height: 40px;
+
+        padding: 0 17px;
+
+        border-radius: 8px;
+
+        background: var(--primary);
+        color: var(--white);
+
+        font-size: 13px;
+        font-weight: 750;
+
+        box-shadow:
+            0 7px 18px
+            rgba(15, 81, 50, .15);
+
+        transition:
+            background .2s ease,
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .nav-login:hover {
+
+        background: var(--primary-dark);
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 10px 22px
+            rgba(15, 81, 50, .20);
+    }
+
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+
+    .hero {
+
+        position: relative;
+
+        overflow: hidden;
+
+        background:
+            linear-gradient(
+                135deg,
+                #f4faf7 0%,
+                #ffffff 55%,
+                #f8fafc 100%
             );
 
-            margin: auto;
-        }
+        padding:
+            90px 0
+            100px;
+    }
+
+    .hero::before {
+
+        content: "";
+
+        position: absolute;
+
+        width: 520px;
+        height: 520px;
+
+        right: -210px;
+        top: -230px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(15, 81, 50, .055);
+    }
+
+    .hero::after {
+
+        content: "";
+
+        position: absolute;
+
+        width: 330px;
+        height: 330px;
+
+        left: -180px;
+        bottom: -210px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(212, 160, 23, .065);
+    }
+
+    .hero-grid {
+
+        position: relative;
+        z-index: 2;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1.08fr)
+            minmax(380px, .92fr);
+
+        gap: 75px;
+
+        align-items: center;
+    }
 
 
-        /* =========================================================
-           HEADER
-           ========================================================= */
+    /* =========================================================
+       HERO CONTENT
+       ========================================================= */
 
-        .site-header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+    .hero-badge {
 
-            background: rgba(255, 255, 255, 0.96);
+        display: inline-flex;
+        align-items: center;
 
-            backdrop-filter: blur(14px);
+        gap: 9px;
 
-            border-bottom: 1px solid var(--border);
-        }
+        padding:
+            8px 13px;
 
-        .header-inner {
-            min-height: 78px;
+        background:
+            var(--primary-light);
 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        border:
+            1px solid #d5eade;
 
-            gap: 30px;
-        }
+        border-radius: 999px;
 
+        color:
+            var(--primary);
 
-        /* =========================================================
-           BRAND
-           ========================================================= */
+        font-size: 10px;
+        font-weight: 850;
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        letter-spacing: 1px;
+    }
 
-            min-width: 0;
-        }
+    .hero-badge span {
 
-        .brand-logo {
-            width: 48px;
-            height: 48px;
+        width: 7px;
+        height: 7px;
 
-            border-radius: 12px;
+        border-radius: 50%;
 
-            object-fit: contain;
+        background:
+            var(--accent);
+    }
 
-            border: 1px solid var(--border);
+    .hero h1 {
 
-            background: var(--white);
-        }
+        margin-top: 23px;
 
-        .brand-placeholder {
-            width: 48px;
-            height: 48px;
+        max-width: 700px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        color:
+            var(--dark);
 
-            border-radius: 12px;
+        font-size:
+            clamp(
+                42px,
+                5vw,
+                68px
+            );
 
-            background: var(--primary);
-            color: white;
+        line-height: 1.05;
 
-            font-weight: 800;
-            font-size: 17px;
-        }
+        letter-spacing: -2.7px;
 
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
+        font-weight: 850;
+    }
 
-        .brand-name {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--dark);
-        }
+    .hero h1 strong {
 
-        .brand-subtitle {
-            margin-top: 4px;
+        display: block;
 
-            font-size: 10px;
-            font-weight: 700;
+        color:
+            var(--primary);
+    }
 
-            letter-spacing: 1.2px;
+    .hero-description {
 
-            color: var(--primary);
-        }
+        max-width: 620px;
+
+        margin-top: 25px;
+
+        color:
+            var(--muted);
+
+        font-size: 16px;
+
+        line-height: 1.85;
+    }
 
 
-        /* =========================================================
-           NAVIGATION
-           ========================================================= */
+    /* =========================================================
+       HERO BUTTONS
+       ========================================================= */
 
-        .main-nav {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .hero-actions {
 
-        .nav-link {
-            padding: 10px 14px;
+        display: flex;
+        align-items: center;
 
-            font-size: 14px;
-            font-weight: 600;
+        gap: 12px;
 
-            color: #475467;
+        margin-top: 33px;
 
-            border-radius: 8px;
+        flex-wrap: wrap;
+    }
 
-            transition:
-                background 0.2s ease,
-                color 0.2s ease;
-        }
+    .btn {
 
-        .nav-link:hover {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
+        min-height: 50px;
 
-        .nav-login {
-            padding: 11px 18px;
+        padding:
+            0 20px;
 
-            color: var(--white);
-            background: var(--primary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
-            border-radius: 8px;
+        gap: 11px;
 
-            font-size: 14px;
-            font-weight: 700;
+        border-radius: 9px;
 
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
+        font-size: 13px;
+        font-weight: 800;
 
-        .nav-login:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            background .2s ease,
+            border-color .2s ease;
+    }
+
+    .btn-primary {
+
+        background:
+            var(--primary);
+
+        color:
+            var(--white);
+
+        box-shadow:
+            0 10px 25px
+            rgba(15, 81, 50, .18);
+    }
+
+    .btn-primary:hover {
+
+        background:
+            var(--primary-dark);
+
+        transform:
+            translateY(-2px);
+
+        box-shadow:
+            0 14px 30px
+            rgba(15, 81, 50, .22);
+    }
+
+    .btn-secondary {
+
+        background:
+            var(--white);
+
+        color:
+            var(--dark);
+
+        border:
+            1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+
+        border-color:
+            var(--primary);
+
+        color:
+            var(--primary);
+
+        transform:
+            translateY(-2px);
+
+        box-shadow:
+            var(--shadow-sm);
+    }
+
+    .arrow {
+
+        font-size: 17px;
+        line-height: 1;
+    }
 
 
-        /* =========================================================
-           HERO
-           ========================================================= */
+    /* =========================================================
+       TRUST
+       ========================================================= */
+
+    .hero-trust {
+
+        display: flex;
+        align-items: center;
+
+        gap: 23px;
+
+        margin-top: 45px;
+
+        flex-wrap: wrap;
+    }
+
+    .trust-item {
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .trust-number {
+
+        color:
+            var(--dark);
+
+        font-size: 19px;
+        font-weight: 850;
+    }
+
+    .trust-label {
+
+        margin-top: 2px;
+
+        color:
+            var(--muted);
+
+        font-size: 10px;
+        font-weight: 650;
+    }
+
+    .trust-divider {
+
+        width: 1px;
+        height: 34px;
+
+        background:
+            var(--border);
+    }
+
+
+    /* =========================================================
+       HERO CARD
+       ========================================================= */
+
+    .hero-visual {
+
+        position: relative;
+    }
+
+    .hero-card {
+
+        position: relative;
+        z-index: 3;
+
+        padding: 30px;
+
+        background:
+            var(--white);
+
+        border:
+            1px solid
+            rgba(15, 81, 50, .10);
+
+        border-radius: 22px;
+
+        box-shadow:
+            0 30px 70px
+            rgba(20, 33, 61, .12);
+    }
+
+    .hero-card-top {
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding-bottom: 20px;
+
+        border-bottom:
+            1px solid var(--border);
+    }
+
+    .hero-card-label {
+
+        color:
+            var(--muted);
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: 1.3px;
+    }
+
+    .status {
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 7px;
+
+        padding:
+            6px 10px;
+
+        border-radius: 999px;
+
+        background:
+            #edf8f1;
+
+        color:
+            var(--primary);
+
+        font-size: 9px;
+        font-weight: 850;
+    }
+
+    .status-dot {
+
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background:
+            #2e9d62;
+    }
+
+    .hero-card-body {
+
+        padding:
+            30px 0;
+    }
+
+    .hero-card-icon {
+
+        width: 58px;
+        height: 58px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 21px;
+
+        border-radius: 16px;
+
+        background:
+            var(--primary-light);
+
+        color:
+            var(--primary);
+
+        font-size: 24px;
+        font-weight: 900;
+    }
+
+    .hero-card h2 {
+
+        color:
+            var(--dark);
+
+        font-size: 28px;
+
+        line-height: 1.2;
+
+        letter-spacing: -.7px;
+    }
+
+    .hero-card p {
+
+        margin-top: 13px;
+
+        color:
+            var(--muted);
+
+        font-size: 13px;
+
+        line-height: 1.75;
+    }
+
+    .hero-card-footer {
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding-top: 19px;
+
+        border-top:
+            1px solid var(--border);
+
+        font-size: 10px;
+    }
+
+    .hero-card-company {
+
+        color:
+            var(--dark);
+
+        font-weight: 800;
+    }
+
+    .hero-card-secure {
+
+        color:
+            var(--primary);
+
+        font-weight: 750;
+    }
+
+
+    /* =========================================================
+       SECTIONS
+       ========================================================= */
+
+    .section {
+
+        padding:
+            100px 0;
+    }
+
+    .section-header {
+
+        max-width: 680px;
+
+        margin-bottom: 52px;
+    }
+
+    .section-label {
+
+        color:
+            var(--primary);
+
+        font-size: 10px;
+        font-weight: 850;
+
+        letter-spacing: 1.5px;
+    }
+
+    .section-title {
+
+        margin-top: 11px;
+
+        color:
+            var(--dark);
+
+        font-size:
+            clamp(
+                32px,
+                4vw,
+                46px
+            );
+
+        line-height: 1.15;
+
+        letter-spacing: -1.6px;
+    }
+
+    .section-title strong {
+
+        color:
+            var(--primary);
+    }
+
+    .section-description {
+
+        margin-top: 15px;
+
+        color:
+            var(--muted);
+
+        font-size: 14px;
+
+        line-height: 1.8;
+    }
+
+
+    /* =========================================================
+       FEATURES
+       ========================================================= */
+
+    .features {
+
+        background:
+            var(--white);
+    }
+
+    .feature-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 21px;
+    }
+
+    .feature-card {
+
+        padding: 29px;
+
+        background:
+            var(--white);
+
+        border:
+            1px solid var(--border);
+
+        border-radius: 16px;
+
+        transition:
+            transform .25s ease,
+            box-shadow .25s ease,
+            border-color .25s ease;
+    }
+
+    .feature-card:hover {
+
+        transform:
+            translateY(-5px);
+
+        border-color:
+            rgba(15, 81, 50, .20);
+
+        box-shadow:
+            var(--shadow);
+    }
+
+    .feature-card.featured {
+
+        background:
+            var(--primary);
+
+        border-color:
+            var(--primary);
+
+        color:
+            var(--white);
+    }
+
+    .feature-number {
+
+        color:
+            var(--accent);
+
+        font-size: 10px;
+        font-weight: 850;
+
+        letter-spacing: 1px;
+    }
+
+    .feature-icon {
+
+        width: 50px;
+        height: 50px;
+
+        margin-top: 24px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 13px;
+
+        background:
+            var(--primary-light);
+
+        color:
+            var(--primary);
+
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    .feature-card.featured .feature-icon {
+
+        background:
+            rgba(255,255,255,.12);
+
+        color:
+            var(--white);
+    }
+
+    .feature-card h3 {
+
+        margin-top: 21px;
+
+        color:
+            var(--dark);
+
+        font-size: 18px;
+    }
+
+    .feature-card.featured h3 {
+
+        color:
+            var(--white);
+    }
+
+    .feature-card p {
+
+        margin-top: 10px;
+
+        color:
+            var(--muted);
+
+        font-size: 13px;
+
+        line-height: 1.75;
+    }
+
+    .feature-card.featured p {
+
+        color:
+            rgba(255,255,255,.77);
+    }
+
+
+    /* =========================================================
+       PROCESS
+       ========================================================= */
+
+    .process {
+
+        background:
+            #f7f9fc;
+    }
+
+    .process-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(3, 1fr);
+
+        gap: 20px;
+    }
+
+    .process-card {
+
+        padding: 30px;
+
+        background:
+            var(--white);
+
+        border:
+            1px solid var(--border);
+
+        border-radius: 16px;
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
+    }
+
+    .process-card:hover {
+
+        transform:
+            translateY(-3px);
+
+        box-shadow:
+            var(--shadow-sm);
+    }
+
+    .process-number {
+
+        color:
+            #dfe7e2;
+
+        font-size: 40px;
+
+        line-height: 1;
+
+        font-weight: 850;
+    }
+
+    .process-card h3 {
+
+        margin-top: 24px;
+
+        color:
+            var(--dark);
+
+        font-size: 18px;
+    }
+
+    .process-card p {
+
+        margin-top: 9px;
+
+        color:
+            var(--muted);
+
+        font-size: 13px;
+
+        line-height: 1.7;
+    }
+
+
+    /* =========================================================
+       CTA
+       ========================================================= */
+
+    .cta-section {
+
+        padding:
+            40px 0
+            100px;
+    }
+
+    .cta {
+
+        position: relative;
+
+        overflow: hidden;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 40px;
+
+        padding:
+            60px 65px;
+
+        background:
+            var(--primary);
+
+        color:
+            var(--white);
+
+        border-radius: 22px;
+    }
+
+    .cta::before {
+
+        content: "";
+
+        position: absolute;
+
+        width: 360px;
+        height: 360px;
+
+        right: -130px;
+        top: -190px;
+
+        border:
+            70px solid
+            rgba(255,255,255,.05);
+
+        border-radius: 50%;
+    }
+
+    .cta-content {
+
+        position: relative;
+        z-index: 2;
+
+        max-width: 650px;
+    }
+
+    .cta-label {
+
+        color:
+            #d8eadf;
+
+        font-size: 9px;
+        font-weight: 850;
+
+        letter-spacing: 1.5px;
+    }
+
+    .cta h2 {
+
+        margin-top: 9px;
+
+        color:
+            var(--white);
+
+        font-size:
+            clamp(
+                30px,
+                4vw,
+                42px
+            );
+
+        line-height: 1.15;
+
+        letter-spacing: -.8px;
+    }
+
+    .cta p {
+
+        margin-top: 12px;
+
+        color:
+            rgba(255,255,255,.75);
+
+        font-size: 13px;
+    }
+
+    .cta-action {
+
+        position: relative;
+        z-index: 2;
+
+        flex-shrink: 0;
+    }
+
+    .btn-white {
+
+        min-width: 190px;
+
+        background:
+            var(--white);
+
+        color:
+            var(--primary);
+    }
+
+    .btn-white:hover {
+
+        transform:
+            translateY(-2px);
+
+        box-shadow:
+            0 12px 30px
+            rgba(0,0,0,.15);
+    }
+
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+
+    .site-footer {
+
+        padding:
+            35px 0;
+
+        background:
+            var(--white);
+
+        border-top:
+            1px solid var(--border);
+    }
+
+    .footer-top {
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 30px;
+    }
+
+    .footer-brand {
+
+        display: flex;
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .footer-logo {
+
+        width: 40px;
+        height: 40px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        background:
+            var(--primary);
+
+        color:
+            var(--white);
+
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .footer-company {
+
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer-company strong {
+
+        color:
+            var(--dark);
+
+        font-size: 12px;
+    }
+
+    .footer-company span {
+
+        margin-top: 2px;
+
+        color:
+            var(--muted);
+
+        font-size: 8px;
+        font-weight: 750;
+
+        letter-spacing: 1px;
+    }
+
+    .footer-links {
+
+        display: flex;
+        align-items: center;
+
+        gap: 19px;
+    }
+
+    .footer-links a {
+
+        color:
+            var(--muted);
+
+        font-size: 11px;
+        font-weight: 650;
+    }
+
+    .footer-links a:hover {
+
+        color:
+            var(--primary);
+    }
+
+    .footer-bottom {
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 20px;
+
+        padding-top: 23px;
+        margin-top: 23px;
+
+        border-top:
+            1px solid var(--border);
+
+        color:
+            var(--muted-light);
+
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 950px) {
 
         .hero {
-            position: relative;
-            overflow: hidden;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #f4faf7 0%,
-                    #ffffff 55%,
-                    #f8fafc 100%
-                );
 
             padding:
-                90px
-                0
-                100px;
-        }
-
-        .hero::before {
-            content: "";
-
-            position: absolute;
-
-            width: 500px;
-            height: 500px;
-
-            right: -180px;
-            top: -200px;
-
-            border-radius: 50%;
-
-            background: rgba(15, 81, 50, 0.05);
-        }
-
-        .hero::after {
-            content: "";
-
-            position: absolute;
-
-            width: 300px;
-            height: 300px;
-
-            left: -150px;
-            bottom: -180px;
-
-            border-radius: 50%;
-
-            background: rgba(212, 160, 23, 0.06);
+                70px 0
+                80px;
         }
 
         .hero-grid {
-            position: relative;
-            z-index: 2;
 
-            display: grid;
+            grid-template-columns: 1fr;
 
-            grid-template-columns:
-                minmax(0, 1.1fr)
-                minmax(400px, 0.9fr);
-
-            gap: 80px;
-
-            align-items: center;
+            gap: 50px;
         }
-
-
-        /* =========================================================
-           HERO CONTENT
-           ========================================================= */
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-
-            padding: 8px 13px;
-
-            background: var(--primary-light);
-
-            border: 1px solid #d5eade;
-
-            border-radius: 999px;
-
-            color: var(--primary);
-
-            font-size: 11px;
-            font-weight: 800;
-
-            letter-spacing: 1px;
-        }
-
-        .hero-badge span {
-            width: 7px;
-            height: 7px;
-
-            border-radius: 50%;
-
-            background: var(--accent);
-        }
-
-        .hero h1 {
-            margin-top: 24px;
-
-            max-width: 700px;
-
-            font-size:
-                clamp(
-                    42px,
-                    5vw,
-                    68px
-                );
-
-            line-height: 1.05;
-
-            letter-spacing: -2.5px;
-
-            color: var(--dark);
-
-            font-weight: 800;
-        }
-
-        .hero h1 strong {
-            display: block;
-
-            color: var(--primary);
-        }
-
-        .hero-description {
-            max-width: 620px;
-
-            margin-top: 25px;
-
-            color: var(--muted);
-
-            font-size: 17px;
-
-            line-height: 1.8;
-        }
-
-
-        /* =========================================================
-           HERO ACTIONS
-           ========================================================= */
-
-        .hero-actions {
-            display: flex;
-            align-items: center;
-
-            gap: 14px;
-
-            margin-top: 34px;
-
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            min-height: 50px;
-
-            padding:
-                0
-                21px;
-
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-
-            border-radius: 9px;
-
-            font-size: 14px;
-            font-weight: 750;
-
-            transition:
-                transform 0.2s ease,
-                box-shadow 0.2s ease,
-                background 0.2s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-
-            box-shadow:
-                0 10px 25px
-                rgba(15, 81, 50, 0.18);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: white;
-
-            color: var(--dark);
-
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-
-            transform: translateY(-2px);
-        }
-
-        .arrow {
-            font-size: 18px;
-        }
-
-
-        /* =========================================================
-           TRUST
-           ========================================================= */
-
-        .hero-trust {
-            display: flex;
-
-            align-items: center;
-
-            gap: 25px;
-
-            margin-top: 48px;
-
-            flex-wrap: wrap;
-        }
-
-        .trust-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .trust-number {
-            font-size: 20px;
-            font-weight: 800;
-
-            color: var(--dark);
-        }
-
-        .trust-label {
-            margin-top: 2px;
-
-            color: var(--muted);
-
-            font-size: 11px;
-
-            font-weight: 600;
-        }
-
-        .trust-divider {
-            width: 1px;
-            height: 35px;
-
-            background: var(--border);
-        }
-
-
-        /* =========================================================
-           HERO CARD
-           ========================================================= */
 
         .hero-visual {
-            position: relative;
+
+            max-width: 620px;
         }
 
-        .hero-card {
-            position: relative;
-            z-index: 3;
-
-            background: white;
-
-            border:
-                1px solid
-                rgba(15, 81, 50, 0.10);
-
-            border-radius: 22px;
-
-            padding: 30px;
-
-            box-shadow:
-                0 30px 70px
-                rgba(20, 33, 61, 0.12);
-        }
-
-        .hero-card-top {
-            display: flex;
-
-            align-items: center;
-            justify-content: space-between;
-
-            padding-bottom: 22px;
-
-            border-bottom: 1px solid var(--border);
-        }
-
-        .hero-card-label {
-            color: var(--muted);
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-            letter-spacing: 1.3px;
-        }
-
-        .status {
-            display: inline-flex;
-
-            align-items: center;
-
-            gap: 7px;
-
-            padding: 6px 10px;
-
-            border-radius: 999px;
-
-            background: #edf8f1;
-
-            color: var(--primary);
-
-            font-size: 10px;
-
-            font-weight: 800;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-
-            border-radius: 50%;
-
-            background: #2e9d62;
-        }
-
-        .hero-card-body {
-            padding: 30px 0;
-        }
-
-        .hero-card-icon {
-            width: 58px;
-            height: 58px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 16px;
-
-            background: var(--primary-light);
-
-            color: var(--primary);
-
-            font-size: 24px;
-
-            margin-bottom: 22px;
-        }
-
-        .hero-card h2 {
-            font-size: 28px;
-
-            line-height: 1.2;
-
-            color: var(--dark);
-        }
-
-        .hero-card p {
-            margin-top: 13px;
-
-            color: var(--muted);
-
-            font-size: 14px;
-
-            line-height: 1.7;
-        }
-
-        .hero-card-footer {
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            padding-top: 20px;
-
-            border-top: 1px solid var(--border);
-
-            font-size: 12px;
-        }
-
-        .hero-card-company {
-            font-weight: 750;
-
-            color: var(--dark);
-        }
-
-        .hero-card-secure {
-            color: var(--primary);
-
-            font-weight: 700;
-        }
-
-
-        /* =========================================================
-           SECTION
-           ========================================================= */
-
-        .section {
-            padding: 100px 0;
-        }
-
-        .section-header {
-            max-width: 680px;
-
-            margin-bottom: 55px;
-        }
-
-        .section-label {
-            color: var(--primary);
-
-            font-size: 11px;
-
-            font-weight: 800;
-
-            letter-spacing: 1.5px;
-        }
-
-        .section-title {
-            margin-top: 12px;
-
-            font-size:
-                clamp(
-                    32px,
-                    4vw,
-                    46px
-                );
-
-            line-height: 1.15;
-
-            letter-spacing: -1.5px;
-
-            color: var(--dark);
-        }
-
-        .section-title strong {
-            color: var(--primary);
-        }
-
-        .section-description {
-            margin-top: 16px;
-
-            color: var(--muted);
-
-            font-size: 15px;
-
-            line-height: 1.8;
-        }
-
-
-        /* =========================================================
-           FEATURES
-           ========================================================= */
-
-        .features {
-            background: white;
-        }
-
-        .feature-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 22px;
-        }
-
-        .feature-card {
-            padding: 30px;
-
-            border: 1px solid var(--border);
-
-            border-radius: 16px;
-
-            background: white;
-
-            transition:
-                transform 0.25s ease,
-                box-shadow 0.25s ease,
-                border-color 0.25s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-
-            border-color:
-                rgba(15, 81, 50, 0.20);
-
-            box-shadow: var(--shadow);
-        }
-
-        .feature-card.featured {
-            background: var(--primary);
-
-            border-color: var(--primary);
-
-            color: white;
-        }
-
-        .feature-number {
-            font-size: 11px;
-
-            font-weight: 800;
-
-            color: var(--accent);
-
-            letter-spacing: 1px;
-        }
-
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-
-            margin-top: 25px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 13px;
-
-            background: var(--primary-light);
-
-            color: var(--primary);
-
-            font-size: 20px;
-        }
-
-        .feature-card.featured .feature-icon {
-            background: rgba(255,255,255,0.12);
-
-            color: white;
-        }
-
-        .feature-card h3 {
-            margin-top: 22px;
-
-            font-size: 19px;
-        }
-
-        .feature-card p {
-            margin-top: 11px;
-
-            color: var(--muted);
-
-            font-size: 14px;
-
-            line-height: 1.75;
-        }
-
-        .feature-card.featured p {
-            color: rgba(255,255,255,0.78);
-        }
-
-
-        /* =========================================================
-           PROCESS
-           ========================================================= */
-
-        .process {
-            background: #f7f9fc;
-        }
-
+        .feature-grid,
         .process-grid {
-            display: grid;
 
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 20px;
-        }
-
-        .process-card {
-            position: relative;
-
-            padding: 30px;
-
-            background: white;
-
-            border:
-                1px solid
-                var(--border);
-
-            border-radius: 16px;
-        }
-
-        .process-number {
-            font-size: 40px;
-
-            line-height: 1;
-
-            font-weight: 800;
-
-            color: #dfe7e2;
-        }
-
-        .process-card h3 {
-            margin-top: 25px;
-
-            font-size: 19px;
-
-            color: var(--dark);
-        }
-
-        .process-card p {
-            margin-top: 10px;
-
-            font-size: 14px;
-
-            color: var(--muted);
-
-            line-height: 1.7;
-        }
-
-
-        /* =========================================================
-           CTA
-           ========================================================= */
-
-        .cta-section {
-            padding: 40px 0 100px;
+            grid-template-columns: 1fr;
         }
 
         .cta {
-            position: relative;
-
-            overflow: hidden;
-
-            background: var(--primary);
-
-            color: white;
-
-            border-radius: 22px;
 
             padding:
-                60px
-                65px;
+                48px 40px;
 
-            display: flex;
+            flex-direction: column;
 
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 40px;
+            align-items: flex-start;
         }
 
-        .cta::after {
-            content: "";
+    }
 
-            position: absolute;
 
-            width: 350px;
-            height: 350px;
+    @media (max-width: 700px) {
 
-            right: -120px;
-            top: -180px;
+        .container {
 
-            border-radius: 50%;
-
-            border:
-                70px solid
-                rgba(255,255,255,0.05);
-        }
-
-        .cta-content {
-            position: relative;
-            z-index: 2;
-
-            max-width: 650px;
-        }
-
-        .cta-label {
-            font-size: 10px;
-
-            font-weight: 800;
-
-            letter-spacing: 1.5px;
-
-            color: #d8eadf;
-        }
-
-        .cta h2 {
-            margin-top: 10px;
-
-            font-size:
-                clamp(
-                    30px,
-                    4vw,
-                    42px
+            width:
+                min(
+                    calc(100% - 28px),
+                    var(--container)
                 );
-
-            line-height: 1.15;
         }
 
-        .cta p {
-            margin-top: 12px;
+        .header-inner {
 
-            color: rgba(255,255,255,0.75);
-
-            font-size: 14px;
-        }
-
-        .cta-action {
-            position: relative;
-            z-index: 2;
-
-            flex-shrink: 0;
-        }
-
-        .btn-white {
-            background: white;
-
-            color: var(--primary);
-
-            min-width: 190px;
-        }
-
-        .btn-white:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 12px 30px
-                rgba(0,0,0,0.15);
-        }
-
-
-        /* =========================================================
-           FOOTER
-           ========================================================= */
-
-        .site-footer {
-            background: white;
-
-            border-top: 1px solid var(--border);
-
-            padding: 35px 0;
-        }
-
-        .footer-top {
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            gap: 30px;
-        }
-
-        .footer-brand {
-            display: flex;
-
-            align-items: center;
+            min-height:
+                68px;
 
             gap: 12px;
         }
 
-        .footer-logo {
-            width: 40px;
-            height: 40px;
+        .nav-link {
 
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 10px;
-
-            background: var(--primary);
-
-            color: white;
-
-            font-size: 13px;
-
-            font-weight: 800;
+            display: none;
         }
 
-        .footer-company {
-            display: flex;
+        .nav-login {
 
-            flex-direction: column;
-        }
+            min-height: 37px;
 
-        .footer-company strong {
-            font-size: 13px;
-        }
-
-        .footer-company span {
-            margin-top: 2px;
-
-            color: var(--muted);
-
-            font-size: 9px;
-
-            font-weight: 700;
-
-            letter-spacing: 1px;
-        }
-
-        .footer-links {
-            display: flex;
-
-            align-items: center;
-
-            gap: 20px;
-        }
-
-        .footer-links a {
-            color: var(--muted);
-
-            font-size: 12px;
-
-            font-weight: 600;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        .footer-bottom {
-            display: flex;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            padding-top: 25px;
-
-            margin-top: 25px;
-
-            border-top: 1px solid var(--border);
-
-            color: #98a2b3;
+            padding:
+                0 12px;
 
             font-size: 11px;
         }
 
+        .brand-name {
 
-        /* =========================================================
-           MOBILE
-           ========================================================= */
+            max-width: 190px;
 
-        @media (max-width: 900px) {
-
-            .hero {
-                padding:
-                    65px
-                    0
-                    75px;
-            }
-
-            .hero-grid {
-                grid-template-columns: 1fr;
-
-                gap: 50px;
-            }
-
-            .hero-visual {
-                max-width: 600px;
-            }
-
-            .feature-grid,
-            .process-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .cta {
-                padding: 45px 35px;
-
-                flex-direction: column;
-
-                align-items: flex-start;
-            }
-
+            font-size: 12px;
         }
 
+        .brand-subtitle {
 
-        @media (max-width: 700px) {
+            font-size: 7px;
 
-            .container {
-                width:
-                    min(
-                        calc(100% - 28px),
-                        var(--container)
-                    );
-            }
-
-            .header-inner {
-                min-height: 68px;
-            }
-
-            .main-nav {
-                gap: 3px;
-            }
-
-            .nav-link {
-                display: none;
-            }
-
-            .nav-login {
-                padding:
-                    9px
-                    13px;
-
-                font-size: 12px;
-            }
-
-            .brand-name {
-                font-size: 13px;
-            }
-
-            .brand-subtitle {
-                font-size: 8px;
-            }
-
-            .brand-logo,
-            .brand-placeholder {
-                width: 42px;
-                height: 42px;
-            }
-
-            .hero h1 {
-                letter-spacing: -1.5px;
-            }
-
-            .hero-description {
-                font-size: 15px;
-            }
-
-            .hero-trust {
-                gap: 15px;
-            }
-
-            .trust-divider {
-                display: none;
-            }
-
-            .section {
-                padding: 70px 0;
-            }
-
-            .cta-section {
-                padding:
-                    20px
-                    0
-                    70px;
-            }
-
-            .cta {
-                border-radius: 17px;
-
-                padding:
-                    40px
-                    25px;
-            }
-
-            .footer-top,
-            .footer-bottom {
-                flex-direction: column;
-
-                align-items: flex-start;
-            }
-
-            .footer-links {
-                flex-wrap: wrap;
-            }
+            letter-spacing:
+                1px;
         }
 
-    </style>
+        .brand-logo,
+        .brand-placeholder {
+
+            width: 42px;
+            height: 42px;
+        }
+
+        .hero {
+
+            padding:
+                60px 0
+                70px;
+        }
+
+        .hero h1 {
+
+            letter-spacing:
+                -1.7px;
+        }
+
+        .hero-description {
+
+            font-size: 14px;
+        }
+
+        .hero-card {
+
+            padding: 23px;
+        }
+
+        .hero-card h2 {
+
+            font-size: 24px;
+        }
+
+        .hero-trust {
+
+            gap: 15px;
+        }
+
+        .trust-divider {
+
+            display: none;
+        }
+
+        .section {
+
+            padding:
+                70px 0;
+        }
+
+        .section-header {
+
+            margin-bottom:
+                38px;
+        }
+
+        .cta-section {
+
+            padding:
+                20px 0
+                70px;
+        }
+
+        .cta {
+
+            border-radius: 17px;
+
+            padding:
+                40px 25px;
+        }
+
+        .cta-action {
+
+            width: 100%;
+        }
+
+        .btn-white {
+
+            width: 100%;
+        }
+
+        .footer-top,
+        .footer-bottom {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .footer-links {
+
+            flex-wrap: wrap;
+        }
+
+    }
+
+
+    @media (max-width: 480px) {
+
+        .hero-actions {
+
+            width: 100%;
+
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .hero-actions .btn {
+
+            width: 100%;
+        }
+
+        .hero-card-footer {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .feature-card,
+        .process-card {
+
+            padding: 24px;
+        }
+
+    }
+
+</style>
+
+
 </head>
-
 
 <body>
 
 
-    <!-- =========================================================
-         PUBLIC HEADER
-         NO SIDEBAR
-         ========================================================= -->
+<!-- =========================================================
+     PUBLIC HEADER
+     ========================================================= -->
 
-    <header class="site-header">
+<header class="site-header">
 
-        <div class="container header-inner">
+    <div class="container header-inner">
 
 
-            <!-- BRAND -->
+        <!-- BRAND -->
+
+        <a
+            href="/"
+            class="brand"
+            aria-label="Home"
+        >
+
+            {% if company_logo %}
+
+                <img
+                    src="{{ company_logo }}"
+                    alt="{{ company_name or 'Company Logo' }}"
+                    class="brand-logo"
+                >
+
+            {% else %}
+
+                <div
+                    class="brand-placeholder"
+                    aria-hidden="true"
+                >
+                    AV
+                </div>
+
+            {% endif %}
+
+
+            <div class="brand-text">
+
+                <span class="brand-name">
+
+                    {{ company_name
+                       or "AV KING VETERINARY BUSINESS SUITE" }}
+
+                </span>
+
+                <span class="brand-subtitle">
+
+                    VETERINARY BUSINESS SUITE
+
+                </span>
+
+            </div>
+
+        </a>
+
+
+        <!-- NAVIGATION -->
+
+        <nav
+            class="main-nav"
+            aria-label="Main navigation"
+        >
 
             <a
                 href="/"
-                class="brand"
-                aria-label="Home"
+                class="nav-link"
             >
-
-                {% if company_logo %}
-
-                    <img
-                        src="{{ company_logo }}"
-                        alt="{{ company_name }}"
-                        class="brand-logo"
-                    >
-
-                {% else %}
-
-                    <div class="brand-placeholder">
-                        AV
-                    </div>
-
-                {% endif %}
-
-
-                <div class="brand-text">
-
-                    <span class="brand-name">
-                        {{ company_name }}
-                    </span>
-
-                    <span class="brand-subtitle">
-                        VETERINARY BUSINESS SUITE
-                    </span>
-
-                </div>
-
+                Home
             </a>
 
+            <a
+                href="{{ url_for('apply') }}"
+                class="nav-link"
+            >
+                Careers
+            </a>
 
-            <!-- NAVIGATION -->
+            <a
+                href="{{ url_for('applicant_login') }}"
+                class="nav-login"
+            >
+                Applicant Login
+            </a>
 
-            <nav class="main-nav">
+        </nav>
 
-                <a
-                    href="/"
-                    class="nav-link"
-                >
-                    Home
-                </a>
+    </div>
 
-                <a
-                    href="{{ url_for('apply') }}"
-                    class="nav-link"
-                >
-                    Careers
-                </a>
-
-                <a
-                    href="{{ url_for('applicant_login') }}"
-                    class="nav-login"
-                >
-                    Applicant Login
-                </a>
-
-            </nav>
-
-        </div>
-
-    </header>
+</header>
 
 
 
-    <!-- =========================================================
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+
+<main>
+
+
+    <!-- =====================================================
          HERO
-         ========================================================= -->
+         ===================================================== -->
 
-    <main>
+    <section class="hero">
 
-
-        <section class="hero">
-
-            <div class="container hero-grid">
+        <div class="container hero-grid">
 
 
-                <!-- HERO CONTENT -->
+            <div class="hero-content">
 
-                <div class="hero-content">
+                <div class="hero-badge">
 
-                    <div class="hero-badge">
+                    <span></span>
 
-                        <span></span>
-
-                        CAREERS & RECRUITMENT
-
-                    </div>
-
-
-                    <h1>
-
-                        Build Your Future
-
-                        <strong>
-                            With {{ company_name }}
-                        </strong>
-
-                    </h1>
-
-
-                    <p class="hero-description">
-
-                        We are looking for dedicated,
-                        responsible and qualified individuals
-                        to join our growing team.
-
-                        Take the next step in your career
-                        through our professional recruitment
-                        portal.
-
-                    </p>
-
-
-                    <div class="hero-actions">
-
-                        <a
-                            href="{{ url_for('apply') }}"
-                            class="btn btn-primary"
-                        >
-
-                            Apply Now
-
-                            <span class="arrow">
-                                →
-                            </span>
-
-                        </a>
-
-
-                        <a
-                            href="{{ url_for('applicant_login') }}"
-                            class="btn btn-secondary"
-                        >
-
-                            Applicant Login
-
-                        </a>
-
-                    </div>
-
-
-                    <div class="hero-trust">
-
-                        <div class="trust-item">
-
-                            <span class="trust-number">
-                                01
-                            </span>
-
-                            <span class="trust-label">
-                                Professional
-                            </span>
-
-                        </div>
-
-
-                        <div class="trust-divider"></div>
-
-
-                        <div class="trust-item">
-
-                            <span class="trust-number">
-                                02
-                            </span>
-
-                            <span class="trust-label">
-                                Growth Focused
-                            </span>
-
-                        </div>
-
-
-                        <div class="trust-divider"></div>
-
-
-                        <div class="trust-item">
-
-                            <span class="trust-number">
-                                03
-                            </span>
-
-                            <span class="trust-label">
-                                Secure Portal
-                            </span>
-
-                        </div>
-
-                    </div>
+                    CAREERS &amp; RECRUITMENT
 
                 </div>
 
 
+                <h1>
 
-                <!-- HERO VISUAL -->
+                    Build Your Future
 
-                <div class="hero-visual">
+                    <strong>
+                        With {{ company_name
+                        or "AV KING" }}
+                    </strong>
 
-                    <div class="hero-card">
-
-
-                        <div class="hero-card-top">
-
-                            <span class="hero-card-label">
-                                RECRUITMENT PORTAL
-                            </span>
-
-                            <span class="status">
-
-                                <span class="status-dot"></span>
-
-                                Open
-
-                            </span>
-
-                        </div>
+                </h1>
 
 
-                        <div class="hero-card-body">
+                <p class="hero-description">
 
-                            <div class="hero-card-icon">
-                                ✓
-                            </div>
+                    We are looking for dedicated,
+                    responsible and qualified individuals
+                    to join our growing team.
 
+                    Take the next step in your career
+                    through our professional recruitment
+                    portal.
 
-                            <h2>
-                                Start your
-                                professional journey.
-                            </h2>
-
-
-                            <p>
-
-                                Submit your application
-                                securely and conveniently
-                                through our online recruitment
-                                portal.
-
-                            </p>
-
-                        </div>
+                </p>
 
 
-                        <div class="hero-card-footer">
+                <div class="hero-actions">
 
-                            <span class="hero-card-company">
-                                {{ company_name }}
-                            </span>
+                    <a
+                        href="{{ url_for('apply') }}"
+                        class="btn btn-primary"
+                    >
 
-                            <span class="hero-card-secure">
-                                Secure Application
-                            </span>
+                        Apply Now
 
-                        </div>
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
+                        >
+                            →
+                        </span>
+
+                    </a>
+
+
+                    <a
+                        href="{{ url_for('applicant_login') }}"
+                        class="btn btn-secondary"
+                    >
+
+                        Applicant Login
+
+                    </a>
+
+                </div>
+
+
+                <div class="hero-trust">
+
+
+                    <div class="trust-item">
+
+                        <span class="trust-number">
+                            01
+                        </span>
+
+                        <span class="trust-label">
+                            Professional
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="trust-divider"
+                        aria-hidden="true"
+                    ></div>
+
+
+                    <div class="trust-item">
+
+                        <span class="trust-number">
+                            02
+                        </span>
+
+                        <span class="trust-label">
+                            Growth Focused
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="trust-divider"
+                        aria-hidden="true"
+                    ></div>
+
+
+                    <div class="trust-item">
+
+                        <span class="trust-number">
+                            03
+                        </span>
+
+                        <span class="trust-label">
+                            Secure Portal
+                        </span>
 
                     </div>
 
@@ -1517,42 +1810,407 @@
 
             </div>
 
-        </section>
+
+
+            <!-- HERO VISUAL -->
+
+            <div class="hero-visual">
+
+                <div class="hero-card">
+
+
+                    <div class="hero-card-top">
+
+                        <span class="hero-card-label">
+                            RECRUITMENT PORTAL
+                        </span>
+
+                        <span class="status">
+
+                            <span
+                                class="status-dot"
+                                aria-hidden="true"
+                            ></span>
+
+                            {% if application_status
+                                  and application_status|lower == "closed" %}
+
+                                Closed
+
+                            {% else %}
+
+                                Open
+
+                            {% endif %}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="hero-card-body">
+
+                        <div
+                            class="hero-card-icon"
+                            aria-hidden="true"
+                        >
+                            ✓
+                        </div>
+
+
+                        <h2>
+                            Start your
+                            professional journey.
+                        </h2>
+
+
+                        <p>
+
+                            Submit your application
+                            securely and conveniently
+                            through our online recruitment
+                            portal.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="hero-card-footer">
+
+                        <span class="hero-card-company">
+
+                            {{ company_name
+                               or "AV KING VETERINARY BUSINESS SUITE" }}
+
+                        </span>
+
+                        <span class="hero-card-secure">
+
+                            Secure Application
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 
 
-        <!-- =====================================================
-             WHY JOIN US
-             ===================================================== -->
+    <!-- =====================================================
+         WHY JOIN US
+         ===================================================== -->
 
-        <section class="section features">
+    <section
+        class="section features"
+        id="why-join"
+    >
 
-            <div class="container">
+        <div class="container">
 
 
-                <div class="section-header">
+            <div class="section-header">
 
-                    <span class="section-label">
-                        WHY JOIN US
+                <span class="section-label">
+                    WHY JOIN US
+                </span>
+
+
+                <h2 class="section-title">
+
+                    More than a job.
+
+                    <strong>
+                        A place to grow.
+                    </strong>
+
+                </h2>
+
+
+                <p class="section-description">
+
+                    We believe that a strong organization
+                    is built by people who are committed
+                    to learning, responsibility and
+                    excellent service.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="feature-grid">
+
+
+                <article class="feature-card">
+
+                    <span class="feature-number">
+                        01
                     </span>
 
 
-                    <h2 class="section-title">
+                    <div
+                        class="feature-icon"
+                        aria-hidden="true"
+                    >
+                        ◆
+                    </div>
 
-                        More than a job.
 
-                        <strong>
-                            A place to grow.
-                        </strong>
+                    <h3>
+                        Professional Environment
+                    </h3>
+
+
+                    <p>
+
+                        Work in a structured environment
+                        where professionalism,
+                        responsibility and excellent
+                        service are valued.
+
+                    </p>
+
+                </article>
+
+
+
+                <article class="feature-card featured">
+
+                    <span class="feature-number">
+                        02
+                    </span>
+
+
+                    <div
+                        class="feature-icon"
+                        aria-hidden="true"
+                    >
+                        ↗
+                    </div>
+
+
+                    <h3>
+                        Career Development
+                    </h3>
+
+
+                    <p>
+
+                        Develop your skills, gain valuable
+                        experience and grow as part of a
+                        forward-looking organization.
+
+                    </p>
+
+                </article>
+
+
+
+                <article class="feature-card">
+
+                    <span class="feature-number">
+                        03
+                    </span>
+
+
+                    <div
+                        class="feature-icon"
+                        aria-hidden="true"
+                    >
+                        ✓
+                    </div>
+
+
+                    <h3>
+                        Simple Application
+                    </h3>
+
+
+                    <p>
+
+                        Complete your application online
+                        through our secure and convenient
+                        recruitment portal.
+
+                    </p>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         APPLICATION PROCESS
+         ===================================================== -->
+
+    <section
+        class="section process"
+        id="process"
+    >
+
+        <div class="container">
+
+
+            <div class="section-header">
+
+                <span class="section-label">
+                    HOW IT WORKS
+                </span>
+
+
+                <h2 class="section-title">
+
+                    Your application,
+
+                    <strong>
+                        made simple.
+                    </strong>
+
+                </h2>
+
+
+                <p class="section-description">
+
+                    Our recruitment process is designed
+                    to make applying straightforward and
+                    convenient.
+
+                </p>
+
+            </div>
+
+
+
+            <div class="process-grid">
+
+
+                <article class="process-card">
+
+                    <div class="process-number">
+                        01
+                    </div>
+
+
+                    <h3>
+                        Start Application
+                    </h3>
+
+
+                    <p>
+
+                        Begin your application by providing
+                        your basic personal information.
+
+                    </p>
+
+                </article>
+
+
+
+                <article class="process-card">
+
+                    <div class="process-number">
+                        02
+                    </div>
+
+
+                    <h3>
+                        Complete Details
+                    </h3>
+
+
+                    <p>
+
+                        Provide your qualifications,
+                        experience and required supporting
+                        documents.
+
+                    </p>
+
+                </article>
+
+
+
+                <article class="process-card">
+
+                    <div class="process-number">
+                        03
+                    </div>
+
+
+                    <h3>
+                        Track Application
+                    </h3>
+
+
+                    <p>
+
+                        Sign in to your applicant portal
+                        to follow the progress of your
+                        application.
+
+                    </p>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FINAL CTA
+         ===================================================== -->
+
+    <section class="cta-section">
+
+        <div class="container">
+
+            <div class="cta">
+
+
+                <div class="cta-content">
+
+                    <span class="cta-label">
+
+                        READY TO TAKE THE NEXT STEP?
+
+                    </span>
+
+
+                    <h2>
+
+                        Your next opportunity
+                        starts here.
 
                     </h2>
 
 
-                    <p class="section-description">
+                    <p>
 
-                        We believe that a strong organization
-                        is built by people who are committed
-                        to learning, responsibility and
+                        Join
+                        {{ company_name
+                           or "AV KING VETERINARY BUSINESS SUITE" }}
+                        and become part of a team committed
+                        to professionalism, growth and
                         excellent service.
 
                     </p>
@@ -1560,338 +2218,83 @@
                 </div>
 
 
+                <div class="cta-action">
 
-                <div class="feature-grid">
+                    <a
+                        href="{{ url_for('apply') }}"
+                        class="btn btn-white"
+                    >
 
+                        Start Application
 
-                    <article class="feature-card">
-
-                        <span class="feature-number">
-                            01
-                        </span>
-
-
-                        <div class="feature-icon">
-                            ◆
-                        </div>
-
-
-                        <h3>
-                            Professional Environment
-                        </h3>
-
-
-                        <p>
-
-                            Work in a structured environment
-                            where professionalism,
-                            responsibility and excellent
-                            service are valued.
-
-                        </p>
-
-                    </article>
-
-
-
-                    <article class="feature-card featured">
-
-                        <span class="feature-number">
-                            02
-                        </span>
-
-
-                        <div class="feature-icon">
-                            ↗
-                        </div>
-
-
-                        <h3>
-                            Career Development
-                        </h3>
-
-
-                        <p>
-
-                            Develop your skills, gain valuable
-                            experience and grow as part of a
-                            forward-looking organization.
-
-                        </p>
-
-                    </article>
-
-
-
-                    <article class="feature-card">
-
-                        <span class="feature-number">
-                            03
-                        </span>
-
-
-                        <div class="feature-icon">
-                            ✓
-                        </div>
-
-
-                        <h3>
-                            Simple Application
-                        </h3>
-
-
-                        <p>
-
-                            Complete your application online
-                            through our secure and convenient
-                            recruitment portal.
-
-                        </p>
-
-                    </article>
-
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =====================================================
-             APPLICATION PROCESS
-             ===================================================== -->
-
-        <section class="section process">
-
-            <div class="container">
-
-
-                <div class="section-header">
-
-                    <span class="section-label">
-                        HOW IT WORKS
-                    </span>
-
-
-                    <h2 class="section-title">
-
-                        Your application,
-
-                        <strong>
-                            made simple.
-                        </strong>
-
-                    </h2>
-
-
-                    <p class="section-description">
-
-                        Our recruitment process is designed
-                        to make applying straightforward and
-                        convenient.
-
-                    </p>
-
-                </div>
-
-
-
-                <div class="process-grid">
-
-
-                    <article class="process-card">
-
-                        <div class="process-number">
-                            01
-                        </div>
-
-
-                        <h3>
-                            Start Application
-                        </h3>
-
-
-                        <p>
-
-                            Begin your application by providing
-                            your basic personal information.
-
-                        </p>
-
-                    </article>
-
-
-
-                    <article class="process-card">
-
-                        <div class="process-number">
-                            02
-                        </div>
-
-
-                        <h3>
-                            Complete Details
-                        </h3>
-
-
-                        <p>
-
-                            Provide your qualifications,
-                            experience and required supporting
-                            documents.
-
-                        </p>
-
-                    </article>
-
-
-
-                    <article class="process-card">
-
-                        <div class="process-number">
-                            03
-                        </div>
-
-
-                        <h3>
-                            Track Application
-                        </h3>
-
-
-                        <p>
-
-                            Sign in to your applicant portal
-                            to follow the progress of your
-                            application.
-
-                        </p>
-
-                    </article>
-
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =====================================================
-             FINAL CTA
-             ===================================================== -->
-
-        <section class="cta-section">
-
-            <div class="container">
-
-                <div class="cta">
-
-
-                    <div class="cta-content">
-
-                        <span class="cta-label">
-                            READY TO TAKE THE NEXT STEP?
-                        </span>
-
-
-                        <h2>
-                            Your next opportunity
-                            starts here.
-                        </h2>
-
-
-                        <p>
-
-                            Join {{ company_name }} and become
-                            part of a team committed to
-                            professionalism, growth and
-                            excellent service.
-
-                        </p>
-
-                    </div>
-
-
-                    <div class="cta-action">
-
-                        <a
-                            href="{{ url_for('apply') }}"
-                            class="btn btn-white"
+                        <span
+                            class="arrow"
+                            aria-hidden="true"
                         >
+                            →
+                        </span>
 
-                            Start Application
-
-                            <span class="arrow">
-                                →
-                            </span>
-
-                        </a>
-
-                    </div>
-
+                    </a>
 
                 </div>
 
+
             </div>
 
-        </section>
+        </div>
 
-    </main>
+    </section>
 
-
-
-    <!-- =========================================================
-         PUBLIC FOOTER
-         NO SIDEBAR
-         ========================================================= -->
-
-    <footer class="site-footer">
-
-        <div class="container">
+</main>
 
 
-            <div class="footer-top">
+
+<!-- =========================================================
+     PUBLIC FOOTER
+     ========================================================= -->
+
+<footer class="site-footer">
+
+    <div class="container">
 
 
-                <div class="footer-brand">
+        <div class="footer-top">
+
+
+            <div class="footer-brand">
+
+                {% if company_logo %}
+
+                    <img
+                        src="{{ company_logo }}"
+                        alt="{{ company_name or 'Company Logo' }}"
+                        class="brand-logo"
+                        style="width:40px;height:40px;border-radius:10px;"
+                    >
+
+                {% else %}
 
                     <div class="footer-logo">
                         AV
                     </div>
 
-
-                    <div class="footer-company">
-
-                        <strong>
-                            {{ company_name }}
-                        </strong>
-
-                        <span>
-                            VETERINARY BUSINESS SUITE
-                        </span>
-
-                    </div>
-
-                </div>
+                {% endif %}
 
 
+                <div class="footer-company">
 
-                <div class="footer-links">
+                    <strong>
 
-                    <a href="/">
-                        Home
-                    </a>
+                        {{ company_name
+                           or "AV KING VETERINARY BUSINESS SUITE" }}
 
-                    <a href="{{ url_for('apply') }}">
-                        Apply
-                    </a>
+                    </strong>
 
-                    <a href="{{ url_for('applicant_login') }}">
-                        Applicant Login
-                    </a>
+                    <span>
+
+                        VETERINARY BUSINESS SUITE
+
+                    </span>
 
                 </div>
 
@@ -1899,30 +2302,52 @@
 
 
 
-            <div class="footer-bottom">
+            <div class="footer-links">
 
-                <span>
+                <a href="/">
+                    Home
+                </a>
 
-                    © {{ current_year or 2026 }}
-                    {{ company_name }}.
-                    All rights reserved.
+                <a href="{{ url_for('apply') }}">
+                    Apply
+                </a>
 
-                </span>
-
-
-                <span>
-
-                    Professional • Secure • Reliable
-
-                </span>
+                <a href="{{ url_for('applicant_login') }}">
+                    Applicant Login
+                </a>
 
             </div>
-
 
         </div>
 
-    </footer>
 
+
+        <div class="footer-bottom">
+
+            <span>
+
+                © {{ current_year or 2026 }}
+
+                {{ company_name
+                   or "AV KING VETERINARY BUSINESS SUITE" }}.
+
+                All rights reserved.
+
+            </span>
+
+
+            <span>
+
+                Professional • Secure • Reliable
+
+            </span>
+
+        </div>
+
+
+    </div>
+
+</footer>
 
 </body>
 </html>
