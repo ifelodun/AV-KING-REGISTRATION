@@ -2,9 +2,9 @@ Flask
 psycopg2-binary
 python-dotenv
 Werkzeug
-gunicorn
 Flask-Mail
 pandas
 openpyxl
 reportlab
 requests
+gunicorn
