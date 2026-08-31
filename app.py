@@ -8553,9 +8553,9 @@ def admin_applicant_communication():
 @app.route("/applicant/portal")
 def applicant_portal():
 
-    # ========================================================
+    # =========================================================
     # CHECK APPLICANT LOGIN
-    # ========================================================
+    # =========================================================
 
     applicant_id = session.get("applicant_id")
 
@@ -8566,6 +8566,10 @@ def applicant_portal():
         )
 
 
+    # =========================================================
+    # DATABASE CONNECTION
+    # =========================================================
+
     conn = get_db()
 
     try:
@@ -8573,7 +8577,7 @@ def applicant_portal():
         with conn.cursor() as cur:
 
             # =================================================
-            # GET APPLICATION
+            # GET APPLICANT APPLICATION
             # =================================================
 
             cur.execute(
@@ -8607,8 +8611,14 @@ def applicant_portal():
                     None
                 )
 
+                session.pop(
+                    "applicant_unread_count",
+                    None
+                )
+
                 flash(
-                    "Application account not found.",
+                    "Application account not found. "
+                    "Please log in again.",
                     "error"
                 )
 
@@ -8618,12 +8628,20 @@ def applicant_portal():
 
 
             # =================================================
-            # GET APPLICANT MESSAGES + INTERVIEWS
+            # GET APPLICANT MESSAGES
+            #
+            # Includes:
+            # - Normal messages
+            # - Interview invitations
+            # - Interview date
+            # - Interview time
+            # - Interview location
             # =================================================
 
             cur.execute(
                 """
                 SELECT
+
                     id,
 
                     subject,
@@ -8681,24 +8699,149 @@ def applicant_portal():
             unread_row = cur.fetchone()
 
 
-            unread_count = int(
-                unread_row["unread_count"]
-                if unread_row
-                else 0
+            # =================================================
+            # SAFELY GET UNREAD COUNT
+            # =================================================
+
+            if unread_row:
+
+                unread_count = int(
+                    unread_row.get(
+                        "unread_count",
+                        0
+                    )
+                    or 0
+                )
+
+            else:
+
+                unread_count = 0
+
+
+            # =================================================
+            # UPDATE SESSION BADGE
+            #
+            # This allows base.html to display:
+            #
+            # Messages & Interview  3
+            # =================================================
+
+            session[
+                "applicant_unread_count"
+            ] = unread_count
+
+
+            # =================================================
+            # OPTIONAL:
+            # GET TOTAL MESSAGE COUNT
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total_messages
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+                """,
+                (
+                    applicant_id,
+                )
             )
+
+            total_row = cur.fetchone()
+
+
+            if total_row:
+
+                total_messages = int(
+                    total_row.get(
+                        "total_messages",
+                        0
+                    )
+                    or 0
+                )
+
+            else:
+
+                total_messages = 0
+
+
+            # =================================================
+            # COUNT INTERVIEW INVITATIONS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS interview_count
+
+                FROM applicant_messages
+
+                WHERE application_id = %s
+
+                AND message_type = 'interview'
+                """,
+                (
+                    applicant_id,
+                )
+            )
+
+            interview_row = cur.fetchone()
+
+
+            if interview_row:
+
+                interview_count = int(
+                    interview_row.get(
+                        "interview_count",
+                        0
+                    )
+                    or 0
+                )
+
+            else:
+
+                interview_count = 0
 
 
     except Exception:
 
+        # =====================================================
+        # LOG DATABASE ERROR
+        # =====================================================
+
         app.logger.exception(
             "Error loading applicant portal."
         )
+
+
+        # =====================================================
+        # RESET VARIABLES
+        # =====================================================
+
+        application = None
+
+        messages = []
+
+        unread_count = 0
+
+        total_messages = 0
+
+        interview_count = 0
+
+
+        # =====================================================
+        # INFORM APPLICANT
+        # =====================================================
 
         flash(
             "Unable to load your applicant portal. "
             "Please try again.",
             "error"
         )
+
 
         return redirect(
             url_for("applicant_login")
@@ -8707,23 +8850,32 @@ def applicant_portal():
 
     finally:
 
+        # =====================================================
+        # CLOSE DATABASE CONNECTION
+        # =====================================================
+
         conn.close()
 
 
-    # ========================================================
+    # =========================================================
     # RENDER APPLICANT PORTAL
-    # ========================================================
+    # =========================================================
 
     return render_template(
+
         "applicant_portal.html",
 
         application=application,
 
         messages=messages,
 
-        unread_count=unread_count
-    )
+        unread_count=unread_count,
 
+        total_messages=total_messages,
+
+        interview_count=interview_count
+
+    )
 
 # ============================================================
 # APPLICANT MESSAGES
