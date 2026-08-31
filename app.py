@@ -2049,6 +2049,10 @@ def admin_required():
 # ============================================================
 # APPLICATIONS MANAGEMENT
 # ============================================================
+# ============================================================
+# ADMIN APPLICATIONS
+# ============================================================
+
 @app.route("/admin/applications")
 def admin_applications():
 
@@ -2085,6 +2089,9 @@ def admin_applications():
     # ============================================================
 
     conn = get_db()
+
+    applications = []
+    summary = None
 
     try:
 
@@ -2169,7 +2176,7 @@ def admin_applications():
 
             # ====================================================
             # POSITION FILTER
-            # ====================================================
+            # ============================================================
 
             if position:
 
@@ -2183,7 +2190,7 @@ def admin_applications():
 
 
             # ====================================================
-            # ORDER BY APPLICATION DATE
+            # ORDER BY
             # ====================================================
 
             query += """
@@ -2194,7 +2201,7 @@ def admin_applications():
 
 
             # ====================================================
-            # EXECUTE
+            # EXECUTE APPLICATION QUERY
             # ====================================================
 
             cur.execute(
@@ -2247,7 +2254,21 @@ def admin_applications():
             "Error loading admin applications"
         )
 
-        raise
+        flash(
+            "Unable to load applications at this time.",
+            "error"
+        )
+
+        applications = []
+
+        summary = {
+            "total": 0,
+            "pending": 0,
+            "under_review": 0,
+            "shortlisted": 0,
+            "approved": 0,
+            "rejected": 0
+        }
 
 
     finally:
@@ -2297,7 +2318,7 @@ def admin_applications():
 
 
     # ============================================================
-    # RENDER
+    # RENDER ADMIN APPLICATIONS
     # ============================================================
 
     return render_template(
@@ -2318,14 +2339,24 @@ def admin_applications():
     )
 
 
+# ============================================================
+# COMPANY SETTINGS CONTEXT
+# ============================================================
+
 @app.context_processor
 def inject_company_settings():
+
+    conn = None
+    cur = None
+
     try:
+
         conn = get_db()
 
         cur = conn.cursor()
 
-        cur.execute("""
+        cur.execute(
+            """
             SELECT
                 company_name,
                 company_email,
@@ -2337,38 +2368,98 @@ def inject_company_settings():
             FROM company_settings
             ORDER BY id DESC
             LIMIT 1
-        """)
+            """
+        )
 
         settings = cur.fetchone()
 
-        cur.close()
-        conn.close()
 
         if settings:
+
             return {
                 "settings": settings,
-                "company_name": settings["company_name"],
-                "company_email": settings["company_email"],
-                "company_phone": settings["company_phone"],
-                "company_address": settings["company_address"],
-                "company_website": settings["company_website"],
-                "company_logo": settings["logo"],
+
+                "company_name": (
+                    settings["company_name"]
+                    or "AV KING VETERINARY BUSINESS SUITE"
+                ),
+
+                "company_email": (
+                    settings["company_email"]
+                    or ""
+                ),
+
+                "company_phone": (
+                    settings["company_phone"]
+                    or ""
+                ),
+
+                "company_address": (
+                    settings["company_address"]
+                    or ""
+                ),
+
+                "company_website": (
+                    settings["company_website"]
+                    or ""
+                ),
+
+                "company_logo": (
+                    settings["logo"]
+                    or None
+                )
             }
 
-    except Exception as e:
-        print("Company settings context error:", e)
+
+    except Exception:
+
+        app.logger.exception(
+            "Company settings context error"
+        )
+
+
+    finally:
+
+        if cur:
+
+            try:
+                cur.close()
+            except Exception:
+                pass
+
+        if conn:
+
+            try:
+                conn.close()
+            except Exception:
+                pass
+
 
     return {
         "settings": None,
-        "company_name": "AV KING VETERINARY BUSINESS SUITE",
-        "company_email": "",
-        "company_phone": "",
-        "company_address": "",
-        "company_website": "",
-        "company_logo": None,
+
+        "company_name":
+            "AV KING VETERINARY BUSINESS SUITE",
+
+        "company_email":
+            "",
+
+        "company_phone":
+            "",
+
+        "company_address":
+            "",
+
+        "company_website":
+            "",
+
+        "company_logo":
+            None
     }
+
+
 # ============================================================
-# VIEW APPLICATION
+# VIEW APPLICATION DETAILS
 # ============================================================
 
 @app.route(
@@ -2376,10 +2467,21 @@ def inject_company_settings():
 )
 def admin_application_details(application_id):
 
+    # ============================================================
+    # ADMIN LOGIN CHECK
+    # ============================================================
+
     if not admin_required():
         return redirect(url_for("admin_login"))
 
+
+    # ============================================================
+    # DATABASE CONNECTION
+    # ============================================================
+
     conn = get_db()
+
+    application = None
 
     try:
 
@@ -2397,9 +2499,32 @@ def admin_application_details(application_id):
 
             application = cur.fetchone()
 
+
+    except Exception:
+
+        app.logger.exception(
+            "Error loading application details: %s",
+            application_id
+        )
+
+        flash(
+            "Unable to load application details.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+
     finally:
 
         conn.close()
+
+
+    # ============================================================
+    # APPLICATION NOT FOUND
+    # ============================================================
 
     if not application:
 
@@ -2412,11 +2537,15 @@ def admin_application_details(application_id):
             url_for("admin_applications")
         )
 
+
+    # ============================================================
+    # RENDER APPLICATION DETAILS
+    # ============================================================
+
     return render_template(
         "admin_application_details.html",
         application=application
     )
-
 # ============================================================
 # ADMIN SEND MESSAGE TO APPLICANT
 # ============================================================
