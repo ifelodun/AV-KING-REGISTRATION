@@ -13092,10 +13092,15 @@ def download_applicant_biodata(application_id):
             url_for("admin_login")
         )
 
+    # =========================================================
+    # IMPORTS
+    # =========================================================
 
-    # =========================================================
-    # REPORTLAB
-    # =========================================================
+    import os
+    import html
+    import requests
+
+    from io import BytesIO
 
     from reportlab.lib import colors
 
@@ -13123,12 +13128,14 @@ def download_applicant_biodata(application_id):
         HRFlowable
     )
 
-
     # =========================================================
     # DATABASE
     # =========================================================
 
     conn = get_db()
+
+    applicant = None
+    settings = None
 
     try:
 
@@ -13149,7 +13156,6 @@ def download_applicant_biodata(application_id):
             )
 
             applicant = cur.fetchone()
-
 
             # -------------------------------------------------
             # GET COMPANY SETTINGS
@@ -13173,11 +13179,11 @@ def download_applicant_biodata(application_id):
 
             settings = cur.fetchone()
 
-
     except Exception:
 
         app.logger.exception(
-            "Error loading applicant biodata"
+            "Error loading applicant biodata for application ID %s",
+            application_id
         )
 
         flash(
@@ -13192,7 +13198,6 @@ def download_applicant_biodata(application_id):
     finally:
 
         conn.close()
-
 
     # =========================================================
     # APPLICANT NOT FOUND
@@ -13209,9 +13214,8 @@ def download_applicant_biodata(application_id):
             url_for("admin_applications")
         )
 
-
     # =========================================================
-    # HELPER
+    # SAFE VALUE HELPER
     # =========================================================
 
     def value(
@@ -13225,70 +13229,127 @@ def download_applicant_biodata(application_id):
 
         except (
             KeyError,
-            TypeError
+            TypeError,
+            IndexError
         ):
 
             result = None
-
 
         if result is None:
 
             return default
 
-
         result = str(
             result
         ).strip()
-
 
         if not result:
 
             return default
 
-
         return result
 
+    # =========================================================
+    # SAFE HTML HELPER
+    # =========================================================
+
+    def safe_text(text):
+
+        if text is None:
+
+            return ""
+
+        return html.escape(
+            str(text)
+        ).replace(
+            "\n",
+            "<br/>"
+        )
 
     # =========================================================
-    # COMPANY INFORMATION
+    # COMPANY SETTINGS
     # =========================================================
 
     if settings:
 
-        company_name = (
-            settings["company_name"]
-            or "AV KING VET DRUG VENTURE"
-        )
+        try:
 
-        company_email = (
-            settings["company_email"]
-            or ""
-        )
+            company_name = (
+                settings["company_name"]
+                or "AV KING VET DRUG VENTURE"
+            )
 
-        company_phone = (
-            settings["company_phone"]
-            or ""
-        )
+        except Exception:
 
-        company_address = (
-            settings["company_address"]
-            or ""
-        )
+            company_name = (
+                "AV KING VET DRUG VENTURE"
+            )
 
-        company_website = (
-            settings["company_website"]
-            or ""
-        )
+        try:
 
-        footer_text = (
-            settings["footer_text"]
-            or ""
-        )
+            company_email = (
+                settings["company_email"]
+                or ""
+            )
 
-        logo_value = (
-            settings["logo"]
-            or ""
-        )
+        except Exception:
+
+            company_email = ""
+
+        try:
+
+            company_phone = (
+                settings["company_phone"]
+                or ""
+            )
+
+        except Exception:
+
+            company_phone = ""
+
+        try:
+
+            company_address = (
+                settings["company_address"]
+                or ""
+            )
+
+        except Exception:
+
+            company_address = ""
+
+        try:
+
+            company_website = (
+                settings["company_website"]
+                or ""
+            )
+
+        except Exception:
+
+            company_website = ""
+
+        try:
+
+            footer_text = (
+                settings["footer_text"]
+                or ""
+            )
+
+        except Exception:
+
+            footer_text = ""
+
+        try:
+
+            logo_value = (
+                settings["logo"]
+                or ""
+            )
+
+        except Exception:
+
+            logo_value = ""
 
     else:
 
@@ -13303,169 +13364,196 @@ def download_applicant_biodata(application_id):
         footer_text = ""
         logo_value = ""
 
-
     # =========================================================
-    # COMPANY LOGO
+    # IMAGE LOADER
+    #
+    # Supports:
+    # 1. Cloudinary URL
+    # 2. Other remote URL
+    # 3. /static/...
+    # 4. static/...
+    # 5. filename only
     # =========================================================
 
-    logo_path = None
+    def load_image(
+        image_value,
+        label="image"
+    ):
 
+        if not image_value:
 
-    if logo_value:
+            return None
 
-        logo_value = str(
-            logo_value
+        image_value = str(
+            image_value
         ).strip()
 
+        if not image_value:
 
-        # -----------------------------------------------
-        # /static/uploads/logo.png
-        # -----------------------------------------------
+            return None
 
-        if logo_value.startswith(
+        # -----------------------------------------------------
+        # REMOTE / CLOUDINARY URL
+        # -----------------------------------------------------
+
+        if (
+            image_value.startswith(
+                "http://"
+            )
+            or
+            image_value.startswith(
+                "https://"
+            )
+        ):
+
+            try:
+
+                response = requests.get(
+                    image_value,
+                    timeout=20,
+                    headers={
+                        "User-Agent":
+                        "AV-KING-Recruitment-Portal/1.0"
+                    }
+                )
+
+                response.raise_for_status()
+
+                if not response.content:
+
+                    raise ValueError(
+                        "Empty image response."
+                    )
+
+                image_buffer = BytesIO(
+                    response.content
+                )
+
+                image_buffer.seek(0)
+
+                app.logger.info(
+                    "%s loaded successfully from remote URL.",
+                    label
+                )
+
+                return image_buffer
+
+            except Exception:
+
+                app.logger.exception(
+                    "Unable to load %s from URL: %s",
+                    label,
+                    image_value
+                )
+
+                return None
+
+        # -----------------------------------------------------
+        # LOCAL FILE FALLBACK
+        # -----------------------------------------------------
+
+        if image_value.startswith(
             "/static/"
         ):
 
-            logo_path = os.path.join(
+            local_path = os.path.join(
                 app.root_path,
-                logo_value.lstrip("/")
+                image_value.lstrip("/")
             )
 
-
-        # -----------------------------------------------
-        # static/uploads/logo.png
-        # -----------------------------------------------
-
-        elif logo_value.startswith(
+        elif image_value.startswith(
             "static/"
         ):
 
-            logo_path = os.path.join(
+            local_path = os.path.join(
                 app.root_path,
-                logo_value
+                image_value
             )
-
-
-        # -----------------------------------------------
-        # logo.png
-        # -----------------------------------------------
 
         else:
 
-            logo_path = os.path.join(
+            local_path = os.path.join(
                 app.root_path,
                 "static",
                 "uploads",
                 os.path.basename(
-                    logo_value
+                    image_value
                 )
             )
 
-
-        logo_path = os.path.abspath(
-            logo_path
+        local_path = os.path.abspath(
+            local_path
         )
 
-
         if not os.path.isfile(
-            logo_path
+            local_path
         ):
 
             app.logger.warning(
-                "Company logo not found: %s",
-                logo_path
+                "%s not found locally: %s",
+                label,
+                local_path
             )
 
-            logo_path = None
+            return None
 
+        try:
+
+            with open(
+                local_path,
+                "rb"
+            ) as file:
+
+                image_buffer = BytesIO(
+                    file.read()
+                )
+
+            image_buffer.seek(0)
+
+            return image_buffer
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to read %s: %s",
+                label,
+                local_path
+            )
+
+            return None
 
     # =========================================================
-    # APPLICANT PASSPORT
+    # LOAD COMPANY LOGO
     # =========================================================
 
-    passport_path = None
-
-
-    passport_filename = (
-        applicant["passport_filename"]
-        or ""
+    logo_buffer = load_image(
+        logo_value,
+        "Company logo"
     )
 
+    # =========================================================
+    # LOAD APPLICANT PASSPORT
+    # =========================================================
 
-    if passport_filename:
+    passport_value = value(
+        "passport_filename",
+        ""
+    )
 
-        passport_filename = str(
-            passport_filename
-        ).strip()
+    if passport_value == "—":
 
+        passport_value = ""
 
-        # -----------------------------------------------
-        # /static/uploads/passport.jpg
-        # -----------------------------------------------
-
-        if passport_filename.startswith(
-            "/static/"
-        ):
-
-            passport_path = os.path.join(
-                app.root_path,
-                passport_filename.lstrip("/")
-            )
-
-
-        # -----------------------------------------------
-        # static/uploads/passport.jpg
-        # -----------------------------------------------
-
-        elif passport_filename.startswith(
-            "static/"
-        ):
-
-            passport_path = os.path.join(
-                app.root_path,
-                passport_filename
-            )
-
-
-        # -----------------------------------------------
-        # filename only
-        # -----------------------------------------------
-
-        else:
-
-            passport_path = os.path.join(
-                app.root_path,
-                "static",
-                "uploads",
-                os.path.basename(
-                    passport_filename
-                )
-            )
-
-
-        passport_path = os.path.abspath(
-            passport_path
-        )
-
-
-        if not os.path.isfile(
-            passport_path
-        ):
-
-            app.logger.warning(
-                "Applicant passport not found: %s",
-                passport_path
-            )
-
-            passport_path = None
-
+    passport_buffer = load_image(
+        passport_value,
+        "Applicant passport"
+    )
 
     # =========================================================
     # PDF BUFFER
     # =========================================================
 
     buffer = BytesIO()
-
 
     # =========================================================
     # PDF DOCUMENT
@@ -13486,13 +13574,11 @@ def download_applicant_biodata(application_id):
         bottomMargin=18 * mm
     )
 
-
     # =========================================================
     # STYLES
     # =========================================================
 
     styles = getSampleStyleSheet()
-
 
     company_style = ParagraphStyle(
         "CompanyStyle",
@@ -13512,7 +13598,6 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     company_info_style = ParagraphStyle(
         "CompanyInfo",
 
@@ -13530,7 +13615,6 @@ def download_applicant_biodata(application_id):
             "#4b5563"
         )
     )
-
 
     title_style = ParagraphStyle(
         "TitleStyle",
@@ -13550,7 +13634,6 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     section_style = ParagraphStyle(
         "SectionStyle",
 
@@ -13564,7 +13647,6 @@ def download_applicant_biodata(application_id):
 
         textColor=colors.white
     )
-
 
     label_style = ParagraphStyle(
         "LabelStyle",
@@ -13582,7 +13664,6 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     data_style = ParagraphStyle(
         "DataStyle",
 
@@ -13598,7 +13679,6 @@ def download_applicant_biodata(application_id):
             "#111827"
         )
     )
-
 
     small_style = ParagraphStyle(
         "SmallStyle",
@@ -13616,25 +13696,25 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     # =========================================================
     # STORY
     # =========================================================
 
     story = []
 
-
     # =========================================================
     # COMPANY LOGO
     # =========================================================
 
-    if logo_path:
+    if logo_buffer:
 
         try:
 
+            logo_buffer.seek(0)
+
             header_logo = Image(
 
-                logo_path,
+                logo_buffer,
 
                 width=30 * mm,
 
@@ -13644,6 +13724,10 @@ def download_applicant_biodata(application_id):
             )
 
         except Exception:
+
+            app.logger.exception(
+                "Unable to create ReportLab company logo."
+            )
 
             header_logo = Paragraph(
                 "AV",
@@ -13657,18 +13741,19 @@ def download_applicant_biodata(application_id):
             company_style
         )
 
-
     # =========================================================
     # APPLICANT PASSPORT
     # =========================================================
 
-    if passport_path:
+    if passport_buffer:
 
         try:
 
+            passport_buffer.seek(0)
+
             header_passport = Image(
 
-                passport_path,
+                passport_buffer,
 
                 width=30 * mm,
 
@@ -13678,6 +13763,10 @@ def download_applicant_biodata(application_id):
             )
 
         except Exception:
+
+            app.logger.exception(
+                "Unable to create ReportLab passport image."
+            )
 
             header_passport = Paragraph(
                 "PASSPORT<br/>PHOTO",
@@ -13691,61 +13780,56 @@ def download_applicant_biodata(application_id):
             small_style
         )
 
-
     # =========================================================
     # COMPANY INFORMATION
     # =========================================================
 
     company_details = []
 
-
     company_details.append(
         Paragraph(
-            str(company_name),
+            safe_text(company_name),
             company_style
         )
     )
-
 
     if company_address:
 
         company_details.append(
             Paragraph(
-                str(company_address),
+                safe_text(company_address),
                 company_info_style
             )
         )
-
 
     if company_phone:
 
         company_details.append(
             Paragraph(
-                f"Phone: {company_phone}",
+                "Phone: "
+                + safe_text(company_phone),
                 company_info_style
             )
         )
-
 
     if company_email:
 
         company_details.append(
             Paragraph(
-                f"Email: {company_email}",
+                "Email: "
+                + safe_text(company_email),
                 company_info_style
             )
         )
-
 
     if company_website:
 
         company_details.append(
             Paragraph(
-                str(company_website),
+                safe_text(company_website),
                 company_info_style
             )
         )
-
 
     # =========================================================
     # HEADER TABLE
@@ -13767,7 +13851,6 @@ def download_applicant_biodata(application_id):
             35 * mm
         ]
     )
-
 
     header_table.setStyle(
         TableStyle(
@@ -13832,16 +13915,16 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     story.append(
         header_table
     )
 
-
     story.append(
-        Spacer(1, 5 * mm)
+        Spacer(
+            1,
+            5 * mm
+        )
     )
-
 
     story.append(
         HRFlowable(
@@ -13855,11 +13938,12 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     story.append(
-        Spacer(1, 4 * mm)
+        Spacer(
+            1,
+            4 * mm
+        )
     )
-
 
     # =========================================================
     # TITLE
@@ -13872,28 +13956,36 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     story.append(
-        Spacer(1, 2 * mm)
+        Spacer(
+            1,
+            2 * mm
+        )
     )
-
 
     story.append(
         Paragraph(
             (
                 "Application No.: "
-                f"<b>{value('application_number')}</b>"
+                "<b>"
+                + safe_text(
+                    value(
+                        "application_number"
+                    )
+                )
+                + "</b>"
             ),
 
             company_info_style
         )
     )
 
-
     story.append(
-        Spacer(1, 5 * mm)
+        Spacer(
+            1,
+            5 * mm
+        )
     )
-
 
     # =========================================================
     # SECTION HEADER
@@ -13906,7 +13998,7 @@ def download_applicant_biodata(application_id):
             [
                 [
                     Paragraph(
-                        title,
+                        safe_text(title),
                         section_style
                     )
                 ]
@@ -13916,7 +14008,6 @@ def download_applicant_biodata(application_id):
                 180 * mm
             ]
         )
-
 
         table.setStyle(
             TableStyle(
@@ -13962,15 +14053,16 @@ def download_applicant_biodata(application_id):
             )
         )
 
-
         story.append(
             table
         )
 
         story.append(
-            Spacer(1, 2 * mm)
+            Spacer(
+                1,
+                2 * mm
+            )
         )
-
 
     # =========================================================
     # INFORMATION TABLE
@@ -13980,23 +14072,21 @@ def download_applicant_biodata(application_id):
 
         table_data = []
 
-
         for label, data in rows:
 
             table_data.append(
                 [
                     Paragraph(
-                        str(label),
+                        safe_text(label),
                         label_style
                     ),
 
                     Paragraph(
-                        str(data),
+                        safe_text(data),
                         data_style
                     )
                 ]
             )
-
 
         table = Table(
 
@@ -14005,9 +14095,10 @@ def download_applicant_biodata(application_id):
             colWidths=[
                 48 * mm,
                 132 * mm
-            ]
-        )
+            ],
 
+            repeatRows=0
+        )
 
         table.setStyle(
             TableStyle(
@@ -14070,42 +14161,72 @@ def download_applicant_biodata(application_id):
             )
         )
 
-
         story.append(
             table
         )
 
         story.append(
-            Spacer(1, 5 * mm)
+            Spacer(
+                1,
+                5 * mm
+            )
         )
 
+    # =========================================================
+    # APPLICATION INFORMATION
+    # =========================================================
 
-    # =========================================================
-    # APPLICATION INFORMATION
-    # =========================================================
-    # =========================================================
-    # APPLICATION INFORMATION
-    # =========================================================
     section_header(
         "APPLICATION INFORMATION"
     )
-    
+
+    created_at = value(
+        "created_at",
+        ""
+    )
+
+    # ---------------------------------------------------------
+    # DATE FORMATTING
+    # ---------------------------------------------------------
+
+    if created_at:
+
+        try:
+
+            formatted_created_at = format_date(
+                created_at
+            )
+
+        except Exception:
+
+            formatted_created_at = created_at
+
+    else:
+
+        formatted_created_at = "—"
+
     information_table(
         [
+
             (
                 "Application Number",
-                value("application_number")
-            ),
-            (
-                "Position Applied For",
-                value("position_applied")
-            ),
-            (
-                "Application Date",
-                format_date(
-                    value("created_at")
+                value(
+                    "application_number"
                 )
             ),
+
+            (
+                "Position Applied For",
+                value(
+                    "position_applied"
+                )
+            ),
+
+            (
+                "Application Date",
+                formatted_created_at
+            ),
+
             (
                 "Application Status",
                 value(
@@ -14115,7 +14236,7 @@ def download_applicant_biodata(application_id):
             )
         ]
     )
-    
+
     # =========================================================
     # PERSONAL INFORMATION
     # =========================================================
@@ -14124,50 +14245,102 @@ def download_applicant_biodata(application_id):
         "PERSONAL INFORMATION"
     )
 
+    first_name = value(
+        "first_name",
+        ""
+    )
+
+    middle_name = value(
+        "middle_name",
+        ""
+    )
+
+    last_name = value(
+        "last_name",
+        ""
+    )
+
+    name_parts = []
+
+    for part in [
+        first_name,
+        middle_name,
+        last_name
+    ]:
+
+        if part and part != "—":
+
+            name_parts.append(
+                part.strip()
+            )
+
+    full_name = " ".join(
+        name_parts
+    )
+
+    if not full_name:
+
+        full_name = "—"
+
     information_table(
         [
+
             (
                 "Full Name",
-                " ".join(
-                    str(part).strip()
-                    for part in [
-                        applicant["first_name"] or "",
-                        applicant["middle_name"] or "",
-                        applicant["last_name"] or ""
-                    ]
-                    if str(part).strip()
-                )
+                full_name
             ),
+
             (
                 "Gender",
-                value("gender")
+                value(
+                    "gender"
+                )
             ),
+
             (
                 "Date of Birth",
-                value("date_of_birth")
+                value(
+                    "date_of_birth"
+                )
             ),
+
             (
                 "Phone Number",
-                value("phone")
+                value(
+                    "phone"
+                )
             ),
+
             (
                 "Email Address",
-                value("email")
+                value(
+                    "email"
+                )
             ),
+
             (
                 "Residential Address",
-                value("address")
+                value(
+                    "address"
+                )
             ),
+
             (
                 "State",
-                value("state")
+                value(
+                    "state"
+                )
             ),
+
             (
                 "Local Government Area",
-                value("lga")
+                value(
+                    "lga"
+                )
             )
         ]
     )
+
     # =========================================================
     # EDUCATION & QUALIFICATION
     # =========================================================
@@ -14178,28 +14351,36 @@ def download_applicant_biodata(application_id):
 
     information_table(
         [
+
             (
                 "Highest Qualification",
-                value("highest_qualification")
+                value(
+                    "highest_qualification"
+                )
             ),
 
             (
                 "Course of Study",
-                value("course_of_study")
+                value(
+                    "course_of_study"
+                )
             ),
 
             (
                 "Institution",
-                value("institution")
+                value(
+                    "institution"
+                )
             ),
 
             (
                 "Graduation Year",
-                value("graduation_year")
+                value(
+                    "graduation_year"
+                )
             )
         ]
     )
-
 
     # =========================================================
     # WORK EXPERIENCE
@@ -14211,23 +14392,29 @@ def download_applicant_biodata(application_id):
 
     information_table(
         [
+
             (
                 "Previous Employer",
-                value("previous_employer")
+                value(
+                    "previous_employer"
+                )
             ),
 
             (
                 "Previous Position",
-                value("previous_position")
+                value(
+                    "previous_position"
+                )
             ),
 
             (
                 "Work Experience",
-                value("work_experience")
+                value(
+                    "work_experience"
+                )
             )
         ]
     )
-
 
     # =========================================================
     # APPLICATION STATEMENT
@@ -14239,18 +14426,22 @@ def download_applicant_biodata(application_id):
 
     information_table(
         [
+
             (
                 "Reason for Applying",
-                value("reason_for_applying")
+                value(
+                    "reason_for_applying"
+                )
             ),
 
             (
                 "Additional Information",
-                value("additional_information")
+                value(
+                    "additional_information"
+                )
             )
         ]
     )
-
 
     # =========================================================
     # SUBMITTED DOCUMENTS
@@ -14262,23 +14453,29 @@ def download_applicant_biodata(application_id):
 
     information_table(
         [
+
             (
                 "Passport Photograph",
-                value("passport_filename")
+                value(
+                    "passport_filename"
+                )
             ),
 
             (
                 "Curriculum Vitae",
-                value("cv_filename")
+                value(
+                    "cv_filename"
+                )
             ),
 
             (
                 "Qualification Document",
-                value("qualification_filename")
+                value(
+                    "qualification_filename"
+                )
             )
         ]
     )
-
 
     # =========================================================
     # DECLARATION
@@ -14292,10 +14489,12 @@ def download_applicant_biodata(application_id):
         "I confirm that the information provided in this "
         "application is true and correct to the best of my "
         "knowledge. I understand that any false or misleading "
-        "information may affect the consideration of my application."
+        "information may affect the consideration of my "
+        "application."
     )
 
     declaration_table = Table(
+
         [
             [
                 Paragraph(
@@ -14304,6 +14503,7 @@ def download_applicant_biodata(application_id):
                 )
             ]
         ],
+
         colWidths=[
             180 * mm
         ]
@@ -14312,19 +14512,24 @@ def download_applicant_biodata(application_id):
     declaration_table.setStyle(
         TableStyle(
             [
+
                 (
                     "BOX",
                     (0, 0),
                     (-1, -1),
                     0.4,
-                    colors.HexColor("#d1d5db")
+                    colors.HexColor(
+                        "#d1d5db"
+                    )
                 ),
 
                 (
                     "BACKGROUND",
                     (0, 0),
                     (-1, -1),
-                    colors.HexColor("#f9fafb")
+                    colors.HexColor(
+                        "#f9fafb"
+                    )
                 ),
 
                 (
@@ -14363,9 +14568,11 @@ def download_applicant_biodata(application_id):
     )
 
     story.append(
-        Spacer(1, 12 * mm)
+        Spacer(
+            1,
+            12 * mm
+        )
     )
-
 
     # =========================================================
     # ADMIN USE
@@ -14376,12 +14583,16 @@ def download_applicant_biodata(application_id):
     )
 
     official_use_table = Table(
+
         [
+
             [
+
                 Paragraph(
                     "<b>Application Reviewed By:</b>",
                     label_style
                 ),
+
                 Paragraph(
                     "________________________________________",
                     data_style
@@ -14389,10 +14600,12 @@ def download_applicant_biodata(application_id):
             ],
 
             [
+
                 Paragraph(
                     "<b>Review Date:</b>",
                     label_style
                 ),
+
                 Paragraph(
                     "________________________________________",
                     data_style
@@ -14400,22 +14613,26 @@ def download_applicant_biodata(application_id):
             ],
 
             [
+
                 Paragraph(
                     "<b>Decision:</b>",
                     label_style
                 ),
+
                 Paragraph(
-                    "☐ Approved     ☐ Shortlisted     "
-                    "☐ Rejected     ☐ Pending",
+                    "Approved     Shortlisted     "
+                    "Rejected     Pending",
                     data_style
                 )
             ],
 
             [
+
                 Paragraph(
                     "<b>Comments:</b>",
                     label_style
                 ),
+
                 Paragraph(
                     "________________________________________"
                     "<br/>"
@@ -14426,6 +14643,7 @@ def download_applicant_biodata(application_id):
                 )
             ]
         ],
+
         colWidths=[
             48 * mm,
             132 * mm
@@ -14435,19 +14653,24 @@ def download_applicant_biodata(application_id):
     official_use_table.setStyle(
         TableStyle(
             [
+
                 (
                     "GRID",
                     (0, 0),
                     (-1, -1),
                     0.4,
-                    colors.HexColor("#d1d5db")
+                    colors.HexColor(
+                        "#d1d5db"
+                    )
                 ),
 
                 (
                     "BACKGROUND",
                     (0, 0),
                     (0, -1),
-                    colors.HexColor("#f3f4f6")
+                    colors.HexColor(
+                        "#f3f4f6"
+                    )
                 ),
 
                 (
@@ -14493,9 +14716,11 @@ def download_applicant_biodata(application_id):
     )
 
     story.append(
-        Spacer(1, 10 * mm)
+        Spacer(
+            1,
+            10 * mm
+        )
     )
-
 
     # =========================================================
     # FOOTER
@@ -14504,19 +14729,27 @@ def download_applicant_biodata(application_id):
     story.append(
         HRFlowable(
             width="100%",
+
             thickness=0.7,
-            color=colors.HexColor("#d1d5db")
+
+            color=colors.HexColor(
+                "#d1d5db"
+            )
         )
     )
 
     story.append(
-        Spacer(1, 3 * mm)
+        Spacer(
+            1,
+            3 * mm
+        )
     )
-
 
     if footer_text:
 
-        footer_content = footer_text
+        footer_content = str(
+            footer_text
+        )
 
     else:
 
@@ -14525,21 +14758,20 @@ def download_applicant_biodata(application_id):
             "Applicant Recruitment Portal"
         )
 
-
     story.append(
         Paragraph(
-            footer_content,
+            safe_text(
+                footer_content
+            ),
             company_info_style
         )
     )
 
-
-    # =========================================================
-    # GENERATED INFORMATION
-    # =========================================================
-
     story.append(
-        Spacer(1, 2 * mm)
+        Spacer(
+            1,
+            2 * mm
+        )
     )
 
     story.append(
@@ -14550,22 +14782,40 @@ def download_applicant_biodata(application_id):
         )
     )
 
-
     # =========================================================
     # BUILD PDF
     # =========================================================
 
-    document.build(
-        story
-    )
+    try:
 
+        document.build(
+            story
+        )
+
+    except Exception:
+
+        app.logger.exception(
+            "Error generating applicant biodata PDF "
+            "for application ID %s",
+            application_id
+        )
+
+        flash(
+            "Unable to generate applicant biodata PDF.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_applications"
+            )
+        )
 
     # =========================================================
     # PREPARE PDF
     # =========================================================
 
     buffer.seek(0)
-
 
     # =========================================================
     # SAFE APPLICATION NUMBER
@@ -14576,14 +14826,12 @@ def download_applicant_biodata(application_id):
         f"APP-{application_id}"
     )
 
-
     safe_application_number = (
         safe_application_number
         .replace("/", "-")
         .replace("\\", "-")
         .replace(" ", "_")
     )
-
 
     # =========================================================
     # FILE NAME
@@ -14594,18 +14842,20 @@ def download_applicant_biodata(application_id):
         f"Applicant_Biodata.pdf"
     )
 
-
     # =========================================================
     # RETURN PDF
     # =========================================================
 
     return send_file(
-        buffer,
-        mimetype="application/pdf",
-        as_attachment=True,
-        download_name=filename
-)
 
+        buffer,
+
+        mimetype="application/pdf",
+
+        as_attachment=True,
+
+        download_name=filename
+    )
 # ============================================================
 # APPLICANT ATTENDANCE
 # Applicant clocks in/out from their own portal
