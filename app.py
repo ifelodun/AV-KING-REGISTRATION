@@ -8094,21 +8094,22 @@ def applicant_logout():
     )
 
 # ============================================================
-# APPLICANT PORTAL
+# ADMIN - APPLICANT COMMUNICATION
 # ============================================================
 
-@app.route("/applicant/portal")
-def applicant_portal():
+@app.route(
+    "/admin/applicant-communication",
+    methods=["GET", "POST"]
+)
+def admin_applicant_communication():
 
     # --------------------------------------------------------
-    # CHECK APPLICANT LOGIN
+    # ADMIN AUTHENTICATION
     # --------------------------------------------------------
 
-    applicant_id = session.get("applicant_id")
-
-    if not applicant_id:
+    if not admin_required():
         return redirect(
-            url_for("applicant_login")
+            url_for("admin_login")
         )
 
     conn = get_db()
@@ -8117,9 +8118,463 @@ def applicant_portal():
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
+            # =================================================
+            # SEND MESSAGE / INTERVIEW
+            # =================================================
+
+            if request.method == "POST":
+
+                application_id = (
+                    request.form.get(
+                        "application_id",
+                        ""
+                    ).strip()
+                )
+
+                message_type = (
+                    request.form.get(
+                        "message_type",
+                        "message"
+                    ).strip().lower()
+                )
+
+                subject = (
+                    request.form.get(
+                        "subject",
+                        ""
+                    ).strip()
+                )
+
+                message = (
+                    request.form.get(
+                        "message",
+                        ""
+                    ).strip()
+                )
+
+                interview_date = (
+                    request.form.get(
+                        "interview_date",
+                        ""
+                    ).strip()
+                )
+
+                interview_time = (
+                    request.form.get(
+                        "interview_time",
+                        ""
+                    ).strip()
+                )
+
+                interview_location = (
+                    request.form.get(
+                        "interview_location",
+                        ""
+                    ).strip()
+                )
+
+
+                # =================================================
+                # VALIDATE APPLICATION
+                # =================================================
+
+                try:
+
+                    application_id = int(
+                        application_id
+                    )
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    flash(
+                        "Please select a valid applicant.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_applicant_communication"
+                        )
+                    )
+
+
+                # =================================================
+                # VALIDATE MESSAGE TYPE
+                # =================================================
+
+                if message_type not in [
+                    "message",
+                    "interview"
+                ]:
+
+                    message_type = "message"
+
+
+                # =================================================
+                # CHECK APPLICANT
+                # =================================================
+
+                cur.execute(
+                    """
+                    SELECT
+                        id,
+                        application_number,
+                        first_name,
+                        middle_name,
+                        last_name,
+                        email,
+                        phone
+                    FROM applications
+                    WHERE id = %s
+                    LIMIT 1
+                    """,
+                    (
+                        application_id,
+                    )
+                )
+
+                applicant = cur.fetchone()
+
+
+                if not applicant:
+
+                    flash(
+                        "Applicant not found.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_applicant_communication"
+                        )
+                    )
+
+
+                # =================================================
+                # MESSAGE VALIDATION
+                # =================================================
+
+                if not message:
+
+                    flash(
+                        "Please enter a message.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for(
+                            "admin_applicant_communication"
+                        )
+                    )
+
+
+                # =================================================
+                # INTERVIEW VALIDATION
+                # =================================================
+
+                if message_type == "interview":
+
+                    if not interview_date:
+
+                        flash(
+                            "Please select the interview date.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_applicant_communication"
+                            )
+                        )
+
+
+                    if not interview_time:
+
+                        flash(
+                            "Please select the interview time.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_applicant_communication"
+                            )
+                        )
+
+
+                    if not interview_location:
+
+                        flash(
+                            "Please enter the interview location.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_applicant_communication"
+                            )
+                        )
+
+
+                    # ---------------------------------------------
+                    # VALIDATE DATE
+                    # ---------------------------------------------
+
+                    try:
+
+                        datetime.strptime(
+                            interview_date,
+                            "%Y-%m-%d"
+                        )
+
+                    except ValueError:
+
+                        flash(
+                            "Invalid interview date.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_applicant_communication"
+                            )
+                        )
+
+
+                    # ---------------------------------------------
+                    # VALIDATE TIME
+                    # ---------------------------------------------
+
+                    try:
+
+                        datetime.strptime(
+                            interview_time,
+                            "%H:%M"
+                        )
+
+                    except ValueError:
+
+                        flash(
+                            "Invalid interview time.",
+                            "error"
+                        )
+
+                        return redirect(
+                            url_for(
+                                "admin_applicant_communication"
+                            )
+                        )
+
+
+                    if not subject:
+
+                        subject = (
+                            "Interview Invitation"
+                        )
+
+
+                else:
+
+                    # ------------------------------------------------
+                    # NORMAL MESSAGE
+                    # ------------------------------------------------
+
+                    if not subject:
+
+                        subject = (
+                            "Application Update"
+                        )
+
+                    interview_date = None
+                    interview_time = None
+                    interview_location = None
+
+
+                # =================================================
+                # INSERT COMMUNICATION
+                # =================================================
+
+                cur.execute(
+                    """
+                    INSERT INTO applicant_messages
+                    (
+                        application_id,
+                        message_type,
+                        subject,
+                        message,
+                        interview_date,
+                        interview_time,
+                        interview_location,
+                        is_read,
+                        created_at
+                    )
+                    VALUES
+                    (
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        FALSE,
+                        CURRENT_TIMESTAMP
+                    )
+                    """,
+                    (
+                        application_id,
+                        message_type,
+                        subject,
+                        message,
+                        interview_date or None,
+                        interview_time or None,
+                        interview_location or None
+                    )
+                )
+
+
+                conn.commit()
+
+
+                # =================================================
+                # SUCCESS
+                # =================================================
+
+                flash(
+                    f"Communication sent successfully to "
+                    f"{applicant['first_name']} "
+                    f"{applicant['last_name']}.",
+                    "success"
+                )
+
+                return redirect(
+                    url_for(
+                        "admin_applicant_communication"
+                    )
+                )
+
+
+            # =================================================
+            # GET APPLICANTS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    email,
+                    phone,
+                    position_applied,
+                    application_status
+                FROM applications
+                ORDER BY created_at DESC, id DESC
+                """
+            )
+
+            applicants = cur.fetchall()
+
+
+            # =================================================
+            # RECENT COMMUNICATIONS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    am.id,
+                    am.application_id,
+                    am.message_type,
+                    am.subject,
+                    am.message,
+                    am.interview_date,
+                    am.interview_time,
+                    am.interview_location,
+                    am.is_read,
+                    am.created_at,
+
+                    a.application_number,
+                    a.first_name,
+                    a.middle_name,
+                    a.last_name
+
+                FROM applicant_messages am
+
+                INNER JOIN applications a
+                    ON a.id = am.application_id
+
+                ORDER BY
+                    am.created_at DESC,
+                    am.id DESC
+
+                LIMIT 100
+                """
+            )
+
+            communications = cur.fetchall()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error managing applicant communication"
+        )
+
+        flash(
+            "Unable to process applicant communication.",
+            "error"
+        )
+
+        applicants = []
+        communications = []
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_applicant_communication.html",
+        applicants=applicants,
+        communications=communications
+    )
+# ============================================================
+# APPLICANT PORTAL
+# ============================================================
+@app.route("/applicant/portal")
+def applicant_portal():
+
+    # ========================================================
+    # CHECK APPLICANT LOGIN
+    # ========================================================
+
+    applicant_id = session.get("applicant_id")
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
             # GET APPLICATION
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -8128,10 +8583,17 @@ def applicant_portal():
                 WHERE id = %s
                 LIMIT 1
                 """,
-                (applicant_id,)
+                (
+                    applicant_id,
+                )
             )
 
             application = cur.fetchone()
+
+
+            # =================================================
+            # APPLICATION NOT FOUND
+            # =================================================
 
             if not application:
 
@@ -8155,39 +8617,55 @@ def applicant_portal():
                 )
 
 
-            # ------------------------------------------------
-            # GET APPLICANT MESSAGES
-            # ------------------------------------------------
+            # =================================================
+            # GET APPLICANT MESSAGES + INTERVIEWS
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
                     id,
+
                     subject,
+
                     message,
+
                     message_type,
+
+                    interview_date,
+
+                    interview_time,
+
+                    interview_location,
+
                     is_read,
+
                     created_at
 
                 FROM applicant_messages
 
                 WHERE application_id = %s
 
-                ORDER BY created_at DESC
+                ORDER BY
+                    created_at DESC,
+                    id DESC
                 """,
-                (applicant_id,)
+                (
+                    applicant_id,
+                )
             )
 
             messages = cur.fetchall()
 
 
-            # ------------------------------------------------
+            # =================================================
             # COUNT UNREAD MESSAGES
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
-                SELECT COUNT(*) AS unread_count
+                SELECT
+                    COUNT(*) AS unread_count
 
                 FROM applicant_messages
 
@@ -8195,10 +8673,13 @@ def applicant_portal():
 
                 AND is_read = FALSE
                 """,
-                (applicant_id,)
+                (
+                    applicant_id,
+                )
             )
 
             unread_row = cur.fetchone()
+
 
             unread_count = int(
                 unread_row["unread_count"]
@@ -8209,16 +8690,29 @@ def applicant_portal():
 
     except Exception:
 
-        raise
+        app.logger.exception(
+            "Error loading applicant portal."
+        )
+
+        flash(
+            "Unable to load your applicant portal. "
+            "Please try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
 
     finally:
 
         conn.close()
 
 
-    # --------------------------------------------------------
-    # RENDER APPLICANT DASHBOARD
-    # --------------------------------------------------------
+    # ========================================================
+    # RENDER APPLICANT PORTAL
+    # ========================================================
 
     return render_template(
         "applicant_portal.html",
@@ -8228,132 +8722,124 @@ def applicant_portal():
         messages=messages,
 
         unread_count=unread_count
-            )
+    )
+
 
 # ============================================================
 # APPLICANT MESSAGES
 # ============================================================
-# ============================================================
-# APPLICANT MESSAGES
-# ============================================================
-# ============================================================
-# APPLICANT MESSAGES
-# ============================================================
-
 @app.route("/applicant/messages")
 def applicant_messages():
 
-    # --------------------------------------------------------
-    # CHECK APPLICANT LOGIN
-    # --------------------------------------------------------
-
-    if not session.get("applicant_logged_in"):
-        return redirect(url_for("applicant_login"))
-
-    # --------------------------------------------------------
-    # GET APPLICATION ID FROM SESSION
-    # --------------------------------------------------------
-
-    application_id = session.get("applicant_application_id")
-
-    # --------------------------------------------------------
-    # RECOVER APPLICATION ID IF SESSION KEY IS MISSING
-    #
-    # This makes the route more reliable if the applicant
-    # session was created using another applicant identifier.
-    # --------------------------------------------------------
+    application_id = session.get(
+        "application_id"
+    )
 
     if not application_id:
-
-        applicant_email = (
-            session.get("applicant_email")
-            or session.get("email")
-        )
-
-        applicant_number = (
-            session.get("applicant_number")
-            or session.get("application_number")
-        )
-
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                # --------------------------------------------
-                # FIND BY APPLICATION NUMBER
-                # --------------------------------------------
-
-                if applicant_number:
-
-                    cur.execute(
-                        """
-                        SELECT id
-                        FROM applications
-                        WHERE application_number = %s
-                        LIMIT 1
-                        """,
-                        (applicant_number,)
-                    )
-
-                    row = cur.fetchone()
-
-                    if row:
-                        application_id = row["id"]
-
-                # --------------------------------------------
-                # OTHERWISE FIND BY EMAIL
-                # --------------------------------------------
-
-                if not application_id and applicant_email:
-
-                    cur.execute(
-                        """
-                        SELECT id
-                        FROM applications
-                        WHERE LOWER(email) = LOWER(%s)
-                        ORDER BY id DESC
-                        LIMIT 1
-                        """,
-                        (applicant_email,)
-                    )
-
-                    row = cur.fetchone()
-
-                    if row:
-                        application_id = row["id"]
-
-        finally:
-
-            conn.close()
-
-    # --------------------------------------------------------
-    # STILL NO APPLICATION ID
-    # --------------------------------------------------------
-
-    if not application_id:
-
-        flash(
-            "Your applicant session could not be verified. Please login again.",
-            "error"
-        )
-
-        session.pop("applicant_application_id", None)
 
         return redirect(
             url_for("applicant_login")
         )
 
-    # --------------------------------------------------------
-    # SAVE APPLICATION ID BACK INTO SESSION
-    # --------------------------------------------------------
+    conn = get_db()
 
-    session["applicant_application_id"] = application_id
+    try:
 
-    # --------------------------------------------------------
-    # GET MESSAGES
-    # --------------------------------------------------------
+        with conn.cursor() as cur:
+
+            # =================================================
+            # GET ALL MESSAGES
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    message_type,
+                    subject,
+                    message,
+                    interview_date,
+                    interview_time,
+                    interview_location,
+                    is_read,
+                    created_at
+                FROM applicant_messages
+                WHERE application_id = %s
+                ORDER BY
+                    created_at DESC,
+                    id DESC
+                """,
+                (
+                    application_id,
+                )
+            )
+
+            messages = cur.fetchall()
+
+
+            # =================================================
+            # UNREAD COUNT
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT COUNT(*) AS unread_count
+                FROM applicant_messages
+                WHERE application_id = %s
+                AND is_read = FALSE
+                """,
+                (
+                    application_id,
+                )
+            )
+
+            unread_result = cur.fetchone()
+
+            unread_count = (
+                unread_result["unread_count"]
+                if unread_result
+                else 0
+            )
+
+
+    except Exception:
+
+        app.logger.exception(
+            "Error loading applicant messages"
+        )
+
+        messages = []
+        unread_count = 0
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "applicant_messages.html",
+        messages=messages,
+        unread_count=unread_count
+    )
+
+
+
+@app.route(
+    "/applicant/messages/<int:message_id>/read",
+    methods=["POST"]
+)
+def applicant_mark_message_read(message_id):
+
+    application_id = session.get(
+        "application_id"
+    )
+
+    if not application_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
 
     conn = get_db()
 
@@ -8363,64 +8849,41 @@ def applicant_messages():
 
             cur.execute(
                 """
-                SELECT
-                    id,
-                    application_id,
-                    subject,
-                    message,
-                    message_type,
-                    is_read,
-                    created_at
-                FROM applicant_messages
-                WHERE application_id = %s
-                ORDER BY created_at DESC, id DESC
+                UPDATE applicant_messages
+
+                SET
+                    is_read = TRUE
+
+                WHERE
+                    id = %s
+                    AND application_id = %s
                 """,
-                (application_id,)
+                (
+                    message_id,
+                    application_id
+                )
             )
 
-            messages = cur.fetchall()
+        conn.commit()
 
-            # ------------------------------------------------
-            # COUNT UNREAD
-            # ------------------------------------------------
+    except Exception:
 
-            cur.execute(
-                """
-                SELECT COUNT(*) AS unread_count
-                FROM applicant_messages
-                WHERE application_id = %s
-                  AND is_read = FALSE
-                """,
-                (application_id,)
-            )
+        conn.rollback()
 
-            row = cur.fetchone()
-
-            unread_count = int(
-                row["unread_count"]
-            ) if row else 0
+        app.logger.exception(
+            "Error marking applicant message as read"
+        )
 
     finally:
 
         conn.close()
 
-    # --------------------------------------------------------
-    # UPDATE SESSION BADGE
-    # --------------------------------------------------------
 
-    session["applicant_unread_count"] = unread_count
-
-    # --------------------------------------------------------
-    # RENDER PAGE
-    # --------------------------------------------------------
-
-    return render_template(
-        "applicant_messages.html",
-        messages=messages,
-        unread_count=unread_count
+    return redirect(
+        url_for(
+            "applicant_messages"
+        )
     )
-
-
 # ============================================================
 # VIEW SINGLE APPLICANT MESSAGE
 # ============================================================
