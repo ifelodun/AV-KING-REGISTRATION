@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
 
 
@@ -40,6 +41,7 @@
     }
 
     body {
+
         margin: 0;
         padding: 0;
 
@@ -53,14 +55,15 @@
             sans-serif;
 
         background: #f5f7f6;
+
         color: #14213d;
 
         line-height: 1.6;
     }
 
     a {
-        color: inherit;
         text-decoration: none;
+        color: inherit;
     }
 
     button,
@@ -99,8 +102,6 @@
 
         --danger: #c0392b;
 
-        --warning: #b7791f;
-
         --sidebar-width: 250px;
 
         --radius: 13px;
@@ -114,16 +115,17 @@
 
 
     /* =========================================================
-       ADMIN APPLICATION SHELL
+       ADMIN SHELL
        ========================================================= */
 
     .app-shell {
+
         min-height: 100vh;
     }
 
 
     /* =========================================================
-       ADMIN SIDEBAR
+       SIDEBAR
        ========================================================= */
 
     .admin-sidebar {
@@ -138,16 +140,20 @@
 
         background: #ffffff;
 
-        border-right: 1px solid var(--border);
+        border-right:
+            1px solid
+            var(--border);
 
         z-index: 1100;
 
         display: flex;
+
         flex-direction: column;
 
         overflow-y: auto;
 
-        transition: transform .25s ease;
+        transition:
+            transform .25s ease;
     }
 
 
@@ -156,13 +162,16 @@
         min-height: 76px;
 
         display: flex;
+
         align-items: center;
 
         gap: 11px;
 
         padding: 14px 18px;
 
-        border-bottom: 1px solid var(--border);
+        border-bottom:
+            1px solid
+            var(--border);
     }
 
 
@@ -173,11 +182,13 @@
 
         min-width: 42px;
 
-        border-radius: 10px;
-
         object-fit: contain;
 
-        border: 1px solid var(--border);
+        border-radius: 10px;
+
+        border:
+            1px solid
+            var(--border);
 
         background: #ffffff;
     }
@@ -191,16 +202,20 @@
         min-width: 42px;
 
         display: flex;
+
         align-items: center;
+
         justify-content: center;
 
         border-radius: 10px;
 
-        background: var(--brand-green);
+        background:
+            var(--brand-green);
 
         color: #ffffff;
 
         font-size: 14px;
+
         font-weight: 900;
     }
 
@@ -210,13 +225,15 @@
         min-width: 0;
 
         display: flex;
+
         flex-direction: column;
     }
 
 
     .sidebar-company {
 
-        color: var(--text-dark);
+        color:
+            var(--text-dark);
 
         font-size: 12px;
 
@@ -234,7 +251,8 @@
 
         margin-top: 2px;
 
-        color: var(--brand-green);
+        color:
+            var(--brand-green);
 
         font-size: 8px;
 
@@ -260,7 +278,8 @@
 
     .sidebar-section-title {
 
-        padding: 0 10px 8px;
+        padding:
+            0 10px 8px;
 
         color: #98a2b3;
 
@@ -296,7 +315,8 @@
 
         gap: 11px;
 
-        padding: 9px 11px;
+        padding:
+            9px 11px;
 
         border-radius: 9px;
 
@@ -315,19 +335,24 @@
 
     .sidebar-link:hover {
 
-        background: var(--brand-green-light);
+        background:
+            var(--brand-green-light);
 
-        color: var(--brand-green);
+        color:
+            var(--brand-green);
 
-        transform: translateX(2px);
+        transform:
+            translateX(2px);
     }
 
 
     .sidebar-link.active {
 
-        background: var(--brand-green-light);
+        background:
+            var(--brand-green-light);
 
-        color: var(--brand-green);
+        color:
+            var(--brand-green);
 
         font-weight: 800;
     }
@@ -343,6 +368,7 @@
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         border-radius: 7px;
@@ -353,11 +379,13 @@
     }
 
 
-    .sidebar-link.active .sidebar-icon {
+    .sidebar-link.active
+    .sidebar-icon {
 
         background: #ffffff;
 
-        color: var(--brand-green);
+        color:
+            var(--brand-green);
     }
 
 
@@ -369,7 +397,9 @@
 
         padding: 12px;
 
-        border-top: 1px solid var(--border);
+        border-top:
+            1px solid
+            var(--border);
     }
 
 
@@ -399,11 +429,13 @@
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         border-radius: 9px;
 
-        background: var(--brand-green);
+        background:
+            var(--brand-green);
 
         color: #ffffff;
 
@@ -425,7 +457,8 @@
 
     .sidebar-user-name {
 
-        color: var(--text-dark);
+        color:
+            var(--text-dark);
 
         font-size: 10px;
 
@@ -443,7 +476,8 @@
 
         margin-top: 2px;
 
-        color: var(--muted);
+        color:
+            var(--muted);
 
         font-size: 8px;
     }
@@ -478,18 +512,20 @@
 
 
     /* =========================================================
-       ADMIN MAIN CONTENT
+       ADMIN MAIN
        ========================================================= */
 
     .admin-main {
 
         min-height: 100vh;
 
-        margin-left: var(--sidebar-width);
+        margin-left:
+            var(--sidebar-width);
 
         padding: 28px;
 
-        transition: margin-left .25s ease;
+        transition:
+            margin-left .25s ease;
     }
 
 
@@ -504,7 +540,7 @@
 
 
     /* =========================================================
-       ADMIN TOP BAR
+       TOP BAR
        ========================================================= */
 
     .admin-topbar {
@@ -523,7 +559,9 @@
 
         padding-bottom: 17px;
 
-        border-bottom: 1px solid var(--border);
+        border-bottom:
+            1px solid
+            var(--border);
     }
 
 
@@ -535,7 +573,8 @@
 
     .topbar-company {
 
-        color: var(--text-dark);
+        color:
+            var(--text-dark);
 
         font-size: 11px;
 
@@ -547,7 +586,8 @@
 
         margin-top: 2px;
 
-        color: var(--muted);
+        color:
+            var(--muted);
 
         font-size: 9px;
     }
@@ -573,13 +613,16 @@
 
         padding: 7px 10px;
 
-        border: 1px solid var(--border);
+        border:
+            1px solid
+            var(--border);
 
         border-radius: 8px;
 
         background: #ffffff;
 
-        color: var(--text);
+        color:
+            var(--text);
 
         font-size: 9px;
 
@@ -599,7 +642,7 @@
 
 
     /* =========================================================
-       MOBILE SIDEBAR BUTTON
+       MOBILE BUTTON
        ========================================================= */
 
     .sidebar-toggle {
@@ -611,13 +654,16 @@
 
         margin-right: 10px;
 
-        border: 1px solid var(--border);
+        border:
+            1px solid
+            var(--border);
 
         border-radius: 9px;
 
         background: #ffffff;
 
-        color: var(--text-dark);
+        color:
+            var(--text-dark);
 
         cursor: pointer;
     }
@@ -631,7 +677,8 @@
 
         inset: 0;
 
-        background: rgba(16, 24, 40, .38);
+        background:
+            rgba(16, 24, 40, .38);
 
         z-index: 1050;
     }
@@ -659,15 +706,19 @@
 
         margin-bottom: 8px;
 
-        border: 1px solid var(--border);
+        border:
+            1px solid
+            var(--border);
 
         border-radius: 9px;
 
         background: #ffffff;
 
-        color: var(--text);
+        color:
+            var(--text);
 
-        box-shadow: var(--shadow-sm);
+        box-shadow:
+            var(--shadow-sm);
 
         font-size: 10px;
     }
@@ -721,11 +772,15 @@
 
         background: #ffffff;
 
-        border: 1px solid var(--border);
+        border:
+            1px solid
+            var(--border);
 
-        border-radius: var(--radius);
+        border-radius:
+            var(--radius);
 
-        box-shadow: var(--shadow-sm);
+        box-shadow:
+            var(--shadow-sm);
     }
 
 
@@ -739,7 +794,9 @@
 
         padding-top: 18px;
 
-        border-top: 1px solid var(--border);
+        border-top:
+            1px solid
+            var(--border);
 
         display: flex;
 
@@ -756,11 +813,7 @@
 
 
     /* =========================================================
-       PUBLIC / APPLICANT CONTENT
-       
-       IMPORTANT:
-       This wrapper does NOT add admin margins.
-       Applicant pages control their own layout.
+       PUBLIC CONTENT
        ========================================================= */
 
     .public-content-wrapper {
@@ -779,13 +832,15 @@
 
         .admin-sidebar {
 
-            transform: translateX(-100%);
+            transform:
+                translateX(-100%);
         }
 
 
         .admin-sidebar.open {
 
-            transform: translateX(0);
+            transform:
+                translateX(0);
         }
 
 
@@ -817,6 +872,7 @@
 
             padding-bottom: 14px;
         }
+
     }
 
 
@@ -852,6 +908,7 @@
 
             align-items: flex-start;
         }
+
     }
 
 </style>
@@ -868,20 +925,21 @@
 
 
 <!-- =========================================================
-     ADMIN AREA
+     ADMIN LAYOUT
      ========================================================= -->
 
 <div class="app-shell">
 
 
     <!-- =====================================================
-         ADMIN SIDEBAR
+         SIDEBAR
          ===================================================== -->
 
     <aside
         class="admin-sidebar"
         id="adminSidebar"
     >
+
 
         <div class="sidebar-brand">
 
@@ -905,8 +963,14 @@
             <div class="sidebar-brand-text">
 
                 <div class="sidebar-company">
-                    {{ company_name or "AV KING VET" }}
+
+                    {{
+                        company_name
+                        or "AV KING VET"
+                    }}
+
                 </div>
+
 
                 <div class="sidebar-subtitle">
                     ADMINISTRATION
@@ -970,18 +1034,15 @@
                 </a>
 
 
-                <!-- WORKERS
-                     
-                     IMPORTANT:
-                     Only create url_for when endpoint actually exists.
-                -->
+                <!-- WORKERS -->
 
-                {% if 'admin_workers' in current_app.view_functions %}
+                {% if admin_workers_endpoint is defined
+                      and admin_workers_endpoint %}
 
                     <a
-                        href="{{ url_for('admin_workers') }}"
+                        href="{{ url_for(admin_workers_endpoint) }}"
                         class="sidebar-link
-                        {% if request.endpoint == 'admin_workers' %}
+                        {% if request.endpoint == admin_workers_endpoint %}
                             active
                         {% endif %}"
                     >
@@ -999,12 +1060,13 @@
 
                 <!-- REPORTS -->
 
-                {% if 'admin_reports' in current_app.view_functions %}
+                {% if admin_reports_endpoint is defined
+                      and admin_reports_endpoint %}
 
                     <a
-                        href="{{ url_for('admin_reports') }}"
+                        href="{{ url_for(admin_reports_endpoint) }}"
                         class="sidebar-link
-                        {% if request.endpoint == 'admin_reports' %}
+                        {% if request.endpoint == admin_reports_endpoint %}
                             active
                         {% endif %}"
                     >
@@ -1022,12 +1084,13 @@
 
                 <!-- POSITIONS -->
 
-                {% if 'admin_positions' in current_app.view_functions %}
+                {% if admin_positions_endpoint is defined
+                      and admin_positions_endpoint %}
 
                     <a
-                        href="{{ url_for('admin_positions') }}"
+                        href="{{ url_for(admin_positions_endpoint) }}"
                         class="sidebar-link
-                        {% if request.endpoint == 'admin_positions' %}
+                        {% if request.endpoint == admin_positions_endpoint %}
                             active
                         {% endif %}"
                     >
@@ -1059,12 +1122,13 @@
 
                 <!-- SETTINGS -->
 
-                {% if 'admin_settings' in current_app.view_functions %}
+                {% if admin_settings_endpoint is defined
+                      and admin_settings_endpoint %}
 
                     <a
-                        href="{{ url_for('admin_settings') }}"
+                        href="{{ url_for(admin_settings_endpoint) }}"
                         class="sidebar-link
-                        {% if request.endpoint == 'admin_settings' %}
+                        {% if request.endpoint == admin_settings_endpoint %}
                             active
                         {% endif %}"
                     >
@@ -1082,10 +1146,11 @@
 
                 <!-- LOGOUT -->
 
-                {% if 'admin_logout' in current_app.view_functions %}
+                {% if admin_logout_endpoint is defined
+                      and admin_logout_endpoint %}
 
                     <a
-                        href="{{ url_for('admin_logout') }}"
+                        href="{{ url_for(admin_logout_endpoint) }}"
                         class="sidebar-logout"
                     >
 
@@ -1105,7 +1170,7 @@
 
 
         <!-- =====================================================
-             ADMIN USER
+             USER
              ===================================================== -->
 
         <div class="sidebar-footer">
@@ -1115,6 +1180,7 @@
                 <div class="sidebar-user-avatar">
                     A
                 </div>
+
 
                 <div class="sidebar-user-info">
 
@@ -1126,6 +1192,7 @@
                         }}
 
                     </div>
+
 
                     <div class="sidebar-user-role">
                         System Administrator
@@ -1141,7 +1208,7 @@
 
 
     <!-- =====================================================
-         MOBILE OVERLAY
+         OVERLAY
          ===================================================== -->
 
     <div
@@ -1246,13 +1313,10 @@
 
 
             <!-- =================================================
-                 ADMIN PAGE CONTENT
-                 
-                 This is the important block.
+                 SINGLE CONTENT BLOCK
                  ================================================= -->
 
             {% block content %}
-
             {% endblock %}
 
 
@@ -1293,20 +1357,21 @@
 
 
 <!-- =========================================================
-     PUBLIC / APPLICANT AREA
+     PUBLIC / APPLICANT LAYOUT
      
      IMPORTANT:
-     The same {% block content %} from child templates is
-     rendered here. This fixes the blank applicant portal.
+     The content block is NOT defined again here.
+     Jinja allows only one definition of a block.
      
-     No admin sidebar.
-     No admin topbar.
-     No admin footer.
+     We simply render the child template's content through
+     the single block below.
      ========================================================= -->
 
 <div class="public-content-wrapper">
 
-    {% block content %}
+    {% block public_content_wrapper %}
+
+        {% block content_public %}{% endblock %}
 
     {% endblock %}
 
@@ -1316,7 +1381,7 @@
 {% endif %}
 
 <!-- =============================================================
-     ADMIN SIDEBAR JAVASCRIPT
+     SIDEBAR JAVASCRIPT
      ============================================================= -->
 
 <script>
@@ -1344,7 +1409,6 @@
             return;
         }
 
-
         sidebar.classList.add("open");
 
 
@@ -1360,7 +1424,6 @@
         if (!sidebar) {
             return;
         }
-
 
         sidebar.classList.remove("open");
 
