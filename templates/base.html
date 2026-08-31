@@ -27,24 +27,22 @@
 <style>
 
     /* =========================================================
-       RESET
+       GLOBAL RESET
        ========================================================= */
 
-    *,
-    *::before,
-    *::after {
+    * {
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
     }
+
 
     html {
         scroll-behavior: smooth;
     }
 
+
     body {
-
-        margin: 0;
-        padding: 0;
-
         font-family:
             Inter,
             -apple-system,
@@ -59,12 +57,16 @@
         color: #14213d;
 
         line-height: 1.6;
+
+        min-height: 100vh;
     }
 
+
     a {
-        text-decoration: none;
         color: inherit;
+        text-decoration: none;
     }
+
 
     button,
     input,
@@ -72,6 +74,7 @@
     select {
         font: inherit;
     }
+
 
     img {
         max-width: 100%;
@@ -85,13 +88,17 @@
     :root {
 
         --brand-green: #087443;
+
         --brand-green-dark: #065a35;
+
         --brand-green-light: #eaf6ef;
 
         --accent: #d4a017;
 
         --text-dark: #14213d;
+
         --text: #344054;
+
         --muted: #667085;
 
         --white: #ffffff;
@@ -101,6 +108,8 @@
         --border: #e3e9e5;
 
         --danger: #c0392b;
+
+        --warning: #b7791f;
 
         --sidebar-width: 250px;
 
@@ -115,17 +124,16 @@
 
 
     /* =========================================================
-       ADMIN SHELL
+       APPLICATION SHELL
        ========================================================= */
 
     .app-shell {
-
         min-height: 100vh;
     }
 
 
     /* =========================================================
-       SIDEBAR
+       ADMIN SIDEBAR
        ========================================================= */
 
     .admin-sidebar {
@@ -157,6 +165,10 @@
     }
 
 
+    /* =========================================================
+       SIDEBAR BRAND
+       ========================================================= */
+
     .sidebar-brand {
 
         min-height: 76px;
@@ -167,7 +179,9 @@
 
         gap: 11px;
 
-        padding: 14px 18px;
+        padding:
+            14px
+            18px;
 
         border-bottom:
             1px solid
@@ -178,13 +192,14 @@
     .sidebar-logo {
 
         width: 42px;
+
         height: 42px;
 
         min-width: 42px;
 
-        object-fit: contain;
-
         border-radius: 10px;
+
+        object-fit: contain;
 
         border:
             1px solid
@@ -197,6 +212,7 @@
     .sidebar-logo-placeholder {
 
         width: 42px;
+
         height: 42px;
 
         min-width: 42px;
@@ -232,8 +248,7 @@
 
     .sidebar-company {
 
-        color:
-            var(--text-dark);
+        color: var(--text-dark);
 
         font-size: 12px;
 
@@ -251,8 +266,7 @@
 
         margin-top: 2px;
 
-        color:
-            var(--brand-green);
+        color: var(--brand-green);
 
         font-size: 8px;
 
@@ -272,14 +286,18 @@
 
         flex: 1;
 
-        padding: 18px 12px;
+        padding:
+            18px
+            12px;
     }
 
 
     .sidebar-section-title {
 
         padding:
-            0 10px 8px;
+            0
+            10px
+            8px;
 
         color: #98a2b3;
 
@@ -316,7 +334,8 @@
         gap: 11px;
 
         padding:
-            9px 11px;
+            9px
+            11px;
 
         border-radius: 9px;
 
@@ -361,6 +380,7 @@
     .sidebar-icon {
 
         width: 25px;
+
         height: 25px;
 
         min-width: 25px;
@@ -379,8 +399,7 @@
     }
 
 
-    .sidebar-link.active
-    .sidebar-icon {
+    .sidebar-link.active .sidebar-icon {
 
         background: #ffffff;
 
@@ -422,6 +441,7 @@
     .sidebar-user-avatar {
 
         width: 34px;
+
         height: 34px;
 
         min-width: 34px;
@@ -457,8 +477,7 @@
 
     .sidebar-user-name {
 
-        color:
-            var(--text-dark);
+        color: var(--text-dark);
 
         font-size: 10px;
 
@@ -476,8 +495,7 @@
 
         margin-top: 2px;
 
-        color:
-            var(--muted);
+        color: var(--muted);
 
         font-size: 8px;
     }
@@ -493,7 +511,9 @@
 
         margin-top: 7px;
 
-        padding: 9px 10px;
+        padding:
+            9px
+            10px;
 
         border-radius: 8px;
 
@@ -502,6 +522,9 @@
         font-size: 10px;
 
         font-weight: 750;
+
+        transition:
+            background .18s ease;
     }
 
 
@@ -512,7 +535,7 @@
 
 
     /* =========================================================
-       ADMIN MAIN
+       ADMIN MAIN CONTENT
        ========================================================= */
 
     .admin-main {
@@ -540,7 +563,23 @@
 
 
     /* =========================================================
-       TOP BAR
+       PUBLIC MAIN CONTENT
+       
+       IMPORTANT:
+       Applicant pages use the same {% block content %}
+       but do NOT receive the admin margin/sidebar.
+       ========================================================= */
+
+    .public-main {
+
+        min-height: 100vh;
+
+        width: 100%;
+    }
+
+
+    /* =========================================================
+       ADMIN TOP BAR
        ========================================================= */
 
     .admin-topbar {
@@ -568,13 +607,18 @@
     .topbar-left {
 
         min-width: 0;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
     }
 
 
     .topbar-company {
 
-        color:
-            var(--text-dark);
+        color: var(--text-dark);
 
         font-size: 11px;
 
@@ -586,8 +630,7 @@
 
         margin-top: 2px;
 
-        color:
-            var(--muted);
+        color: var(--muted);
 
         font-size: 9px;
     }
@@ -611,7 +654,9 @@
 
         gap: 7px;
 
-        padding: 7px 10px;
+        padding:
+            7px
+            10px;
 
         border:
             1px solid
@@ -621,8 +666,7 @@
 
         background: #ffffff;
 
-        color:
-            var(--text);
+        color: var(--text);
 
         font-size: 9px;
 
@@ -633,6 +677,7 @@
     .topbar-dot {
 
         width: 6px;
+
         height: 6px;
 
         border-radius: 50%;
@@ -642,7 +687,7 @@
 
 
     /* =========================================================
-       MOBILE BUTTON
+       MOBILE SIDEBAR BUTTON
        ========================================================= */
 
     .sidebar-toggle {
@@ -650,9 +695,8 @@
         display: none;
 
         width: 38px;
-        height: 38px;
 
-        margin-right: 10px;
+        height: 38px;
 
         border:
             1px solid
@@ -662,10 +706,13 @@
 
         background: #ffffff;
 
-        color:
-            var(--text-dark);
+        color: var(--text-dark);
 
         cursor: pointer;
+
+        align-items: center;
+
+        justify-content: center;
     }
 
 
@@ -702,7 +749,9 @@
 
         gap: 10px;
 
-        padding: 11px 13px;
+        padding:
+            11px
+            13px;
 
         margin-bottom: 8px;
 
@@ -714,8 +763,7 @@
 
         background: #ffffff;
 
-        color:
-            var(--text);
+        color: var(--text);
 
         box-shadow:
             var(--shadow-sm);
@@ -813,19 +861,7 @@
 
 
     /* =========================================================
-       PUBLIC CONTENT
-       ========================================================= */
-
-    .public-content-wrapper {
-
-        width: 100%;
-
-        min-height: 100vh;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE
+       MOBILE / TABLET
        ========================================================= */
 
     @media (max-width: 900px) {
@@ -855,10 +891,6 @@
         .sidebar-toggle {
 
             display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
         }
 
 
@@ -872,9 +904,12 @@
 
             padding-bottom: 14px;
         }
-
     }
 
+
+    /* =========================================================
+       SMALL MOBILE
+       ========================================================= */
 
     @media (max-width: 600px) {
 
@@ -908,8 +943,8 @@
 
             align-items: flex-start;
         }
-
     }
+
 
 </style>
 
@@ -925,7 +960,7 @@
 
 
 <!-- =========================================================
-     ADMIN LAYOUT
+     ADMIN APPLICATION
      ========================================================= -->
 
 <div class="app-shell">
@@ -941,7 +976,10 @@
     >
 
 
+        <!-- BRAND -->
+
         <div class="sidebar-brand">
+
 
             {% if company_logo %}
 
@@ -964,16 +1002,15 @@
 
                 <div class="sidebar-company">
 
-                    {{
-                        company_name
-                        or "AV KING VET"
-                    }}
+                    {{ company_name or "AV KING VET" }}
 
                 </div>
 
 
                 <div class="sidebar-subtitle">
+
                     ADMINISTRATION
+
                 </div>
 
             </div>
@@ -981,12 +1018,12 @@
         </div>
 
 
+        <!-- SIDEBAR CONTENT -->
+
         <div class="sidebar-content">
 
 
-            <!-- =================================================
-                 MAIN
-                 ================================================= -->
+            <!-- MAIN -->
 
             <div class="sidebar-section-title">
                 Main
@@ -1000,10 +1037,12 @@
 
                 <a
                     href="{{ url_for('admin_dashboard') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_dashboard' %}
-                        active
-                    {% endif %}"
+                    class="
+                        sidebar-link
+                        {% if request.endpoint == 'admin_dashboard' %}
+                            active
+                        {% endif %}
+                    "
                 >
 
                     <span class="sidebar-icon">
@@ -1019,10 +1058,12 @@
 
                 <a
                     href="{{ url_for('admin_applications') }}"
-                    class="sidebar-link
-                    {% if request.endpoint == 'admin_applications' %}
-                        active
-                    {% endif %}"
+                    class="
+                        sidebar-link
+                        {% if request.endpoint == 'admin_applications' %}
+                            active
+                        {% endif %}
+                    "
                 >
 
                     <span class="sidebar-icon">
@@ -1036,15 +1077,16 @@
 
                 <!-- WORKERS -->
 
-                {% if admin_workers_endpoint is defined
-                      and admin_workers_endpoint %}
+                {% if 'admin_workers' in current_app.view_functions %}
 
                     <a
-                        href="{{ url_for(admin_workers_endpoint) }}"
-                        class="sidebar-link
-                        {% if request.endpoint == admin_workers_endpoint %}
-                            active
-                        {% endif %}"
+                        href="{{ url_for('admin_workers') }}"
+                        class="
+                            sidebar-link
+                            {% if request.endpoint == 'admin_workers' %}
+                                active
+                            {% endif %}
+                        "
                     >
 
                         <span class="sidebar-icon">
@@ -1060,15 +1102,16 @@
 
                 <!-- REPORTS -->
 
-                {% if admin_reports_endpoint is defined
-                      and admin_reports_endpoint %}
+                {% if 'admin_reports' in current_app.view_functions %}
 
                     <a
-                        href="{{ url_for(admin_reports_endpoint) }}"
-                        class="sidebar-link
-                        {% if request.endpoint == admin_reports_endpoint %}
-                            active
-                        {% endif %}"
+                        href="{{ url_for('admin_reports') }}"
+                        class="
+                            sidebar-link
+                            {% if request.endpoint == 'admin_reports' %}
+                                active
+                            {% endif %}
+                        "
                     >
 
                         <span class="sidebar-icon">
@@ -1081,36 +1124,10 @@
 
                 {% endif %}
 
-
-                <!-- POSITIONS -->
-
-                {% if admin_positions_endpoint is defined
-                      and admin_positions_endpoint %}
-
-                    <a
-                        href="{{ url_for(admin_positions_endpoint) }}"
-                        class="sidebar-link
-                        {% if request.endpoint == admin_positions_endpoint %}
-                            active
-                        {% endif %}"
-                    >
-
-                        <span class="sidebar-icon">
-                            ◈
-                        </span>
-
-                        Positions
-
-                    </a>
-
-                {% endif %}
-
             </nav>
 
 
-            <!-- =================================================
-                 MANAGEMENT
-                 ================================================= -->
+            <!-- MANAGEMENT -->
 
             <div class="sidebar-section-title">
                 Management
@@ -1122,63 +1139,62 @@
 
                 <!-- SETTINGS -->
 
-                {% if admin_settings_endpoint is defined
-                      and admin_settings_endpoint %}
-
-                    <a
-                        href="{{ url_for(admin_settings_endpoint) }}"
-                        class="sidebar-link
-                        {% if request.endpoint == admin_settings_endpoint %}
+                <a
+                    href="{{ url_for('admin_settings') }}"
+                    class="
+                        sidebar-link
+                        {% if request.endpoint == 'admin_settings' %}
                             active
-                        {% endif %}"
-                    >
+                        {% endif %}
+                    "
+                >
 
-                        <span class="sidebar-icon">
-                            ⚙
-                        </span>
+                    <span class="sidebar-icon">
+                        ⚙
+                    </span>
 
-                        Settings
+                    Settings
 
-                    </a>
-
-                {% endif %}
+                </a>
 
 
                 <!-- LOGOUT -->
 
-                {% if admin_logout_endpoint is defined
-                      and admin_logout_endpoint %}
+                <a
+                    href="{{ url_for('admin_logout') }}"
+                    class="sidebar-logout"
+                >
 
-                    <a
-                        href="{{ url_for(admin_logout_endpoint) }}"
-                        class="sidebar-logout"
-                    >
+                    <span>
+                        ↪
+                    </span>
 
-                        <span>
-                            ↪
-                        </span>
+                    Sign out
 
-                        Sign out
-
-                    </a>
-
-                {% endif %}
+                </a>
 
             </nav>
 
         </div>
 
 
-        <!-- =====================================================
-             USER
-             ===================================================== -->
+        <!-- SIDEBAR FOOTER -->
 
         <div class="sidebar-footer">
 
             <div class="sidebar-user">
 
+
                 <div class="sidebar-user-avatar">
-                    A
+
+                    {{
+                        (
+                            session.get("admin_username")
+                            or "A"
+                        )[:1]
+                        |upper
+                    }}
+
                 </div>
 
 
@@ -1186,16 +1202,16 @@
 
                     <div class="sidebar-user-name">
 
-                        {{
-                            session.get("admin_username")
-                            or "Administrator"
-                        }}
+                        {{ session.get("admin_username")
+                           or "Administrator" }}
 
                     </div>
 
 
                     <div class="sidebar-user-role">
+
                         System Administrator
+
                     </div>
 
                 </div>
@@ -1207,9 +1223,7 @@
     </aside>
 
 
-    <!-- =====================================================
-         OVERLAY
-         ===================================================== -->
+    <!-- OVERLAY -->
 
     <div
         class="sidebar-overlay"
@@ -1223,12 +1237,11 @@
 
     <main class="admin-main">
 
+
         <div class="admin-container">
 
 
-            <!-- =================================================
-                 TOP BAR
-                 ================================================= -->
+            <!-- TOP BAR -->
 
             <div class="admin-topbar">
 
@@ -1246,18 +1259,22 @@
                     </button>
 
 
-                    <span class="topbar-company">
+                    <div>
 
-                        {{
-                            company_name
-                            or "AV KING VETERINARY BUSINESS SUITE"
-                        }}
+                        <div class="topbar-company">
 
-                    </span>
+                            {{ company_name
+                               or "AV KING VETERINARY BUSINESS SUITE" }}
+
+                        </div>
 
 
-                    <div class="topbar-system">
-                        Administration Control Panel
+                        <div class="topbar-system">
+
+                            Administration Control Panel
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -1265,14 +1282,13 @@
 
                 <div class="topbar-right">
 
+
                     <div class="topbar-admin">
 
                         <span class="topbar-dot"></span>
 
-                        {{
-                            session.get("admin_username")
-                            or "Administrator"
-                        }}
+                        {{ session.get("admin_username")
+                           or "Administrator" }}
 
                     </div>
 
@@ -1281,9 +1297,7 @@
             </div>
 
 
-            <!-- =================================================
-                 FLASH MESSAGES
-                 ================================================= -->
+            <!-- FLASH MESSAGES -->
 
             {% with messages = get_flashed_messages(
                 with_categories=true
@@ -1317,12 +1331,11 @@
                  ================================================= -->
 
             {% block content %}
+
             {% endblock %}
 
 
-            <!-- =================================================
-                 ADMIN FOOTER
-                 ================================================= -->
+            <!-- ADMIN FOOTER -->
 
             <footer class="admin-footer">
 
@@ -1330,10 +1343,8 @@
 
                     © {{ current_year or 2026 }}
 
-                    {{
-                        company_name
-                        or "AV KING VETERINARY BUSINESS SUITE"
-                    }}.
+                    {{ company_name
+                       or "AV KING VETERINARY BUSINESS SUITE" }}.
 
                     All rights reserved.
 
@@ -1341,10 +1352,13 @@
 
 
                 <span>
+
                     Professional • Secure • Reliable
+
                 </span>
 
             </footer>
+
 
         </div>
 
@@ -1357,25 +1371,67 @@
 
 
 <!-- =========================================================
-     PUBLIC / APPLICANT LAYOUT
+     PUBLIC / APPLICANT APPLICATION
      
      IMPORTANT:
-     The content block is NOT defined again here.
-     Jinja allows only one definition of a block.
+     No admin sidebar.
+     No admin margin.
+     Child templates can simply use:
      
-     We simply render the child template's content through
-     the single block below.
+     {% block content %}
+         ...
+     {% endblock %}
      ========================================================= -->
 
-<div class="public-content-wrapper">
+<main class="public-main">
 
-    {% block public_content_wrapper %}
 
-        {% block content_public %}{% endblock %}
+    <!-- PUBLIC FLASH MESSAGES -->
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% if messages %}
+
+            <div
+                style="
+                    width:100%;
+                    max-width:1320px;
+                    margin:0 auto;
+                    padding:18px 24px 0;
+                "
+            >
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="flash-message {{ category }}"
+                    >
+
+                        {{ message }}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <!-- =====================================================
+         PUBLIC CONTENT BLOCK
+         ===================================================== -->
+
+    {% block content %}
 
     {% endblock %}
 
-</div>
+
+</main>
 
 
 {% endif %}
@@ -1383,6 +1439,8 @@
 <!-- =============================================================
      SIDEBAR JAVASCRIPT
      ============================================================= -->
+
+{% if session.get("role") == "admin" %}
 
 <script>
 
@@ -1409,11 +1467,14 @@
             return;
         }
 
+
         sidebar.classList.add("open");
 
 
         if (overlay) {
+
             overlay.classList.add("open");
+
         }
 
     }
@@ -1425,11 +1486,14 @@
             return;
         }
 
+
         sidebar.classList.remove("open");
 
 
         if (overlay) {
+
             overlay.classList.remove("open");
+
         }
 
     }
@@ -1463,7 +1527,9 @@
                 "click",
                 function () {
 
-                    if (window.innerWidth <= 900) {
+                    if (
+                        window.innerWidth <= 900
+                    ) {
 
                         closeSidebar();
 
@@ -1475,11 +1541,13 @@
         });
 
 
-    window.addEventListener(
-        "resize",
-        function () {
+    document.addEventListener(
+        "keydown",
+        function (event) {
 
-            if (window.innerWidth > 900) {
+            if (
+                event.key === "Escape"
+            ) {
 
                 closeSidebar();
 
@@ -1492,6 +1560,12 @@
 })();
 
 </script>
+
+{% endif %}
+
+<!-- =============================================================
+     CHILD PAGE SCRIPTS
+     ============================================================= -->
 
 {% block scripts %}{% endblock %}
 
