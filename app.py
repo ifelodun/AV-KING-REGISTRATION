@@ -8850,10 +8850,6 @@ def applicant_portal():
         )
 
 
-    # =========================================================
-    # DATABASE CONNECTION
-    # =========================================================
-
     conn = get_db()
 
     try:
@@ -8861,7 +8857,183 @@ def applicant_portal():
         with conn.cursor() as cur:
 
             # =================================================
-            # GET APPLICANT APPLICATION
+            # ENSURE APPLICANT MESSAGES TABLE EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS applicant_messages (
+
+                    id BIGSERIAL PRIMARY KEY,
+
+                    application_id BIGINT NOT NULL,
+
+                    message_type VARCHAR(30)
+                        NOT NULL DEFAULT 'message',
+
+                    subject VARCHAR(255),
+
+                    message TEXT,
+
+                    interview_date DATE,
+
+                    interview_time TIME,
+
+                    interview_location VARCHAR(500),
+
+                    is_read BOOLEAN
+                        NOT NULL DEFAULT FALSE,
+
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                    CONSTRAINT fk_applicant_messages_application
+                        FOREIGN KEY (application_id)
+                        REFERENCES applications(id)
+                        ON DELETE CASCADE
+                )
+                """
+            )
+
+
+            # =================================================
+            # IMPORTANT DATABASE MIGRATION
+            #
+            # This updates an EXISTING applicant_messages table.
+            #
+            # CREATE TABLE IF NOT EXISTS does not add columns
+            # to a table that already exists.
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_date DATE
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_time TIME
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_location
+                VARCHAR(500)
+                """
+            )
+
+
+            # =================================================
+            # ENSURE MESSAGE TYPE EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS message_type
+                VARCHAR(30)
+                NOT NULL DEFAULT 'message'
+                """
+            )
+
+
+            # =================================================
+            # ENSURE SUBJECT EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS subject
+                VARCHAR(255)
+                """
+            )
+
+
+            # =================================================
+            # ENSURE MESSAGE EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS message
+                TEXT
+                """
+            )
+
+
+            # =================================================
+            # ENSURE READ STATUS EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS is_read
+                BOOLEAN
+                NOT NULL DEFAULT FALSE
+                """
+            )
+
+
+            # =================================================
+            # ENSURE CREATED AT EXISTS
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS created_at
+                TIMESTAMP
+                NOT NULL DEFAULT CURRENT_TIMESTAMP
+                """
+            )
+
+
+            # =================================================
+            # CREATE INDEXES
+            # =================================================
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_application
+
+                ON applicant_messages(application_id)
+                """
+            )
+
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_unread
+
+                ON applicant_messages(
+                    application_id,
+                    is_read
+                )
+                """
+            )
+
+
+            # =================================================
+            # COMMIT DATABASE MIGRATION
+            # =================================================
+
+            conn.commit()
+
+
+            # =================================================
+            # GET APPLICATION
             # =================================================
 
             cur.execute(
@@ -8912,14 +9084,11 @@ def applicant_portal():
 
 
             # =================================================
-            # GET APPLICANT MESSAGES
+            # GET APPLICANT COMMUNICATIONS
             #
-            # Includes:
-            # - Normal messages
-            # - Interview invitations
-            # - Interview date
-            # - Interview time
-            # - Interview location
+            # NORMAL MESSAGE
+            # INTERVIEW INVITATION
+            # INTERVIEW DETAILS
             # =================================================
 
             cur.execute(
@@ -8961,7 +9130,7 @@ def applicant_portal():
 
 
             # =================================================
-            # COUNT UNREAD MESSAGES
+            # COUNT UNREAD COMMUNICATIONS
             # =================================================
 
             cur.execute(
@@ -8983,17 +9152,10 @@ def applicant_portal():
             unread_row = cur.fetchone()
 
 
-            # =================================================
-            # SAFELY GET UNREAD COUNT
-            # =================================================
-
             if unread_row:
 
                 unread_count = int(
-                    unread_row.get(
-                        "unread_count",
-                        0
-                    )
+                    unread_row["unread_count"]
                     or 0
                 )
 
@@ -9003,21 +9165,7 @@ def applicant_portal():
 
 
             # =================================================
-            # UPDATE SESSION BADGE
-            #
-            # This allows base.html to display:
-            #
-            # Messages & Interview  3
-            # =================================================
-
-            session[
-                "applicant_unread_count"
-            ] = unread_count
-
-
-            # =================================================
-            # OPTIONAL:
-            # GET TOTAL MESSAGE COUNT
+            # TOTAL COMMUNICATIONS
             # =================================================
 
             cur.execute(
@@ -9040,10 +9188,7 @@ def applicant_portal():
             if total_row:
 
                 total_messages = int(
-                    total_row.get(
-                        "total_messages",
-                        0
-                    )
+                    total_row["total_messages"]
                     or 0
                 )
 
@@ -9053,7 +9198,7 @@ def applicant_portal():
 
 
             # =================================================
-            # COUNT INTERVIEW INVITATIONS
+            # TOTAL INTERVIEW INVITATIONS
             # =================================================
 
             cur.execute(
@@ -9078,10 +9223,7 @@ def applicant_portal():
             if interview_row:
 
                 interview_count = int(
-                    interview_row.get(
-                        "interview_count",
-                        0
-                    )
+                    interview_row["interview_count"]
                     or 0
                 )
 
@@ -9090,10 +9232,32 @@ def applicant_portal():
                 interview_count = 0
 
 
+            # =================================================
+            # UPDATE SIDEBAR UNREAD BADGE
+            # =================================================
+
+            session[
+                "applicant_unread_count"
+            ] = unread_count
+
+
     except Exception:
 
         # =====================================================
-        # LOG DATABASE ERROR
+        # ROLLBACK
+        # =====================================================
+
+        try:
+
+            conn.rollback()
+
+        except Exception:
+
+            pass
+
+
+        # =====================================================
+        # LOG COMPLETE ERROR
         # =====================================================
 
         app.logger.exception(
@@ -9102,26 +9266,17 @@ def applicant_portal():
 
 
         # =====================================================
-        # RESET VARIABLES
+        # CLEAR POSSIBLE BAD SESSION DATA
         # =====================================================
 
-        application = None
+        session.pop(
+            "applicant_unread_count",
+            None
+        )
 
-        messages = []
-
-        unread_count = 0
-
-        total_messages = 0
-
-        interview_count = 0
-
-
-        # =====================================================
-        # INFORM APPLICANT
-        # =====================================================
 
         flash(
-            "Unable to load your applicant portal. "
+            "We could not load your applicant portal. "
             "Please try again.",
             "error"
         )
@@ -9135,7 +9290,7 @@ def applicant_portal():
     finally:
 
         # =====================================================
-        # CLOSE DATABASE CONNECTION
+        # CLOSE CONNECTION
         # =====================================================
 
         conn.close()
@@ -9146,7 +9301,6 @@ def applicant_portal():
     # =========================================================
 
     return render_template(
-
         "applicant_portal.html",
 
         application=application,
@@ -9158,7 +9312,6 @@ def applicant_portal():
         total_messages=total_messages,
 
         interview_count=interview_count
-
     )
 
 # ============================================================
