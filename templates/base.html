@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 <head>
 
 
@@ -36,14 +35,13 @@
         box-sizing: border-box;
     }
 
-
     html {
         scroll-behavior: smooth;
     }
 
-
     body {
         margin: 0;
+        padding: 0;
 
         font-family:
             Inter,
@@ -55,18 +53,15 @@
             sans-serif;
 
         background: #f5f7f6;
-
         color: #14213d;
 
         line-height: 1.6;
     }
 
-
     a {
-        text-decoration: none;
         color: inherit;
+        text-decoration: none;
     }
-
 
     button,
     input,
@@ -74,7 +69,6 @@
     select {
         font: inherit;
     }
-
 
     img {
         max-width: 100%;
@@ -88,17 +82,13 @@
     :root {
 
         --brand-green: #087443;
-
         --brand-green-dark: #065a35;
-
         --brand-green-light: #eaf6ef;
 
         --accent: #d4a017;
 
         --text-dark: #14213d;
-
         --text: #344054;
-
         --muted: #667085;
 
         --white: #ffffff;
@@ -124,7 +114,7 @@
 
 
     /* =========================================================
-       APP SHELL
+       ADMIN APPLICATION SHELL
        ========================================================= */
 
     .app-shell {
@@ -133,7 +123,7 @@
 
 
     /* =========================================================
-       SIDEBAR
+       ADMIN SIDEBAR
        ========================================================= */
 
     .admin-sidebar {
@@ -153,39 +143,19 @@
         z-index: 1100;
 
         display: flex;
-
         flex-direction: column;
 
         overflow-y: auto;
 
-        transition:
-            transform .25s ease;
-
-        scrollbar-width: thin;
+        transition: transform .25s ease;
     }
 
-
-    .admin-sidebar::-webkit-scrollbar {
-        width: 5px;
-    }
-
-
-    .admin-sidebar::-webkit-scrollbar-thumb {
-        background: #d8e2dc;
-        border-radius: 10px;
-    }
-
-
-    /* =========================================================
-       SIDEBAR BRAND
-       ========================================================= */
 
     .sidebar-brand {
 
         min-height: 76px;
 
         display: flex;
-
         align-items: center;
 
         gap: 11px;
@@ -193,8 +163,6 @@
         padding: 14px 18px;
 
         border-bottom: 1px solid var(--border);
-
-        flex-shrink: 0;
     }
 
 
@@ -223,9 +191,7 @@
         min-width: 42px;
 
         display: flex;
-
         align-items: center;
-
         justify-content: center;
 
         border-radius: 10px;
@@ -235,7 +201,6 @@
         color: #ffffff;
 
         font-size: 14px;
-
         font-weight: 900;
     }
 
@@ -245,7 +210,6 @@
         min-width: 0;
 
         display: flex;
-
         flex-direction: column;
     }
 
@@ -296,9 +260,7 @@
 
     .sidebar-section-title {
 
-        padding:
-            0 10px
-            8px;
+        padding: 0 10px 8px;
 
         color: #98a2b3;
 
@@ -320,7 +282,7 @@
 
         gap: 3px;
 
-        margin-bottom: 22px;
+        margin-bottom: 20px;
     }
 
 
@@ -381,7 +343,6 @@
         display: flex;
 
         align-items: center;
-
         justify-content: center;
 
         border-radius: 7px;
@@ -409,8 +370,6 @@
         padding: 12px;
 
         border-top: 1px solid var(--border);
-
-        flex-shrink: 0;
     }
 
 
@@ -440,7 +399,6 @@
         display: flex;
 
         align-items: center;
-
         justify-content: center;
 
         border-radius: 9px;
@@ -510,23 +468,17 @@
         font-size: 10px;
 
         font-weight: 750;
-
-        transition:
-            background .18s ease,
-            color .18s ease;
     }
 
 
     .sidebar-logout:hover {
 
         background: #fff1f0;
-
-        color: #a0180e;
     }
 
 
     /* =========================================================
-       MAIN CONTENT
+       ADMIN MAIN CONTENT
        ========================================================= */
 
     .admin-main {
@@ -537,8 +489,7 @@
 
         padding: 28px;
 
-        transition:
-            margin-left .25s ease;
+        transition: margin-left .25s ease;
     }
 
 
@@ -553,7 +504,7 @@
 
 
     /* =========================================================
-       TOP BAR
+       ADMIN TOP BAR
        ========================================================= */
 
     .admin-topbar {
@@ -680,8 +631,7 @@
 
         inset: 0;
 
-        background:
-            rgba(16, 24, 40, .38);
+        background: rgba(16, 24, 40, .38);
 
         z-index: 1050;
     }
@@ -780,7 +730,7 @@
 
 
     /* =========================================================
-       FOOTER
+       ADMIN FOOTER
        ========================================================= */
 
     .admin-footer {
@@ -802,6 +752,22 @@
         color: #98a2b3;
 
         font-size: 8px;
+    }
+
+
+    /* =========================================================
+       PUBLIC / APPLICANT CONTENT
+       
+       IMPORTANT:
+       This wrapper does NOT add admin margins.
+       Applicant pages control their own layout.
+       ========================================================= */
+
+    .public-content-wrapper {
+
+        width: 100%;
+
+        min-height: 100vh;
     }
 
 
@@ -888,7 +854,6 @@
         }
     }
 
-
 </style>
 
 
@@ -901,481 +866,458 @@
 
 {% if session.get("role") == "admin" %}
 
+
+<!-- =========================================================
+     ADMIN AREA
+     ========================================================= -->
+
 <div class="app-shell">
 
 
-<!-- =====================================================
-     ADMIN SIDEBAR
-     ===================================================== -->
-
-<aside
-    class="admin-sidebar"
-    id="adminSidebar"
->
-
-
-    <!-- =================================================
-         BRAND
-         ================================================= -->
-
-    <div class="sidebar-brand">
-
-
-        {% if company_logo %}
-
-            <img
-                src="{{ company_logo }}"
-                alt="{{ company_name or 'Company Logo' }}"
-                class="sidebar-logo"
-                onerror="
-                    this.style.display='none';
-                    var p=document.getElementById('sidebarLogoPlaceholder');
-                    if(p){p.style.display='flex';}
-                "
-            >
-
-            <div
-                class="sidebar-logo-placeholder"
-                id="sidebarLogoPlaceholder"
-                style="display:none;"
-            >
-                AV
-            </div>
-
-        {% else %}
-
-            <div class="sidebar-logo-placeholder">
-                AV
-            </div>
-
-        {% endif %}
-
-
-        <div class="sidebar-brand-text">
-
-            <div class="sidebar-company">
-
-                {{ company_name or "AV KING VET" }}
-
-            </div>
-
-
-            <div class="sidebar-subtitle">
-
-                ADMINISTRATION
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         SIDEBAR CONTENT
-         ================================================= -->
-
-    <div class="sidebar-content">
-
-
-        <!-- =================================================
-             MAIN
-             ================================================= -->
-
-        <div class="sidebar-section-title">
-
-            Main
-
-        </div>
-
-
-        <nav class="sidebar-nav">
-
-
-            <!-- DASHBOARD -->
-
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_dashboard' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ◫
-                </span>
-
-                <span>
-                    Dashboard
-                </span>
-
-            </a>
-
-
-            <!-- APPLICATIONS -->
-
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_applications' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ☷
-                </span>
-
-                <span>
-                    Applications
-                </span>
-
-            </a>
-
-
-            <!-- POSITIONS -->
-
-            <a
-                href="{{ url_for('admin_positions') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_positions' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ◈
-                </span>
-
-                <span>
-                    Positions
-                </span>
-
-            </a>
-
-
-            <!-- REPORTS -->
-
-            <a
-                href="{{ url_for('admin_reports') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_reports' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ▤
-                </span>
-
-                <span>
-                    Reports
-                </span>
-
-            </a>
-
-
-        </nav>
-
-
-        <!-- =================================================
-             MANAGEMENT
-             ================================================= -->
-
-        <div class="sidebar-section-title">
-
-            Management
-
-        </div>
-
-
-        <nav class="sidebar-nav">
-
-
-            <!-- SETTINGS -->
-
-            <a
-                href="{{ url_for('admin_settings') }}"
-                class="sidebar-link
-                {% if request.endpoint == 'admin_settings' %}
-                    active
-                {% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ⚙
-                </span>
-
-                <span>
-                    Settings
-                </span>
-
-            </a>
-
-
-            <!-- LOGOUT -->
-
-            <a
-                href="{{ url_for('admin_logout') }}"
-                class="sidebar-logout"
-            >
-
-                <span>
-                    ↪
-                </span>
-
-                <span>
-                    Sign out
-                </span>
-
-            </a>
-
-
-        </nav>
-
-
-    </div>
-
-
-    <!-- =================================================
-         USER INFORMATION
-         ================================================= -->
-
-    <div class="sidebar-footer">
-
-
-        <div class="sidebar-user">
-
-
-            <div class="sidebar-user-avatar">
-
-                A
-
-            </div>
-
-
-            <div class="sidebar-user-info">
-
-
-                <div class="sidebar-user-name">
-
-                    {{ session.get("admin_username")
-                       or "Administrator" }}
-
-                </div>
-
-
-                <div class="sidebar-user-role">
-
-                    System Administrator
-
-                </div>
-
-
-            </div>
-
-
-        </div>
-
-
-    </div>
-
-
-</aside>
-
-
-<!-- =====================================================
-     MOBILE OVERLAY
-     ===================================================== -->
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
-
-
-<!-- =====================================================
-     MAIN CONTENT
-     ===================================================== -->
-
-<main class="admin-main">
-
-
-    <div class="admin-container">
-
-
-        <!-- =================================================
-             TOP BAR
-             ================================================= -->
-
-        <div class="admin-topbar">
-
-
-            <div class="topbar-left">
-
-
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Open navigation"
-                    aria-controls="adminSidebar"
-                    aria-expanded="false"
+    <!-- =====================================================
+         ADMIN SIDEBAR
+         ===================================================== -->
+
+    <aside
+        class="admin-sidebar"
+        id="adminSidebar"
+    >
+
+        <div class="sidebar-brand">
+
+            {% if company_logo %}
+
+                <img
+                    src="{{ company_logo }}"
+                    alt="{{ company_name or 'Company Logo' }}"
+                    class="sidebar-logo"
                 >
-                    ☰
-                </button>
 
+            {% else %}
 
-                <span class="topbar-company">
-
-                    {{ company_name
-                       or "AV KING VETERINARY BUSINESS SUITE" }}
-
-                </span>
-
-
-                <div class="topbar-system">
-
-                    Administration Control Panel
-
+                <div class="sidebar-logo-placeholder">
+                    AV
                 </div>
-
-
-            </div>
-
-
-            <div class="topbar-right">
-
-
-                <div class="topbar-admin">
-
-
-                    <span class="topbar-dot"></span>
-
-
-                    {{ session.get("admin_username")
-                       or "Administrator" }}
-
-
-                </div>
-
-
-            </div>
-
-
-        </div>
-
-
-        <!-- =================================================
-             FLASH MESSAGES
-             ================================================= -->
-
-        {% with
-            messages = get_flashed_messages(
-                with_categories=true
-            )
-        %}
-
-
-            {% if messages %}
-
-
-                <div class="flash-container">
-
-
-                    {% for category, message in messages %}
-
-
-                        <div
-                            class="flash-message {{ category }}"
-                            role="alert"
-                        >
-
-                            {{ message }}
-
-                        </div>
-
-
-                    {% endfor %}
-
-
-                </div>
-
 
             {% endif %}
 
 
-        {% endwith %}
+            <div class="sidebar-brand-text">
+
+                <div class="sidebar-company">
+                    {{ company_name or "AV KING VET" }}
+                </div>
+
+                <div class="sidebar-subtitle">
+                    ADMINISTRATION
+                </div>
+
+            </div>
+
+        </div>
 
 
-        <!-- =================================================
-             PAGE CONTENT
-             ================================================= -->
-
-        {% block content %}
-
-        {% endblock %}
+        <div class="sidebar-content">
 
 
-        <!-- =================================================
-             FOOTER
-             ================================================= -->
+            <!-- =================================================
+                 MAIN
+                 ================================================= -->
 
-        <footer class="admin-footer">
-
-
-            <span>
-
-                © {{ current_year or 2026 }}
-
-                {{ company_name
-                   or "AV KING VETERINARY BUSINESS SUITE" }}.
-
-                All rights reserved.
-
-            </span>
+            <div class="sidebar-section-title">
+                Main
+            </div>
 
 
-            <span>
-
-                Professional • Secure • Reliable
-
-            </span>
+            <nav class="sidebar-nav">
 
 
-        </footer>
+                <!-- DASHBOARD -->
+
+                <a
+                    href="{{ url_for('admin_dashboard') }}"
+                    class="sidebar-link
+                    {% if request.endpoint == 'admin_dashboard' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="sidebar-icon">
+                        ◫
+                    </span>
+
+                    Dashboard
+
+                </a>
 
 
-    </div>
+                <!-- APPLICATIONS -->
+
+                <a
+                    href="{{ url_for('admin_applications') }}"
+                    class="sidebar-link
+                    {% if request.endpoint == 'admin_applications' %}
+                        active
+                    {% endif %}"
+                >
+
+                    <span class="sidebar-icon">
+                        ☷
+                    </span>
+
+                    Applications
+
+                </a>
 
 
-</main>
+                <!-- WORKERS
+                     
+                     IMPORTANT:
+                     Only create url_for when endpoint actually exists.
+                -->
 
+                {% if 'admin_workers' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_workers') }}"
+                        class="sidebar-link
+                        {% if request.endpoint == 'admin_workers' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="sidebar-icon">
+                            ◉
+                        </span>
+
+                        Workers
+
+                    </a>
+
+                {% endif %}
+
+
+                <!-- REPORTS -->
+
+                {% if 'admin_reports' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_reports') }}"
+                        class="sidebar-link
+                        {% if request.endpoint == 'admin_reports' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="sidebar-icon">
+                            ▤
+                        </span>
+
+                        Reports
+
+                    </a>
+
+                {% endif %}
+
+
+                <!-- POSITIONS -->
+
+                {% if 'admin_positions' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_positions') }}"
+                        class="sidebar-link
+                        {% if request.endpoint == 'admin_positions' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="sidebar-icon">
+                            ◈
+                        </span>
+
+                        Positions
+
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+
+            <!-- =================================================
+                 MANAGEMENT
+                 ================================================= -->
+
+            <div class="sidebar-section-title">
+                Management
+            </div>
+
+
+            <nav class="sidebar-nav">
+
+
+                <!-- SETTINGS -->
+
+                {% if 'admin_settings' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_settings') }}"
+                        class="sidebar-link
+                        {% if request.endpoint == 'admin_settings' %}
+                            active
+                        {% endif %}"
+                    >
+
+                        <span class="sidebar-icon">
+                            ⚙
+                        </span>
+
+                        Settings
+
+                    </a>
+
+                {% endif %}
+
+
+                <!-- LOGOUT -->
+
+                {% if 'admin_logout' in current_app.view_functions %}
+
+                    <a
+                        href="{{ url_for('admin_logout') }}"
+                        class="sidebar-logout"
+                    >
+
+                        <span>
+                            ↪
+                        </span>
+
+                        Sign out
+
+                    </a>
+
+                {% endif %}
+
+            </nav>
+
+        </div>
+
+
+        <!-- =====================================================
+             ADMIN USER
+             ===================================================== -->
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-user">
+
+                <div class="sidebar-user-avatar">
+                    A
+                </div>
+
+                <div class="sidebar-user-info">
+
+                    <div class="sidebar-user-name">
+
+                        {{
+                            session.get("admin_username")
+                            or "Administrator"
+                        }}
+
+                    </div>
+
+                    <div class="sidebar-user-role">
+                        System Administrator
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MOBILE OVERLAY
+         ===================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =====================================================
+         ADMIN MAIN
+         ===================================================== -->
+
+    <main class="admin-main">
+
+        <div class="admin-container">
+
+
+            <!-- =================================================
+                 TOP BAR
+                 ================================================= -->
+
+            <div class="admin-topbar">
+
+
+                <div class="topbar-left">
+
+
+                    <button
+                        type="button"
+                        class="sidebar-toggle"
+                        id="sidebarToggle"
+                        aria-label="Open navigation"
+                    >
+                        ☰
+                    </button>
+
+
+                    <span class="topbar-company">
+
+                        {{
+                            company_name
+                            or "AV KING VETERINARY BUSINESS SUITE"
+                        }}
+
+                    </span>
+
+
+                    <div class="topbar-system">
+                        Administration Control Panel
+                    </div>
+
+                </div>
+
+
+                <div class="topbar-right">
+
+                    <div class="topbar-admin">
+
+                        <span class="topbar-dot"></span>
+
+                        {{
+                            session.get("admin_username")
+                            or "Administrator"
+                        }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FLASH MESSAGES
+                 ================================================= -->
+
+            {% with messages = get_flashed_messages(
+                with_categories=true
+            ) %}
+
+                {% if messages %}
+
+                    <div class="flash-container">
+
+                        {% for category, message in messages %}
+
+                            <div
+                                class="flash-message {{ category }}"
+                            >
+
+                                {{ message }}
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- =================================================
+                 ADMIN PAGE CONTENT
+                 
+                 This is the important block.
+                 ================================================= -->
+
+            {% block content %}
+
+            {% endblock %}
+
+
+            <!-- =================================================
+                 ADMIN FOOTER
+                 ================================================= -->
+
+            <footer class="admin-footer">
+
+                <span>
+
+                    © {{ current_year or 2026 }}
+
+                    {{
+                        company_name
+                        or "AV KING VETERINARY BUSINESS SUITE"
+                    }}.
+
+                    All rights reserved.
+
+                </span>
+
+
+                <span>
+                    Professional • Secure • Reliable
+                </span>
+
+            </footer>
+
+        </div>
+
+    </main>
 
 </div>
 
+
 {% else %}
 
+
 <!-- =========================================================
-     PUBLIC / NON-ADMIN CONTENT
+     PUBLIC / APPLICANT AREA
+     
+     IMPORTANT:
+     The same {% block content %} from child templates is
+     rendered here. This fixes the blank applicant portal.
+     
+     No admin sidebar.
+     No admin topbar.
+     No admin footer.
      ========================================================= -->
 
-{% block public_content %}
+<div class="public-content-wrapper">
 
+    {% block content %}
 
-{% block content_public %}
+    {% endblock %}
 
-{% endblock %}
+</div>
 
-
-{% endblock %}
 
 {% endif %}
 
-<!-- =========================================================
-     SIDEBAR JAVASCRIPT
-     ========================================================= -->
+<!-- =============================================================
+     ADMIN SIDEBAR JAVASCRIPT
+     ============================================================= -->
 
 <script>
 
@@ -1407,23 +1349,8 @@
 
 
         if (overlay) {
-
             overlay.classList.add("open");
-
         }
-
-
-        if (toggle) {
-
-            toggle.setAttribute(
-                "aria-expanded",
-                "true"
-            );
-
-        }
-
-
-        document.body.style.overflow = "hidden";
 
     }
 
@@ -1439,23 +1366,8 @@
 
 
         if (overlay) {
-
             overlay.classList.remove("open");
-
         }
-
-
-        if (toggle) {
-
-            toggle.setAttribute(
-                "aria-expanded",
-                "false"
-            );
-
-        }
-
-
-        document.body.style.overflow = "";
 
     }
 
@@ -1464,22 +1376,7 @@
 
         toggle.addEventListener(
             "click",
-            function () {
-
-                if (
-                    sidebar &&
-                    sidebar.classList.contains("open")
-                ) {
-
-                    closeSidebar();
-
-                } else {
-
-                    openSidebar();
-
-                }
-
-            }
+            openSidebar
         );
 
     }
@@ -1503,9 +1400,7 @@
                 "click",
                 function () {
 
-                    if (
-                        window.innerWidth <= 900
-                    ) {
+                    if (window.innerWidth <= 900) {
 
                         closeSidebar();
 
@@ -1515,24 +1410,6 @@
             );
 
         });
-
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (
-                event.key === "Escape" &&
-                sidebar &&
-                sidebar.classList.contains("open")
-            ) {
-
-                closeSidebar();
-
-            }
-
-        }
-    );
 
 
     window.addEventListener(
@@ -1553,10 +1430,7 @@
 
 </script>
 
-{% block scripts %}
-
-{% endblock %}
+{% block scripts %}{% endblock %}
 
 </body>
-
 </html>
