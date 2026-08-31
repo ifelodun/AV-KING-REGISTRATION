@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
 
 
@@ -26,7 +27,7 @@
 
     /* =====================================================
        GLOBAL
-       ===================================================== */
+    ===================================================== */
 
     * {
         box-sizing: border-box;
@@ -60,7 +61,7 @@
 
     /* =====================================================
        LAYOUT
-       ===================================================== */
+    ===================================================== */
 
     .site-wrapper {
         min-height: 100vh;
@@ -73,7 +74,7 @@
 
     /* =====================================================
        DESKTOP SIDEBAR
-       ===================================================== */
+    ===================================================== */
 
     .admin-sidebar {
 
@@ -109,7 +110,7 @@
 
     /* =====================================================
        SIDEBAR BRAND
-       ===================================================== */
+    ===================================================== */
 
     .sidebar-brand {
 
@@ -128,6 +129,12 @@
             rgba(255,255,255,.08);
     }
 
+
+    /*
+     * IMPORTANT:
+     * The logo is now loaded directly from Cloudinary.
+     */
+
     .sidebar-logo {
 
         width: 44px;
@@ -145,9 +152,14 @@
         border-radius: 10px;
 
         background: #ffffff;
+
+        border: 1px solid rgba(255,255,255,.10);
     }
 
+
     .sidebar-logo img {
+
+        display: block;
 
         width: 100%;
         height: 100%;
@@ -156,6 +168,7 @@
 
         padding: 4px;
     }
+
 
     .sidebar-logo-placeholder {
 
@@ -179,9 +192,11 @@
         font-weight: 800;
     }
 
+
     .sidebar-brand-text {
         min-width: 0;
     }
+
 
     .sidebar-brand-text strong {
 
@@ -198,6 +213,7 @@
 
         text-overflow: ellipsis;
     }
+
 
     .sidebar-brand-text span {
 
@@ -217,7 +233,7 @@
 
     /* =====================================================
        SIDEBAR USER
-       ===================================================== */
+    ===================================================== */
 
     .sidebar-user {
 
@@ -227,6 +243,7 @@
             1px solid
             rgba(255,255,255,.08);
     }
+
 
     .sidebar-user-label {
 
@@ -245,6 +262,7 @@
         text-transform: uppercase;
     }
 
+
     .sidebar-user-name {
 
         display: block;
@@ -259,7 +277,7 @@
 
     /* =====================================================
        NAVIGATION
-       ===================================================== */
+    ===================================================== */
 
     .sidebar-nav {
 
@@ -267,6 +285,7 @@
 
         padding: 15px 11px;
     }
+
 
     .sidebar-section-title {
 
@@ -285,6 +304,7 @@
 
         text-transform: uppercase;
     }
+
 
     .sidebar-link {
 
@@ -322,6 +342,7 @@
             transform .18s ease;
     }
 
+
     .sidebar-link:hover {
 
         background:
@@ -332,6 +353,7 @@
         transform: translateX(2px);
     }
 
+
     .sidebar-link.active {
 
         background:
@@ -339,6 +361,7 @@
 
         color: #ffffff;
     }
+
 
     .sidebar-link.active::before {
 
@@ -357,6 +380,7 @@
         background: #2dd4bf;
     }
 
+
     .sidebar-icon {
 
         width: 22px;
@@ -373,15 +397,17 @@
         font-size: 14px;
     }
 
+
     .sidebar-link:hover .sidebar-icon,
     .sidebar-link.active .sidebar-icon {
+
         color: #5eead4;
     }
 
 
     /* =====================================================
        SIDEBAR FOOTER
-       ===================================================== */
+    ===================================================== */
 
     .sidebar-footer {
 
@@ -391,6 +417,7 @@
             1px solid
             rgba(255,255,255,.08);
     }
+
 
     .sidebar-logout {
 
@@ -424,6 +451,7 @@
         font-weight: 700;
     }
 
+
     .sidebar-logout:hover {
 
         background:
@@ -437,8 +465,8 @@
 
 
     /* =====================================================
-       MAIN CONTENT WHEN SIDEBAR IS PRESENT
-       ===================================================== */
+       MAIN CONTENT
+    ===================================================== */
 
     body.sidebar-enabled .site-main {
 
@@ -447,8 +475,8 @@
 
 
     /* =====================================================
-       TOP MOBILE BAR
-       ===================================================== */
+       MOBILE TOP BAR
+    ===================================================== */
 
     .mobile-topbar {
 
@@ -479,6 +507,7 @@
             rgba(15,23,42,.12);
     }
 
+
     .mobile-brand {
 
         display: flex;
@@ -489,6 +518,62 @@
 
         min-width: 0;
     }
+
+
+    .mobile-brand-logo {
+
+        width: 34px;
+        height: 34px;
+
+        flex-shrink: 0;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        border-radius: 8px;
+
+        background: #ffffff;
+    }
+
+
+    .mobile-brand-logo img {
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+
+        padding: 3px;
+    }
+
+
+    .mobile-brand-placeholder {
+
+        width: 34px;
+        height: 34px;
+
+        flex-shrink: 0;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 8px;
+
+        background: #0f766e;
+
+        color: #ffffff;
+
+        font-size: 10px;
+
+        font-weight: 800;
+    }
+
 
     .mobile-brand strong {
 
@@ -502,6 +587,7 @@
 
         font-size: 12px;
     }
+
 
     .mobile-menu-button {
 
@@ -525,7 +611,7 @@
 
     /* =====================================================
        FLASH MESSAGES
-       ===================================================== */
+    ===================================================== */
 
     .flash-container {
 
@@ -536,8 +622,12 @@
 
         z-index: 3000;
 
-        width: min(380px, calc(100vw - 30px));
+        width: min(
+            380px,
+            calc(100vw - 30px)
+        );
     }
+
 
     .flash-message {
 
@@ -569,7 +659,7 @@
 
     /* =====================================================
        MOBILE
-       ===================================================== */
+    ===================================================== */
 
     @media (max-width: 850px) {
 
@@ -582,16 +672,19 @@
                 transform .25s ease;
         }
 
+
         body.sidebar-enabled .admin-sidebar.open {
 
             transform:
                 translateX(0);
         }
 
+
         body.sidebar-enabled .site-main {
 
             margin-left: 0;
         }
+
 
         body.sidebar-enabled .mobile-topbar {
 
@@ -612,6 +705,7 @@
     }
 
 </style>
+
 
 {% block head %}
 {% endblock %}
@@ -639,28 +733,66 @@ or session.get('admin_logged_in')
 or session.get('applicant_logged_in')
 or session.get('application_id') %}
 
-<aside class="admin-sidebar" id="mainSidebar">
+<aside
+    class="admin-sidebar"
+    id="mainSidebar"
+>
 
 
-<!-- BRAND -->
+<!-- =====================================================
+     BRAND
+     ===================================================== -->
 
 <div class="sidebar-brand">
 
+
     {% if settings and settings.logo %}
+
+        <!--
+            CLOUDINARY LOGO
+
+            settings.logo must contain the full
+            Cloudinary secure URL.
+        -->
 
         <div class="sidebar-logo">
 
             <img
-                src="{{ url_for(
-                    'static',
-                    filename='uploads/' ~ settings.logo
-                ) }}"
-                alt="Company Logo"
+                src="{{ settings.logo }}"
+                alt="{{ settings.company_name or 'Company Logo' }}"
+                loading="eager"
+                onerror="
+                    this.style.display='none';
+                    this.parentElement.classList.add('logo-load-error');
+                    this.parentElement.nextElementSibling.style.display='flex';
+                "
             >
 
         </div>
 
+        <!-- Hidden fallback if Cloudinary image fails -->
+
+        <div
+            class="sidebar-logo-placeholder"
+            style="display:none;"
+        >
+
+            {{
+                (
+                    settings.company_name[:2]
+                    if settings
+                    and settings.company_name
+                    else "AV"
+                )|upper
+            }}
+
+        </div>
+
+
     {% else %}
+
+
+        <!-- DEFAULT LOGO -->
 
         <div class="sidebar-logo-placeholder">
 
@@ -675,8 +807,13 @@ or session.get('application_id') %}
 
         </div>
 
+
     {% endif %}
 
+
+    <!-- =================================================
+         COMPANY NAME
+         ================================================= -->
 
     <div class="sidebar-brand-text">
 
@@ -692,6 +829,7 @@ or session.get('application_id') %}
 
         </strong>
 
+
         <span>
             Recruitment Portal
         </span>
@@ -701,7 +839,9 @@ or session.get('application_id') %}
 </div>
 
 
-<!-- USER -->
+<!-- =====================================================
+     USER
+     ===================================================== -->
 
 <div class="sidebar-user">
 
@@ -757,7 +897,9 @@ or session.get('application_id') %}
     {% if session.get('role') == 'admin'
           or session.get('admin_logged_in') %}
 
+
         <!-- ================= ADMIN ================= -->
+
 
         <div class="sidebar-section-title">
             Administration
@@ -924,7 +1066,9 @@ or session.get('application_id') %}
 
     {% else %}
 
+
         <!-- ================= APPLICANT ================= -->
+
 
         <div class="sidebar-section-title">
             Applicant Portal
@@ -948,10 +1092,6 @@ or session.get('application_id') %}
         </a>
 
 
-        <!-- =================================================
-             APPLICANT ONLY ATTENDANCE
-             ================================================= -->
-
         <a
             href="{{ url_for('applicant_attendance') }}"
             class="sidebar-link
@@ -968,6 +1108,7 @@ or session.get('application_id') %}
 
         </a>
 
+
     {% endif %}
 
 </nav>
@@ -979,8 +1120,10 @@ or session.get('application_id') %}
 
 <div class="sidebar-footer">
 
+
     {% if session.get('role') == 'admin'
           or session.get('admin_logged_in') %}
+
 
         <a
             href="{{ url_for('admin_logout') }}"
@@ -995,7 +1138,9 @@ or session.get('application_id') %}
 
         </a>
 
+
     {% else %}
+
 
         <a
             href="{{ url_for('applicant_logout') }}"
@@ -1009,6 +1154,7 @@ or session.get('application_id') %}
             </span>
 
         </a>
+
 
     {% endif %}
 
@@ -1025,6 +1171,40 @@ or session.get('application_id') %}
 
 
 <div class="mobile-brand">
+
+
+    {% if settings and settings.logo %}
+
+        <div class="mobile-brand-logo">
+
+            <img
+                src="{{ settings.logo }}"
+                alt="{{ settings.company_name or 'Company Logo' }}"
+                loading="eager"
+            >
+
+        </div>
+
+
+    {% else %}
+
+
+        <div class="mobile-brand-placeholder">
+
+            {{
+                (
+                    settings.company_name[:2]
+                    if settings
+                    and settings.company_name
+                    else "AV"
+                )|upper
+            }}
+
+        </div>
+
+
+    {% endif %}
+
 
     <strong>
 
@@ -1085,7 +1265,6 @@ or session.get('application_id') %}
 
 <!-- =========================================================
      MAIN CONTENT
-     IMPORTANT: THIS IS THE ONLY CONTENT BLOCK
      ========================================================= -->
 
 <div class="site-wrapper">
@@ -1112,11 +1291,19 @@ document.addEventListener(
     function () {
 
         const button =
-            document.getElementById("sidebarToggle");
+            document.getElementById(
+                "sidebarToggle"
+            );
 
         const sidebar =
-            document.getElementById("mainSidebar");
+            document.getElementById(
+                "mainSidebar"
+            );
 
+
+        /*
+         * MOBILE SIDEBAR
+         */
 
         if (button && sidebar) {
 
@@ -1124,7 +1311,9 @@ document.addEventListener(
                 "click",
                 function () {
 
-                    sidebar.classList.toggle("open");
+                    sidebar.classList.toggle(
+                        "open"
+                    );
 
                 }
             );
@@ -1133,7 +1322,8 @@ document.addEventListener(
 
 
         /*
-         * Close mobile sidebar after selecting a link.
+         * CLOSE MOBILE SIDEBAR
+         * AFTER SELECTING A LINK
          */
 
         if (sidebar) {
@@ -1142,6 +1332,7 @@ document.addEventListener(
                 sidebar.querySelectorAll(
                     ".sidebar-link"
                 );
+
 
             links.forEach(
                 function (link) {
@@ -1164,7 +1355,7 @@ document.addEventListener(
 
 
         /*
-         * Automatically remove flash messages.
+         * AUTO REMOVE FLASH MESSAGES
          */
 
         setTimeout(
@@ -1177,10 +1368,12 @@ document.addEventListener(
                     .forEach(
                         function (message) {
 
-                            message.style.opacity = "0";
+                            message.style.opacity =
+                                "0";
 
                             message.style.transition =
                                 "opacity .3s ease";
+
 
                             setTimeout(
                                 function () {
