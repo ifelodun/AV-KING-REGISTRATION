@@ -1,1416 +1,1210 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <meta
-        name="description"
-        content="{{ company_name or 'AV KING' }} Recruitment Portal"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>
-        {% block title %}
-            {{ company_name or "AV KING" }}
-        {% endblock %}
-    </title>
+<title>
+    {% block title %}
+        {{ company_name or "AV KING" }}
+    {% endblock %}
+</title>
+
+<meta
+    name="description"
+    content="{{ company_name or 'AV KING' }} Recruitment Portal"
+>
+
+<style>
+
+    /* =====================================================
+       GLOBAL
+       ===================================================== */
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+    }
+
+    body {
+        font-family:
+            Inter,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Arial,
+            sans-serif;
+
+        background: #f4f6f8;
+        color: #111827;
+    }
+
+    a {
+        color: inherit;
+    }
 
 
-    <style>
+    /* =====================================================
+       LAYOUT
+       ===================================================== */
 
-        /* =====================================================
-           GLOBAL
-           ===================================================== */
+    .site-wrapper {
+        min-height: 100vh;
+    }
 
-        * {
-            box-sizing: border-box;
+    .site-main {
+        min-height: 100vh;
+    }
+
+
+    /* =====================================================
+       DESKTOP SIDEBAR
+       ===================================================== */
+
+    .admin-sidebar {
+
+        position: fixed;
+
+        top: 0;
+        left: 0;
+        bottom: 0;
+
+        width: 255px;
+
+        display: flex;
+        flex-direction: column;
+
+        background:
+            linear-gradient(
+                180deg,
+                #111827 0%,
+                #172033 100%
+            );
+
+        color: #ffffff;
+
+        z-index: 1000;
+
+        overflow-y: auto;
+
+        box-shadow:
+            4px 0 20px
+            rgba(15, 23, 42, .12);
+    }
+
+
+    /* =====================================================
+       SIDEBAR BRAND
+       ===================================================== */
+
+    .sidebar-brand {
+
+        min-height: 82px;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 12px;
+
+        padding: 17px 18px;
+
+        border-bottom:
+            1px solid
+            rgba(255,255,255,.08);
+    }
+
+    .sidebar-logo {
+
+        width: 44px;
+        height: 44px;
+
+        flex-shrink: 0;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        border-radius: 10px;
+
+        background: #ffffff;
+    }
+
+    .sidebar-logo img {
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+
+        padding: 4px;
+    }
+
+    .sidebar-logo-placeholder {
+
+        width: 44px;
+        height: 44px;
+
+        flex-shrink: 0;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 10px;
+
+        background: #0f766e;
+
+        color: #ffffff;
+
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .sidebar-brand-text {
+        min-width: 0;
+    }
+
+    .sidebar-brand-text strong {
+
+        display: block;
+
+        color: #ffffff;
+
+        font-size: 13px;
+        font-weight: 800;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+    .sidebar-brand-text span {
+
+        display: block;
+
+        margin-top: 3px;
+
+        color: #9ca3af;
+
+        font-size: 9px;
+
+        letter-spacing: .6px;
+
+        text-transform: uppercase;
+    }
+
+
+    /* =====================================================
+       SIDEBAR USER
+       ===================================================== */
+
+    .sidebar-user {
+
+        padding: 16px 18px;
+
+        border-bottom:
+            1px solid
+            rgba(255,255,255,.08);
+    }
+
+    .sidebar-user-label {
+
+        display: block;
+
+        margin-bottom: 5px;
+
+        color: #6b7280;
+
+        font-size: 8px;
+
+        font-weight: 800;
+
+        letter-spacing: 1.1px;
+
+        text-transform: uppercase;
+    }
+
+    .sidebar-user-name {
+
+        display: block;
+
+        color: #f9fafb;
+
+        font-size: 12px;
+
+        font-weight: 700;
+    }
+
+
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
+
+    .sidebar-nav {
+
+        flex: 1;
+
+        padding: 15px 11px;
+    }
+
+    .sidebar-section-title {
+
+        padding:
+            10px
+            9px
+            7px;
+
+        color: #6b7280;
+
+        font-size: 8px;
+
+        font-weight: 800;
+
+        letter-spacing: 1.2px;
+
+        text-transform: uppercase;
+    }
+
+    .sidebar-link {
+
+        position: relative;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+
+        width: 100%;
+
+        min-height: 43px;
+
+        margin-bottom: 3px;
+
+        padding:
+            0
+            11px;
+
+        border-radius: 8px;
+
+        color: #cbd5e1;
+
+        text-decoration: none;
+
+        font-size: 11px;
+
+        font-weight: 600;
+
+        transition:
+            background .18s ease,
+            color .18s ease,
+            transform .18s ease;
+    }
+
+    .sidebar-link:hover {
+
+        background:
+            rgba(255,255,255,.07);
+
+        color: #ffffff;
+
+        transform: translateX(2px);
+    }
+
+    .sidebar-link.active {
+
+        background:
+            rgba(15,118,110,.22);
+
+        color: #ffffff;
+    }
+
+    .sidebar-link.active::before {
+
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 9px;
+        bottom: 9px;
+
+        width: 3px;
+
+        border-radius: 0 4px 4px 0;
+
+        background: #2dd4bf;
+    }
+
+    .sidebar-icon {
+
+        width: 22px;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        flex-shrink: 0;
+
+        color: #94a3b8;
+
+        font-size: 14px;
+    }
+
+    .sidebar-link:hover .sidebar-icon,
+    .sidebar-link.active .sidebar-icon {
+        color: #5eead4;
+    }
+
+
+    /* =====================================================
+       SIDEBAR FOOTER
+       ===================================================== */
+
+    .sidebar-footer {
+
+        padding: 13px 11px;
+
+        border-top:
+            1px solid
+            rgba(255,255,255,.08);
+    }
+
+    .sidebar-logout {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        width: 100%;
+
+        min-height: 39px;
+
+        border:
+            1px solid
+            rgba(255,255,255,.10);
+
+        border-radius: 8px;
+
+        background:
+            rgba(255,255,255,.04);
+
+        color: #cbd5e1;
+
+        text-decoration: none;
+
+        font-size: 10px;
+
+        font-weight: 700;
+    }
+
+    .sidebar-logout:hover {
+
+        background:
+            rgba(239,68,68,.12);
+
+        color: #fca5a5;
+
+        border-color:
+            rgba(239,68,68,.2);
+    }
+
+
+    /* =====================================================
+       MAIN CONTENT WHEN SIDEBAR IS PRESENT
+       ===================================================== */
+
+    body.sidebar-enabled .site-main {
+
+        margin-left: 255px;
+    }
+
+
+    /* =====================================================
+       TOP MOBILE BAR
+       ===================================================== */
+
+    .mobile-topbar {
+
+        display: none;
+
+        position: sticky;
+
+        top: 0;
+
+        z-index: 900;
+
+        min-height: 60px;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        padding:
+            0
+            14px;
+
+        background: #111827;
+
+        color: #ffffff;
+
+        box-shadow:
+            0 3px 15px
+            rgba(15,23,42,.12);
+    }
+
+    .mobile-brand {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 9px;
+
+        min-width: 0;
+    }
+
+    .mobile-brand strong {
+
+        max-width: 180px;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+
+        font-size: 12px;
+    }
+
+    .mobile-menu-button {
+
+        width: 38px;
+        height: 38px;
+
+        border: 0;
+
+        border-radius: 8px;
+
+        background:
+            rgba(255,255,255,.08);
+
+        color: #ffffff;
+
+        font-size: 18px;
+
+        cursor: pointer;
+    }
+
+
+    /* =====================================================
+       FLASH MESSAGES
+       ===================================================== */
+
+    .flash-container {
+
+        position: fixed;
+
+        top: 18px;
+        right: 20px;
+
+        z-index: 3000;
+
+        width: min(380px, calc(100vw - 30px));
+    }
+
+    .flash-message {
+
+        margin-bottom: 9px;
+
+        padding:
+            12px
+            14px;
+
+        background: #ffffff;
+
+        border:
+            1px solid
+            #e5e7eb;
+
+        border-radius: 9px;
+
+        box-shadow:
+            0 10px 30px
+            rgba(15,23,42,.12);
+
+        color: #374151;
+
+        font-size: 11px;
+
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 850px) {
+
+        .admin-sidebar {
+
+            transform:
+                translateX(-100%);
+
+            transition:
+                transform .25s ease;
         }
 
-        html {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
+        body.sidebar-enabled .admin-sidebar.open {
+
+            transform:
+                translateX(0);
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+        body.sidebar-enabled .site-main {
 
-            background: #f4f6f8;
-
-            color: #111827;
-
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Arial,
-                sans-serif;
-
-            font-size: 14px;
-
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
+            margin-left: 0;
         }
 
-        a {
-            color: inherit;
+        body.sidebar-enabled .mobile-topbar {
+
+            display: flex;
         }
 
-        button,
-        input,
-        select,
-        textarea {
-            font-family: inherit;
-        }
+    }
 
 
-        /* =====================================================
-           FLASH MESSAGES
-           ===================================================== */
+    @media (max-width: 500px) {
 
         .flash-container {
-            position: fixed;
 
-            top: 20px;
-            right: 20px;
-
-            z-index: 99999;
-
-            width: min(390px, calc(100vw - 30px));
+            top: 10px;
+            right: 10px;
         }
 
-        .flash-message {
-            position: relative;
+    }
 
-            display: flex;
-            align-items: flex-start;
+</style>
 
-            gap: 10px;
+{% block head %}
+{% endblock %}
 
-            margin-bottom: 10px;
-
-            padding: 14px 16px;
-
-            background: #ffffff;
-
-            border: 1px solid #e5e7eb;
-
-            border-radius: 10px;
-
-            box-shadow:
-                0 10px 30px rgba(15, 23, 42, .12);
-
-            color: #374151;
-
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .flash-message.success {
-            border-left: 4px solid #16a34a;
-        }
-
-        .flash-message.error {
-            border-left: 4px solid #dc2626;
-        }
-
-        .flash-message.warning {
-            border-left: 4px solid #d97706;
-        }
-
-        .flash-message.info {
-            border-left: 4px solid #2563eb;
-        }
-
-
-        /* =====================================================
-           APPLICANT SHELL
-           ===================================================== */
-
-        .applicant-shell {
-            min-height: 100vh;
-        }
-
-
-        /* =====================================================
-           APPLICANT SIDEBAR
-           ===================================================== */
-
-        .applicant-sidebar {
-            position: fixed;
-
-            top: 0;
-            left: 0;
-            bottom: 0;
-
-            z-index: 1000;
-
-            width: 250px;
-
-            display: flex;
-            flex-direction: column;
-
-            padding: 20px 14px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #111827 0%,
-                    #172033 100%
-                );
-
-            color: #ffffff;
-
-            border-right: 1px solid rgba(255,255,255,.06);
-
-            box-shadow:
-                8px 0 30px rgba(15,23,42,.08);
-        }
-
-
-        /* =====================================================
-           SIDEBAR BRAND
-           ===================================================== */
-
-        .applicant-sidebar-brand {
-            display: flex;
-
-            align-items: center;
-
-            gap: 11px;
-
-            min-width: 0;
-
-            padding:
-                4px
-                8px
-                20px;
-
-            border-bottom:
-                1px solid
-                rgba(255,255,255,.08);
-        }
-
-        .applicant-sidebar-logo {
-            width: 43px;
-            height: 43px;
-
-            flex-shrink: 0;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            overflow: hidden;
-
-            border-radius: 10px;
-
-            background: #ffffff;
-
-            color: #111827;
-
-            font-size: 13px;
-            font-weight: 900;
-        }
-
-        .applicant-sidebar-logo img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: contain;
-
-            padding: 4px;
-        }
-
-        .applicant-sidebar-brand-text {
-            min-width: 0;
-        }
-
-        .applicant-sidebar-brand-text strong {
-            display: block;
-
-            overflow: hidden;
-
-            color: #ffffff;
-
-            font-size: 13px;
-            font-weight: 800;
-
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .applicant-sidebar-brand-text span {
-            display: block;
-
-            margin-top: 3px;
-
-            color: #9ca3af;
-
-            font-size: 9px;
-            font-weight: 600;
-
-            letter-spacing: .4px;
-        }
-
-
-        /* =====================================================
-           SIDEBAR NAVIGATION
-           ===================================================== */
-
-        .applicant-sidebar-section {
-            margin-top: 24px;
-        }
-
-        .applicant-sidebar-section-title {
-            display: block;
-
-            padding:
-                0
-                10px
-                8px;
-
-            color: #6b7280;
-
-            font-size: 8px;
-            font-weight: 800;
-
-            letter-spacing: 1.4px;
-
-            text-transform: uppercase;
-        }
-
-        .applicant-sidebar-nav {
-            display: flex;
-            flex-direction: column;
-
-            gap: 5px;
-        }
-
-        .applicant-sidebar-nav a {
-            display: flex;
-
-            align-items: center;
-
-            gap: 11px;
-
-            min-height: 43px;
-
-            padding:
-                0
-                11px;
-
-            border-radius: 9px;
-
-            color: #cbd5e1;
-
-            text-decoration: none;
-
-            font-size: 12px;
-            font-weight: 650;
-
-            transition:
-                background .18s ease,
-                color .18s ease,
-                transform .18s ease;
-        }
-
-        .applicant-sidebar-nav a span:first-child {
-            width: 23px;
-
-            display: inline-flex;
-
-            align-items: center;
-            justify-content: center;
-
-            color: #94a3b8;
-
-            font-size: 15px;
-        }
-
-        .applicant-sidebar-nav a:hover {
-            background: rgba(255,255,255,.07);
-
-            color: #ffffff;
-
-            transform: translateX(2px);
-        }
-
-        .applicant-sidebar-nav a:hover span:first-child {
-            color: #ffffff;
-        }
-
-        .applicant-sidebar-nav a.active {
-            background:
-                rgba(15,118,110,.22);
-
-            color: #ffffff;
-
-            box-shadow:
-                inset 3px 0 0 #2dd4bf;
-        }
-
-        .applicant-sidebar-nav a.active span:first-child {
-            color: #5eead4;
-        }
-
-
-        /* =====================================================
-           SIDEBAR BOTTOM
-           ===================================================== */
-
-        .applicant-sidebar-bottom {
-            margin-top: auto;
-
-            padding-top: 15px;
-
-            border-top:
-                1px solid
-                rgba(255,255,255,.08);
-        }
-
-        .applicant-sidebar-user {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            margin-bottom: 10px;
-
-            padding:
-                10px;
-
-            background:
-                rgba(255,255,255,.045);
-
-            border-radius: 9px;
-        }
-
-        .applicant-sidebar-user-icon {
-            width: 30px;
-            height: 30px;
-
-            flex-shrink: 0;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 8px;
-
-            background:
-                rgba(255,255,255,.09);
-
-            color: #d1d5db;
-
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        .applicant-sidebar-user-text {
-            min-width: 0;
-        }
-
-        .applicant-sidebar-user-text strong {
-            display: block;
-
-            overflow: hidden;
-
-            color: #f3f4f6;
-
-            font-size: 10px;
-            font-weight: 750;
-
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .applicant-sidebar-user-text span {
-            display: block;
-
-            margin-top: 2px;
-
-            color: #9ca3af;
-
-            font-size: 8px;
-        }
-
-
-        /* =====================================================
-           SIDEBAR LOGOUT
-           ===================================================== */
-
-        .applicant-sidebar-logout {
-            display: flex;
-
-            align-items: center;
-            justify-content: center;
-
-            gap: 8px;
-
-            min-height: 38px;
-
-            border:
-                1px solid
-                rgba(255,255,255,.09);
-
-            border-radius: 8px;
-
-            color: #d1d5db;
-
-            text-decoration: none;
-
-            font-size: 10px;
-            font-weight: 750;
-
-            transition:
-                background .18s ease,
-                color .18s ease;
-        }
-
-        .applicant-sidebar-logout:hover {
-            background:
-                rgba(220,38,38,.12);
-
-            color: #fca5a5;
-
-            border-color:
-                rgba(248,113,113,.2);
-        }
-
-
-        /* =====================================================
-           MOBILE HEADER
-           ===================================================== */
-
-        .applicant-mobile-header {
-            display: none;
-
-            position: fixed;
-
-            top: 0;
-            left: 0;
-            right: 0;
-
-            z-index: 1100;
-
-            height: 62px;
-
-            align-items: center;
-            justify-content: space-between;
-
-            padding:
-                0
-                14px;
-
-            background: #111827;
-
-            color: #ffffff;
-
-            box-shadow:
-                0 4px 20px rgba(15,23,42,.12);
-        }
-
-        .applicant-mobile-brand {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            min-width: 0;
-        }
-
-        .applicant-mobile-brand-icon {
-            width: 35px;
-            height: 35px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            overflow: hidden;
-
-            border-radius: 8px;
-
-            background: #ffffff;
-
-            color: #111827;
-
-            font-size: 10px;
-            font-weight: 900;
-        }
-
-        .applicant-mobile-brand-icon img {
-            width: 100%;
-            height: 100%;
-
-            object-fit: contain;
-
-            padding: 3px;
-        }
-
-        .applicant-mobile-brand-text {
-            min-width: 0;
-        }
-
-        .applicant-mobile-brand-text strong {
-            display: block;
-
-            max-width: 190px;
-
-            overflow: hidden;
-
-            color: #ffffff;
-
-            font-size: 11px;
-            font-weight: 800;
-
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .applicant-mobile-brand-text span {
-            display: block;
-
-            margin-top: 1px;
-
-            color: #9ca3af;
-
-            font-size: 8px;
-        }
-
-        .applicant-menu-button {
-            width: 38px;
-            height: 38px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border: 1px solid rgba(255,255,255,.1);
-
-            border-radius: 8px;
-
-            background: rgba(255,255,255,.05);
-
-            color: #ffffff;
-
-            cursor: pointer;
-
-            font-size: 18px;
-        }
-
-
-        /* =====================================================
-           SIDEBAR OVERLAY
-           ===================================================== */
-
-        .applicant-sidebar-overlay {
-            display: none;
-
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 999;
-
-            background:
-                rgba(15,23,42,.55);
-
-            backdrop-filter: blur(2px);
-        }
-
-
-        /* =====================================================
-           MAIN AREA
-           ===================================================== */
-
-        .applicant-main {
-            min-height: 100vh;
-
-            margin-left: 250px;
-
-            padding: 28px;
-        }
-
-        .applicant-main-inner {
-            width: 100%;
-
-            max-width: 1450px;
-
-            margin: 0 auto;
-        }
-
-
-        /* =====================================================
-           DESKTOP TOP BAR
-           ===================================================== */
-
-        .applicant-topbar {
-            display: flex;
-
-            align-items: center;
-            justify-content: space-between;
-
-            gap: 20px;
-
-            min-height: 58px;
-
-            margin-bottom: 22px;
-
-            padding:
-                0
-                4px;
-        }
-
-        .applicant-topbar-title {
-            min-width: 0;
-        }
-
-        .applicant-topbar-title span {
-            display: block;
-
-            margin-bottom: 3px;
-
-            color: #9ca3af;
-
-            font-size: 8px;
-            font-weight: 800;
-
-            letter-spacing: 1.2px;
-
-            text-transform: uppercase;
-        }
-
-        .applicant-topbar-title strong {
-            display: block;
-
-            color: #111827;
-
-            font-size: 20px;
-            font-weight: 800;
-
-            line-height: 1.3;
-        }
-
-        .applicant-topbar-account {
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-        }
-
-        .applicant-topbar-account-icon {
-            width: 35px;
-            height: 35px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            border-radius: 50%;
-
-            background: #e5e7eb;
-
-            color: #374151;
-
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .applicant-topbar-account-text {
-            text-align: right;
-        }
-
-        .applicant-topbar-account-text strong {
-            display: block;
-
-            color: #111827;
-
-            font-size: 10px;
-            font-weight: 800;
-        }
-
-        .applicant-topbar-account-text span {
-            display: block;
-
-            margin-top: 2px;
-
-            color: #9ca3af;
-
-            font-size: 8px;
-        }
-
-
-        /* =====================================================
-           CONTENT BLOCK
-           ===================================================== */
-
-        .content-container {
-            width: 100%;
-        }
-
-
-        /* =====================================================
-           GENERIC PAGE FOOTER
-           ===================================================== */
-
-        .applicant-layout-footer {
-            margin-top: 35px;
-
-            padding:
-                18px
-                5px;
-
-            border-top:
-                1px solid
-                #e5e7eb;
-
-            color: #9ca3af;
-
-            text-align: center;
-
-            font-size: 9px;
-
-            line-height: 1.6;
-        }
-
-        .applicant-layout-footer strong {
-            color: #6b7280;
-        }
-
-
-        /* =====================================================
-           MOBILE
-           ===================================================== */
-
-        @media (max-width: 900px) {
-
-            .applicant-sidebar {
-                transform: translateX(-100%);
-
-                transition:
-                    transform .25s ease;
-
-                box-shadow:
-                    12px 0 35px rgba(15,23,42,.2);
-            }
-
-            .applicant-sidebar.open {
-                transform: translateX(0);
-            }
-
-            .applicant-mobile-header {
-                display: flex;
-            }
-
-            .applicant-sidebar-overlay.open {
-                display: block;
-            }
-
-            .applicant-main {
-                margin-left: 0;
-
-                padding:
-                    82px
-                    14px
-                    25px;
-            }
-
-            .applicant-topbar {
-                display: none;
-            }
-        }
-
-
-        /* =====================================================
-           SMALL MOBILE
-           ===================================================== */
-
-        @media (max-width: 480px) {
-
-            .applicant-main {
-                padding:
-                    76px
-                    10px
-                    20px;
-            }
-
-            .applicant-sidebar {
-                width: 275px;
-            }
-
-            .flash-container {
-                top: 72px;
-                right: 10px;
-
-                width:
-                    calc(100vw - 20px);
-            }
-        }
-
-
-        /* =====================================================
-           ACCESSIBILITY
-           ===================================================== */
-
-        a:focus-visible,
-        button:focus-visible,
-        input:focus-visible,
-        select:focus-visible,
-        textarea:focus-visible {
-            outline:
-                3px solid
-                rgba(45,212,191,.35);
-
-            outline-offset: 2px;
-        }
-
-    </style>
-
-
-    {% block head %}{% endblock %}
 
 </head>
 
-
-<body>
-
-
-    <!-- =====================================================
-         FLASH MESSAGES
-         ===================================================== -->
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-
-        {% if messages %}
-
-            <div class="flash-container">
-
-                {% for category, message in messages %}
-
-                    <div class="flash-message {{ category }}">
-
-                        <span>
-                            {{ message }}
-                        </span>
-
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
+<body
+    class="
+        {% if session.get('role') == 'admin'
+              or session.get('admin_logged_in')
+              or session.get('applicant_logged_in')
+              or session.get('application_id') %}
+            sidebar-enabled
         {% endif %}
+    "
+>
 
-    {% endwith %}
+<!-- =========================================================
+     SIDEBAR
+     ========================================================= -->
 
+{% if session.get('role') == 'admin'
+or session.get('admin_logged_in')
+or session.get('applicant_logged_in')
+or session.get('application_id') %}
 
-
-    <!-- =====================================================
-         APPLICANT PORTAL LAYOUT
-         ONLY SHOW SIDEBAR WHEN APPLICANT IS LOGGED IN
-         ===================================================== -->
-
-    {% if session.get("applicant_id") %}
-
-        <div class="applicant-shell">
-
-
-            <!-- =================================================
-                 MOBILE HEADER
-                 ================================================= -->
-
-            <header class="applicant-mobile-header">
-
-                <div class="applicant-mobile-brand">
-
-                    <div class="applicant-mobile-brand-icon">
-
-                        {% if settings and settings.logo %}
-
-                            <img
-                                src="{{ url_for(
-                                    'static',
-                                    filename='uploads/' ~ settings.logo
-                                ) }}"
-                                alt="Company Logo"
-                            >
-
-                        {% else %}
-
-                            AV
-
-                        {% endif %}
-
-                    </div>
+<aside class="admin-sidebar" id="mainSidebar">
 
 
-                    <div class="applicant-mobile-brand-text">
+<!-- BRAND -->
 
-                        <strong>
-                            {{
-                                settings.company_name
-                                if settings
-                                and settings.company_name
-                                else company_name
-                                or "AV KING"
-                            }}
-                        </strong>
+<div class="sidebar-brand">
 
-                        <span>
-                            Applicant Portal
-                        </span>
+    {% if settings and settings.logo %}
 
-                    </div>
+        <div class="sidebar-logo">
 
-                </div>
-
-
-                <button
-                    type="button"
-                    class="applicant-menu-button"
-                    onclick="toggleApplicantSidebar()"
-                    aria-label="Open navigation"
-                >
-                    ☰
-                </button>
-
-            </header>
-
-
-
-            <!-- =================================================
-                 SIDEBAR OVERLAY
-                 ================================================= -->
-
-            <div
-                class="applicant-sidebar-overlay"
-                id="applicantSidebarOverlay"
-                onclick="closeApplicantSidebar()"
-            ></div>
-
-
-
-            <!-- =================================================
-                 APPLICANT SIDEBAR
-                 ================================================= -->
-
-            <aside
-                class="applicant-sidebar"
-                id="applicantSidebar"
+            <img
+                src="{{ url_for(
+                    'static',
+                    filename='uploads/' ~ settings.logo
+                ) }}"
+                alt="Company Logo"
             >
-
-
-                <!-- BRAND -->
-
-                <div class="applicant-sidebar-brand">
-
-                    <div class="applicant-sidebar-logo">
-
-                        {% if settings and settings.logo %}
-
-                            <img
-                                src="{{ url_for(
-                                    'static',
-                                    filename='uploads/' ~ settings.logo
-                                ) }}"
-                                alt="Company Logo"
-                            >
-
-                        {% else %}
-
-                            {{
-                                (
-                                    settings.company_name[:2]
-                                    if settings
-                                    and settings.company_name
-                                    else "AV"
-                                )|upper
-                            }}
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="applicant-sidebar-brand-text">
-
-                        <strong>
-                            {{
-                                settings.company_name
-                                if settings
-                                and settings.company_name
-                                else company_name
-                                or "AV KING"
-                            }}
-                        </strong>
-
-                        <span>
-                            APPLICANT PORTAL
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- =================================================
-                     NAVIGATION
-                     ================================================= -->
-
-                <div class="applicant-sidebar-section">
-
-                    <span class="applicant-sidebar-section-title">
-                        Portal
-                    </span>
-
-
-                    <nav class="applicant-sidebar-nav">
-
-
-                        <!-- DASHBOARD -->
-
-                        <a
-                            href="{{ url_for('applicant_portal') }}"
-                            class="
-                                {% if request.endpoint == 'applicant_portal' %}
-                                    active
-                                {% endif %}
-                            "
-                        >
-
-                            <span>⌂</span>
-
-                            <span>
-                                Dashboard
-                            </span>
-
-                        </a>
-
-
-
-                        <!-- =================================================
-                             APPLICANT ATTENDANCE ONLY
-                             ================================================= -->
-
-                        <a
-                            href="{{ url_for('applicant_attendance') }}"
-                            class="
-                                {% if request.endpoint == 'applicant_attendance' %}
-                                    active
-                                {% endif %}
-                            "
-                        >
-
-                            <span>◷</span>
-
-                            <span>
-                                My Attendance
-                            </span>
-
-                        </a>
-
-
-                    </nav>
-
-                </div>
-
-
-
-                <!-- =================================================
-                     SIDEBAR BOTTOM
-                     ================================================= -->
-
-                <div class="applicant-sidebar-bottom">
-
-
-                    {% if application is defined and application %}
-
-                        <div class="applicant-sidebar-user">
-
-                            <div class="applicant-sidebar-user-icon">
-                                {{ application.first_name[:1]|upper }}
-                            </div>
-
-
-                            <div class="applicant-sidebar-user-text">
-
-                                <strong>
-
-                                    {{ application.first_name }}
-
-                                    {% if application.last_name %}
-                                        {{ application.last_name }}
-                                    {% endif %}
-
-                                </strong>
-
-                                <span>
-                                    Applicant Account
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    {% endif %}
-
-
-                    <a
-                        href="{{ url_for('applicant_logout') }}"
-                        class="applicant-sidebar-logout"
-                    >
-
-                        <span>↪</span>
-
-                        <span>
-                            Sign Out
-                        </span>
-
-                    </a>
-
-                </div>
-
-            </aside>
-
-
-
-            <!-- =================================================
-                 MAIN CONTENT
-                 ================================================= -->
-
-            <main class="applicant-main">
-
-                <div class="applicant-main-inner">
-
-
-                    <!-- TOP BAR -->
-
-                    <div class="applicant-topbar">
-
-                        <div class="applicant-topbar-title">
-
-                            <span>
-                                Applicant Recruitment Portal
-                            </span>
-
-                            <strong>
-
-                                {% block page_heading %}
-                                    Applicant Portal
-                                {% endblock %}
-
-                            </strong>
-
-                        </div>
-
-
-                        {% if application is defined and application %}
-
-                            <div class="applicant-topbar-account">
-
-                                <div class="applicant-topbar-account-text">
-
-                                    <strong>
-
-                                        {{ application.first_name }}
-
-                                        {% if application.last_name %}
-                                            {{ application.last_name }}
-                                        {% endif %}
-
-                                    </strong>
-
-                                    <span>
-                                        Applicant
-                                    </span>
-
-                                </div>
-
-
-                                <div class="applicant-topbar-account-icon">
-
-                                    {{ application.first_name[:1]|upper }}
-
-                                </div>
-
-                            </div>
-
-                        {% endif %}
-
-                    </div>
-
-
-
-                    <!-- PAGE CONTENT -->
-
-                    <div class="content-container">
-
-                        {% block content %}{% endblock %}
-
-                    </div>
-
-
-
-                    <!-- FOOTER -->
-
-                    <footer class="applicant-layout-footer">
-
-                        <div>
-
-                            <strong>
-                                {{
-                                    settings.company_name
-                                    if settings
-                                    and settings.company_name
-                                    else company_name
-                                    or "AV KING"
-                                }}
-                            </strong>
-
-                            · Applicant Recruitment Portal
-
-                        </div>
-
-
-                        {% if settings and settings.footer_text %}
-
-                            <div>
-                                {{ settings.footer_text }}
-                            </div>
-
-                        {% endif %}
-
-                    </footer>
-
-
-                </div>
-
-            </main>
 
         </div>
 
-
     {% else %}
 
+        <div class="sidebar-logo-placeholder">
 
-        <!-- =====================================================
-             PUBLIC / LOGIN PAGES
-             NO APPLICANT SIDEBAR
-             ===================================================== -->
+            {{
+                (
+                    settings.company_name[:2]
+                    if settings
+                    and settings.company_name
+                    else "AV"
+                )|upper
+            }}
 
-        <main class="content-container">
-
-            {% block content %}{% endblock %}
-
-        </main>
+        </div>
 
     {% endif %}
 
 
+    <div class="sidebar-brand-text">
 
-    <!-- =====================================================
-         JAVASCRIPT
-         ===================================================== -->
+        <strong>
 
-    <script>
+            {{
+                settings.company_name
+                if settings
+                and settings.company_name
+                else company_name
+                or "AV KING"
+            }}
 
-        function toggleApplicantSidebar() {
+        </strong>
 
-            const sidebar =
-                document.getElementById(
-                    "applicantSidebar"
-                );
+        <span>
+            Recruitment Portal
+        </span>
 
-            const overlay =
-                document.getElementById(
-                    "applicantSidebarOverlay"
-                );
+    </div>
 
-            if (!sidebar || !overlay) {
-                return;
-            }
+</div>
 
-            sidebar.classList.toggle("open");
 
-            overlay.classList.toggle("open");
+<!-- USER -->
+
+<div class="sidebar-user">
+
+    <span class="sidebar-user-label">
+
+        {% if session.get('role') == 'admin'
+              or session.get('admin_logged_in') %}
+
+            Administrator
+
+        {% else %}
+
+            Applicant
+
+        {% endif %}
+
+    </span>
+
+
+    <span class="sidebar-user-name">
+
+        {% if session.get('role') == 'admin'
+              or session.get('admin_logged_in') %}
+
+            Admin Dashboard
+
+        {% elif session.get('applicant_name') %}
+
+            {{ session.get('applicant_name') }}
+
+        {% elif session.get('application_name') %}
+
+            {{ session.get('application_name') }}
+
+        {% else %}
+
+            Applicant Portal
+
+        {% endif %}
+
+    </span>
+
+</div>
+
+
+<!-- =====================================================
+     NAVIGATION
+     ===================================================== -->
+
+<nav class="sidebar-nav">
+
+
+    {% if session.get('role') == 'admin'
+          or session.get('admin_logged_in') %}
+
+        <!-- ================= ADMIN ================= -->
+
+        <div class="sidebar-section-title">
+            Administration
+        </div>
+
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'admin_dashboard' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">⌂</span>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_applications') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'admin_applications' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">▣</span>
+
+            <span>
+                Applications
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_interviews') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'admin_interviews' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">◷</span>
+
+            <span>
+                Interviews
+            </span>
+
+        </a>
+
+
+        <div class="sidebar-section-title">
+            Attendance
+        </div>
+
+
+        <a
+            href="{{ url_for('admin_attendance') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'admin_attendance' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">✓</span>
+
+            <span>
+                Admin Attendance
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('admin_monthly_attendance') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'admin_monthly_attendance' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">▤</span>
+
+            <span>
+                Monthly Attendance
+            </span>
+
+        </a>
+
+
+        <div class="sidebar-section-title">
+            Management
+        </div>
+
+
+        {% if endpoint_exists('admin_workers') %}
+
+            <a
+                href="{{ url_for('admin_workers') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_workers' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">♙</span>
+
+                <span>
+                    Workers
+                </span>
+
+            </a>
+
+        {% endif %}
+
+
+        {% if endpoint_exists('admin_reports') %}
+
+            <a
+                href="{{ url_for('admin_reports') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_reports' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">▥</span>
+
+                <span>
+                    Reports
+                </span>
+
+            </a>
+
+        {% endif %}
+
+
+        {% if endpoint_exists('admin_settings') %}
+
+            <a
+                href="{{ url_for('admin_settings') }}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_settings' %}
+                    active
+                {% endif %}"
+            >
+
+                <span class="sidebar-icon">⚙</span>
+
+                <span>
+                    Settings
+                </span>
+
+            </a>
+
+        {% endif %}
+
+
+    {% else %}
+
+        <!-- ================= APPLICANT ================= -->
+
+        <div class="sidebar-section-title">
+            Applicant Portal
+        </div>
+
+
+        <a
+            href="{{ url_for('applicant_portal') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'applicant_portal' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">⌂</span>
+
+            <span>
+                My Application
+            </span>
+
+        </a>
+
+
+        <!-- =================================================
+             APPLICANT ONLY ATTENDANCE
+             ================================================= -->
+
+        <a
+            href="{{ url_for('applicant_attendance') }}"
+            class="sidebar-link
+            {% if request.endpoint == 'applicant_attendance' %}
+                active
+            {% endif %}"
+        >
+
+            <span class="sidebar-icon">✓</span>
+
+            <span>
+                My Attendance
+            </span>
+
+        </a>
+
+    {% endif %}
+
+</nav>
+
+
+<!-- =====================================================
+     SIDEBAR FOOTER
+     ===================================================== -->
+
+<div class="sidebar-footer">
+
+    {% if session.get('role') == 'admin'
+          or session.get('admin_logged_in') %}
+
+        <a
+            href="{{ url_for('admin_logout') }}"
+            class="sidebar-logout"
+        >
+
+            <span>↪</span>
+
+            <span>
+                Sign Out
+            </span>
+
+        </a>
+
+    {% else %}
+
+        <a
+            href="{{ url_for('applicant_logout') }}"
+            class="sidebar-logout"
+        >
+
+            <span>↪</span>
+
+            <span>
+                Sign Out
+            </span>
+
+        </a>
+
+    {% endif %}
+
+</div>
+
+
+</aside>
+
+<!-- =========================================================
+     MOBILE TOPBAR
+     ========================================================= -->
+
+<div class="mobile-topbar">
+
+
+<div class="mobile-brand">
+
+    <strong>
+
+        {{
+            settings.company_name
+            if settings
+            and settings.company_name
+            else company_name
+            or "AV KING"
+        }}
+
+    </strong>
+
+</div>
+
+
+<button
+    type="button"
+    class="mobile-menu-button"
+    id="sidebarToggle"
+    aria-label="Open navigation"
+>
+    ☰
+</button>
+
+
+</div>
+
+{% endif %}
+
+<!-- =========================================================
+     FLASH MESSAGES
+     ========================================================= -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+
+{% if messages %}
+
+    <div class="flash-container">
+
+        {% for category, message in messages %}
+
+            <div class="flash-message">
+
+                {{ message }}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+{% endif %}
+
+
+{% endwith %}
+
+<!-- =========================================================
+     MAIN CONTENT
+     IMPORTANT: THIS IS THE ONLY CONTENT BLOCK
+     ========================================================= -->
+
+<div class="site-wrapper">
+
+
+<main class="site-main">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
+</div>
+
+<!-- =========================================================
+     SCRIPTS
+     ========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const button =
+            document.getElementById("sidebarToggle");
+
+        const sidebar =
+            document.getElementById("mainSidebar");
+
+
+        if (button && sidebar) {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    sidebar.classList.toggle("open");
+
+                }
+            );
+
         }
 
 
-        function closeApplicantSidebar() {
+        /*
+         * Close mobile sidebar after selecting a link.
+         */
 
-            const sidebar =
-                document.getElementById(
-                    "applicantSidebar"
+        if (sidebar) {
+
+            const links =
+                sidebar.querySelectorAll(
+                    ".sidebar-link"
                 );
 
-            const overlay =
-                document.getElementById(
-                    "applicantSidebarOverlay"
-                );
+            links.forEach(
+                function (link) {
 
-            if (!sidebar || !overlay) {
-                return;
-            }
+                    link.addEventListener(
+                        "click",
+                        function () {
 
-            sidebar.classList.remove("open");
+                            sidebar.classList.remove(
+                                "open"
+                            );
 
-            overlay.classList.remove("open");
-        }
-
-
-        /* Close mobile sidebar after navigation */
-
-        document.addEventListener(
-            "click",
-            function(event) {
-
-                const link =
-                    event.target.closest(
-                        ".applicant-sidebar-nav a"
+                        }
                     );
 
-                if (link) {
-                    closeApplicantSidebar();
                 }
+            );
 
-            }
+        }
+
+
+        /*
+         * Automatically remove flash messages.
+         */
+
+        setTimeout(
+            function () {
+
+                document
+                    .querySelectorAll(
+                        ".flash-message"
+                    )
+                    .forEach(
+                        function (message) {
+
+                            message.style.opacity = "0";
+
+                            message.style.transition =
+                                "opacity .3s ease";
+
+                            setTimeout(
+                                function () {
+
+                                    message.remove();
+
+                                },
+                                300
+                            );
+
+                        }
+                    );
+
+            },
+            5000
         );
 
+    }
+);
 
-        /* Close sidebar with Escape */
+</script>
 
-        document.addEventListener(
-            "keydown",
-            function(event) {
-
-                if (event.key === "Escape") {
-                    closeApplicantSidebar();
-                }
-
-            }
-        );
-
-    </script>
-
-
-    {% block scripts %}{% endblock %}
+{% block scripts %}
+{% endblock %}
 
 </body>
 </html>
-
