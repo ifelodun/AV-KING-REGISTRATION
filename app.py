@@ -16457,13 +16457,16 @@ def calculate_early_clockout_minutes(
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
+if __name__ == "__main__":
+    with app.app_context():
+        init_db()
+        create_initial_admin()
 
-with app.app_context():
-
-    init_db()
-
-    create_initial_admin()
-
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=False
+    )
 # ============================================================
 # RUN APPLICATION
 # ============================================================
