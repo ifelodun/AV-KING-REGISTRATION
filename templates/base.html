@@ -12,7 +12,7 @@
 
     <meta
         name="description"
-        content="{{ company_name or 'AV KING' }} - Recruitment Portal"
+        content="{{ company_name or 'AV KING' }} Recruitment Portal"
     >
 
     <title>
@@ -22,36 +22,25 @@
     </title>
 
 
-    <!-- =====================================================
-         GLOBAL CSS
-         ===================================================== -->
-
     <style>
 
-        /* =================================================
-           RESET
-           ================================================= */
+        /* =====================================================
+           GLOBAL
+           ===================================================== */
 
-        *,
-        *::before,
-        *::after {
+        * {
             box-sizing: border-box;
         }
-
 
         html {
             margin: 0;
             padding: 0;
             min-height: 100%;
-
-            scroll-behavior: smooth;
         }
-
 
         body {
             margin: 0;
             padding: 0;
-
             min-height: 100vh;
 
             background: #f4f6f8;
@@ -64,569 +53,836 @@
                 BlinkMacSystemFont,
                 "Segoe UI",
                 Roboto,
-                Helvetica,
                 Arial,
                 sans-serif;
 
             font-size: 14px;
 
-            line-height: 1.5;
-
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-
             text-rendering: optimizeLegibility;
         }
-
-
-        body,
-        button,
-        input,
-        select,
-        textarea {
-            font-family:
-                Inter,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Helvetica,
-                Arial,
-                sans-serif;
-        }
-
-
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-
 
         a {
             color: inherit;
         }
 
-
         button,
         input,
         select,
         textarea {
-            font-size: inherit;
+            font-family: inherit;
         }
 
 
-        button {
-            cursor: pointer;
+        /* =====================================================
+           FLASH MESSAGES
+           ===================================================== */
+
+        .flash-container {
+            position: fixed;
+
+            top: 20px;
+            right: 20px;
+
+            z-index: 99999;
+
+            width: min(390px, calc(100vw - 30px));
+        }
+
+        .flash-message {
+            position: relative;
+
+            display: flex;
+            align-items: flex-start;
+
+            gap: 10px;
+
+            margin-bottom: 10px;
+
+            padding: 14px 16px;
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 10px 30px rgba(15, 23, 42, .12);
+
+            color: #374151;
+
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .flash-message.success {
+            border-left: 4px solid #16a34a;
+        }
+
+        .flash-message.error {
+            border-left: 4px solid #dc2626;
+        }
+
+        .flash-message.warning {
+            border-left: 4px solid #d97706;
+        }
+
+        .flash-message.info {
+            border-left: 4px solid #2563eb;
         }
 
 
-        /* =================================================
-           GLOBAL VARIABLES
-           ================================================= */
+        /* =====================================================
+           APPLICANT SHELL
+           ===================================================== */
 
-        :root {
-
-            --primary: #111827;
-            --primary-light: #1f2937;
-
-            --accent: #0f766e;
-            --accent-dark: #115e59;
-
-            --success: #15803d;
-            --success-bg: #f0fdf4;
-
-            --warning: #b45309;
-            --warning-bg: #fffbeb;
-
-            --danger: #b91c1c;
-            --danger-bg: #fef2f2;
-
-            --info: #2563eb;
-            --info-bg: #eff6ff;
-
-            --white: #ffffff;
-
-            --text: #111827;
-            --text-secondary: #374151;
-            --muted: #6b7280;
-            --light-muted: #9ca3af;
-
-            --border: #e5e7eb;
-            --border-light: #eef0f2;
-
-            --page-bg: #f4f6f8;
-
-            --radius-sm: 7px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-
-            --shadow-sm:
-                0 1px 2px rgba(15, 23, 42, .04),
-                0 4px 12px rgba(15, 23, 42, .04);
-
-            --shadow-md:
-                0 4px 18px rgba(15, 23, 42, .06);
-
-        }
-
-
-        /* =================================================
-           SITE WRAPPER
-           ================================================= */
-
-        .site-wrapper {
-            width: 100%;
+        .applicant-shell {
             min-height: 100vh;
         }
 
 
-        .site-content {
-            width: 100%;
-            min-height: 1px;
+        /* =====================================================
+           APPLICANT SIDEBAR
+           ===================================================== */
+
+        .applicant-sidebar {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            bottom: 0;
+
+            z-index: 1000;
+
+            width: 250px;
+
+            display: flex;
+            flex-direction: column;
+
+            padding: 20px 14px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #111827 0%,
+                    #172033 100%
+                );
+
+            color: #ffffff;
+
+            border-right: 1px solid rgba(255,255,255,.06);
+
+            box-shadow:
+                8px 0 30px rgba(15,23,42,.08);
         }
 
 
-        /* =================================================
-           FLASH MESSAGES
-           ================================================= */
+        /* =====================================================
+           SIDEBAR BRAND
+           ===================================================== */
 
-        .flash-container {
-
-            width: 100%;
-
-            max-width: 1200px;
-
-            margin: 0 auto;
-
-            padding:
-                15px
-                20px
-                0;
-        }
-
-
-        .flash-message {
-
+        .applicant-sidebar-brand {
             display: flex;
 
             align-items: center;
 
-            justify-content: space-between;
+            gap: 11px;
 
-            gap: 15px;
-
-            width: 100%;
-
-            margin-bottom: 10px;
+            min-width: 0;
 
             padding:
-                12px
-                15px;
+                4px
+                8px
+                20px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+        .applicant-sidebar-logo {
+            width: 43px;
+            height: 43px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            border-radius: 10px;
 
             background: #ffffff;
 
-            border:
-                1px solid
-                var(--border);
-
-            border-radius:
-                var(--radius-md);
-
-            color:
-                var(--text-secondary);
+            color: #111827;
 
             font-size: 13px;
+            font-weight: 900;
+        }
 
-            line-height: 1.5;
+        .applicant-sidebar-logo img {
+            width: 100%;
+            height: 100%;
 
-            box-shadow:
-                var(--shadow-sm);
+            object-fit: contain;
+
+            padding: 4px;
+        }
+
+        .applicant-sidebar-brand-text {
+            min-width: 0;
+        }
+
+        .applicant-sidebar-brand-text strong {
+            display: block;
+
+            overflow: hidden;
+
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .applicant-sidebar-brand-text span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #9ca3af;
+
+            font-size: 9px;
+            font-weight: 600;
+
+            letter-spacing: .4px;
         }
 
 
-        .flash-message.success {
+        /* =====================================================
+           SIDEBAR NAVIGATION
+           ===================================================== */
 
-            background:
-                var(--success-bg);
-
-            border-color:
-                #bbf7d0;
-
-            color:
-                #166534;
+        .applicant-sidebar-section {
+            margin-top: 24px;
         }
 
+        .applicant-sidebar-section-title {
+            display: block;
 
-        .flash-message.error {
+            padding:
+                0
+                10px
+                8px;
 
-            background:
-                var(--danger-bg);
+            color: #6b7280;
 
-            border-color:
-                #fecaca;
+            font-size: 8px;
+            font-weight: 800;
 
-            color:
-                #991b1b;
+            letter-spacing: 1.4px;
+
+            text-transform: uppercase;
         }
 
+        .applicant-sidebar-nav {
+            display: flex;
+            flex-direction: column;
 
-        .flash-message.warning {
-
-            background:
-                var(--warning-bg);
-
-            border-color:
-                #fde68a;
-
-            color:
-                #92400e;
+            gap: 5px;
         }
 
+        .applicant-sidebar-nav a {
+            display: flex;
 
-        .flash-message.info {
+            align-items: center;
 
-            background:
-                var(--info-bg);
+            gap: 11px;
 
-            border-color:
-                #bfdbfe;
+            min-height: 43px;
 
-            color:
-                #1e40af;
+            padding:
+                0
+                11px;
+
+            border-radius: 9px;
+
+            color: #cbd5e1;
+
+            text-decoration: none;
+
+            font-size: 12px;
+            font-weight: 650;
+
+            transition:
+                background .18s ease,
+                color .18s ease,
+                transform .18s ease;
         }
 
-
-        /* =================================================
-           DEFAULT BUTTONS
-           ================================================= */
-
-        .btn {
+        .applicant-sidebar-nav a span:first-child {
+            width: 23px;
 
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
-            gap: 7px;
+            color: #94a3b8;
 
-            min-height: 40px;
-
-            padding:
-                0
-                15px;
-
-            border:
-                1px solid
-                transparent;
-
-            border-radius:
-                var(--radius-sm);
-
-            text-decoration: none;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition:
-                background .2s ease,
-                border-color .2s ease,
-                color .2s ease,
-                transform .2s ease,
-                box-shadow .2s ease;
+            font-size: 15px;
         }
 
+        .applicant-sidebar-nav a:hover {
+            background: rgba(255,255,255,.07);
 
-        .btn:hover {
-            transform: translateY(-1px);
+            color: #ffffff;
+
+            transform: translateX(2px);
         }
 
+        .applicant-sidebar-nav a:hover span:first-child {
+            color: #ffffff;
+        }
 
-        .btn-primary {
-
+        .applicant-sidebar-nav a.active {
             background:
-                var(--primary);
+                rgba(15,118,110,.22);
 
-            color:
-                #ffffff;
-        }
-
-
-        .btn-primary:hover {
-
-            background:
-                var(--primary-light);
-        }
-
-
-        .btn-success {
-
-            background:
-                var(--success);
-
-            color:
-                #ffffff;
-        }
-
-
-        .btn-success:hover {
-
-            background:
-                #166534;
-        }
-
-
-        .btn-danger {
-
-            background:
-                var(--danger);
-
-            color:
-                #ffffff;
-        }
-
-
-        .btn-danger:hover {
-
-            background:
-                #991b1b;
-        }
-
-
-        .btn-secondary {
-
-            background:
-                #ffffff;
-
-            border-color:
-                var(--border);
-
-            color:
-                var(--text-secondary);
-        }
-
-
-        .btn-secondary:hover {
-
-            background:
-                #f9fafb;
-
-            border-color:
-                #d1d5db;
-        }
-
-
-        /* =================================================
-           DEFAULT FORM ELEMENTS
-           ================================================= */
-
-        input,
-        select,
-        textarea {
-
-            width: 100%;
-
-            padding:
-                10px
-                12px;
-
-            background:
-                #ffffff;
-
-            border:
-                1px solid
-                #d1d5db;
-
-            border-radius:
-                var(--radius-sm);
-
-            color:
-                var(--text);
-
-            outline: none;
-
-            transition:
-                border-color .2s ease,
-                box-shadow .2s ease;
-        }
-
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-
-            border-color:
-                var(--accent);
+            color: #ffffff;
 
             box-shadow:
-                0 0 0 3px
-                rgba(15,118,110,.10);
+                inset 3px 0 0 #2dd4bf;
+        }
+
+        .applicant-sidebar-nav a.active span:first-child {
+            color: #5eead4;
         }
 
 
-        textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
+        /* =====================================================
+           SIDEBAR BOTTOM
+           ===================================================== */
 
+        .applicant-sidebar-bottom {
+            margin-top: auto;
 
-        label {
-
-            display: block;
-
-            margin-bottom: 5px;
-
-            color:
-                var(--text-secondary);
-
-            font-size: 12px;
-
-            font-weight: 700;
-        }
-
-
-        /* =================================================
-           DEFAULT SITE FOOTER
-           ================================================= */
-
-        .site-footer {
-
-            width: 100%;
-
-            margin-top: 40px;
-
-            padding:
-                25px
-                20px;
-
-            background:
-                #ffffff;
+            padding-top: 15px;
 
             border-top:
                 1px solid
-                var(--border);
+                rgba(255,255,255,.08);
+        }
 
-            text-align: center;
+        .applicant-sidebar-user {
+            display: flex;
 
-            color:
-                var(--muted);
+            align-items: center;
+
+            gap: 9px;
+
+            margin-bottom: 10px;
+
+            padding:
+                10px;
+
+            background:
+                rgba(255,255,255,.045);
+
+            border-radius: 9px;
+        }
+
+        .applicant-sidebar-user-icon {
+            width: 30px;
+            height: 30px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background:
+                rgba(255,255,255,.09);
+
+            color: #d1d5db;
 
             font-size: 12px;
+            font-weight: 800;
+        }
 
-            line-height: 1.7;
+        .applicant-sidebar-user-text {
+            min-width: 0;
+        }
+
+        .applicant-sidebar-user-text strong {
+            display: block;
+
+            overflow: hidden;
+
+            color: #f3f4f6;
+
+            font-size: 10px;
+            font-weight: 750;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .applicant-sidebar-user-text span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: #9ca3af;
+
+            font-size: 8px;
         }
 
 
-        .site-footer strong {
+        /* =====================================================
+           SIDEBAR LOGOUT
+           ===================================================== */
 
-            color:
-                var(--text-secondary);
+        .applicant-sidebar-logout {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 8px;
+
+            min-height: 38px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.09);
+
+            border-radius: 8px;
+
+            color: #d1d5db;
+
+            text-decoration: none;
+
+            font-size: 10px;
+            font-weight: 750;
+
+            transition:
+                background .18s ease,
+                color .18s ease;
+        }
+
+        .applicant-sidebar-logout:hover {
+            background:
+                rgba(220,38,38,.12);
+
+            color: #fca5a5;
+
+            border-color:
+                rgba(248,113,113,.2);
         }
 
 
-        /* =================================================
-           UTILITY CLASSES
-           ================================================= */
+        /* =====================================================
+           MOBILE HEADER
+           ===================================================== */
 
-        .text-center {
-            text-align: center;
+        .applicant-mobile-header {
+            display: none;
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            z-index: 1100;
+
+            height: 62px;
+
+            align-items: center;
+            justify-content: space-between;
+
+            padding:
+                0
+                14px;
+
+            background: #111827;
+
+            color: #ffffff;
+
+            box-shadow:
+                0 4px 20px rgba(15,23,42,.12);
+        }
+
+        .applicant-mobile-brand {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            min-width: 0;
+        }
+
+        .applicant-mobile-brand-icon {
+            width: 35px;
+            height: 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            color: #111827;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .applicant-mobile-brand-icon img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: contain;
+
+            padding: 3px;
+        }
+
+        .applicant-mobile-brand-text {
+            min-width: 0;
+        }
+
+        .applicant-mobile-brand-text strong {
+            display: block;
+
+            max-width: 190px;
+
+            overflow: hidden;
+
+            color: #ffffff;
+
+            font-size: 11px;
+            font-weight: 800;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .applicant-mobile-brand-text span {
+            display: block;
+
+            margin-top: 1px;
+
+            color: #9ca3af;
+
+            font-size: 8px;
+        }
+
+        .applicant-menu-button {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(255,255,255,.1);
+
+            border-radius: 8px;
+
+            background: rgba(255,255,255,.05);
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            font-size: 18px;
         }
 
 
-        .text-right {
+        /* =====================================================
+           SIDEBAR OVERLAY
+           ===================================================== */
+
+        .applicant-sidebar-overlay {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 999;
+
+            background:
+                rgba(15,23,42,.55);
+
+            backdrop-filter: blur(2px);
+        }
+
+
+        /* =====================================================
+           MAIN AREA
+           ===================================================== */
+
+        .applicant-main {
+            min-height: 100vh;
+
+            margin-left: 250px;
+
+            padding: 28px;
+        }
+
+        .applicant-main-inner {
+            width: 100%;
+
+            max-width: 1450px;
+
+            margin: 0 auto;
+        }
+
+
+        /* =====================================================
+           DESKTOP TOP BAR
+           ===================================================== */
+
+        .applicant-topbar {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            min-height: 58px;
+
+            margin-bottom: 22px;
+
+            padding:
+                0
+                4px;
+        }
+
+        .applicant-topbar-title {
+            min-width: 0;
+        }
+
+        .applicant-topbar-title span {
+            display: block;
+
+            margin-bottom: 3px;
+
+            color: #9ca3af;
+
+            font-size: 8px;
+            font-weight: 800;
+
+            letter-spacing: 1.2px;
+
+            text-transform: uppercase;
+        }
+
+        .applicant-topbar-title strong {
+            display: block;
+
+            color: #111827;
+
+            font-size: 20px;
+            font-weight: 800;
+
+            line-height: 1.3;
+        }
+
+        .applicant-topbar-account {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+        }
+
+        .applicant-topbar-account-icon {
+            width: 35px;
+            height: 35px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #e5e7eb;
+
+            color: #374151;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .applicant-topbar-account-text {
             text-align: right;
         }
 
-
-        .hidden {
-            display: none !important;
-        }
-
-
-        .desktop-only {
+        .applicant-topbar-account-text strong {
             display: block;
+
+            color: #111827;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .applicant-topbar-account-text span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: #9ca3af;
+
+            font-size: 8px;
         }
 
 
-        .mobile-only {
-            display: none;
+        /* =====================================================
+           CONTENT BLOCK
+           ===================================================== */
+
+        .content-container {
+            width: 100%;
         }
 
 
-        /* =================================================
-           RESPONSIVE
-           ================================================= */
+        /* =====================================================
+           GENERIC PAGE FOOTER
+           ===================================================== */
 
-        @media (max-width: 768px) {
+        .applicant-layout-footer {
+            margin-top: 35px;
 
-            .flash-container {
+            padding:
+                18px
+                5px;
 
-                padding:
-                    10px
-                    10px
-                    0;
+            border-top:
+                1px solid
+                #e5e7eb;
+
+            color: #9ca3af;
+
+            text-align: center;
+
+            font-size: 9px;
+
+            line-height: 1.6;
+        }
+
+        .applicant-layout-footer strong {
+            color: #6b7280;
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .applicant-sidebar {
+                transform: translateX(-100%);
+
+                transition:
+                    transform .25s ease;
+
+                box-shadow:
+                    12px 0 35px rgba(15,23,42,.2);
             }
 
-
-            .flash-message {
-
-                padding:
-                    11px
-                    12px;
-
-                font-size: 12px;
+            .applicant-sidebar.open {
+                transform: translateX(0);
             }
 
-
-            .desktop-only {
-                display: none !important;
+            .applicant-mobile-header {
+                display: flex;
             }
 
-
-            .mobile-only {
+            .applicant-sidebar-overlay.open {
                 display: block;
             }
 
+            .applicant-main {
+                margin-left: 0;
+
+                padding:
+                    82px
+                    14px
+                    25px;
+            }
+
+            .applicant-topbar {
+                display: none;
+            }
         }
 
 
+        /* =====================================================
+           SMALL MOBILE
+           ===================================================== */
+
         @media (max-width: 480px) {
 
-            body {
-                font-size: 13px;
+            .applicant-main {
+                padding:
+                    76px
+                    10px
+                    20px;
             }
 
+            .applicant-sidebar {
+                width: 275px;
+            }
 
             .flash-container {
-                padding-left: 8px;
-                padding-right: 8px;
+                top: 72px;
+                right: 10px;
+
+                width:
+                    calc(100vw - 20px);
             }
+        }
 
 
-            .btn {
-                min-height: 38px;
+        /* =====================================================
+           ACCESSIBILITY
+           ===================================================== */
 
-                padding:
-                    0
-                    12px;
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline:
+                3px solid
+                rgba(45,212,191,.35);
 
-                font-size: 12px;
-            }
-
+            outline-offset: 2px;
         }
 
     </style>
 
 
-    <!-- =====================================================
-         ADDITIONAL PAGE HEAD
-         ===================================================== -->
-
-    {% block head %}
-    {% endblock %}
+    {% block head %}{% endblock %}
 
 </head>
 
@@ -635,76 +891,526 @@
 
 
     <!-- =====================================================
-         MAIN SITE WRAPPER
+         FLASH MESSAGES
          ===================================================== -->
 
-    <div class="site-wrapper">
+    {% with messages = get_flashed_messages(with_categories=true) %}
 
+        {% if messages %}
 
-        <!-- =================================================
-             FLASH MESSAGES
-             ================================================= -->
+            <div class="flash-container">
 
-        {% with flashed_messages = get_flashed_messages(
-            with_categories=true
-        ) %}
+                {% for category, message in messages %}
 
-            {% if flashed_messages %}
+                    <div class="flash-message {{ category }}">
 
-                <div class="flash-container">
-
-                    {% for category, message in flashed_messages %}
-
-                        <div
-                            class="flash-message {{ category }}"
-                            role="alert"
-                        >
-
+                        <span>
                             {{ message }}
+                        </span>
 
-                        </div>
+                    </div>
 
-                    {% endfor %}
+                {% endfor %}
 
-                </div>
+            </div>
 
-            {% endif %}
+        {% endif %}
 
-        {% endwith %}
+    {% endwith %}
 
-
-
-        <!-- =================================================
-             PAGE CONTENT
-             ================================================= -->
-
-        <main class="site-content">
-
-            {% block content %}
-            {% endblock %}
-
-        </main>
-
-
-
-        <!-- =================================================
-             OPTIONAL FOOTER
-             ================================================= -->
-
-        {% block footer %}
-        {% endblock %}
-
-
-    </div>
 
 
     <!-- =====================================================
-         PAGE JAVASCRIPT
+         APPLICANT PORTAL LAYOUT
+         ONLY SHOW SIDEBAR WHEN APPLICANT IS LOGGED IN
          ===================================================== -->
 
-    {% block scripts %}
-    {% endblock %}
+    {% if session.get("applicant_id") %}
 
+        <div class="applicant-shell">
+
+
+            <!-- =================================================
+                 MOBILE HEADER
+                 ================================================= -->
+
+            <header class="applicant-mobile-header">
+
+                <div class="applicant-mobile-brand">
+
+                    <div class="applicant-mobile-brand-icon">
+
+                        {% if settings and settings.logo %}
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' ~ settings.logo
+                                ) }}"
+                                alt="Company Logo"
+                            >
+
+                        {% else %}
+
+                            AV
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="applicant-mobile-brand-text">
+
+                        <strong>
+                            {{
+                                settings.company_name
+                                if settings
+                                and settings.company_name
+                                else company_name
+                                or "AV KING"
+                            }}
+                        </strong>
+
+                        <span>
+                            Applicant Portal
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="applicant-menu-button"
+                    onclick="toggleApplicantSidebar()"
+                    aria-label="Open navigation"
+                >
+                    ☰
+                </button>
+
+            </header>
+
+
+
+            <!-- =================================================
+                 SIDEBAR OVERLAY
+                 ================================================= -->
+
+            <div
+                class="applicant-sidebar-overlay"
+                id="applicantSidebarOverlay"
+                onclick="closeApplicantSidebar()"
+            ></div>
+
+
+
+            <!-- =================================================
+                 APPLICANT SIDEBAR
+                 ================================================= -->
+
+            <aside
+                class="applicant-sidebar"
+                id="applicantSidebar"
+            >
+
+
+                <!-- BRAND -->
+
+                <div class="applicant-sidebar-brand">
+
+                    <div class="applicant-sidebar-logo">
+
+                        {% if settings and settings.logo %}
+
+                            <img
+                                src="{{ url_for(
+                                    'static',
+                                    filename='uploads/' ~ settings.logo
+                                ) }}"
+                                alt="Company Logo"
+                            >
+
+                        {% else %}
+
+                            {{
+                                (
+                                    settings.company_name[:2]
+                                    if settings
+                                    and settings.company_name
+                                    else "AV"
+                                )|upper
+                            }}
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="applicant-sidebar-brand-text">
+
+                        <strong>
+                            {{
+                                settings.company_name
+                                if settings
+                                and settings.company_name
+                                else company_name
+                                or "AV KING"
+                            }}
+                        </strong>
+
+                        <span>
+                            APPLICANT PORTAL
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     NAVIGATION
+                     ================================================= -->
+
+                <div class="applicant-sidebar-section">
+
+                    <span class="applicant-sidebar-section-title">
+                        Portal
+                    </span>
+
+
+                    <nav class="applicant-sidebar-nav">
+
+
+                        <!-- DASHBOARD -->
+
+                        <a
+                            href="{{ url_for('applicant_portal') }}"
+                            class="
+                                {% if request.endpoint == 'applicant_portal' %}
+                                    active
+                                {% endif %}
+                            "
+                        >
+
+                            <span>⌂</span>
+
+                            <span>
+                                Dashboard
+                            </span>
+
+                        </a>
+
+
+
+                        <!-- =================================================
+                             APPLICANT ATTENDANCE ONLY
+                             ================================================= -->
+
+                        <a
+                            href="{{ url_for('applicant_attendance') }}"
+                            class="
+                                {% if request.endpoint == 'applicant_attendance' %}
+                                    active
+                                {% endif %}
+                            "
+                        >
+
+                            <span>◷</span>
+
+                            <span>
+                                My Attendance
+                            </span>
+
+                        </a>
+
+
+                    </nav>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     SIDEBAR BOTTOM
+                     ================================================= -->
+
+                <div class="applicant-sidebar-bottom">
+
+
+                    {% if application is defined and application %}
+
+                        <div class="applicant-sidebar-user">
+
+                            <div class="applicant-sidebar-user-icon">
+                                {{ application.first_name[:1]|upper }}
+                            </div>
+
+
+                            <div class="applicant-sidebar-user-text">
+
+                                <strong>
+
+                                    {{ application.first_name }}
+
+                                    {% if application.last_name %}
+                                        {{ application.last_name }}
+                                    {% endif %}
+
+                                </strong>
+
+                                <span>
+                                    Applicant Account
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <a
+                        href="{{ url_for('applicant_logout') }}"
+                        class="applicant-sidebar-logout"
+                    >
+
+                        <span>↪</span>
+
+                        <span>
+                            Sign Out
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </aside>
+
+
+
+            <!-- =================================================
+                 MAIN CONTENT
+                 ================================================= -->
+
+            <main class="applicant-main">
+
+                <div class="applicant-main-inner">
+
+
+                    <!-- TOP BAR -->
+
+                    <div class="applicant-topbar">
+
+                        <div class="applicant-topbar-title">
+
+                            <span>
+                                Applicant Recruitment Portal
+                            </span>
+
+                            <strong>
+
+                                {% block page_heading %}
+                                    Applicant Portal
+                                {% endblock %}
+
+                            </strong>
+
+                        </div>
+
+
+                        {% if application is defined and application %}
+
+                            <div class="applicant-topbar-account">
+
+                                <div class="applicant-topbar-account-text">
+
+                                    <strong>
+
+                                        {{ application.first_name }}
+
+                                        {% if application.last_name %}
+                                            {{ application.last_name }}
+                                        {% endif %}
+
+                                    </strong>
+
+                                    <span>
+                                        Applicant
+                                    </span>
+
+                                </div>
+
+
+                                <div class="applicant-topbar-account-icon">
+
+                                    {{ application.first_name[:1]|upper }}
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- PAGE CONTENT -->
+
+                    <div class="content-container">
+
+                        {% block content %}{% endblock %}
+
+                    </div>
+
+
+
+                    <!-- FOOTER -->
+
+                    <footer class="applicant-layout-footer">
+
+                        <div>
+
+                            <strong>
+                                {{
+                                    settings.company_name
+                                    if settings
+                                    and settings.company_name
+                                    else company_name
+                                    or "AV KING"
+                                }}
+                            </strong>
+
+                            · Applicant Recruitment Portal
+
+                        </div>
+
+
+                        {% if settings and settings.footer_text %}
+
+                            <div>
+                                {{ settings.footer_text }}
+                            </div>
+
+                        {% endif %}
+
+                    </footer>
+
+
+                </div>
+
+            </main>
+
+        </div>
+
+
+    {% else %}
+
+
+        <!-- =====================================================
+             PUBLIC / LOGIN PAGES
+             NO APPLICANT SIDEBAR
+             ===================================================== -->
+
+        <main class="content-container">
+
+            {% block content %}{% endblock %}
+
+        </main>
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script>
+
+        function toggleApplicantSidebar() {
+
+            const sidebar =
+                document.getElementById(
+                    "applicantSidebar"
+                );
+
+            const overlay =
+                document.getElementById(
+                    "applicantSidebarOverlay"
+                );
+
+            if (!sidebar || !overlay) {
+                return;
+            }
+
+            sidebar.classList.toggle("open");
+
+            overlay.classList.toggle("open");
+        }
+
+
+        function closeApplicantSidebar() {
+
+            const sidebar =
+                document.getElementById(
+                    "applicantSidebar"
+                );
+
+            const overlay =
+                document.getElementById(
+                    "applicantSidebarOverlay"
+                );
+
+            if (!sidebar || !overlay) {
+                return;
+            }
+
+            sidebar.classList.remove("open");
+
+            overlay.classList.remove("open");
+        }
+
+
+        /* Close mobile sidebar after navigation */
+
+        document.addEventListener(
+            "click",
+            function(event) {
+
+                const link =
+                    event.target.closest(
+                        ".applicant-sidebar-nav a"
+                    );
+
+                if (link) {
+                    closeApplicantSidebar();
+                }
+
+            }
+        );
+
+
+        /* Close sidebar with Escape */
+
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (event.key === "Escape") {
+                    closeApplicantSidebar();
+                }
+
+            }
+        );
+
+    </script>
+
+
+    {% block scripts %}{% endblock %}
 
 </body>
 </html>
+
