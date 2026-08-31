@@ -169,10 +169,6 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
     font-weight: 600;
 }
 
-.settings-flash::before {
-    font-size: 17px;
-}
-
 .settings-flash.success {
     color: #166534;
     background: #f0fdf4;
@@ -181,6 +177,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 .settings-flash.success::before {
     content: "✓";
+    font-size: 17px;
 }
 
 .settings-flash.error,
@@ -193,6 +190,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 .settings-flash.error::before,
 .settings-flash.danger::before {
     content: "!";
+    font-size: 17px;
 }
 
 .settings-flash.warning {
@@ -203,10 +201,22 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 .settings-flash.warning::before {
     content: "!";
+    font-size: 17px;
+}
+
+.settings-flash.info {
+    color: #1e40af;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.settings-flash.info::before {
+    content: "i";
+    font-size: 15px;
 }
 
 /* =========================================================
-   SETTINGS NAVIGATION
+   SETTINGS OVERVIEW
 ========================================================= */
 
 .settings-overview {
@@ -352,7 +362,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
     margin-bottom: 8px;
     color: #374151;
     font-size: 12px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .form-group input,
@@ -415,20 +425,20 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 }
 
 /* =========================================================
-   LOGO AREA
+   LOGO
 ========================================================= */
 
 .logo-settings {
     display: grid;
-    grid-template-columns: 180px minmax(0, 1fr);
+    grid-template-columns: 200px minmax(0, 1fr);
     gap: 28px;
     align-items: center;
 }
 
 .current-logo,
 .no-logo {
-    width: 180px;
-    height: 130px;
+    width: 200px;
+    height: 145px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -444,8 +454,8 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 }
 
 .current-logo img {
-    max-width: 150px;
-    max-height: 105px;
+    max-width: 175px;
+    max-height: 120px;
     object-fit: contain;
 }
 
@@ -490,6 +500,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 .logo-upload input[type="file"] {
     width: 100%;
+    box-sizing: border-box;
     padding: 10px;
     border: 1px solid #d7dce3;
     border-radius: 9px;
@@ -502,6 +513,39 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
     margin-top: 7px;
     color: #8a93a1;
     font-size: 10px;
+}
+
+/* =========================================================
+   LOGO PREVIEW
+========================================================= */
+
+.logo-preview {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.logo-preview.active {
+    display: block;
+}
+
+.logo-preview-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.logo-preview img {
+    display: block;
+    max-width: 180px;
+    max-height: 90px;
+    object-fit: contain;
 }
 
 /* =========================================================
@@ -603,6 +647,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 }
 
 .switch input {
+    position: absolute;
     width: 0;
     height: 0;
     opacity: 0;
@@ -703,7 +748,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
     margin-bottom: 7px;
     color: #4b5563;
     font-size: 11px;
-    font-weight: 750;
+    font-weight: 700;
 }
 
 .gps-field input {
@@ -742,7 +787,7 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 }
 
 .input-with-unit input {
-    padding-right: 75px;
+    padding-right: 80px;
 }
 
 .input-with-unit span {
@@ -952,45 +997,45 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 <div class="admin-settings-page">
 
-
 <!-- =====================================================
      PAGE HEADER
 ====================================================== -->
 
 <header class="settings-header">
 
-    <div class="settings-header-content">
 
-        <span class="settings-eyebrow">
-            System Management
-        </span>
+<div class="settings-header-content">
 
-        <h1>
-            Settings
-        </h1>
+    <span class="settings-eyebrow">
+        System Management
+    </span>
 
-        <p>
-            Configure your company profile, branding, recruitment
-            portal, workforce attendance and administrator security
-            from one central control panel.
-        </p>
+    <h1>
+        Settings
+    </h1>
 
-    </div>
+    <p>
+        Configure your company profile, branding, recruitment
+        portal, workforce attendance and administrator security
+        from one central control panel.
+    </p>
 
-    <div class="settings-header-action">
+</div>
 
-        <a
-            href="{{ url_for('admin_dashboard') }}"
-            class="settings-btn settings-btn-secondary"
-        >
-            ←
-            <span>Back to Dashboard</span>
-        </a>
+<div class="settings-header-action">
 
-    </div>
+    <a
+        href="{{ url_for('admin_dashboard') }}"
+        class="settings-btn settings-btn-secondary"
+    >
+        ←
+        <span>Back to Dashboard</span>
+    </a>
+
+</div>
+
 
 </header>
-
 
 <!-- =====================================================
      FLASH MESSAGES
@@ -998,24 +1043,24 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 {% with messages = get_flashed_messages(with_categories=true) %}
 
-    {% if messages %}
+{% if messages %}
 
-        <div class="settings-flashes">
+    <div class="settings-flashes">
 
-            {% for category, message in messages %}
+        {% for category, message in messages %}
 
-                <div class="settings-flash {{ category }}">
-                    {{ message }}
-                </div>
+            <div class="settings-flash {{ category }}">
+                {{ message }}
+            </div>
 
-            {% endfor %}
+        {% endfor %}
 
-        </div>
+    </div>
 
-    {% endif %}
+{% endif %}
+
 
 {% endwith %}
-
 
 <!-- =====================================================
      SETTINGS OVERVIEW
@@ -1023,513 +1068,600 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 
 <nav class="settings-overview">
 
-    <a
-        href="#company"
-        class="settings-overview-item"
-    >
-        <div class="settings-overview-icon">
-            🏢
-        </div>
+<a
+    href="#company"
+    class="settings-overview-item"
+>
+    <div class="settings-overview-icon">
+        🏢
+    </div>
 
-        <div>
-            <strong>Company</strong>
-            <span>Business profile</span>
-        </div>
-    </a>
-
-
-    <a
-        href="#branding"
-        class="settings-overview-item"
-    >
-        <div class="settings-overview-icon">
-            🎨
-        </div>
-
-        <div>
-            <strong>Branding</strong>
-            <span>Logo & identity</span>
-        </div>
-    </a>
+    <div>
+        <strong>Company</strong>
+        <span>Business profile</span>
+    </div>
+</a>
 
 
-    <a
-        href="#recruitment"
-        class="settings-overview-item"
-    >
-        <div class="settings-overview-icon">
-            👥
-        </div>
+<a
+    href="#branding"
+    class="settings-overview-item"
+>
+    <div class="settings-overview-icon">
+        🎨
+    </div>
 
-        <div>
-            <strong>Recruitment</strong>
-            <span>Application portal</span>
-        </div>
-    </a>
-
-
-    <a
-        href="#attendance"
-        class="settings-overview-item"
-    >
-        <div class="settings-overview-icon">
-            🕒
-        </div>
-
-        <div>
-            <strong>Attendance</strong>
-            <span>Workforce controls</span>
-        </div>
-    </a>
+    <div>
+        <strong>Branding</strong>
+        <span>Logo & identity</span>
+    </div>
+</a>
 
 
-    <a
-        href="#security"
-        class="settings-overview-item"
-    >
-        <div class="settings-overview-icon">
-            🔐
-        </div>
+<a
+    href="#recruitment"
+    class="settings-overview-item"
+>
+    <div class="settings-overview-icon">
+        👥
+    </div>
 
-        <div>
-            <strong>Security</strong>
-            <span>Admin account</span>
-        </div>
-    </a>
+    <div>
+        <strong>Recruitment</strong>
+        <span>Application portal</span>
+    </div>
+</a>
+
+
+<a
+    href="#attendance"
+    class="settings-overview-item"
+>
+    <div class="settings-overview-icon">
+        🕒
+    </div>
+
+    <div>
+        <strong>Attendance</strong>
+        <span>Workforce controls</span>
+    </div>
+</a>
+
+
+<a
+    href="#security"
+    class="settings-overview-item"
+>
+    <div class="settings-overview-icon">
+        🔐
+    </div>
+
+    <div>
+        <strong>Security</strong>
+        <span>Admin account</span>
+    </div>
+</a>
 
 </nav>
 
+<!-- =====================================================
+     MAIN FORM
+====================================================== -->
 
 <form
     method="POST"
     action="{{ url_for('admin_settings') }}"
     enctype="multipart/form-data"
+    id="adminSettingsForm"
 >
 
-    <!-- =================================================
-         COMPANY INFORMATION
-    ================================================== -->
+<!-- =================================================
+     COMPANY INFORMATION
+================================================== -->
 
-    <section
-        class="settings-section"
-        id="company"
-    >
+<section
+    class="settings-section"
+    id="company"
+>
 
-        <div class="settings-section-header">
+<div class="settings-section-header">
 
-            <div class="section-icon">
-                🏢
+    <div class="section-icon">
+        🏢
+    </div>
+
+    <div class="section-heading">
+
+        <span class="section-category">
+            Company Profile
+        </span>
+
+        <h2>
+            Company Information
+        </h2>
+
+        <p>
+            Maintain the official business information displayed
+            throughout your administration system, reports and portal.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="settings-section-body">
+
+    <div class="settings-grid">
+
+        <div class="form-group">
+
+            <label for="company_name">
+                Company Name
+            </label>
+
+            <input
+                type="text"
+                id="company_name"
+                name="company_name"
+                value="{{ settings.company_name if settings and settings.company_name else '' }}"
+                placeholder="AV KING VET DRUG VENTURE"
+            >
+
+            <small class="form-help">
+                Your official registered or trading business name.
+            </small>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="company_email">
+                Company Email
+            </label>
+
+            <input
+                type="email"
+                id="company_email"
+                name="company_email"
+                value="{{ settings.company_email if settings and settings.company_email else '' }}"
+                placeholder="company@example.com"
+            >
+
+            <small class="form-help">
+                Primary business email used for company communication.
+            </small>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="company_phone">
+                Phone Number
+            </label>
+
+            <input
+                type="text"
+                id="company_phone"
+                name="company_phone"
+                value="{{ settings.company_phone if settings and settings.company_phone else '' }}"
+                placeholder="+234..."
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="company_website">
+                Website
+            </label>
+
+            <input
+                type="url"
+                id="company_website"
+                name="company_website"
+                value="{{ settings.company_website if settings and settings.company_website else '' }}"
+                placeholder="https://example.com"
+            >
+
+        </div>
+
+
+        <div class="form-group full-width">
+
+            <label for="company_address">
+                Company Address
+            </label>
+
+            <textarea
+                id="company_address"
+                name="company_address"
+                rows="3"
+                placeholder="Enter complete company address"
+            >{{ settings.company_address if settings and settings.company_address else '' }}</textarea>
+
+        </div>
+
+
+        <div class="form-group full-width">
+
+            <label for="footer_text">
+                Company Motto / Footer Text
+            </label>
+
+            <input
+                type="text"
+                id="footer_text"
+                name="footer_text"
+                value="{{ settings.footer_text if settings and settings.footer_text else '' }}"
+                placeholder="Your needs, Our Priority"
+            >
+
+            <small class="form-help">
+                This text can appear in the footer and official system documents.
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =================================================
+     BRANDING
+================================================== -->
+
+<section
+    class="settings-section"
+    id="branding"
+>
+
+<div class="settings-section-header">
+
+    <div class="section-icon">
+        🎨
+    </div>
+
+    <div class="section-heading">
+
+        <span class="section-category">
+            Brand Identity
+        </span>
+
+        <h2>
+            Company Logo
+        </h2>
+
+        <p>
+            Upload the official company logo used across the
+            portal, reports, documents and other branded areas.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="settings-section-body">
+
+    <div class="logo-settings">
+
+
+        <!-- CURRENT LOGO -->
+
+        {% if settings and settings.logo %}
+
+            <div class="current-logo">
+
+                <img
+                    src="{{ settings.logo }}"
+                    alt="{{ settings.company_name or 'Company' }} Logo"
+                    loading="lazy"
+                    onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\'no-logo-badge\'>AV</div><p style=\'margin:7px 0 0;color:#9ca3af;font-size:10px;\'>Logo unavailable</p>';"
+                >
+
             </div>
 
-            <div class="section-heading">
+        {% else %}
 
-                <span class="section-category">
-                    Company Profile
-                </span>
+            <div class="no-logo">
 
-                <h2>
-                    Company Information
-                </h2>
+                <div class="no-logo-badge">
+                    AV
+                </div>
 
                 <p>
-                    Maintain the official business information displayed
-                    throughout your administration system, reports and portal.
+                    No logo uploaded
                 </p>
 
             </div>
 
-        </div>
+        {% endif %}
 
 
-        <div class="settings-section-body">
+        <!-- UPLOAD -->
 
-            <div class="settings-grid">
+        <div class="logo-upload">
 
-                <div class="form-group">
+            <label for="logo">
+                Upload New Company Logo
+            </label>
 
-                    <label for="company_name">
-                        Company Name
-                    </label>
+            <input
+                type="file"
+                id="logo"
+                name="logo"
+                accept="image/png,image/jpeg,image/webp"
+            >
 
-                    <input
-                        type="text"
-                        id="company_name"
-                        name="company_name"
-                        value="{{ settings.company_name if settings else '' }}"
-                        placeholder="AV KING VET DRUG VENTURE"
-                    >
+            <small>
+                Supported formats: PNG, JPG, JPEG and WEBP.
+            </small>
 
-                    <small class="form-help">
-                        Your official registered or trading business name.
-                    </small>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="company_email">
-                        Company Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="company_email"
-                        name="company_email"
-                        value="{{ settings.company_email if settings else '' }}"
-                        placeholder="company@example.com"
-                    >
-
-                    <small class="form-help">
-                        Primary business email used for company communication.
-                    </small>
-
-                </div>
+            <small>
+                For best results, use a clear, high-resolution logo
+                with a transparent or clean background.
+            </small>
 
 
-                <div class="form-group">
+            <!-- NEW LOGO PREVIEW -->
 
-                    <label for="company_phone">
-                        Phone Number
-                    </label>
+            <div
+                class="logo-preview"
+                id="logoPreview"
+            >
 
-                    <input
-                        type="text"
-                        id="company_phone"
-                        name="company_phone"
-                        value="{{ settings.company_phone if settings else '' }}"
-                        placeholder="+234..."
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="company_website">
-                        Website
-                    </label>
-
-                    <input
-                        type="text"
-                        id="company_website"
-                        name="company_website"
-                        value="{{ settings.company_website if settings else '' }}"
-                        placeholder="https://example.com"
-                    >
-
-                </div>
-
-
-                <div class="form-group full-width">
-
-                    <label for="company_address">
-                        Company Address
-                    </label>
-
-                    <textarea
-                        id="company_address"
-                        name="company_address"
-                        rows="3"
-                        placeholder="Enter complete company address"
-                    >{{ settings.company_address if settings else '' }}</textarea>
-
-                </div>
-
-
-                <div class="form-group full-width">
-
-                    <label for="footer_text">
-                        Company Motto / Footer Text
-                    </label>
-
-                    <input
-                        type="text"
-                        id="footer_text"
-                        name="footer_text"
-                        value="{{ settings.footer_text if settings else '' }}"
-                        placeholder="Your needs, Our Priority"
-                    >
-
-                    <small class="form-help">
-                        This text can appear in the footer and official system documents.
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         BRANDING
-    ================================================== -->
-
-    <section
-        class="settings-section"
-        id="branding"
-    >
-
-        <div class="settings-section-header">
-
-            <div class="section-icon">
-                🎨
-            </div>
-
-            <div class="section-heading">
-
-                <span class="section-category">
-                    Brand Identity
+                <span class="logo-preview-label">
+                    New Logo Preview
                 </span>
 
-                <h2>
-                    Company Logo
-                </h2>
-
-                <p>
-                    Upload the official company logo used across the
-                    portal, reports, documents and other branded areas.
-                </p>
+                <img
+                    id="logoPreviewImage"
+                    src=""
+                    alt="New Logo Preview"
+                >
 
             </div>
 
         </div>
 
+    </div>
 
-        <div class="settings-section-body">
+</div>
 
-            <div class="logo-settings">
+</section>
 
-                {% if settings and settings.logo %}
+<!-- =================================================
+     RECRUITMENT
+================================================== -->
 
-                    <div class="current-logo">
+<section
+    class="settings-section"
+    id="recruitment"
+>
 
-                        <img
-                            src="{{ url_for(
-                                'static',
-                                filename='uploads/' ~ settings.logo
-                            ) }}"
-                            alt="Company Logo"
-                        >
+<div class="settings-section-header">
 
-                    </div>
+    <div class="section-icon">
+        👥
+    </div>
 
-                {% else %}
+    <div class="section-heading">
 
-                    <div class="no-logo">
+        <span class="section-category">
+            Recruitment
+        </span>
 
-                        <div class="no-logo-badge">
-                            AV
-                        </div>
+        <h2>
+            Application Portal
+        </h2>
 
-                        <p>
-                            No logo uploaded
-                        </p>
+        <p>
+            Control whether applicants can access the recruitment
+            portal and define the deadline for new applications.
+        </p>
 
-                    </div>
+    </div>
 
-                {% endif %}
-
-
-                <div class="logo-upload">
-
-                    <label for="logo">
-                        Upload New Company Logo
-                    </label>
-
-                    <input
-                        type="file"
-                        id="logo"
-                        name="logo"
-                        accept="image/png,image/jpeg,image/webp"
-                    >
-
-                    <small>
-                        Supported formats: PNG, JPG, JPEG and WEBP.
-                    </small>
-
-                    <small>
-                        For best results, use a clear, high-resolution logo
-                        with a transparent or clean background.
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
+</div>
 
 
-    <!-- =================================================
-         RECRUITMENT
-    ================================================== -->
+<div class="settings-section-body">
 
-    <section
-        class="settings-section"
-        id="recruitment"
-    >
+    <div class="settings-grid">
 
-        <div class="settings-section-header">
 
-            <div class="section-icon">
-                👥
-            </div>
+        <!-- APPLICATION STATUS -->
 
-            <div class="section-heading">
+        <div class="form-group">
 
-                <span class="section-category">
-                    Recruitment
+            <label for="application_status">
+                Application Portal Status
+            </label>
+
+            {% set current_application_status =
+                settings.application_status|lower
+                if settings and settings.application_status
+                else 'open'
+            %}
+
+            <select
+                id="application_status"
+                name="application_status"
+                required
+            >
+
+                <option
+                    value="Open"
+                    {% if current_application_status == 'open' %}
+                        selected
+                    {% endif %}
+                >
+                    Open — Accepting Applications
+                </option>
+
+                <option
+                    value="Closed"
+                    {% if current_application_status == 'closed' %}
+                        selected
+                    {% endif %}
+                >
+                    Closed — Not Accepting Applications
+                </option>
+
+            </select>
+
+
+            <div class="status-preview">
+
+                <strong>
+                    Current portal:
+                </strong>
+
+                <span
+                    id="statusBadge"
+                    class="{% if current_application_status == 'open' %}status-open{% else %}status-closed{% endif %}"
+                >
+                    {% if current_application_status == 'open' %}
+                        ● OPEN
+                    {% else %}
+                        ● CLOSED
+                    {% endif %}
                 </span>
 
-                <h2>
-                    Application Portal
-                </h2>
-
-                <p>
-                    Control whether applicants can access the recruitment
-                    portal and define the deadline for new applications.
-                </p>
-
             </div>
+
+
+            <small class="form-help">
+                Open allows new applicants to submit applications.
+                Closed prevents new applications from being submitted.
+            </small>
 
         </div>
 
 
-        <div class="settings-section-body">
+        <!-- APPLICATION DEADLINE -->
 
-            <div class="settings-grid">
+        <div class="form-group">
 
-                <div class="form-group">
+            <label for="application_deadline">
+                Application Deadline
+            </label>
 
-                    <label for="application_status">
-                        Application Portal Status
-                    </label>
+            {% if settings and settings.application_deadline %}
 
-                    <select
-                        id="application_status"
-                        name="application_status"
-                        required
-                    >
-
-                        <option
-                            value="Open"
-                            {% if settings
-                               and settings.application_status
-                               and settings.application_status|capitalize == "Open" %}
-                                selected
-                            {% endif %}
-                        >
-                            Open — Accepting Applications
-                        </option>
-
-                        <option
-                            value="Closed"
-                            {% if settings
-                               and settings.application_status
-                               and settings.application_status|capitalize == "Closed" %}
-                                selected
-                            {% endif %}
-                        >
-                            Closed — Not Accepting Applications
-                        </option>
-
-                    </select>
-
-                    <div class="status-preview">
-
-                        <strong>
-                            Current portal:
-                        </strong>
-
-                        {% if settings
-                           and settings.application_status
-                           and settings.application_status|capitalize == "Open" %}
-
-                            <span class="status-open">
-                                ● OPEN
-                            </span>
-
-                        {% else %}
-
-                            <span class="status-closed">
-                                ● CLOSED
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-                    <small class="form-help">
-                        Open allows new applicants to submit applications.
-                        Closed prevents new applications from being submitted.
-                    </small>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="application_deadline">
-                        Application Deadline
-                    </label>
+                {% if settings.application_deadline is string %}
 
                     <input
                         type="date"
                         id="application_deadline"
                         name="application_deadline"
-                        value="{% if settings and settings.application_deadline %}{{ settings.application_deadline.strftime('%Y-%m-%d') if settings.application_deadline.strftime is defined else settings.application_deadline }}{% endif %}"
+                        value="{{ settings.application_deadline[:10] }}"
                     >
 
-                    <small class="form-help">
-                        Applications will automatically close after this date.
-                    </small>
+                {% else %}
 
-                    <small class="form-help">
-                        Leave blank if you do not want an automatic deadline.
-                    </small>
+                    <input
+                        type="date"
+                        id="application_deadline"
+                        name="application_deadline"
+                        value="{{ settings.application_deadline.strftime('%Y-%m-%d') }}"
+                    >
 
-                </div>
+                {% endif %}
 
-            </div>
+            {% else %}
+
+                <input
+                    type="date"
+                    id="application_deadline"
+                    name="application_deadline"
+                    value=""
+                >
+
+            {% endif %}
+
+
+            <small class="form-help">
+                Applications will automatically close after this date.
+            </small>
+
+            <small class="form-help">
+                Leave blank if you do not want an automatic deadline.
+            </small>
 
         </div>
 
-    </section>
+    </div>
+
+</div>
 
 
-    <!-- =================================================
-         ATTENDANCE
-    ================================================== -->
+</section>
 
-    <section
-        class="settings-section"
-        id="attendance"
-    >
+<!-- =================================================
+     ATTENDANCE
+================================================== -->
 
-        <div class="settings-section-header">
+<section
+    class="settings-section"
+    id="attendance"
+>
 
-            <div class="section-icon">
-                🕒
+<div class="settings-section-header">
+
+    <div class="section-icon">
+        🕒
+    </div>
+
+    <div class="section-heading">
+
+        <span class="section-category">
+            Workforce Management
+        </span>
+
+        <h2>
+            Attendance Settings
+        </h2>
+
+        <p>
+            Configure employee attendance, working hours,
+            location verification and lateness rules.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="settings-section-body">
+
+
+    <!-- ATTENDANCE ENABLED -->
+
+    <div class="attendance-toggle">
+
+        <div class="attendance-toggle-content">
+
+            <div class="attendance-toggle-icon">
+                ✓
             </div>
 
-            <div class="section-heading">
+            <div>
 
-                <span class="section-category">
-                    Workforce Management
-                </span>
-
-                <h2>
-                    Attendance Settings
-                </h2>
+                <strong>
+                    Attendance System
+                </strong>
 
                 <p>
-                    Configure employee attendance, working hours,
-                    location verification and lateness rules.
+                    Allow approved employees to clock in and
+                    clock out from their employee portal.
                 </p>
 
             </div>
@@ -1537,547 +1669,545 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
         </div>
 
 
-        <div class="settings-section-body">
+        <label class="switch">
+
+            <input
+                type="checkbox"
+                name="attendance_enabled"
+                value="1"
+                {% if settings and settings.attendance_enabled %}
+                    checked
+                {% endif %}
+            >
+
+            <span class="slider"></span>
+
+        </label>
+
+    </div>
 
 
-            <!-- ATTENDANCE ENABLED -->
-
-            <div class="attendance-toggle">
-
-                <div class="attendance-toggle-content">
-
-                    <div class="attendance-toggle-icon">
-                        ✓
-                    </div>
-
-                    <div>
-
-                        <strong>
-                            Attendance System
-                        </strong>
-
-                        <p>
-                            Allow approved employees to clock in and
-                            clock out from their employee portal.
-                        </p>
-
-                    </div>
-
-                </div>
+    <div class="settings-grid">
 
 
-                <label class="switch">
+        <!-- COMPANY LOCATION -->
 
-                    <input
-                        type="checkbox"
-                        name="attendance_enabled"
-                        value="1"
-                        {% if settings
-                           and settings.attendance_enabled %}
-                            checked
-                        {% endif %}
-                    >
+        <div class="form-group full-width">
 
-                    <span class="slider"></span>
+            <label>
+                Official Company Attendance Location
+            </label>
 
-                </label>
+            <div class="location-card">
 
-            </div>
+                <div class="location-card-header">
 
+                    <div class="location-title">
 
-            <div class="settings-grid">
-
-
-                <!-- COMPANY LOCATION -->
-
-                <div class="form-group full-width">
-
-                    <label>
-                        Official Company Attendance Location
-                    </label>
-
-                    <div class="location-card">
-
-                        <div class="location-card-header">
-
-                            <div class="location-title">
-
-                                <div class="location-pin">
-                                    📍
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        Company GPS Location
-                                    </strong>
-
-                                    <p id="locationStatus">
-
-                                        {% if settings
-                                           and settings.company_latitude is not none
-                                           and settings.company_longitude is not none %}
-
-                                            Company attendance location is configured.
-
-                                        {% else %}
-
-                                            No company attendance location has been configured.
-
-                                        {% endif %}
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-
-                            <button
-                                type="button"
-                                id="useCurrentLocationBtn"
-                                class="settings-btn settings-btn-location"
-                            >
-                                📍
-                                <span>Use Current Location</span>
-                            </button>
-
+                        <div class="location-pin">
+                            📍
                         </div>
 
-
-                        <div class="gps-fields">
-
-                            <div class="gps-field">
-
-                                <label for="company_latitude">
-                                    Latitude
-                                </label>
-
-                                <input
-                                    type="number"
-                                    step="any"
-                                    id="company_latitude"
-                                    name="company_latitude"
-                                    value="{% if settings and settings.company_latitude is not none %}{{ settings.company_latitude }}{% endif %}"
-                                    placeholder="e.g. 7.3775"
-                                >
-
-                            </div>
-
-
-                            <div class="gps-field">
-
-                                <label for="company_longitude">
-                                    Longitude
-                                </label>
-
-                                <input
-                                    type="number"
-                                    step="any"
-                                    id="company_longitude"
-                                    name="company_longitude"
-                                    value="{% if settings and settings.company_longitude is not none %}{{ settings.company_longitude }}{% endif %}"
-                                    placeholder="e.g. 3.9470"
-                                >
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="location-help">
+                        <div>
 
                             <strong>
-                                How attendance location verification works
+                                Company GPS Location
                             </strong>
 
-                            <p>
-                                The administrator should be physically present
-                                at the company premises when selecting
-                                <strong>Use Current Location</strong>.
-                            </p>
+                            <p id="locationStatus">
 
-                            <p>
-                                Approved employees can only clock in or out
-                                when their device is within the configured
-                                attendance radius.
+                                {% if settings
+                                   and settings.company_latitude is not none
+                                   and settings.company_longitude is not none %}
+
+                                    Company attendance location is configured.
+
+                                {% else %}
+
+                                    No company attendance location has been configured.
+
+                                {% endif %}
+
                             </p>
 
                         </div>
 
                     </div>
 
+
+                    <button
+                        type="button"
+                        id="useCurrentLocationBtn"
+                        class="settings-btn settings-btn-location"
+                    >
+                        📍
+                        <span>Use Current Location</span>
+                    </button>
+
                 </div>
 
 
-                <!-- ATTENDANCE RADIUS -->
+                <div class="gps-fields">
 
-                <div class="form-group">
 
-                    <label for="attendance_radius">
-                        Attendance Radius
-                    </label>
+                    <!-- LATITUDE -->
 
-                    <div class="input-with-unit">
+                    <div class="gps-field">
+
+                        <label for="company_latitude">
+                            Latitude
+                        </label>
 
                         <input
                             type="number"
-                            id="attendance_radius"
-                            name="attendance_radius"
-                            min="20"
-                            max="5000"
-                            value="{{ settings.attendance_radius if settings and settings.attendance_radius else 200 }}"
-                            required
+                            step="any"
+                            id="company_latitude"
+                            name="company_latitude"
+                            value="{% if settings and settings.company_latitude is not none %}{{ settings.company_latitude }}{% endif %}"
+                            placeholder="e.g. 7.3775"
+                            min="-90"
+                            max="90"
                         >
-
-                        <span>
-                            metres
-                        </span>
 
                     </div>
 
-                    <small class="form-help">
-                        Maximum distance an employee can be from the
-                        company location while clocking attendance.
-                    </small>
 
-                </div>
+                    <!-- LONGITUDE -->
 
+                    <div class="gps-field">
 
-                <!-- CLOCK-IN START -->
-
-                <div class="form-group">
-
-                    <label for="clock_in_start">
-                        Clock-In Window Starts
-                    </label>
-
-                    <input
-                        type="time"
-                        id="clock_in_start"
-                        name="clock_in_start"
-                        value="{{ settings.clock_in_start.strftime('%H:%M') if settings and settings.clock_in_start and settings.clock_in_start.strftime is defined else (settings.clock_in_start if settings and settings.clock_in_start else '06:00') }}"
-                        required
-                    >
-
-                    <small class="form-help">
-                        Earliest time employees can clock in.
-                    </small>
-
-                </div>
-
-
-                <!-- CLOCK-IN END -->
-
-                <div class="form-group">
-
-                    <label for="clock_in_end">
-                        Clock-In Window Ends
-                    </label>
-
-                    <input
-                        type="time"
-                        id="clock_in_end"
-                        name="clock_in_end"
-                        value="{{ settings.clock_in_end.strftime('%H:%M') if settings and settings.clock_in_end and settings.clock_in_end.strftime is defined else (settings.clock_in_end if settings and settings.clock_in_end else '10:00') }}"
-                        required
-                    >
-
-                    <small class="form-help">
-                        Latest time allowed for clock-in.
-                    </small>
-
-                </div>
-
-
-                <!-- CLOCK-OUT START -->
-
-                <div class="form-group">
-
-                    <label for="clock_out_start">
-                        Clock-Out Window Starts
-                    </label>
-
-                    <input
-                        type="time"
-                        id="clock_out_start"
-                        name="clock_out_start"
-                        value="{{ settings.clock_out_start.strftime('%H:%M') if settings and settings.clock_out_start and settings.clock_out_start.strftime is defined else (settings.clock_out_start if settings and settings.clock_out_start else '15:00') }}"
-                        required
-                    >
-
-                    <small class="form-help">
-                        Earliest time employees can clock out.
-                    </small>
-
-                </div>
-
-
-                <!-- CLOCK-OUT END -->
-
-                <div class="form-group">
-
-                    <label for="clock_out_end">
-                        Clock-Out Window Ends
-                    </label>
-
-                    <input
-                        type="time"
-                        id="clock_out_end"
-                        name="clock_out_end"
-                        value="{{ settings.clock_out_end.strftime('%H:%M') if settings and settings.clock_out_end and settings.clock_out_end.strftime is defined else (settings.clock_out_end if settings and settings.clock_out_end else '23:00') }}"
-                        required
-                    >
-
-                    <small class="form-help">
-                        Latest time allowed for clock-out.
-                    </small>
-
-                </div>
-
-
-                <!-- LATE THRESHOLD -->
-
-                <div class="form-group">
-
-                    <label for="late_after_minutes">
-                        Late After
-                    </label>
-
-                    <div class="input-with-unit">
+                        <label for="company_longitude">
+                            Longitude
+                        </label>
 
                         <input
                             type="number"
-                            id="late_after_minutes"
-                            name="late_after_minutes"
-                            min="0"
-                            value="{{ settings.late_after_minutes if settings and settings.late_after_minutes is not none else 15 }}"
-                            required
+                            step="any"
+                            id="company_longitude"
+                            name="company_longitude"
+                            value="{% if settings and settings.company_longitude is not none %}{{ settings.company_longitude }}{% endif %}"
+                            placeholder="e.g. 3.9470"
+                            min="-180"
+                            max="180"
                         >
-
-                        <span>
-                            minutes
-                        </span>
 
                     </div>
 
-                    <small class="form-help">
-                        Employees clocking in after the configured
-                        threshold will be marked as Late.
-                    </small>
-
                 </div>
 
 
-                <!-- EARLY CLOCK-OUT -->
-
-                <div class="form-group">
-
-                    <label for="early_before_minutes">
-                        Early Clock-Out Threshold
-                    </label>
-
-                    <div class="input-with-unit">
-
-                        <input
-                            type="number"
-                            id="early_before_minutes"
-                            name="early_before_minutes"
-                            min="0"
-                            value="{{ settings.early_before_minutes if settings and settings.early_before_minutes is not none else 15 }}"
-                            required
-                        >
-
-                        <span>
-                            minutes
-                        </span>
-
-                    </div>
-
-                    <small class="form-help">
-                        Helps identify employees who clock out
-                        earlier than the expected working period.
-                    </small>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SECURITY
-    ================================================== -->
-
-    <section
-        class="settings-section"
-        id="security"
-    >
-
-        <div class="settings-section-header">
-
-            <div class="section-icon">
-                🔐
-            </div>
-
-            <div class="section-heading">
-
-                <span class="section-category">
-                    Security
-                </span>
-
-                <h2>
-                    Administrator Account
-                </h2>
-
-                <p>
-                    Manage the username and password used to access
-                    the administrator control panel.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="settings-section-body">
-
-            <div class="security-notice">
-
-                <div class="security-notice-icon">
-                    🔒
-                </div>
-
-                <div>
+                <div class="location-help">
 
                     <strong>
-                        Keep your administrator credentials secure
+                        How attendance location verification works
                     </strong>
 
                     <p>
-                        Use a strong password and never share your
-                        administrator login details with unauthorized users.
+                        The administrator should be physically present
+                        at the company premises when selecting
+                        <strong>Use Current Location</strong>.
+                    </p>
+
+                    <p>
+                        Approved employees can only clock in or out
+                        when their device is within the configured
+                        attendance radius.
                     </p>
 
                 </div>
 
             </div>
 
-
-            <div class="settings-grid">
-
-                <div class="form-group">
-
-                    <label for="admin_username">
-                        Admin Username
-                    </label>
-
-                    <input
-                        type="text"
-                        id="admin_username"
-                        name="admin_username"
-                        value="{{ settings.admin_username or '' }}"
-                        placeholder="Enter admin username"
-                        autocomplete="username"
-                        required
-                    >
-
-                </div>
+        </div>
 
 
-                <div class="form-group">
+        <!-- ATTENDANCE RADIUS -->
 
-                    <label for="admin_password">
-                        New Admin Password
-                    </label>
+        <div class="form-group">
 
-                    <input
-                        type="password"
-                        id="admin_password"
-                        name="admin_password"
-                        placeholder="Leave blank to keep current password"
-                        autocomplete="new-password"
-                    >
+            <label for="attendance_radius">
+                Attendance Radius
+            </label>
 
-                    <small class="form-help">
-                        Leave this field blank if you do not want
-                        to change the current password.
-                    </small>
+            <div class="input-with-unit">
 
-                </div>
+                <input
+                    type="number"
+                    id="attendance_radius"
+                    name="attendance_radius"
+                    min="20"
+                    max="5000"
+                    value="{{ settings.attendance_radius if settings and settings.attendance_radius is not none else 200 }}"
+                    required
+                >
 
-
-                <div class="form-group">
-
-                    <label for="confirm_admin_password">
-                        Confirm New Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="confirm_admin_password"
-                        name="confirm_admin_password"
-                        placeholder="Confirm new password"
-                        autocomplete="new-password"
-                    >
-
-                </div>
+                <span>
+                    metres
+                </span>
 
             </div>
 
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SAVE ACTION BAR
-    ================================================== -->
-
-    <div class="settings-save-bar">
-
-        <div class="save-status">
-
-            <span class="save-status-dot"></span>
-
-            <span>
-                Review your settings before saving changes.
-            </span>
+            <small class="form-help">
+                Maximum distance an employee can be from the
+                company location while clocking attendance.
+            </small>
 
         </div>
 
 
-        <div class="settings-save-actions">
+        <!-- CLOCK-IN START -->
 
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="settings-btn settings-btn-secondary"
-            >
-                Cancel
-            </a>
+        <div class="form-group">
 
-            <button
-                type="submit"
-                class="settings-btn settings-btn-primary"
+            <label for="clock_in_start">
+                Clock-In Window Starts
+            </label>
+
+            <input
+                type="time"
+                id="clock_in_start"
+                name="clock_in_start"
+                value="{% if settings and settings.clock_in_start %}{% if settings.clock_in_start is string %}{{ settings.clock_in_start[:5] }}{% else %}{{ settings.clock_in_start.strftime('%H:%M') }}{% endif %}{% else %}06:00{% endif %}"
+                required
             >
-                ✓
-                <span>Save Settings</span>
-            </button>
+
+            <small class="form-help">
+                Earliest time employees can clock in.
+            </small>
+
+        </div>
+
+
+        <!-- CLOCK-IN END -->
+
+        <div class="form-group">
+
+            <label for="clock_in_end">
+                Clock-In Window Ends
+            </label>
+
+            <input
+                type="time"
+                id="clock_in_end"
+                name="clock_in_end"
+                value="{% if settings and settings.clock_in_end %}{% if settings.clock_in_end is string %}{{ settings.clock_in_end[:5] }}{% else %}{{ settings.clock_in_end.strftime('%H:%M') }}{% endif %}{% else %}10:00{% endif %}"
+                required
+            >
+
+            <small class="form-help">
+                Latest time allowed for clock-in.
+            </small>
+
+        </div>
+
+
+        <!-- CLOCK-OUT START -->
+
+        <div class="form-group">
+
+            <label for="clock_out_start">
+                Clock-Out Window Starts
+            </label>
+
+            <input
+                type="time"
+                id="clock_out_start"
+                name="clock_out_start"
+                value="{% if settings and settings.clock_out_start %}{% if settings.clock_out_start is string %}{{ settings.clock_out_start[:5] }}{% else %}{{ settings.clock_out_start.strftime('%H:%M') }}{% endif %}{% else %}15:00{% endif %}"
+                required
+            >
+
+            <small class="form-help">
+                Earliest time employees can clock out.
+            </small>
+
+        </div>
+
+
+        <!-- CLOCK-OUT END -->
+
+        <div class="form-group">
+
+            <label for="clock_out_end">
+                Clock-Out Window Ends
+            </label>
+
+            <input
+                type="time"
+                id="clock_out_end"
+                name="clock_out_end"
+                value="{% if settings and settings.clock_out_end %}{% if settings.clock_out_end is string %}{{ settings.clock_out_end[:5] }}{% else %}{{ settings.clock_out_end.strftime('%H:%M') }}{% endif %}{% else %}23:00{% endif %}"
+                required
+            >
+
+            <small class="form-help">
+                Latest time allowed for clock-out.
+            </small>
+
+        </div>
+
+
+        <!-- LATE THRESHOLD -->
+
+        <div class="form-group">
+
+            <label for="late_after_minutes">
+                Late After
+            </label>
+
+            <div class="input-with-unit">
+
+                <input
+                    type="number"
+                    id="late_after_minutes"
+                    name="late_after_minutes"
+                    min="0"
+                    value="{{ settings.late_after_minutes if settings and settings.late_after_minutes is not none else 15 }}"
+                    required
+                >
+
+                <span>
+                    minutes
+                </span>
+
+            </div>
+
+            <small class="form-help">
+                Employees clocking in after the configured
+                threshold will be marked as Late.
+            </small>
+
+        </div>
+
+
+        <!-- EARLY CLOCK-OUT -->
+
+        <div class="form-group">
+
+            <label for="early_before_minutes">
+                Early Clock-Out Threshold
+            </label>
+
+            <div class="input-with-unit">
+
+                <input
+                    type="number"
+                    id="early_before_minutes"
+                    name="early_before_minutes"
+                    min="0"
+                    value="{{ settings.early_before_minutes if settings and settings.early_before_minutes is not none else 15 }}"
+                    required
+                >
+
+                <span>
+                    minutes
+                </span>
+
+            </div>
+
+            <small class="form-help">
+                Helps identify employees who clock out
+                earlier than the expected working period.
+            </small>
 
         </div>
 
     </div>
 
-</form>
+</div>
+
+
+</section>
+
+<!-- =================================================
+     SECURITY
+================================================== -->
+
+<section
+    class="settings-section"
+    id="security"
+>
+
+<div class="settings-section-header">
+
+    <div class="section-icon">
+        🔐
+    </div>
+
+    <div class="section-heading">
+
+        <span class="section-category">
+            Security
+        </span>
+
+        <h2>
+            Administrator Account
+        </h2>
+
+        <p>
+            Manage the username and password used to access
+            the administrator control panel.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div class="settings-section-body">
+
+    <div class="security-notice">
+
+        <div class="security-notice-icon">
+            🔒
+        </div>
+
+        <div>
+
+            <strong>
+                Keep your administrator credentials secure
+            </strong>
+
+            <p>
+                Use a strong password and never share your
+                administrator login details with unauthorized users.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="settings-grid">
+
+
+        <!-- USERNAME -->
+
+        <div class="form-group">
+
+            <label for="admin_username">
+                Admin Username
+            </label>
+
+            <input
+                type="text"
+                id="admin_username"
+                name="admin_username"
+                value="{{ settings.admin_username if settings and settings.admin_username else '' }}"
+                placeholder="Enter admin username"
+                autocomplete="username"
+                required
+            >
+
+            <small class="form-help">
+                This username will be used during administrator login.
+            </small>
+
+        </div>
+
+
+        <!-- PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="admin_password">
+                New Admin Password
+            </label>
+
+            <input
+                type="password"
+                id="admin_password"
+                name="admin_password"
+                placeholder="Leave blank to keep current password"
+                autocomplete="new-password"
+                minlength="6"
+            >
+
+            <small class="form-help">
+                Leave this field blank if you do not want
+                to change the current password.
+            </small>
+
+        </div>
+
+
+        <!-- CONFIRM PASSWORD -->
+
+        <div class="form-group">
+
+            <label for="confirm_admin_password">
+                Confirm New Password
+            </label>
+
+            <input
+                type="password"
+                id="confirm_admin_password"
+                name="confirm_admin_password"
+                placeholder="Confirm new password"
+                autocomplete="new-password"
+                minlength="6"
+            >
+
+            <small
+                class="form-help"
+                id="passwordMatchMessage"
+            ></small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<!-- =================================================
+     SAVE ACTION BAR
+================================================== -->
+
+<div class="settings-save-bar">
+
+<div class="save-status">
+
+    <span class="save-status-dot"></span>
+
+    <span>
+        Review your settings before saving changes.
+    </span>
+
+</div>
+
+
+<div class="settings-save-actions">
+
+    <a
+        href="{{ url_for('admin_dashboard') }}"
+        class="settings-btn settings-btn-secondary"
+    >
+        Cancel
+    </a>
+
+    <button
+        type="submit"
+        class="settings-btn settings-btn-primary"
+        id="saveSettingsBtn"
+    >
+        ✓
+        <span>Save Settings</span>
+    </button>
+
+</div>
 
 
 </div>
 
+</form>
+
+</div>
+
 <!-- =========================================================
-     GPS LOCATION JAVASCRIPT
+     JAVASCRIPT
 ========================================================= -->
 
 <script>
@@ -2085,6 +2215,11 @@ Admin Settings | {{ settings.company_name if settings and settings.company_name 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
+
+
+        /* =====================================================
+           GPS LOCATION
+        ===================================================== */
 
         const button =
             document.getElementById(
@@ -2108,134 +2243,517 @@ document.addEventListener(
 
 
         if (
-            !button ||
-            !latitudeInput ||
-            !longitudeInput ||
-            !locationStatus
+            button &&
+            latitudeInput &&
+            longitudeInput &&
+            locationStatus
         ) {
-            return;
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    if (!navigator.geolocation) {
+
+                        locationStatus.textContent =
+                            "Geolocation is not supported by this browser.";
+
+                        return;
+
+                    }
+
+
+                    button.disabled = true;
+
+                    button.innerHTML =
+                        "⏳ Detecting Location...";
+
+                    locationStatus.textContent =
+                        "Requesting your current location. Please allow location access.";
+
+
+                    navigator.geolocation.getCurrentPosition(
+
+                        function (position) {
+
+                            const latitude =
+                                position.coords.latitude;
+
+                            const longitude =
+                                position.coords.longitude;
+
+
+                            latitudeInput.value =
+                                latitude.toFixed(8);
+
+                            longitudeInput.value =
+                                longitude.toFixed(8);
+
+
+                            locationStatus.textContent =
+                                "✓ Location captured successfully. "
+                                + "Latitude: "
+                                + latitude.toFixed(6)
+                                + " | Longitude: "
+                                + longitude.toFixed(6);
+
+
+                            button.disabled = false;
+
+                            button.innerHTML =
+                                "✓ Location Captured";
+
+                        },
+
+
+                        function (error) {
+
+                            let message =
+                                "Unable to determine your current location.";
+
+
+                            if (
+                                error.code ===
+                                error.PERMISSION_DENIED
+                            ) {
+
+                                message =
+                                    "Location permission was denied. "
+                                    + "Please allow location access in your browser "
+                                    + "and try again.";
+
+                            }
+
+                            else if (
+                                error.code ===
+                                error.POSITION_UNAVAILABLE
+                            ) {
+
+                                message =
+                                    "Your location is currently unavailable. "
+                                    + "Please try again.";
+
+                            }
+
+                            else if (
+                                error.code ===
+                                error.TIMEOUT
+                            ) {
+
+                                message =
+                                    "The location request timed out. "
+                                    + "Please try again.";
+
+                            }
+
+
+                            locationStatus.textContent =
+                                message;
+
+
+                            button.disabled = false;
+
+                            button.innerHTML =
+                                "📍 Use Current Location";
+
+                        },
+
+
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 15000,
+                            maximumAge: 0
+                        }
+
+                    );
+
+                }
+            );
+
         }
 
 
-        button.addEventListener(
-            "click",
-            function () {
+        /* =====================================================
+           LOGO PREVIEW
+        ===================================================== */
 
-                if (!navigator.geolocation) {
+        const logoInput =
+            document.getElementById(
+                "logo"
+            );
 
-                    locationStatus.textContent =
-                        "Geolocation is not supported by this browser.";
+        const logoPreview =
+            document.getElementById(
+                "logoPreview"
+            );
 
-                    return;
-                }
-
-
-                button.disabled = true;
-
-                button.innerHTML =
-                    "⏳ Detecting Location...";
-
-                locationStatus.textContent =
-                    "Requesting your current location. Please allow location access.";
+        const logoPreviewImage =
+            document.getElementById(
+                "logoPreviewImage"
+            );
 
 
-                navigator.geolocation.getCurrentPosition(
+        if (
+            logoInput &&
+            logoPreview &&
+            logoPreviewImage
+        ) {
 
-                    function (position) {
+            logoInput.addEventListener(
+                "change",
+                function () {
 
-                        const latitude =
-                            position.coords.latitude;
-
-                        const longitude =
-                            position.coords.longitude;
-
-
-                        latitudeInput.value =
-                            latitude.toFixed(8);
-
-                        longitudeInput.value =
-                            longitude.toFixed(8);
+                    const file =
+                        this.files &&
+                        this.files[0];
 
 
-                        locationStatus.textContent =
-                            "✓ Location captured successfully. "
-                            + "Latitude: "
-                            + latitude.toFixed(6)
-                            + " | Longitude: "
-                            + longitude.toFixed(6);
+                    if (!file) {
 
+                        logoPreview.classList.remove(
+                            "active"
+                        );
 
-                        button.disabled = false;
+                        logoPreviewImage.src = "";
 
-                        button.innerHTML =
-                            "✓ Location Captured";
+                        return;
 
-                    },
-
-
-                    function (error) {
-
-                        let message =
-                            "Unable to determine your current location.";
-
-
-                        if (
-                            error.code ===
-                            error.PERMISSION_DENIED
-                        ) {
-
-                            message =
-                                "Location permission was denied. "
-                                + "Please allow location access in your browser "
-                                + "and try again.";
-
-                        }
-
-                        else if (
-                            error.code ===
-                            error.POSITION_UNAVAILABLE
-                        ) {
-
-                            message =
-                                "Your location is currently unavailable. "
-                                + "Please try again.";
-
-                        }
-
-                        else if (
-                            error.code ===
-                            error.TIMEOUT
-                        ) {
-
-                            message =
-                                "The location request timed out. "
-                                + "Please try again.";
-
-                        }
-
-
-                        locationStatus.textContent =
-                            message;
-
-
-                        button.disabled = false;
-
-                        button.innerHTML =
-                            "📍 Use Current Location";
-
-                    },
-
-
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 0
                     }
 
-                );
+
+                    const allowedTypes = [
+                        "image/png",
+                        "image/jpeg",
+                        "image/webp"
+                    ];
+
+
+                    if (
+                        !allowedTypes.includes(
+                            file.type
+                        )
+                    ) {
+
+                        alert(
+                            "Please select a PNG, JPG, JPEG or WEBP image."
+                        );
+
+                        this.value = "";
+
+                        logoPreview.classList.remove(
+                            "active"
+                        );
+
+                        return;
+
+                    }
+
+
+                    const objectUrl =
+                        URL.createObjectURL(
+                            file
+                        );
+
+
+                    logoPreviewImage.src =
+                        objectUrl;
+
+
+                    logoPreview.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           APPLICATION STATUS PREVIEW
+        ===================================================== */
+
+        const applicationStatus =
+            document.getElementById(
+                "application_status"
+            );
+
+        const statusBadge =
+            document.getElementById(
+                "statusBadge"
+            );
+
+
+        if (
+            applicationStatus &&
+            statusBadge
+        ) {
+
+            applicationStatus.addEventListener(
+                "change",
+                function () {
+
+                    if (
+                        this.value ===
+                        "Open"
+                    ) {
+
+                        statusBadge.className =
+                            "status-open";
+
+                        statusBadge.textContent =
+                            "● OPEN";
+
+                    }
+
+                    else {
+
+                        statusBadge.className =
+                            "status-closed";
+
+                        statusBadge.textContent =
+                            "● CLOSED";
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           PASSWORD MATCH
+        ===================================================== */
+
+        const password =
+            document.getElementById(
+                "admin_password"
+            );
+
+        const confirmPassword =
+            document.getElementById(
+                "confirm_admin_password"
+            );
+
+        const passwordMessage =
+            document.getElementById(
+                "passwordMatchMessage"
+            );
+
+
+        function checkPasswordMatch() {
+
+            if (
+                !password ||
+                !confirmPassword ||
+                !passwordMessage
+            ) {
+                return true;
+            }
+
+
+            if (
+                !password.value &&
+                !confirmPassword.value
+            ) {
+
+                passwordMessage.textContent =
+                    "";
+
+                return true;
 
             }
-        );
+
+
+            if (
+                password.value ===
+                confirmPassword.value
+            ) {
+
+                passwordMessage.textContent =
+                    "✓ Passwords match.";
+
+                passwordMessage.style.color =
+                    "#15803d";
+
+                return true;
+
+            }
+
+
+            passwordMessage.textContent =
+                "Passwords do not match.";
+
+            passwordMessage.style.color =
+                "#dc2626";
+
+            return false;
+
+        }
+
+
+        if (password && confirmPassword) {
+
+            password.addEventListener(
+                "input",
+                checkPasswordMatch
+            );
+
+            confirmPassword.addEventListener(
+                "input",
+                checkPasswordMatch
+            );
+
+        }
+
+
+        /* =====================================================
+           FORM VALIDATION
+        ===================================================== */
+
+        const form =
+            document.getElementById(
+                "adminSettingsForm"
+            );
+
+        const saveButton =
+            document.getElementById(
+                "saveSettingsBtn"
+            );
+
+
+        if (form) {
+
+            form.addEventListener(
+                "submit",
+                function (event) {
+
+                    /* PASSWORD */
+
+                    if (
+                        password &&
+                        confirmPassword
+                    ) {
+
+                        if (
+                            password.value ||
+                            confirmPassword.value
+                        ) {
+
+                            if (
+                                password.value.length < 6
+                            ) {
+
+                                event.preventDefault();
+
+                                alert(
+                                    "Admin password must contain at least 6 characters."
+                                );
+
+                                password.focus();
+
+                                return;
+
+                            }
+
+
+                            if (
+                                !checkPasswordMatch()
+                            ) {
+
+                                event.preventDefault();
+
+                                confirmPassword.focus();
+
+                                return;
+
+                            }
+
+                        }
+
+                    }
+
+
+                    /* GPS */
+
+                    const latitude =
+                        parseFloat(
+                            latitudeInput
+                                ? latitudeInput.value
+                                : ""
+                        );
+
+                    const longitude =
+                        parseFloat(
+                            longitudeInput
+                                ? longitudeInput.value
+                                : ""
+                        );
+
+
+                    if (
+                        latitudeInput &&
+                        latitudeInput.value !== "" &&
+                        (
+                            Number.isNaN(latitude) ||
+                            latitude < -90 ||
+                            latitude > 90
+                        )
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Company latitude must be between -90 and 90."
+                        );
+
+                        latitudeInput.focus();
+
+                        return;
+
+                    }
+
+
+                    if (
+                        longitudeInput &&
+                        longitudeInput.value !== "" &&
+                        (
+                            Number.isNaN(longitude) ||
+                            longitude < -180 ||
+                            longitude > 180
+                        )
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "Company longitude must be between -180 and 180."
+                        );
+
+                        longitudeInput.focus();
+
+                        return;
+
+                    }
+
+
+                    /* DISABLE BUTTON AFTER VALID SUBMISSION */
+
+                    if (saveButton) {
+
+                        saveButton.disabled =
+                            true;
+
+                        saveButton.innerHTML =
+                            "⏳ Saving Settings...";
+
+                    }
+
+                }
+            );
+
+        }
 
     }
 );
