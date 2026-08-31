@@ -10,6 +10,11 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Applicant profile and recruitment management"
+    >
+
     <title>
         {{ application.first_name }}
         {{ application.last_name }}
@@ -19,11 +24,8 @@
 
     <style>
 
-        /* =========================================================
-           GLOBAL
-        ========================================================= */
-
         :root {
+
             --primary: #0f172a;
             --primary-hover: #1e293b;
 
@@ -76,6 +78,7 @@
 
 
         body {
+
             margin: 0;
 
             font-family:
@@ -109,11 +112,13 @@
 
 
         /* =========================================================
-           APPLICATION LAYOUT
+           LAYOUT
         ========================================================= */
 
         .admin-layout {
+
             min-height: 100vh;
+
             display: flex;
         }
 
@@ -123,6 +128,7 @@
         ========================================================= */
 
         .admin-sidebar {
+
             width: 255px;
             min-width: 255px;
 
@@ -137,15 +143,15 @@
             background: var(--sidebar);
             color: #ffffff;
 
-            border-right: 1px solid rgba(255,255,255,.06);
+            border-right:
+                1px solid rgba(255,255,255,.06);
 
             z-index: 100;
         }
 
 
-        /* BRAND */
-
         .sidebar-brand {
+
             min-height: 82px;
 
             padding: 17px 19px;
@@ -161,6 +167,7 @@
 
 
         .sidebar-logo {
+
             width: 44px;
             height: 44px;
 
@@ -179,13 +186,11 @@
             font-weight: 900;
 
             letter-spacing: -.5px;
-
-            box-shadow:
-                0 5px 15px rgba(0,0,0,.12);
         }
 
 
         .sidebar-brand strong {
+
             display: block;
 
             font-size: 14px;
@@ -196,6 +201,7 @@
 
 
         .sidebar-brand small {
+
             display: block;
 
             margin-top: 4px;
@@ -209,9 +215,8 @@
         }
 
 
-        /* NAVIGATION */
-
         .admin-nav {
+
             flex: 1;
 
             padding: 18px 11px;
@@ -221,6 +226,7 @@
 
 
         .nav-section-label {
+
             padding: 7px 12px 9px;
 
             color: #64748b;
@@ -233,6 +239,7 @@
 
 
         .admin-nav a {
+
             min-height: 44px;
 
             margin-bottom: 3px;
@@ -255,12 +262,12 @@
 
             transition:
                 background .18s ease,
-                color .18s ease,
-                transform .18s ease;
+                color .18s ease;
         }
 
 
         .admin-nav a span {
+
             width: 21px;
 
             display: inline-flex;
@@ -274,6 +281,7 @@
 
 
         .admin-nav a:hover {
+
             background: var(--sidebar-hover);
             color: #ffffff;
         }
@@ -285,6 +293,7 @@
 
 
         .admin-nav a.active {
+
             background: #ffffff;
             color: var(--primary);
 
@@ -299,6 +308,7 @@
 
 
         .nav-divider {
+
             height: 1px;
 
             margin: 17px 9px;
@@ -308,9 +318,8 @@
         }
 
 
-        /* SIDEBAR FOOTER */
-
         .sidebar-bottom {
+
             padding: 14px;
 
             border-top:
@@ -319,6 +328,7 @@
 
 
         .admin-user {
+
             min-width: 0;
 
             padding: 5px 5px 13px;
@@ -331,6 +341,7 @@
 
 
         .user-avatar {
+
             width: 37px;
             height: 37px;
 
@@ -351,6 +362,7 @@
 
 
         .admin-user strong {
+
             display: block;
 
             max-width: 150px;
@@ -369,6 +381,7 @@
 
 
         .admin-user small {
+
             display: block;
 
             margin-top: 3px;
@@ -380,6 +393,7 @@
 
 
         .logout-link {
+
             min-height: 39px;
 
             display: flex;
@@ -403,6 +417,7 @@
 
 
         .logout-link:hover {
+
             background:
                 rgba(255,255,255,.06);
 
@@ -418,6 +433,7 @@
         ========================================================= */
 
         .admin-main {
+
             flex: 1;
 
             min-width: 0;
@@ -427,6 +443,7 @@
 
 
         .details-container {
+
             width: 100%;
             max-width: 1500px;
 
@@ -435,10 +452,11 @@
 
 
         /* =========================================================
-           PAGE HEADER
+           HEADER
         ========================================================= */
 
         .details-topbar {
+
             margin-bottom: 26px;
 
             display: flex;
@@ -450,6 +468,7 @@
 
 
         .back-link {
+
             display: inline-flex;
             align-items: center;
 
@@ -474,6 +493,7 @@
 
 
         .page-label {
+
             display: block;
 
             margin-bottom: 7px;
@@ -488,6 +508,7 @@
 
 
         .details-topbar h1 {
+
             margin: 0;
 
             color: var(--primary);
@@ -502,6 +523,7 @@
 
 
         .application-id {
+
             margin: 7px 0 0;
 
             color: var(--text-muted);
@@ -511,16 +533,12 @@
         }
 
 
-        .application-id::first-line {
-            color: var(--text-muted);
-        }
-
-
         /* =========================================================
-           STATUS BADGES
+           STATUS
         ========================================================= */
 
         .status {
+
             min-height: 34px;
 
             padding: 0 13px;
@@ -541,6 +559,7 @@
 
 
         .status::before {
+
             content: "";
 
             width: 6px;
@@ -555,45 +574,56 @@
 
 
         .status-pending {
+
             background: var(--warning-light);
             color: var(--warning);
+
             border-color: #fedf89;
         }
 
 
         .status-under-review {
+
             background: var(--info-light);
             color: #0369a1;
+
             border-color: #bae6fd;
         }
 
 
         .status-shortlisted {
+
             background: var(--success-light);
             color: #15803d;
+
             border-color: #bbf7d0;
         }
 
 
         .status-approved {
+
             background: var(--success-light);
             color: #15803d;
+
             border-color: #bbf7d0;
         }
 
 
         .status-rejected {
+
             background: var(--danger-light);
             color: var(--danger);
+
             border-color: #fecaca;
         }
 
 
         /* =========================================================
-           DETAILS GRID
+           GRID
         ========================================================= */
 
         .details-grid {
+
             display: grid;
 
             grid-template-columns:
@@ -607,6 +637,7 @@
 
 
         .details-main {
+
             min-width: 0;
 
             display: flex;
@@ -617,6 +648,7 @@
 
 
         .details-sidebar {
+
             min-width: 0;
 
             display: flex;
@@ -631,6 +663,7 @@
         ========================================================= */
 
         .details-card {
+
             background: var(--card-bg);
 
             border:
@@ -645,6 +678,7 @@
 
 
         .details-card-heading {
+
             padding: 19px 22px 17px;
 
             border-bottom:
@@ -653,6 +687,7 @@
 
 
         .details-card-heading > span {
+
             display: block;
 
             margin-bottom: 5px;
@@ -667,6 +702,7 @@
 
 
         .details-card-heading h2 {
+
             margin: 0;
 
             color: var(--primary);
@@ -679,6 +715,7 @@
 
 
         .details-card-heading p {
+
             max-width: 700px;
 
             margin: 7px 0 0;
@@ -691,10 +728,11 @@
 
 
         /* =========================================================
-           INFORMATION GRID
+           INFORMATION
         ========================================================= */
 
         .details-info-grid {
+
             padding: 22px;
 
             display: grid;
@@ -719,6 +757,7 @@
         .details-info-grid label,
         .response-block label,
         .metadata-card label {
+
             display: block;
 
             margin-bottom: 6px;
@@ -735,6 +774,7 @@
 
 
         .details-info-grid strong {
+
             display: block;
 
             color: #344054;
@@ -753,6 +793,7 @@
         ========================================================= */
 
         .position-highlight {
+
             margin: 20px 22px;
 
             padding: 19px;
@@ -772,6 +813,7 @@
 
 
         .position-highlight::before {
+
             content: "POSITION";
 
             display: block;
@@ -788,6 +830,7 @@
 
 
         .position-highlight strong {
+
             display: block;
 
             color: var(--primary);
@@ -802,12 +845,14 @@
         ========================================================= */
 
         .text-content {
+
             color: var(--text-secondary);
 
             font-size: 12px;
             line-height: 1.8;
 
             white-space: pre-wrap;
+
             word-break: break-word;
         }
 
@@ -817,17 +862,20 @@
         ========================================================= */
 
         .response-block {
+
             padding: 20px 22px;
         }
 
 
         .response-block + .response-block {
+
             border-top:
                 1px solid var(--border-light);
         }
 
 
         .response-block p {
+
             margin: 0;
 
             color: var(--text-secondary);
@@ -836,6 +884,7 @@
             line-height: 1.8;
 
             white-space: pre-wrap;
+
             word-break: break-word;
         }
 
@@ -848,11 +897,13 @@
         .status-form,
         .notes-form,
         .message-form {
+
             padding: 22px;
         }
 
 
         .form-grid {
+
             display: grid;
 
             grid-template-columns:
@@ -873,6 +924,7 @@
 
 
         .field-group label {
+
             display: block;
 
             margin-bottom: 7px;
@@ -889,6 +941,7 @@
         .field-group textarea,
         .status-select,
         .notes-textarea {
+
             width: 100%;
 
             border:
@@ -913,6 +966,7 @@
         .field-group input,
         .field-group select,
         .status-select {
+
             height: 44px;
 
             padding: 0 12px;
@@ -921,6 +975,7 @@
 
         .field-group textarea,
         .notes-textarea {
+
             padding: 11px 12px;
 
             line-height: 1.65;
@@ -932,6 +987,7 @@
         .field-group input:hover,
         .field-group select:hover,
         .field-group textarea:hover {
+
             border-color: #98a2b3;
         }
 
@@ -941,6 +997,7 @@
         .field-group textarea:focus,
         .status-select:focus,
         .notes-textarea:focus {
+
             border-color: var(--accent);
 
             box-shadow:
@@ -949,18 +1006,12 @@
         }
 
 
-        .field-group input::placeholder,
-        .field-group textarea::placeholder,
-        .notes-textarea::placeholder {
-            color: #a0a9b7;
-        }
-
-
         /* =========================================================
            BUTTONS
         ========================================================= */
 
         .button-row {
+
             display: flex;
 
             justify-content: flex-end;
@@ -970,6 +1021,7 @@
 
 
         .details-button {
+
             min-height: 43px;
 
             padding: 0 17px;
@@ -995,6 +1047,7 @@
 
 
         .details-button:hover {
+
             background: var(--primary-hover);
 
             transform: translateY(-1px);
@@ -1019,11 +1072,13 @@
         ========================================================= */
 
         .passport-wrapper {
+
             padding: 20px 22px 22px;
         }
 
 
         .passport-preview {
+
             width: 100%;
 
             max-height: 390px;
@@ -1042,6 +1097,7 @@
 
 
         .document-empty {
+
             min-height: 190px;
 
             padding: 25px 15px;
@@ -1070,6 +1126,7 @@
         ========================================================= */
 
         .documents-list {
+
             padding: 17px 22px 22px;
 
             display: flex;
@@ -1080,6 +1137,7 @@
 
 
         .document-link {
+
             min-height: 48px;
 
             padding: 0 13px;
@@ -1112,6 +1170,7 @@
 
 
         .document-link:hover {
+
             border-color: #b8c2d1;
 
             background: #f8fafc;
@@ -1121,15 +1180,19 @@
 
 
         .document-link span:first-child {
+
             display: flex;
             align-items: center;
 
             gap: 9px;
+
+            min-width: 0;
         }
 
 
         .document-link span:first-child::before {
-            content: "↳";
+
+            content: "↗";
 
             width: 25px;
             height: 25px;
@@ -1137,6 +1200,8 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+
+            flex-shrink: 0;
 
             border-radius: 7px;
 
@@ -1149,6 +1214,7 @@
 
 
         .document-link span:last-child {
+
             color: var(--text-muted);
 
             font-size: 14px;
@@ -1156,6 +1222,7 @@
 
 
         .document-missing {
+
             padding: 9px 3px;
 
             color: var(--text-light);
@@ -1165,10 +1232,35 @@
 
 
         /* =========================================================
-           STATUS FORM
+           CLOUDINARY NOTICE
+        ========================================================= */
+
+        .cloudinary-note {
+
+            margin-top: 12px;
+
+            padding: 10px 12px;
+
+            border-radius: 8px;
+
+            background: #f8fafc;
+
+            border: 1px solid var(--border);
+
+            color: var(--text-muted);
+
+            font-size: 9px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =========================================================
+           STATUS
         ========================================================= */
 
         .status-form > label {
+
             display: block;
 
             margin-bottom: 7px;
@@ -1181,6 +1273,7 @@
 
 
         .status-select {
+
             height: 45px;
 
             margin-bottom: 14px;
@@ -1192,6 +1285,7 @@
         ========================================================= */
 
         .whatsapp-notification-box {
+
             margin-bottom: 14px;
 
             padding: 16px;
@@ -1211,6 +1305,7 @@
 
 
         .notification-label {
+
             display: block;
 
             margin-bottom: 5px;
@@ -1225,6 +1320,7 @@
 
 
         .whatsapp-notification-box h3 {
+
             margin: 0;
 
             color: #14532d;
@@ -1235,16 +1331,19 @@
 
 
         .whatsapp-notification-box p {
+
             margin: 6px 0 13px;
 
             color: #3f6212;
 
             font-size: 10px;
+
             line-height: 1.6;
         }
 
 
         .whatsapp-notification-button {
+
             min-height: 38px;
 
             display: flex;
@@ -1267,6 +1366,7 @@
 
 
         .whatsapp-notification-button:hover {
+
             background: #15803d;
 
             transform: translateY(-1px);
@@ -1278,6 +1378,7 @@
         ========================================================= */
 
         .notes-textarea {
+
             min-height: 145px;
 
             margin-bottom: 13px;
@@ -1303,11 +1404,13 @@
         ========================================================= */
 
         .metadata-card {
+
             padding: 20px 22px;
         }
 
 
         .metadata-card > div {
+
             padding-bottom: 15px;
         }
 
@@ -1318,6 +1421,7 @@
 
 
         .metadata-card > div + div {
+
             padding-top: 15px;
 
             border-top:
@@ -1326,49 +1430,23 @@
 
 
         .metadata-card strong {
+
             display: block;
 
             color: #344054;
 
             font-size: 11px;
+
             line-height: 1.5;
 
             font-weight: 700;
+
+            word-break: break-word;
         }
 
 
         /* =========================================================
-           MOBILE TOP BAR
-        ========================================================= */
-
-        .mobile-admin-header {
-            display: none;
-        }
-
-
-        /* =========================================================
-           SCROLLBAR
-        ========================================================= */
-
-        .admin-nav::-webkit-scrollbar {
-            width: 5px;
-        }
-
-
-        .admin-nav::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-
-        .admin-nav::-webkit-scrollbar-thumb {
-            background: #273449;
-
-            border-radius: 10px;
-        }
-
-
-        /* =========================================================
-           TABLET
+           RESPONSIVE
         ========================================================= */
 
         @media (max-width: 1200px) {
@@ -1377,19 +1455,19 @@
                 padding: 25px;
             }
 
-
             .details-grid {
+
                 grid-template-columns:
                     minmax(0, 1fr)
                     320px;
             }
-
         }
 
 
         @media (max-width: 1000px) {
 
             .admin-sidebar {
+
                 width: 220px;
                 min-width: 220px;
             }
@@ -1401,6 +1479,7 @@
 
 
             .details-sidebar {
+
                 display: grid;
 
                 grid-template-columns:
@@ -1408,13 +1487,8 @@
 
                 align-items: start;
             }
-
         }
 
-
-        /* =========================================================
-           MOBILE
-        ========================================================= */
 
         @media (max-width: 760px) {
 
@@ -1424,6 +1498,7 @@
 
 
             .admin-sidebar {
+
                 position: relative;
 
                 width: 100%;
@@ -1439,6 +1514,7 @@
 
 
             .admin-nav {
+
                 display: grid;
 
                 grid-template-columns:
@@ -1462,6 +1538,7 @@
 
 
             .sidebar-bottom {
+
                 display: flex;
 
                 align-items: center;
@@ -1477,6 +1554,7 @@
 
 
             .logout-link {
+
                 width: auto;
 
                 min-width: 90px;
@@ -1489,6 +1567,7 @@
 
 
             .details-topbar {
+
                 align-items: flex-start;
 
                 flex-direction: column;
@@ -1505,13 +1584,8 @@
             .details-sidebar {
                 display: flex;
             }
-
         }
 
-
-        /* =========================================================
-           SMALL MOBILE
-        ========================================================= */
 
         @media (max-width: 560px) {
 
@@ -1521,6 +1595,7 @@
 
 
             .sidebar-bottom {
+
                 align-items: stretch;
 
                 flex-direction: column;
@@ -1538,6 +1613,7 @@
 
 
             .details-info-grid {
+
                 padding: 18px 16px;
 
                 grid-template-columns: 1fr;
@@ -1568,6 +1644,7 @@
             .metadata-card,
             .passport-wrapper,
             .documents-list {
+
                 padding-left: 16px;
                 padding-right: 16px;
             }
@@ -1591,7 +1668,6 @@
             .details-topbar h1 {
                 font-size: 22px;
             }
-
         }
 
     </style>
@@ -1611,8 +1687,6 @@
 
     <aside class="admin-sidebar">
 
-
-        <!-- BRAND -->
 
         <div class="sidebar-brand">
 
@@ -1634,9 +1708,6 @@
 
         </div>
 
-
-
-        <!-- NAVIGATION -->
 
         <nav class="admin-nav">
 
@@ -1752,9 +1823,6 @@
         </nav>
 
 
-
-        <!-- SIDEBAR FOOTER -->
-
         <div class="sidebar-bottom">
 
 
@@ -1815,7 +1883,7 @@
 
 
             <!-- =====================================================
-                 PAGE HEADER
+                 HEADER
             ====================================================== -->
 
             <header class="details-topbar">
@@ -1853,7 +1921,9 @@
                     <p class="application-id">
 
                         Application No:
-                        {{ application.application_number }}
+                        <strong>
+                            {{ application.application_number }}
+                        </strong>
 
                     </p>
 
@@ -1862,10 +1932,14 @@
 
                 <div>
 
+                    {% set application_status =
+                        application.status or "Pending"
+                    %}
+
                     <span
-                        class="status status-{{ application.status|lower|replace(' ', '-') }}"
+                        class="status status-{{ application_status|lower|replace(' ', '-') }}"
                     >
-                        {{ application.status }}
+                        {{ application_status }}
                     </span>
 
                 </div>
@@ -1873,10 +1947,6 @@
             </header>
 
 
-
-            <!-- =====================================================
-                 DETAILS GRID
-            ====================================================== -->
 
             <div class="details-grid">
 
@@ -1891,7 +1961,6 @@
                     <!-- PERSONAL INFORMATION -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2030,7 +2099,6 @@
 
                     <section class="details-card">
 
-
                         <div class="details-card-heading">
 
                             <span>
@@ -2059,7 +2127,6 @@
                     <!-- EDUCATION -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2134,10 +2201,9 @@
 
 
 
-                    <!-- WORK EXPERIENCE -->
+                    <!-- EXPERIENCE -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2202,10 +2268,9 @@
 
 
 
-                    <!-- APPLICANT RESPONSES -->
+                    <!-- RESPONSES -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2227,10 +2292,8 @@
                             </label>
 
                             <p>
-
                                 {{ application.reason_for_applying
                                 or "No response provided." }}
-
                             </p>
 
                         </div>
@@ -2243,10 +2306,8 @@
                             </label>
 
                             <p>
-
                                 {{ application.additional_information
                                 or "No additional information provided." }}
-
                             </p>
 
                         </div>
@@ -2258,7 +2319,6 @@
                     <!-- INTERVIEW -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2272,7 +2332,7 @@
 
                             <p>
                                 Schedule or update the applicant's
-                                interview. The details will be displayed
+                                interview. The details will appear
                                 in the applicant portal.
                             </p>
 
@@ -2287,7 +2347,6 @@
                             ) }}"
                             class="details-form"
                         >
-
 
                             <div class="form-grid">
 
@@ -2431,10 +2490,11 @@
                 <aside class="details-sidebar">
 
 
-                    <!-- PASSPORT -->
+                    <!-- =================================================
+                         PASSPORT
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2451,6 +2511,7 @@
 
                         <div class="passport-wrapper">
 
+
                             {% if application.passport_filename %}
 
                                 <img
@@ -2460,7 +2521,20 @@
                                     ) }}"
                                     class="passport-preview"
                                     alt="Applicant passport photograph"
+                                    loading="lazy"
+                                    onerror="this.style.display='none'; document.getElementById('passport-error').style.display='flex';"
                                 >
+
+
+                                <div
+                                    id="passport-error"
+                                    class="document-empty"
+                                    style="display:none;"
+                                >
+                                    Passport photograph could not be loaded.
+                                    Please check the stored Cloudinary file.
+                                </div>
+
 
                             {% else %}
 
@@ -2476,10 +2550,11 @@
 
 
 
-                    <!-- DOCUMENTS -->
+                    <!-- =================================================
+                         DOCUMENTS
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2491,11 +2566,18 @@
                                 Applicant Attachments
                             </h2>
 
+                            <p>
+                                Applicant files are stored remotely and
+                                remain available after Render restarts.
+                            </p>
+
                         </div>
 
 
                         <div class="documents-list">
 
+
+                            <!-- CV -->
 
                             {% if application.cv_filename %}
 
@@ -2505,6 +2587,8 @@
                                         filename=application.cv_filename
                                     ) }}"
                                     class="document-link"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
 
                                     <span>
@@ -2512,7 +2596,7 @@
                                     </span>
 
                                     <span>
-                                        ↓
+                                        ↗
                                     </span>
 
                                 </a>
@@ -2527,6 +2611,8 @@
 
 
 
+                            <!-- QUALIFICATION -->
+
                             {% if application.qualification_filename %}
 
                                 <a
@@ -2535,6 +2621,8 @@
                                         filename=application.qualification_filename
                                     ) }}"
                                     class="document-link"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
 
                                     <span>
@@ -2542,7 +2630,7 @@
                                     </span>
 
                                     <span>
-                                        ↓
+                                        ↗
                                     </span>
 
                                 </a>
@@ -2557,6 +2645,8 @@
 
 
 
+                            <!-- PASSPORT -->
+
                             {% if application.passport_filename %}
 
                                 <a
@@ -2565,6 +2655,8 @@
                                         filename=application.passport_filename
                                     ) }}"
                                     class="document-link"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
 
                                     <span>
@@ -2572,7 +2664,7 @@
                                     </span>
 
                                     <span>
-                                        ↓
+                                        ↗
                                     </span>
 
                                 </a>
@@ -2587,12 +2679,16 @@
 
 
 
+                            <!-- BIODATA -->
+
                             <a
                                 href="{{ url_for(
                                     'download_applicant_biodata',
                                     application_id=application.id
                                 ) }}"
                                 class="document-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
                             >
 
                                 <span>
@@ -2605,16 +2701,26 @@
 
                             </a>
 
+
+                            <div class="cloudinary-note">
+
+                                Applicant documents are securely stored
+                                in Cloudinary rather than Render's temporary
+                                local filesystem.
+
+                            </div>
+
                         </div>
 
                     </section>
 
 
 
-                    <!-- APPLICATION STATUS -->
+                    <!-- =================================================
+                         APPLICATION STATUS
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2716,9 +2822,8 @@
                                     </h3>
 
                                     <p>
-                                        This applicant has been
-                                        shortlisted. You can notify
-                                        them through WhatsApp.
+                                        This applicant has been shortlisted.
+                                        You can notify them through WhatsApp.
                                     </p>
 
 
@@ -2752,10 +2857,11 @@
 
 
 
-                    <!-- INTERNAL NOTES -->
+                    <!-- =================================================
+                         INTERNAL NOTES
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2768,8 +2874,8 @@
                             </h2>
 
                             <p>
-                                These notes are for administrators
-                                and are not shown to the applicant.
+                                These notes are visible only to
+                                administrators.
                             </p>
 
                         </div>
@@ -2805,10 +2911,11 @@
 
 
 
-                    <!-- APPLICANT MESSAGE -->
+                    <!-- =================================================
+                         APPLICANT MESSAGE
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2821,8 +2928,8 @@
                             </h2>
 
                             <p>
-                                Send a message that the applicant
-                                can view from their portal.
+                                Send a message that the applicant can
+                                view from their portal.
                             </p>
 
                         </div>
@@ -2885,6 +2992,7 @@
                                     id="subject"
                                     name="subject"
                                     placeholder="Enter message subject"
+                                    maxlength="200"
                                     required
                                 >
 
@@ -2901,6 +3009,7 @@
                                     id="message"
                                     name="message"
                                     rows="7"
+                                    maxlength="5000"
                                     placeholder="Write your message to the applicant..."
                                     required
                                 ></textarea>
@@ -2921,10 +3030,11 @@
 
 
 
-                    <!-- PORTAL INFORMATION -->
+                    <!-- =================================================
+                         PORTAL INFORMATION
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -2991,10 +3101,11 @@
 
 
 
-                    <!-- SUBMISSION INFORMATION -->
+                    <!-- =================================================
+                         SUBMISSION INFORMATION
+                    ================================================== -->
 
                     <section class="details-card">
-
 
                         <div class="details-card-heading">
 
@@ -3010,6 +3121,19 @@
 
 
                         <div class="metadata-card">
+
+
+                            <div>
+
+                                <label>
+                                    Application Number
+                                </label>
+
+                                <strong>
+                                    {{ application.application_number }}
+                                </strong>
+
+                            </div>
 
 
                             <div>
