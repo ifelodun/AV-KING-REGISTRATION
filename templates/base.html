@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
 
 
@@ -32,16 +33,18 @@
     *,
     *::before,
     *::after {
-        margin: 0;
-        padding: 0;
         box-sizing: border-box;
     }
+
 
     html {
         scroll-behavior: smooth;
     }
 
+
     body {
+        margin: 0;
+
         font-family:
             Inter,
             -apple-system,
@@ -52,14 +55,18 @@
             sans-serif;
 
         background: #f5f7f6;
+
         color: #14213d;
+
         line-height: 1.6;
     }
+
 
     a {
         text-decoration: none;
         color: inherit;
     }
+
 
     button,
     input,
@@ -67,6 +74,7 @@
     select {
         font: inherit;
     }
+
 
     img {
         max-width: 100%;
@@ -80,13 +88,17 @@
     :root {
 
         --brand-green: #087443;
+
         --brand-green-dark: #065a35;
+
         --brand-green-light: #eaf6ef;
 
         --accent: #d4a017;
 
         --text-dark: #14213d;
+
         --text: #344054;
+
         --muted: #667085;
 
         --white: #ffffff;
@@ -141,11 +153,13 @@
         z-index: 1100;
 
         display: flex;
+
         flex-direction: column;
 
         overflow-y: auto;
 
-        transition: transform .25s ease;
+        transition:
+            transform .25s ease;
 
         scrollbar-width: thin;
     }
@@ -155,8 +169,9 @@
         width: 5px;
     }
 
+
     .admin-sidebar::-webkit-scrollbar-thumb {
-        background: #d7e1db;
+        background: #d8e2dc;
         border-radius: 10px;
     }
 
@@ -170,6 +185,7 @@
         min-height: 76px;
 
         display: flex;
+
         align-items: center;
 
         gap: 11px;
@@ -207,7 +223,9 @@
         min-width: 42px;
 
         display: flex;
+
         align-items: center;
+
         justify-content: center;
 
         border-radius: 10px;
@@ -217,6 +235,7 @@
         color: #ffffff;
 
         font-size: 14px;
+
         font-weight: 900;
     }
 
@@ -226,6 +245,7 @@
         min-width: 0;
 
         display: flex;
+
         flex-direction: column;
     }
 
@@ -271,14 +291,14 @@
         flex: 1;
 
         padding: 18px 12px;
-
-        overflow-y: auto;
     }
 
 
     .sidebar-section-title {
 
-        padding: 0 10px 8px;
+        padding:
+            0 10px
+            8px;
 
         color: #98a2b3;
 
@@ -361,6 +381,7 @@
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         border-radius: 7px;
@@ -380,7 +401,7 @@
 
 
     /* =========================================================
-       SIDEBAR USER FOOTER
+       SIDEBAR FOOTER
        ========================================================= */
 
     .sidebar-footer {
@@ -419,6 +440,7 @@
         display: flex;
 
         align-items: center;
+
         justify-content: center;
 
         border-radius: 9px;
@@ -489,13 +511,17 @@
 
         font-weight: 750;
 
-        transition: background .18s ease;
+        transition:
+            background .18s ease,
+            color .18s ease;
     }
 
 
     .sidebar-logout:hover {
 
         background: #fff1f0;
+
+        color: #a0180e;
     }
 
 
@@ -511,7 +537,8 @@
 
         padding: 28px;
 
-        transition: margin-left .25s ease;
+        transition:
+            margin-left .25s ease;
     }
 
 
@@ -621,7 +648,7 @@
 
 
     /* =========================================================
-       MOBILE MENU
+       MOBILE SIDEBAR BUTTON
        ========================================================= */
 
     .sidebar-toggle {
@@ -653,7 +680,8 @@
 
         inset: 0;
 
-        background: rgba(16, 24, 40, .38);
+        background:
+            rgba(16, 24, 40, .38);
 
         z-index: 1050;
     }
@@ -788,10 +816,12 @@
             transform: translateX(-100%);
         }
 
+
         .admin-sidebar.open {
 
             transform: translateX(0);
         }
+
 
         .admin-main {
 
@@ -799,6 +829,7 @@
 
             padding: 20px;
         }
+
 
         .sidebar-toggle {
 
@@ -809,10 +840,12 @@
             justify-content: center;
         }
 
+
         .sidebar-overlay.open {
 
             display: block;
         }
+
 
         .admin-topbar {
 
@@ -828,20 +861,24 @@
             padding: 15px;
         }
 
+
         .admin-topbar {
 
             align-items: flex-start;
         }
+
 
         .topbar-right {
 
             flex-shrink: 0;
         }
 
+
         .topbar-admin {
 
             display: none;
         }
+
 
         .admin-footer {
 
@@ -850,6 +887,7 @@
             align-items: flex-start;
         }
     }
+
 
 </style>
 
@@ -876,9 +914,12 @@
 >
 
 
-    <!-- BRAND -->
+    <!-- =================================================
+         BRAND
+         ================================================= -->
 
     <div class="sidebar-brand">
+
 
         {% if company_logo %}
 
@@ -886,7 +927,11 @@
                 src="{{ company_logo }}"
                 alt="{{ company_name or 'Company Logo' }}"
                 class="sidebar-logo"
-                onerror="this.style.display='none'; document.getElementById('sidebarLogoPlaceholder').style.display='flex';"
+                onerror="
+                    this.style.display='none';
+                    var p=document.getElementById('sidebarLogoPlaceholder');
+                    if(p){p.style.display='flex';}
+                "
             >
 
             <div
@@ -914,6 +959,7 @@
 
             </div>
 
+
             <div class="sidebar-subtitle">
 
                 ADMINISTRATION
@@ -925,7 +971,9 @@
     </div>
 
 
-    <!-- SIDEBAR CONTENT -->
+    <!-- =================================================
+         SIDEBAR CONTENT
+         ================================================= -->
 
     <div class="sidebar-content">
 
@@ -935,7 +983,9 @@
              ================================================= -->
 
         <div class="sidebar-section-title">
+
             Main
+
         </div>
 
 
@@ -946,7 +996,10 @@
 
             <a
                 href="{{ url_for('admin_dashboard') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_dashboard' %}
+                    active
+                {% endif %}"
             >
 
                 <span class="sidebar-icon">
@@ -964,7 +1017,10 @@
 
             <a
                 href="{{ url_for('admin_applications') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_applications' %}active{% endif %}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_applications' %}
+                    active
+                {% endif %}"
             >
 
                 <span class="sidebar-icon">
@@ -982,7 +1038,10 @@
 
             <a
                 href="{{ url_for('admin_positions') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_positions' %}active{% endif %}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_positions' %}
+                    active
+                {% endif %}"
             >
 
                 <span class="sidebar-icon">
@@ -996,29 +1055,14 @@
             </a>
 
 
-            <!-- WORKERS -->
-
-            <a
-                href="{{ url_for('admin_workers') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_workers' %}active{% endif %}"
-            >
-
-                <span class="sidebar-icon">
-                    ◉
-                </span>
-
-                <span>
-                    Workers
-                </span>
-
-            </a>
-
-
             <!-- REPORTS -->
 
             <a
                 href="{{ url_for('admin_reports') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_reports' %}active{% endif %}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_reports' %}
+                    active
+                {% endif %}"
             >
 
                 <span class="sidebar-icon">
@@ -1040,7 +1084,9 @@
              ================================================= -->
 
         <div class="sidebar-section-title">
+
             Management
+
         </div>
 
 
@@ -1051,7 +1097,10 @@
 
             <a
                 href="{{ url_for('admin_settings') }}"
-                class="sidebar-link {% if request.endpoint == 'admin_settings' %}active{% endif %}"
+                class="sidebar-link
+                {% if request.endpoint == 'admin_settings' %}
+                    active
+                {% endif %}"
             >
 
                 <span class="sidebar-icon">
@@ -1090,19 +1139,24 @@
 
 
     <!-- =================================================
-         SIDEBAR USER
+         USER INFORMATION
          ================================================= -->
 
     <div class="sidebar-footer">
 
+
         <div class="sidebar-user">
 
+
             <div class="sidebar-user-avatar">
+
                 A
+
             </div>
 
 
             <div class="sidebar-user-info">
+
 
                 <div class="sidebar-user-name">
 
@@ -1118,9 +1172,12 @@
 
                 </div>
 
+
             </div>
 
+
         </div>
+
 
     </div>
 
@@ -1129,7 +1186,7 @@
 
 
 <!-- =====================================================
-     SIDEBAR OVERLAY
+     MOBILE OVERLAY
      ===================================================== -->
 
 <div
@@ -1139,10 +1196,11 @@
 
 
 <!-- =====================================================
-     MAIN
+     MAIN CONTENT
      ===================================================== -->
 
 <main class="admin-main">
+
 
     <div class="admin-container">
 
@@ -1192,10 +1250,13 @@
 
                 <div class="topbar-admin">
 
+
                     <span class="topbar-dot"></span>
+
 
                     {{ session.get("admin_username")
                        or "Administrator" }}
+
 
                 </div>
 
@@ -1210,15 +1271,21 @@
              FLASH MESSAGES
              ================================================= -->
 
-        {% with messages =
-            get_flashed_messages(with_categories=true)
+        {% with
+            messages = get_flashed_messages(
+                with_categories=true
+            )
         %}
+
 
             {% if messages %}
 
+
                 <div class="flash-container">
 
+
                     {% for category, message in messages %}
+
 
                         <div
                             class="flash-message {{ category }}"
@@ -1229,11 +1296,15 @@
 
                         </div>
 
+
                     {% endfor %}
+
 
                 </div>
 
+
             {% endif %}
+
 
         {% endwith %}
 
@@ -1243,6 +1314,7 @@
              ================================================= -->
 
         {% block content %}
+
         {% endblock %}
 
 
@@ -1251,6 +1323,7 @@
              ================================================= -->
 
         <footer class="admin-footer">
+
 
             <span>
 
@@ -1265,13 +1338,17 @@
 
 
             <span>
+
                 Professional • Secure • Reliable
+
             </span>
+
 
         </footer>
 
 
     </div>
+
 
 </main>
 
@@ -1288,6 +1365,7 @@
 
 
 {% block content_public %}
+
 {% endblock %}
 
 
@@ -1309,8 +1387,10 @@
     const sidebar =
         document.getElementById("adminSidebar");
 
+
     const toggle =
         document.getElementById("sidebarToggle");
+
 
     const overlay =
         document.getElementById("sidebarOverlay");
@@ -1322,20 +1402,29 @@
             return;
         }
 
+
         sidebar.classList.add("open");
 
+
         if (overlay) {
+
             overlay.classList.add("open");
+
         }
 
+
         if (toggle) {
+
             toggle.setAttribute(
                 "aria-expanded",
                 "true"
             );
+
         }
 
+
         document.body.style.overflow = "hidden";
+
     }
 
 
@@ -1345,20 +1434,29 @@
             return;
         }
 
+
         sidebar.classList.remove("open");
 
+
         if (overlay) {
+
             overlay.classList.remove("open");
+
         }
 
+
         if (toggle) {
+
             toggle.setAttribute(
                 "aria-expanded",
                 "false"
             );
+
         }
 
+
         document.body.style.overflow = "";
+
     }
 
 
@@ -1441,9 +1539,7 @@
         "resize",
         function () {
 
-            if (
-                window.innerWidth > 900
-            ) {
+            if (window.innerWidth > 900) {
 
                 closeSidebar();
 
@@ -1458,7 +1554,9 @@
 </script>
 
 {% block scripts %}
+
 {% endblock %}
 
 </body>
+
 </html>
