@@ -8,3 +8,4 @@ openpyxl
 reportlab
 requests
 gunicorn
+cloudinary
