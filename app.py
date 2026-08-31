@@ -8433,8 +8433,8 @@ def applicant_login():
 
                 row = cur.fetchone()
 
-                if row:
-                    return row["logo"]
+                if row and row["logo"]:
+                    return str(row["logo"]).strip()
 
                 return None
 
@@ -8456,11 +8456,9 @@ def applicant_login():
 
     if request.method == "GET":
 
-        company_logo = get_company_logo()
-
         return render_template(
             "applicant_login.html",
-            company_logo=company_logo
+            company_logo=get_company_logo()
         )
 
     # =========================================================
@@ -8525,6 +8523,22 @@ def applicant_login():
             )
 
             applicant = cur.fetchone()
+
+    except Exception:
+
+        app.logger.exception(
+            "Error loading applicant during login."
+        )
+
+        flash(
+            "Unable to process your login right now. Please try again.",
+            "error"
+        )
+
+        return render_template(
+            "applicant_login.html",
+            company_logo=get_company_logo()
+        )
 
     finally:
 
@@ -8615,6 +8629,8 @@ def applicant_login():
 
     session.clear()
 
+    session["applicant_logged_in"] = True
+
     session["applicant_id"] = applicant["id"]
 
     session["applicant_application_number"] = (
@@ -8622,12 +8638,9 @@ def applicant_login():
     )
 
     session["applicant_name"] = (
-        applicant["first_name"]
-        + " "
-        + applicant["last_name"]
-    )
-
-    session["applicant_logged_in"] = True
+        f"{applicant['first_name']} "
+        f"{applicant['last_name']}"
+    ).strip()
 
     # =========================================================
     # UPDATE LAST LOGIN
@@ -8665,12 +8678,14 @@ def applicant_login():
         conn.close()
 
     # =========================================================
-    # REDIRECT
+    # REDIRECT TO APPLICANT PORTAL
     # =========================================================
 
     return redirect(
         url_for("applicant_portal")
     )
+
+
 
 # ============================================================
 # APPLICANT LOGOUT
@@ -11062,34 +11077,161 @@ def admin_settings():
 @app.route("/admin/download-file/<path:filename>")
 def admin_download_file(filename):
 
+    # =========================================================
+    # ADMIN LOGIN
+    # =========================================================
+
     if not admin_required():
         return redirect(
             url_for("admin_login")
         )
 
+    # =========================================================
+    # CLEAN FILENAME
+    # =========================================================
+
     filename = os.path.basename(
         filename
-    )
+    ).strip()
 
-    upload_folder = app.config[
-        "UPLOAD_FOLDER"
+    if not filename:
+        flash(
+            "Invalid document requested.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+    # =========================================================
+    # CLOUDINARY CONFIGURATION
+    # =========================================================
+
+    cloudinary_url = None
+
+    try:
+
+        conn = get_db()
+
+        try:
+
+            with conn.cursor() as cur:
+
+                # -------------------------------------------------
+                # Search applicant uploaded files
+                # -------------------------------------------------
+
+                cur.execute(
+                    """
+                    SELECT
+                        passport_filename,
+                        cv_filename,
+                        qualification_filename
+                    FROM applications
+                    WHERE
+                        passport_filename = %s
+                        OR cv_filename = %s
+                        OR qualification_filename = %s
+                    LIMIT 1
+                    """,
+                    (
+                        filename,
+                        filename,
+                        filename
+                    )
+                )
+
+                applicant = cur.fetchone()
+
+        finally:
+
+            conn.close()
+
+    except Exception:
+
+        app.logger.exception(
+            "Error locating applicant document."
+        )
+
+        flash(
+            "Unable to locate the requested document.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+    # =========================================================
+    # APPLICANT NOT FOUND
+    # =========================================================
+
+    if not applicant:
+
+        flash(
+            "The requested document could not be found.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+    # =========================================================
+    # FIND CLOUDINARY URL
+    # =========================================================
+
+    possible_files = [
+        applicant["passport_filename"],
+        applicant["cv_filename"],
+        applicant["qualification_filename"]
     ]
 
-    file_path = os.path.join(
-        upload_folder,
-        filename
-    )
+    for stored_file in possible_files:
 
-    app.logger.info(
-        "DOWNLOAD REQUEST: %s",
-        file_path
-    )
+        if not stored_file:
+            continue
 
-    if not os.path.isfile(file_path):
+        stored_file = str(
+            stored_file
+        ).strip()
+
+        # -----------------------------------------------------
+        # Exact filename match
+        # -----------------------------------------------------
+
+        if os.path.basename(
+            stored_file.split("?")[0]
+        ) == filename:
+
+            cloudinary_url = stored_file
+            break
+
+        # -----------------------------------------------------
+        # Stored value itself is a Cloudinary URL
+        # -----------------------------------------------------
+
+        if (
+            stored_file.startswith("http://")
+            or
+            stored_file.startswith("https://")
+        ):
+
+            if filename in stored_file:
+
+                cloudinary_url = stored_file
+                break
+
+    # =========================================================
+    # CLOUDINARY URL NOT FOUND
+    # =========================================================
+
+    if not cloudinary_url:
 
         app.logger.warning(
-            "DOCUMENT NOT FOUND: %s",
-            file_path
+            "Cloudinary document URL not found for: %s",
+            filename
         )
 
         flash(
@@ -11101,11 +11243,44 @@ def admin_download_file(filename):
             url_for("admin_applications")
         )
 
-    return send_from_directory(
-        upload_folder,
-        filename,
-        as_attachment=True
+    # =========================================================
+    # CLOUDINARY FILE
+    # =========================================================
+
+    if (
+        cloudinary_url.startswith("https://")
+        or
+        cloudinary_url.startswith("http://")
+    ):
+
+        app.logger.info(
+            "REDIRECTING TO CLOUDINARY FILE: %s",
+            cloudinary_url
+        )
+
+        return redirect(
+            cloudinary_url
+        )
+
+    # =========================================================
+    # INVALID FILE
+    # =========================================================
+
+    app.logger.warning(
+        "Invalid Cloudinary file URL: %s",
+        cloudinary_url
     )
+
+    flash(
+        "The requested document is unavailable.",
+        "error"
+    )
+
+    return redirect(
+        url_for("admin_applications")
+    )
+
+
 
 @app.route("/admin/reports/export/pdf")
 def export_admin_reports_pdf():
