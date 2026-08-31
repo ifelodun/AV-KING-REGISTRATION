@@ -11078,23 +11078,19 @@ def admin_settings():
 def admin_download_file(filename):
 
     # =========================================================
-    # ADMIN LOGIN
+    # ADMIN AUTHENTICATION
     # =========================================================
 
     if not admin_required():
-        return redirect(
-            url_for("admin_login")
-        )
+        return redirect(url_for("admin_login"))
 
     # =========================================================
-    # CLEAN FILENAME
+    # BASIC VALIDATION
     # =========================================================
 
-    filename = os.path.basename(
-        filename
-    ).strip()
+    requested_filename = str(filename or "").strip()
 
-    if not filename:
+    if not requested_filename:
         flash(
             "Invalid document requested.",
             "error"
@@ -11105,10 +11101,10 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # CLOUDINARY CONFIGURATION
+    # DATABASE
     # =========================================================
 
-    cloudinary_url = None
+    applicant = None
 
     try:
 
@@ -11119,12 +11115,25 @@ def admin_download_file(filename):
             with conn.cursor() as cur:
 
                 # -------------------------------------------------
-                # Search applicant uploaded files
+                # Find the application containing this document.
+                #
+                # We check the complete stored values because
+                # Cloudinary may store:
+                #
+                #   https://res.cloudinary.com/...
+                #
+                # rather than only:
+                #
+                #   filename.pdf
                 # -------------------------------------------------
 
                 cur.execute(
                     """
                     SELECT
+                        id,
+                        application_number,
+                        first_name,
+                        last_name,
                         passport_filename,
                         cv_filename,
                         qualification_filename
@@ -11133,12 +11142,20 @@ def admin_download_file(filename):
                         passport_filename = %s
                         OR cv_filename = %s
                         OR qualification_filename = %s
+                        OR passport_filename LIKE %s
+                        OR cv_filename LIKE %s
+                        OR qualification_filename LIKE %s
+                    ORDER BY id DESC
                     LIMIT 1
                     """,
                     (
-                        filename,
-                        filename,
-                        filename
+                        requested_filename,
+                        requested_filename,
+                        requested_filename,
+
+                        "%" + requested_filename + "%",
+                        "%" + requested_filename + "%",
+                        "%" + requested_filename + "%"
                     )
                 )
 
@@ -11151,7 +11168,8 @@ def admin_download_file(filename):
     except Exception:
 
         app.logger.exception(
-            "Error locating applicant document."
+            "Error locating applicant document: %s",
+            requested_filename
         )
 
         flash(
@@ -11164,11 +11182,16 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # APPLICANT NOT FOUND
+    # APPLICATION NOT FOUND
     # =========================================================
 
     if not applicant:
 
+        app.logger.warning(
+            "No application found for document: %s",
+            requested_filename
+        )
+
         flash(
             "The requested document could not be found.",
             "error"
@@ -11179,105 +11202,169 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # FIND CLOUDINARY URL
+    # DETERMINE WHICH DOCUMENT WAS REQUESTED
     # =========================================================
 
-    possible_files = [
-        applicant["passport_filename"],
-        applicant["cv_filename"],
-        applicant["qualification_filename"]
+    stored_document = None
+    document_type = None
+
+    possible_documents = [
+
+        (
+            "Passport Photograph",
+            applicant["passport_filename"]
+        ),
+
+        (
+            "Curriculum Vitae",
+            applicant["cv_filename"]
+        ),
+
+        (
+            "Qualification / Result",
+            applicant["qualification_filename"]
+        )
+
     ]
 
-    for stored_file in possible_files:
+    # ---------------------------------------------------------
+    # First: exact match
+    # ---------------------------------------------------------
 
-        if not stored_file:
+    for doc_type, value in possible_documents:
+
+        if not value:
             continue
 
-        stored_file = str(
-            stored_file
-        ).strip()
+        value = str(value).strip()
 
-        # -----------------------------------------------------
-        # Exact filename match
-        # -----------------------------------------------------
+        if value == requested_filename:
 
-        if os.path.basename(
-            stored_file.split("?")[0]
-        ) == filename:
+            stored_document = value
+            document_type = doc_type
 
-            cloudinary_url = stored_file
             break
 
-        # -----------------------------------------------------
-        # Stored value itself is a Cloudinary URL
-        # -----------------------------------------------------
+    # ---------------------------------------------------------
+    # Second: filename contained inside Cloudinary URL
+    # ---------------------------------------------------------
 
-        if (
-            stored_file.startswith("http://")
-            or
-            stored_file.startswith("https://")
-        ):
+    if not stored_document:
 
-            if filename in stored_file:
+        requested_clean = requested_filename.lower()
 
-                cloudinary_url = stored_file
+        for doc_type, value in possible_documents:
+
+            if not value:
+                continue
+
+            value = str(value).strip()
+
+            value_without_query = value.split("?", 1)[0]
+
+            basename = os.path.basename(
+                value_without_query
+            )
+
+            if (
+                basename.lower() == requested_clean
+                or
+                requested_clean in value_without_query.lower()
+            ):
+
+                stored_document = value
+                document_type = doc_type
+
                 break
 
     # =========================================================
-    # CLOUDINARY URL NOT FOUND
+    # DOCUMENT NOT FOUND
     # =========================================================
 
-    if not cloudinary_url:
+    if not stored_document:
 
         app.logger.warning(
-            "Cloudinary document URL not found for: %s",
-            filename
+            "Document matched application %s but URL/value "
+            "could not be determined. Requested=%s",
+            applicant["id"],
+            requested_filename
         )
 
         flash(
-            "The requested document could not be found.",
+            "The requested document is unavailable.",
             "error"
         )
 
         return redirect(
-            url_for("admin_applications")
+            url_for(
+                "admin_application_details",
+                application_id=applicant["id"]
+            )
         )
 
     # =========================================================
-    # CLOUDINARY FILE
+    # CLOUDINARY URL
     # =========================================================
 
-    if (
+    cloudinary_url = stored_document.strip()
+
+    if not (
         cloudinary_url.startswith("https://")
         or
         cloudinary_url.startswith("http://")
     ):
 
-        app.logger.info(
-            "REDIRECTING TO CLOUDINARY FILE: %s",
+        app.logger.warning(
+            "Applicant document is not a valid remote URL. "
+            "Application=%s Document=%s",
+            applicant["id"],
             cloudinary_url
+        )
+
+        flash(
+            "This document does not contain a valid Cloudinary URL.",
+            "error"
         )
 
         return redirect(
-            cloudinary_url
+            url_for(
+                "admin_application_details",
+                application_id=applicant["id"]
+            )
         )
 
     # =========================================================
-    # INVALID FILE
+    # LOG ACCESS
     # =========================================================
 
-    app.logger.warning(
-        "Invalid Cloudinary file URL: %s",
+    app.logger.info(
+        "ADMIN DOCUMENT ACCESS | Application=%s | Applicant=%s %s "
+        "| Type=%s | URL=%s",
+        applicant["application_number"],
+        applicant["first_name"],
+        applicant["last_name"],
+        document_type,
         cloudinary_url
     )
 
-    flash(
-        "The requested document is unavailable.",
-        "error"
-    )
+    # =========================================================
+    # RETURN CLOUDINARY FILE
+    # =========================================================
+    #
+    # Cloudinary normally allows the browser to display PDFs and
+    # images directly.
+    #
+    # The safest approach here is to redirect to the actual
+    # Cloudinary resource.
+    #
+    # For the passport, opening the image directly is useful.
+    # For CV/result PDFs, the browser can display them and the
+    # applicant/admin can use the browser download button.
+    #
+    # =========================================================
 
     return redirect(
-        url_for("admin_applications")
+        cloudinary_url
     )
 
 
