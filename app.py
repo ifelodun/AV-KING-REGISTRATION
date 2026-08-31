@@ -5823,6 +5823,290 @@ def normalize_db_time(value, default=None):
     )
 
     return default
+
+@app.route("/admin/fix-applicant-messages")
+def fix_applicant_messages():
+
+    # =========================================================
+    # ADMIN AUTHENTICATION
+    # =========================================================
+
+    if not admin_required():
+        return redirect(
+            url_for("admin_login")
+        )
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # CREATE TABLE IF IT DOES NOT EXIST
+            # =================================================
+
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS applicant_messages (
+
+                    id BIGSERIAL PRIMARY KEY,
+
+                    application_id BIGINT NOT NULL,
+
+                    message_type VARCHAR(30)
+                        NOT NULL DEFAULT 'message',
+
+                    subject VARCHAR(255),
+
+                    message TEXT,
+
+                    interview_date DATE,
+
+                    interview_time TIME,
+
+                    interview_location VARCHAR(500),
+
+                    is_read BOOLEAN
+                        NOT NULL DEFAULT FALSE,
+
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                    CONSTRAINT fk_applicant_messages_application
+                        FOREIGN KEY (application_id)
+                        REFERENCES applications(id)
+                        ON DELETE CASCADE
+                )
+                """
+            )
+
+
+            # =================================================
+            # ADD INTERVIEW DATE
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_date DATE
+                """
+            )
+
+
+            # =================================================
+            # ADD INTERVIEW TIME
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_time TIME
+                """
+            )
+
+
+            # =================================================
+            # ADD INTERVIEW LOCATION
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS interview_location VARCHAR(500)
+                """
+            )
+
+
+            # =================================================
+            # ENSURE OTHER COLUMNS EXIST
+            # =================================================
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS message_type
+                VARCHAR(30)
+                NOT NULL DEFAULT 'message'
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS subject
+                VARCHAR(255)
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS message
+                TEXT
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS is_read
+                BOOLEAN
+                NOT NULL DEFAULT FALSE
+                """
+            )
+
+
+            cur.execute(
+                """
+                ALTER TABLE applicant_messages
+                ADD COLUMN IF NOT EXISTS created_at
+                TIMESTAMP
+                NOT NULL DEFAULT CURRENT_TIMESTAMP
+                """
+            )
+
+
+            # =================================================
+            # CREATE INDEXES
+            # =================================================
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_application
+
+                ON applicant_messages(application_id)
+                """
+            )
+
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_unread
+
+                ON applicant_messages(
+                    application_id,
+                    is_read
+                )
+                """
+            )
+
+
+            # =================================================
+            # COMMIT CHANGES
+            # =================================================
+
+            conn.commit()
+
+
+            # =================================================
+            # VERIFY COLUMNS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    column_name
+
+                FROM information_schema.columns
+
+                WHERE table_schema = 'public'
+
+                AND table_name = 'applicant_messages'
+
+                ORDER BY ordinal_position
+                """
+            )
+
+            columns = cur.fetchall()
+
+
+            column_names = [
+                row["column_name"]
+                for row in columns
+            ]
+
+
+        # =====================================================
+        # VERIFY REQUIRED COLUMNS
+        # =====================================================
+
+        required_columns = [
+            "interview_date",
+            "interview_time",
+            "interview_location"
+        ]
+
+
+        missing_columns = [
+            column
+            for column in required_columns
+            if column not in column_names
+        ]
+
+
+        if missing_columns:
+
+            return (
+                "Migration failed. Missing columns: "
+                + ", ".join(missing_columns),
+                500
+            )
+
+
+        return (
+            """
+            <h2>Applicant Messages Database Fixed</h2>
+
+            <p>
+                The applicant_messages table has been
+                successfully updated.
+            </p>
+
+            <h3>Available columns:</h3>
+
+            <ul>
+                """
+                + "".join(
+                    f"<li>{column}</li>"
+                    for column in column_names
+                )
+                + """
+            </ul>
+
+            <p>
+                You can now return to the applicant portal.
+            </p>
+            """
+        )
+
+
+    except Exception as e:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error fixing applicant_messages table"
+        )
+
+        return (
+            f"""
+            <h2>Database Migration Failed</h2>
+
+            <pre>{str(e)}</pre>
+            """,
+            500
+        )
+
+
+    finally:
+
+        conn.close()
 # ============================================================
 # DAILY ATTENDANCE PDF
 # ============================================================
