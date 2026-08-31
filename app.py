@@ -13278,19 +13278,12 @@ def download_applicant_biodata(application_id):
     from io import BytesIO
 
     from reportlab.lib import colors
-
-    from reportlab.lib.enums import (
-        TA_CENTER,
-        TA_LEFT
-    )
-
+    from reportlab.lib.enums import TA_CENTER
     from reportlab.lib.pagesizes import A4
-
     from reportlab.lib.styles import (
         getSampleStyleSheet,
         ParagraphStyle
     )
-
     from reportlab.lib.units import mm
 
     from reportlab.platypus import (
@@ -13307,12 +13300,14 @@ def download_applicant_biodata(application_id):
     # DATABASE
     # =========================================================
 
-    conn = get_db()
+    conn = None
 
     applicant = None
     settings = None
 
     try:
+
+        conn = get_db()
 
         with conn.cursor() as cur:
 
@@ -13347,7 +13342,7 @@ def download_applicant_biodata(application_id):
                     footer_text,
                     logo
                 FROM company_settings
-                ORDER BY id ASC
+                ORDER BY id DESC
                 LIMIT 1
                 """
             )
@@ -13372,7 +13367,12 @@ def download_applicant_biodata(application_id):
 
     finally:
 
-        conn.close()
+        if conn:
+
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     # =========================================================
     # APPLICANT NOT FOUND
@@ -13431,14 +13431,16 @@ def download_applicant_biodata(application_id):
     def safe_text(text):
 
         if text is None:
-
             return ""
 
-        return html.escape(
-            str(text)
-        ).replace(
-            "\n",
-            "<br/>"
+        return (
+            html.escape(
+                str(text)
+            )
+            .replace(
+                "\n",
+                "<br/>"
+            )
         )
 
     # =========================================================
@@ -13543,11 +13545,13 @@ def download_applicant_biodata(application_id):
     # IMAGE LOADER
     #
     # Supports:
+    #
     # 1. Cloudinary URL
-    # 2. Other remote URL
+    # 2. Other HTTPS URL
     # 3. /static/...
     # 4. static/...
-    # 5. filename only
+    # 5. filename stored locally
+    #
     # =========================================================
 
     def load_image(
@@ -13556,7 +13560,6 @@ def download_applicant_biodata(application_id):
     ):
 
         if not image_value:
-
             return None
 
         image_value = str(
@@ -13564,31 +13567,26 @@ def download_applicant_biodata(application_id):
         ).strip()
 
         if not image_value:
-
             return None
 
         # -----------------------------------------------------
-        # REMOTE / CLOUDINARY URL
+        # REMOTE / CLOUDINARY IMAGE
         # -----------------------------------------------------
 
         if (
-            image_value.startswith(
-                "http://"
-            )
+            image_value.startswith("http://")
             or
-            image_value.startswith(
-                "https://"
-            )
+            image_value.startswith("https://")
         ):
 
             try:
 
                 response = requests.get(
                     image_value,
-                    timeout=20,
+                    timeout=25,
                     headers={
                         "User-Agent":
-                        "AV-KING-Recruitment-Portal/1.0"
+                            "AV-KING-Recruitment-Portal/1.0"
                     }
                 )
 
@@ -13597,7 +13595,7 @@ def download_applicant_biodata(application_id):
                 if not response.content:
 
                     raise ValueError(
-                        "Empty image response."
+                        "Remote image returned empty content."
                     )
 
                 image_buffer = BytesIO(
@@ -13624,7 +13622,7 @@ def download_applicant_biodata(application_id):
                 return None
 
         # -----------------------------------------------------
-        # LOCAL FILE FALLBACK
+        # LOCAL FILE
         # -----------------------------------------------------
 
         if image_value.startswith(
@@ -13685,6 +13683,11 @@ def download_applicant_biodata(application_id):
 
             image_buffer.seek(0)
 
+            app.logger.info(
+                "%s loaded successfully from local file.",
+                label
+            )
+
             return image_buffer
 
         except Exception:
@@ -13708,6 +13711,13 @@ def download_applicant_biodata(application_id):
 
     # =========================================================
     # LOAD APPLICANT PASSPORT
+    #
+    # Your database should contain the Cloudinary URL in
+    # passport_filename.
+    #
+    # If your actual column is "passport", change the field
+    # below from passport_filename to passport.
+    #
     # =========================================================
 
     passport_value = value(
@@ -13755,6 +13765,10 @@ def download_applicant_biodata(application_id):
 
     styles = getSampleStyleSheet()
 
+    # ---------------------------------------------------------
+    # COMPANY NAME
+    # ---------------------------------------------------------
+
     company_style = ParagraphStyle(
         "CompanyStyle",
 
@@ -13762,16 +13776,22 @@ def download_applicant_biodata(application_id):
 
         fontName="Helvetica-Bold",
 
-        fontSize=15,
+        fontSize=14,
 
-        leading=19,
+        leading=17,
 
         alignment=TA_CENTER,
 
         textColor=colors.HexColor(
             "#111827"
-        )
+        ),
+
+        spaceAfter=2
     )
+
+    # ---------------------------------------------------------
+    # COMPANY INFORMATION
+    # ---------------------------------------------------------
 
     company_info_style = ParagraphStyle(
         "CompanyInfo",
@@ -13780,9 +13800,9 @@ def download_applicant_biodata(application_id):
 
         fontName="Helvetica",
 
-        fontSize=8,
+        fontSize=7.5,
 
-        leading=11,
+        leading=10,
 
         alignment=TA_CENTER,
 
@@ -13790,6 +13810,10 @@ def download_applicant_biodata(application_id):
             "#4b5563"
         )
     )
+
+    # ---------------------------------------------------------
+    # MAIN TITLE
+    # ---------------------------------------------------------
 
     title_style = ParagraphStyle(
         "TitleStyle",
@@ -13809,6 +13833,10 @@ def download_applicant_biodata(application_id):
         )
     )
 
+    # ---------------------------------------------------------
+    # SECTION HEADER
+    # ---------------------------------------------------------
+
     section_style = ParagraphStyle(
         "SectionStyle",
 
@@ -13822,6 +13850,10 @@ def download_applicant_biodata(application_id):
 
         textColor=colors.white
     )
+
+    # ---------------------------------------------------------
+    # LABEL
+    # ---------------------------------------------------------
 
     label_style = ParagraphStyle(
         "LabelStyle",
@@ -13839,6 +13871,10 @@ def download_applicant_biodata(application_id):
         )
     )
 
+    # ---------------------------------------------------------
+    # DATA
+    # ---------------------------------------------------------
+
     data_style = ParagraphStyle(
         "DataStyle",
 
@@ -13854,6 +13890,10 @@ def download_applicant_biodata(application_id):
             "#111827"
         )
     )
+
+    # ---------------------------------------------------------
+    # SMALL
+    # ---------------------------------------------------------
 
     small_style = ParagraphStyle(
         "SmallStyle",
@@ -13878,7 +13918,7 @@ def download_applicant_biodata(application_id):
     story = []
 
     # =========================================================
-    # COMPANY LOGO
+    # COMPANY LOGO - LEFT
     # =========================================================
 
     if logo_buffer:
@@ -13901,23 +13941,23 @@ def download_applicant_biodata(application_id):
         except Exception:
 
             app.logger.exception(
-                "Unable to create ReportLab company logo."
+                "Unable to create company logo image."
             )
 
             header_logo = Paragraph(
-                "AV",
+                "AV KING",
                 company_style
             )
 
     else:
 
         header_logo = Paragraph(
-            "AV",
+            "AV KING",
             company_style
         )
 
     # =========================================================
-    # APPLICANT PASSPORT
+    # APPLICANT PASSPORT - RIGHT
     # =========================================================
 
     if passport_buffer:
@@ -13940,7 +13980,7 @@ def download_applicant_biodata(application_id):
         except Exception:
 
             app.logger.exception(
-                "Unable to create ReportLab passport image."
+                "Unable to create applicant passport image."
             )
 
             header_passport = Paragraph(
@@ -13956,7 +13996,7 @@ def download_applicant_biodata(application_id):
         )
 
     # =========================================================
-    # COMPANY INFORMATION
+    # COMPANY INFORMATION - CENTER
     # =========================================================
 
     company_details = []
@@ -14007,7 +14047,17 @@ def download_applicant_biodata(application_id):
         )
 
     # =========================================================
-    # HEADER TABLE
+    # PROFESSIONAL HEADER
+    #
+    # LEFT:
+    # COMPANY LOGO
+    #
+    # CENTER:
+    # COMPANY DETAILS
+    #
+    # RIGHT:
+    # APPLICANT PASSPORT
+    #
     # =========================================================
 
     header_table = Table(
@@ -14022,9 +14072,11 @@ def download_applicant_biodata(application_id):
 
         colWidths=[
             40 * mm,
-            110 * mm,
-            35 * mm
-        ]
+            100 * mm,
+            40 * mm
+        ],
+
+        hAlign="CENTER"
     )
 
     header_table.setStyle(
@@ -14035,8 +14087,12 @@ def download_applicant_biodata(application_id):
                     "VALIGN",
                     (0, 0),
                     (-1, -1),
-                    "MIDDLE"
+                    "TOP"
                 ),
+
+                # -------------------------------------------------
+                # LEFT LOGO
+                # -------------------------------------------------
 
                 (
                     "ALIGN",
@@ -14045,12 +14101,20 @@ def download_applicant_biodata(application_id):
                     "LEFT"
                 ),
 
+                # -------------------------------------------------
+                # CENTER COMPANY DETAILS
+                # -------------------------------------------------
+
                 (
                     "ALIGN",
                     (1, 0),
                     (1, 0),
                     "CENTER"
                 ),
+
+                # -------------------------------------------------
+                # RIGHT PASSPORT
+                # -------------------------------------------------
 
                 (
                     "ALIGN",
@@ -14059,32 +14123,36 @@ def download_applicant_biodata(application_id):
                     "RIGHT"
                 ),
 
+                # -------------------------------------------------
+                # PADDING
+                # -------------------------------------------------
+
                 (
                     "LEFTPADDING",
                     (0, 0),
                     (-1, -1),
-                    2
+                    0
                 ),
 
                 (
                     "RIGHTPADDING",
                     (0, 0),
                     (-1, -1),
-                    2
+                    0
                 ),
 
                 (
                     "TOPPADDING",
                     (0, 0),
                     (-1, -1),
-                    2
+                    0
                 ),
 
                 (
                     "BOTTOMPADDING",
                     (0, 0),
                     (-1, -1),
-                    2
+                    0
                 )
             ]
         )
@@ -14100,6 +14168,10 @@ def download_applicant_biodata(application_id):
             5 * mm
         )
     )
+
+    # =========================================================
+    # HEADER LINE
+    # =========================================================
 
     story.append(
         HRFlowable(
@@ -14150,7 +14222,6 @@ def download_applicant_biodata(application_id):
                 )
                 + "</b>"
             ),
-
             company_info_style
         )
     )
@@ -14163,7 +14234,7 @@ def download_applicant_biodata(application_id):
     )
 
     # =========================================================
-    # SECTION HEADER
+    # SECTION HEADER FUNCTION
     # =========================================================
 
     def section_header(title):
@@ -14240,7 +14311,7 @@ def download_applicant_biodata(application_id):
         )
 
     # =========================================================
-    # INFORMATION TABLE
+    # INFORMATION TABLE FUNCTION
     # =========================================================
 
     def information_table(rows):
@@ -14251,6 +14322,7 @@ def download_applicant_biodata(application_id):
 
             table_data.append(
                 [
+
                     Paragraph(
                         safe_text(label),
                         label_style
@@ -14359,10 +14431,6 @@ def download_applicant_biodata(application_id):
         "created_at",
         ""
     )
-
-    # ---------------------------------------------------------
-    # DATE FORMATTING
-    # ---------------------------------------------------------
 
     if created_at:
 
@@ -14750,7 +14818,7 @@ def download_applicant_biodata(application_id):
     )
 
     # =========================================================
-    # ADMIN USE
+    # OFFICIAL USE
     # =========================================================
 
     section_header(
@@ -15003,9 +15071,18 @@ def download_applicant_biodata(application_id):
 
     safe_application_number = (
         safe_application_number
-        .replace("/", "-")
-        .replace("\\", "-")
-        .replace(" ", "_")
+        .replace(
+            "/",
+            "-"
+        )
+        .replace(
+            "\\",
+            "-"
+        )
+        .replace(
+            " ",
+            "_"
+        )
     )
 
     # =========================================================
