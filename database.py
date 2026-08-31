@@ -888,6 +888,77 @@ def init_db():
                 INTEGER DEFAULT 15
                 """
             )
+
+            # =====================================================
+            # APPLICANT MESSAGES / INTERVIEW COMMUNICATION
+            # =====================================================
+
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS applicant_messages (
+                    id BIGSERIAL PRIMARY KEY,
+
+                    application_id BIGINT NOT NULL,
+
+                    message_type VARCHAR(30)
+                        NOT NULL DEFAULT 'message',
+
+                    subject VARCHAR(255),
+
+                    message TEXT,
+
+                    interview_date DATE,
+
+                    interview_time TIME,
+
+                    interview_location VARCHAR(500),
+
+                    is_read BOOLEAN
+                        NOT NULL DEFAULT FALSE,
+
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                    CONSTRAINT fk_applicant_messages_application
+                        FOREIGN KEY (application_id)
+                        REFERENCES applications(id)
+                        ON DELETE CASCADE
+                )
+                """
+            )
+
+
+            # =====================================================
+            # INDEX - APPLICATION
+            # =====================================================
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_application
+
+                ON applicant_messages(application_id)
+                """
+            )
+
+
+            # =====================================================
+            # INDEX - UNREAD MESSAGES
+            # =====================================================
+
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_applicant_messages_unread
+
+                ON applicant_messages(
+                    application_id,
+                    is_read
+                )
+                """
+            )
+
+
     # =========================================================
     # SAVE CHANGES
     # =========================================================
