@@ -18405,9 +18405,9 @@ def create_payroll():
                         "Please select a payroll month."
                     )
 
-                # -------------------------------------------------
+                # =================================================
                 # SALARY VALUES
-                # -------------------------------------------------
+                # =================================================
 
                 basic_salary = payroll_decimal(
                     request.form.get(
@@ -18437,9 +18437,9 @@ def create_payroll():
                     )
                 )
 
-                # -------------------------------------------------
+                # =================================================
                 # CALCULATE NET SALARY
-                # -------------------------------------------------
+                # =================================================
 
                 net_salary = calculate_net_salary(
                     basic_salary,
@@ -18456,7 +18456,7 @@ def create_payroll():
                 with conn.cursor() as cur:
 
                     # =============================================
-                    # GET SELECTED APPLICANT
+                    # GET APPLICANT
                     # =============================================
 
                     cur.execute(
@@ -18473,9 +18473,7 @@ def create_payroll():
                         WHERE id = %s
                         LIMIT 1
                         """,
-                        (
-                            application_id,
-                        )
+                        (application_id,)
                     )
 
                     applicant = cur.fetchone()
@@ -18486,7 +18484,7 @@ def create_payroll():
                         )
 
                     # =============================================
-                    # APPROVED APPLICANTS ONLY
+                    # APPROVED ONLY
                     # =============================================
 
                     applicant_status = (
@@ -18499,13 +18497,12 @@ def create_payroll():
                         )
 
                     # =============================================
-                    # CHECK DUPLICATE PAYROLL
+                    # DUPLICATE CHECK
                     # =============================================
 
                     cur.execute(
                         """
-                        SELECT
-                            id
+                        SELECT id
                         FROM payroll
                         WHERE application_id = %s
                           AND payroll_month = %s
@@ -18611,15 +18608,15 @@ def create_payroll():
                 """
             )
 
-            applicants = cur.fetchall()
+            approved_applicants = cur.fetchall()
 
         # =====================================================
-        # DISPLAY CREATE PAYROLL PAGE
+        # RENDER PAGE
         # =====================================================
 
         return render_template(
             "create_payroll.html",
-            applicants=applicants
+            approved_applicants=approved_applicants
         )
 
     except Exception:
