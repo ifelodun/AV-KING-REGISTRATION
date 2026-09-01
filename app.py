@@ -19366,17 +19366,21 @@ def applicant_payroll():
 # APPLICANT PAYSLIP
 # ============================================================
 @app.route(
-    "/applicant/payslip/<int:payroll_id>"
+    "/applicant/payslip/<int:payroll_id>",
+    methods=["GET"]
 )
 def applicant_payslip(payroll_id):
+    """
+    Generate a professional applicant payslip PDF.
 
-    # ========================================================
-    # APPLICANT LOGIN
-    # ========================================================
+    The logged-in applicant can only access their own
+    payroll record.
 
-    applicant_id = session.get(
-        "applicant_id"
-    )
+    Company logo and applicant passport are loaded from
+    Cloudinary when available.
+    """
+
+    applicant_id = session.get("applicant_id")
 
     if not applicant_id:
         flash(
@@ -19388,9 +19392,7 @@ def applicant_payslip(payroll_id):
             url_for("applicant_login")
         )
 
-
     conn = None
-
 
     try:
 
@@ -19398,55 +19400,35 @@ def applicant_payslip(payroll_id):
 
         with conn.cursor() as cur:
 
-            # ====================================================
-            # LOAD PAYROLL
-            #
-            # SECURITY:
-            # The payroll record MUST belong to the logged-in
-            # applicant.
-            # ====================================================
+            # =================================================
+            # GET PAYROLL + APPLICANT
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
-
                     p.id,
-
+                    p.application_id,
                     p.payroll_month,
-
                     p.basic_salary,
-
                     p.allowance,
-
                     p.bonus,
-
                     p.deduction,
-
                     p.net_salary,
-
                     p.payment_status,
-
                     p.paid_at,
-
                     p.created_at,
 
-                    a.id AS application_id,
-
                     a.application_number,
-
                     a.first_name,
-
                     a.middle_name,
-
                     a.last_name,
-
                     a.position_applied,
-
-                    a.status AS application_status,
-
+                    a.phone,
                     a.email,
-
-                    a.phone
+                    a.address,
+                    a.status AS application_status,
+                    a.passport_url
 
                 FROM payroll p
 
@@ -19454,10 +19436,7 @@ def applicant_payslip(payroll_id):
                     ON a.id = p.application_id
 
                 WHERE p.id = %s
-
                   AND p.application_id = %s
-
-                  AND LOWER(TRIM(a.status)) = 'approved'
 
                 LIMIT 1
                 """,
@@ -19467,13 +19446,7 @@ def applicant_payslip(payroll_id):
                 )
             )
 
-
             payroll = cur.fetchone()
-
-
-            # ====================================================
-            # PAYROLL NOT FOUND
-            # ====================================================
 
             if not payroll:
 
@@ -19486,41 +19459,113 @@ def applicant_payslip(payroll_id):
                     url_for("applicant_payroll")
                 )
 
+            # =================================================
+            # APPROVED APPLICANTS ONLY
+            # =================================================
+
+            application_status = str(
+                payroll["application_status"] or ""
+            ).strip().lower()
+
+            if application_status != "approved":
+
+                flash(
+                    "Payslips are only available to approved applicants.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("applicant_payroll")
+                )
+
+            # =================================================
+            # COMPANY SETTINGS
+            # =================================================
+
+            company_name = "AV KING VET DRUG VENTURE"
+            company_email = ""
+            company_phone = ""
+            company_address = ""
+            company_logo_url = None
+
+            try:
+
+                cur.execute(
+                    """
+                    SELECT
+                        company_name,
+                        company_email,
+                        company_phone,
+                        company_address,
+                        logo
+                    FROM company_settings
+                    ORDER BY id ASC
+                    LIMIT 1
+                    """
+                )
+
+                settings = cur.fetchone()
+
+                if settings:
+
+                    company_name = (
+                        settings["company_name"]
+                        or company_name
+                    )
+
+                    company_email = (
+                        settings["company_email"]
+                        or ""
+                    )
+
+                    company_phone = (
+                        settings["company_phone"]
+                        or ""
+                    )
+
+                    company_address = (
+                        settings["company_address"]
+                        or ""
+                    )
+
+                    company_logo_url = (
+                        settings["logo"]
+                        or None
+                    )
+
+            except Exception:
+
+                app.logger.exception(
+                    "Unable to load company settings for payslip."
+                )
 
     except Exception:
 
         if conn:
-
             conn.rollback()
-
 
         app.logger.exception(
             "Error loading applicant payslip %s.",
             payroll_id
         )
 
-
         flash(
             "Unable to load your payslip.",
             "error"
         )
 
-
         return redirect(
             url_for("applicant_payroll")
         )
 
-
     finally:
 
         if conn:
-
             conn.close()
 
-
-    # ========================================================
+    # =========================================================
     # CREATE TEMPORARY PDF
-    # ========================================================
+    # =========================================================
 
     temp_file = tempfile.NamedTemporaryFile(
         suffix=".pdf",
@@ -19528,347 +19573,627 @@ def applicant_payslip(payroll_id):
     )
 
     pdf_path = temp_file.name
-
     temp_file.close()
 
+    # =========================================================
+    # HELPER: DOWNLOAD CLOUDINARY IMAGE
+    # =========================================================
+
+    def download_cloudinary_image(
+        image_url,
+        prefix
+    ):
+
+        if not image_url:
+            return None
+
+        try:
+
+            response = requests.get(
+                image_url,
+                timeout=15
+            )
+
+            response.raise_for_status()
+
+            image_file = tempfile.NamedTemporaryFile(
+                suffix=".jpg",
+                prefix=prefix,
+                delete=False
+            )
+
+            image_file.write(
+                response.content
+            )
+
+            image_file.close()
+
+            return image_file.name
+
+        except Exception:
+
+            app.logger.exception(
+                "Unable to download image from Cloudinary."
+            )
+
+            return None
+
+    logo_path = None
+    passport_path = None
 
     try:
 
-        # ====================================================
-        # PDF DOCUMENT
-        # ====================================================
+        # =====================================================
+        # DOWNLOAD COMPANY LOGO
+        # =====================================================
+
+        logo_path = download_cloudinary_image(
+            company_logo_url,
+            "company_logo_"
+        )
+
+        # =====================================================
+        # DOWNLOAD APPLICANT PASSPORT
+        # =====================================================
+
+        passport_path = download_cloudinary_image(
+            payroll["passport_url"],
+            "applicant_passport_"
+        )
+
+        # =====================================================
+        # DOCUMENT
+        # =====================================================
 
         doc = SimpleDocTemplate(
-
             pdf_path,
-
             pagesize=A4,
 
             rightMargin=18 * mm,
-
             leftMargin=18 * mm,
+            topMargin=16 * mm,
+            bottomMargin=18 * mm,
 
-            topMargin=18 * mm,
+            title=(
+                f"Payslip - "
+                f"{payroll['application_number']}"
+            ),
 
-            bottomMargin=18 * mm
+            author=company_name
         )
-
 
         styles = getSampleStyleSheet()
 
-
-        # ====================================================
-        # STYLES
-        # ====================================================
+        # =====================================================
+        # CUSTOM STYLES
+        # =====================================================
 
         company_style = ParagraphStyle(
-
-            "ApplicantPayslipCompany",
-
+            "CompanyName",
             parent=styles["Title"],
-
-            alignment=TA_CENTER,
-
+            fontName="Helvetica-Bold",
             fontSize=17,
-
-            leading=21,
-
-            spaceAfter=4
+            leading=20,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor("#111827"),
+            spaceAfter=3
         )
-
 
         subtitle_style = ParagraphStyle(
-
-            "ApplicantPayslipSubtitle",
-
+            "CompanySubtitle",
             parent=styles["Normal"],
-
+            fontName="Helvetica",
+            fontSize=8.5,
+            leading=11,
             alignment=TA_CENTER,
-
-            fontSize=9,
-
-            textColor=colors.grey,
-
-            spaceAfter=15
+            textColor=colors.HexColor("#6b7280"),
+            spaceAfter=2
         )
 
-
-        heading_style = ParagraphStyle(
-
-            "ApplicantPayslipHeading",
-
-            parent=styles["Heading2"],
-
-            fontSize=12,
-
-            leading=15,
-
-            spaceBefore=8,
-
-            spaceAfter=8
+        document_title_style = ParagraphStyle(
+            "DocumentTitle",
+            parent=styles["Heading1"],
+            fontName="Helvetica-Bold",
+            fontSize=15,
+            leading=18,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor("#111827"),
+            spaceBefore=12,
+            spaceAfter=3
         )
 
-
-        right_style = ParagraphStyle(
-
-            "ApplicantPayslipRight",
-
+        reference_style = ParagraphStyle(
+            "Reference",
             parent=styles["Normal"],
-
-            alignment=TA_RIGHT,
-
-            fontSize=10
+            fontName="Helvetica",
+            fontSize=8,
+            alignment=TA_CENTER,
+            textColor=colors.HexColor("#6b7280"),
+            spaceAfter=12
         )
 
+        section_style = ParagraphStyle(
+            "Section",
+            parent=styles["Heading2"],
+            fontName="Helvetica-Bold",
+            fontSize=10.5,
+            leading=13,
+            textColor=colors.HexColor("#111827"),
+            spaceBefore=10,
+            spaceAfter=7
+        )
+
+        normal_style = ParagraphStyle(
+            "NormalSmall",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=12,
+            textColor=colors.HexColor("#374151")
+        )
+
+        label_style = ParagraphStyle(
+            "Label",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=8.5,
+            leading=11,
+            textColor=colors.HexColor("#4b5563")
+        )
+
+        value_style = ParagraphStyle(
+            "Value",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=11,
+            textColor=colors.HexColor("#111827")
+        )
+
+        amount_style = ParagraphStyle(
+            "Amount",
+            parent=styles["Normal"],
+            fontName="Helvetica",
+            fontSize=9,
+            leading=11,
+            alignment=TA_RIGHT,
+            textColor=colors.HexColor("#111827")
+        )
+
+        net_style = ParagraphStyle(
+            "NetAmount",
+            parent=styles["Normal"],
+            fontName="Helvetica-Bold",
+            fontSize=11,
+            leading=14,
+            alignment=TA_RIGHT,
+            textColor=colors.HexColor("#111827")
+        )
+
+        # =====================================================
+        # CONTENT
+        # =====================================================
 
         content = []
 
+        # =====================================================
+        # HEADER WITH LOGO LEFT + PASSPORT RIGHT
+        # =====================================================
 
-        # ====================================================
-        # COMPANY HEADER
-        # ====================================================
+        header_left = []
 
-        content.append(
+        if logo_path:
+
+            try:
+
+                logo = Image(
+                    logo_path,
+                    width=28 * mm,
+                    height=28 * mm
+                )
+
+                logo.hAlign = "LEFT"
+
+                header_left.append(logo)
+
+            except Exception:
+
+                app.logger.exception(
+                    "Unable to place company logo on payslip."
+                )
+
+        else:
+
+            header_left.append(
+                Paragraph(
+                    "<b>AV KING</b>",
+                    ParagraphStyle(
+                        "LogoFallback",
+                        parent=styles["Normal"],
+                        fontSize=13,
+                        leading=15,
+                        textColor=colors.HexColor("#111827")
+                    )
+                )
+            )
+
+        header_center = [
             Paragraph(
-                "AV KING VET DRUG VENTURE",
+                company_name,
                 company_style
+            ),
+
+            Paragraph(
+                "VETERINARY BUSINESS SUITE",
+                subtitle_style
+            )
+        ]
+
+        if company_address:
+
+            header_center.append(
+                Paragraph(
+                    str(company_address),
+                    subtitle_style
+                )
+            )
+
+        contact_line = []
+
+        if company_phone:
+            contact_line.append(
+                str(company_phone)
+            )
+
+        if company_email:
+            contact_line.append(
+                str(company_email)
+            )
+
+        if contact_line:
+
+            header_center.append(
+                Paragraph(
+                    " | ".join(contact_line),
+                    subtitle_style
+                )
+            )
+
+        header_right = []
+
+        if passport_path:
+
+            try:
+
+                passport = Image(
+                    passport_path,
+                    width=27 * mm,
+                    height=34 * mm
+                )
+
+                passport.hAlign = "RIGHT"
+
+                header_right.append(
+                    passport
+                )
+
+            except Exception:
+
+                app.logger.exception(
+                    "Unable to place passport on payslip."
+                )
+
+        else:
+
+            header_right.append(
+                Paragraph(
+                    "PASSPORT<br/>PHOTO",
+                    ParagraphStyle(
+                        "PassportFallback",
+                        parent=styles["Normal"],
+                        alignment=TA_CENTER,
+                        fontSize=7,
+                        leading=9,
+                        textColor=colors.HexColor("#9ca3af")
+                    )
+                )
+            )
+
+        header_table = Table(
+            [
+                [
+                    header_left,
+                    header_center,
+                    header_right
+                ]
+            ],
+            colWidths=[
+                38 * mm,
+                108 * mm,
+                32 * mm
+            ]
+        )
+
+        header_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "MIDDLE"
+                    ),
+
+                    (
+                        "ALIGN",
+                        (0, 0),
+                        (0, 0),
+                        "LEFT"
+                    ),
+
+                    (
+                        "ALIGN",
+                        (1, 0),
+                        (1, 0),
+                        "CENTER"
+                    ),
+
+                    (
+                        "ALIGN",
+                        (2, 0),
+                        (2, 0),
+                        "RIGHT"
+                    ),
+
+                    (
+                        "BOX",
+                        (2, 0),
+                        (2, 0),
+                        0.5,
+                        colors.HexColor("#d1d5db")
+                    ),
+
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        3
+                    ),
+
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        3
+                    ),
+
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        3
+                    ),
+
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        3
+                    )
+                ]
             )
         )
 
+        content.append(
+            header_table
+        )
+
+        # =====================================================
+        # TITLE
+        # =====================================================
 
         content.append(
             Paragraph(
                 "OFFICIAL SALARY PAYSLIP",
-                subtitle_style
+                document_title_style
             )
         )
 
+        content.append(
+            Paragraph(
+                (
+                    f"Payroll Reference: "
+                    f"<b>{payroll['application_number']}</b>"
+                ),
+                reference_style
+            )
+        )
 
-        # ====================================================
-        # APPLICANT NAME
-        # ====================================================
+        # =====================================================
+        # EMPLOYEE INFORMATION
+        # =====================================================
+
+        content.append(
+            Paragraph(
+                "EMPLOYEE INFORMATION",
+                section_style
+            )
+        )
 
         fullname = " ".join(
-
             str(part).strip()
-
             for part in [
-
                 payroll["first_name"],
-
                 payroll["middle_name"],
-
                 payroll["last_name"]
-
             ]
-
             if part
         )
 
-
-        # ====================================================
-        # APPLICANT INFORMATION
-        # ====================================================
-
-        applicant_data = [
-
+        employee_data = [
             [
-
                 Paragraph(
-                    "<b>Employee Name</b>",
-                    styles["Normal"]
+                    "Employee Name",
+                    label_style
                 ),
-
                 Paragraph(
                     fullname or "—",
-                    styles["Normal"]
-                )
-
-            ],
-
-            [
-
-                Paragraph(
-                    "<b>Application Number</b>",
-                    styles["Normal"]
+                    value_style
                 ),
 
                 Paragraph(
-                    str(
-                        payroll["application_number"]
-                        or "—"
-                    ),
-                    styles["Normal"]
-                )
-
-            ],
-
-            [
-
-                Paragraph(
-                    "<b>Position</b>",
-                    styles["Normal"]
+                    "Payroll Month",
+                    label_style
                 ),
-
-                Paragraph(
-                    str(
-                        payroll["position_applied"]
-                        or "—"
-                    ),
-                    styles["Normal"]
-                )
-
-            ],
-
-            [
-
-                Paragraph(
-                    "<b>Payroll Month</b>",
-                    styles["Normal"]
-                ),
-
                 Paragraph(
                     str(
                         payroll["payroll_month"]
                         or "—"
                     ),
-                    styles["Normal"]
+                    value_style
                 )
+            ],
 
+            [
+                Paragraph(
+                    "Application No.",
+                    label_style
+                ),
+                Paragraph(
+                    str(
+                        payroll["application_number"]
+                        or "—"
+                    ),
+                    value_style
+                ),
+
+                Paragraph(
+                    "Position",
+                    label_style
+                ),
+                Paragraph(
+                    str(
+                        payroll["position_applied"]
+                        or "—"
+                    ),
+                    value_style
+                )
+            ],
+
+            [
+                Paragraph(
+                    "Phone",
+                    label_style
+                ),
+                Paragraph(
+                    str(
+                        payroll["phone"]
+                        or "—"
+                    ),
+                    value_style
+                ),
+
+                Paragraph(
+                    "Email",
+                    label_style
+                ),
+                Paragraph(
+                    str(
+                        payroll["email"]
+                        or "—"
+                    ),
+                    value_style
+                )
             ]
-
         ]
 
-
-        applicant_table = Table(
-
-            applicant_data,
-
+        employee_table = Table(
+            employee_data,
             colWidths=[
-
-                48 * mm,
-
-                120 * mm
-
+                32 * mm,
+                52 * mm,
+                32 * mm,
+                62 * mm
             ]
         )
 
+        employee_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (0, -1),
+                        colors.HexColor("#f3f4f6")
+                    ),
 
-        applicant_table.setStyle(
+                    (
+                        "BACKGROUND",
+                        (2, 0),
+                        (2, -1),
+                        colors.HexColor("#f3f4f6")
+                    ),
 
-            TableStyle([
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.4,
+                        colors.HexColor("#d1d5db")
+                    ),
 
-                (
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "MIDDLE"
+                    ),
 
-                    "BACKGROUND",
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    (0, 0),
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    (0, -1),
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    colors.HexColor(
-                        "#f3f4f6"
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
                     )
-
-                ),
-
-                (
-
-                    "BOX",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    0.5,
-
-                    colors.HexColor(
-                        "#d1d5db"
-                    )
-
-                ),
-
-                (
-
-                    "INNERGRID",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    0.25,
-
-                    colors.HexColor(
-                        "#e5e7eb"
-                    )
-
-                ),
-
-                (
-
-                    "VALIGN",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    "MIDDLE"
-
-                ),
-
-                (
-
-                    "TOPPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    7
-
-                ),
-
-                (
-
-                    "BOTTOMPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    7
-
-                )
-
-            ])
-
-        )
-
-
-        content.append(
-            applicant_table
-        )
-
-
-        content.append(
-            Spacer(
-                1,
-                12
+                ]
             )
         )
 
+        content.append(
+            employee_table
+        )
 
-        # ====================================================
+        # =====================================================
         # SALARY BREAKDOWN
-        # ====================================================
+        # =====================================================
 
         content.append(
             Paragraph(
-                "Salary Breakdown",
-                heading_style
+                "SALARY BREAKDOWN",
+                section_style
             )
         )
-
 
         basic_salary = float(
             payroll["basic_salary"] or 0
@@ -19890,225 +20215,182 @@ def applicant_payslip(payroll_id):
             payroll["net_salary"] or 0
         )
 
-
         salary_data = [
-
             [
-
                 Paragraph(
                     "<b>Description</b>",
-                    styles["Normal"]
+                    normal_style
                 ),
 
                 Paragraph(
-                    "<b>Amount</b>",
-                    right_style
+                    "<b>Amount (NGN)</b>",
+                    ParagraphStyle(
+                        "HeaderAmount",
+                        parent=normal_style,
+                        alignment=TA_RIGHT,
+                        textColor=colors.white
+                    )
                 )
-
             ],
 
             [
-
-                "Basic Salary",
+                Paragraph(
+                    "Basic Salary",
+                    normal_style
+                ),
 
                 Paragraph(
-                    f"₦{basic_salary:,.2f}",
-                    right_style
+                    f"NGN {basic_salary:,.2f}",
+                    amount_style
                 )
-
             ],
 
             [
-
-                "Allowance",
+                Paragraph(
+                    "Allowance",
+                    normal_style
+                ),
 
                 Paragraph(
-                    f"₦{allowance:,.2f}",
-                    right_style
+                    f"NGN {allowance:,.2f}",
+                    amount_style
                 )
-
             ],
 
             [
-
-                "Bonus",
+                Paragraph(
+                    "Bonus",
+                    normal_style
+                ),
 
                 Paragraph(
-                    f"₦{bonus:,.2f}",
-                    right_style
+                    f"NGN {bonus:,.2f}",
+                    amount_style
                 )
-
             ],
 
             [
-
-                "Deduction",
+                Paragraph(
+                    "Deduction",
+                    normal_style
+                ),
 
                 Paragraph(
-                    f"-₦{deduction:,.2f}",
-                    right_style
+                    f"NGN {deduction:,.2f}",
+                    amount_style
                 )
-
             ],
 
             [
-
                 Paragraph(
                     "<b>NET SALARY</b>",
-                    styles["Normal"]
+                    normal_style
                 ),
 
                 Paragraph(
-                    f"<b>₦{net_salary:,.2f}</b>",
-                    right_style
+                    f"<b>NGN {net_salary:,.2f}</b>",
+                    net_style
                 )
-
             ]
-
         ]
 
-
         salary_table = Table(
-
             salary_data,
-
             colWidths=[
-
-                105 * mm,
-
+                115 * mm,
                 63 * mm
-
             ]
         )
 
-
         salary_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        colors.HexColor("#111827")
+                    ),
 
-            TableStyle([
+                    (
+                        "TEXTCOLOR",
+                        (0, 0),
+                        (-1, 0),
+                        colors.white
+                    ),
 
-                (
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.4,
+                        colors.HexColor("#d1d5db")
+                    ),
 
-                    "BACKGROUND",
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "MIDDLE"
+                    ),
 
-                    (0, 0),
+                    (
+                        "BACKGROUND",
+                        (0, -1),
+                        (-1, -1),
+                        colors.HexColor("#f3f4f6")
+                    ),
 
-                    (-1, 0),
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
+                    ),
 
-                    colors.HexColor(
-                        "#111827"
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
+                    ),
+
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
+                    ),
+
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
                     )
-
-                ),
-
-                (
-
-                    "TEXTCOLOR",
-
-                    (0, 0),
-
-                    (-1, 0),
-
-                    colors.white
-
-                ),
-
-                (
-
-                    "GRID",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    0.5,
-
-                    colors.HexColor(
-                        "#d1d5db"
-                    )
-
-                ),
-
-                (
-
-                    "ALIGN",
-
-                    (1, 1),
-
-                    (1, -1),
-
-                    "RIGHT"
-
-                ),
-
-                (
-
-                    "BACKGROUND",
-
-                    (0, -1),
-
-                    (-1, -1),
-
-                    colors.HexColor(
-                        "#ecfdf5"
-                    )
-
-                ),
-
-                (
-
-                    "TOPPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    8
-
-                ),
-
-                (
-
-                    "BOTTOMPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    8
-
-                )
-
-            ])
-
+                ]
+            )
         )
-
 
         content.append(
             salary_table
         )
 
+        # =====================================================
+        # PAYMENT INFORMATION
+        # =====================================================
 
         content.append(
-            Spacer(
-                1,
-                15
+            Paragraph(
+                "PAYMENT INFORMATION",
+                section_style
             )
         )
 
-
-        # ====================================================
-        # PAYMENT INFORMATION
-        # ====================================================
-
-        status_text = (
-
-            str(
-                payroll["payment_status"]
-                or "Pending"
-            ).strip()
-
-        )
-
+        payment_status = str(
+            payroll["payment_status"]
+            or "Pending"
+        ).strip()
 
         if payroll["paid_at"]:
 
@@ -20122,198 +20404,256 @@ def applicant_payslip(payroll_id):
 
             payment_date = "Not yet paid"
 
-
         payment_data = [
-
             [
-
                 Paragraph(
-                    "<b>Payment Status</b>",
-                    styles["Normal"]
+                    "Payment Status",
+                    label_style
                 ),
 
                 Paragraph(
-                    status_text,
-                    styles["Normal"]
+                    f"<b>{payment_status}</b>",
+                    value_style
                 )
-
             ],
 
             [
-
                 Paragraph(
-                    "<b>Payment Date</b>",
-                    styles["Normal"]
+                    "Payment Date",
+                    label_style
                 ),
 
                 Paragraph(
                     payment_date,
-                    styles["Normal"]
+                    value_style
                 )
-
             ]
-
         ]
 
-
         payment_table = Table(
-
             payment_data,
-
             colWidths=[
-
                 48 * mm,
-
-                120 * mm
-
+                130 * mm
             ]
         )
 
-
         payment_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (0, -1),
+                        colors.HexColor("#f3f4f6")
+                    ),
 
-            TableStyle([
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.4,
+                        colors.HexColor("#d1d5db")
+                    ),
 
-                (
+                    (
+                        "VALIGN",
+                        (0, 0),
+                        (-1, -1),
+                        "MIDDLE"
+                    ),
 
-                    "BOX",
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    (0, 0),
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    (-1, -1),
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
+                    ),
 
-                    0.5,
-
-                    colors.HexColor(
-                        "#d1d5db"
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        7
                     )
-
-                ),
-
-                (
-
-                    "INNERGRID",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    0.25,
-
-                    colors.HexColor(
-                        "#e5e7eb"
-                    )
-
-                ),
-
-                (
-
-                    "BACKGROUND",
-
-                    (0, 0),
-
-                    (0, -1),
-
-                    colors.HexColor(
-                        "#f3f4f6"
-                    )
-
-                ),
-
-                (
-
-                    "TOPPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    7
-
-                ),
-
-                (
-
-                    "BOTTOMPADDING",
-
-                    (0, 0),
-
-                    (-1, -1),
-
-                    7
-
-                )
-
-            ])
-
+                ]
+            )
         )
-
 
         content.append(
             payment_table
         )
 
+        # =====================================================
+        # DECLARATION / FOOTER
+        # =====================================================
 
         content.append(
             Spacer(
                 1,
-                20
+                15
             )
         )
 
+        notice_data = [
+            [
+                Paragraph(
+                    (
+                        "<b>IMPORTANT NOTICE</b><br/>"
+                        "This document is an official electronic "
+                        "payroll record generated by the "
+                        "AV KING VET DRUG VENTURE staff "
+                        "management system."
+                    ),
+                    ParagraphStyle(
+                        "Notice",
+                        parent=normal_style,
+                        fontSize=8,
+                        leading=11
+                    )
+                )
+            ]
+        ]
 
-        # ====================================================
-        # FOOTER
-        # ====================================================
+        notice_table = Table(
+            notice_data,
+            colWidths=[
+                178 * mm
+            ]
+        )
+
+        notice_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, -1),
+                        colors.HexColor("#f8fafc")
+                    ),
+
+                    (
+                        "BOX",
+                        (0, 0),
+                        (-1, -1),
+                        0.5,
+                        colors.HexColor("#cbd5e1")
+                    ),
+
+                    (
+                        "LEFTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        10
+                    ),
+
+                    (
+                        "RIGHTPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        10
+                    ),
+
+                    (
+                        "TOPPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
+                    ),
+
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, -1),
+                        8
+                    )
+                ]
+            )
+        )
 
         content.append(
-
-            Paragraph(
-
-                "This payslip is an official payroll document "
-                "generated from the AV KING VET DRUG VENTURE "
-                "staff management system.",
-
-                subtitle_style
-
-            )
-
+            notice_table
         )
 
+        content.append(
+            Spacer(
+                1,
+                14
+            )
+        )
 
-        # ====================================================
+        content.append(
+            Paragraph(
+                (
+                    f"{company_name} • "
+                    "Official Payroll Document"
+                ),
+                ParagraphStyle(
+                    "Footer",
+                    parent=styles["Normal"],
+                    alignment=TA_CENTER,
+                    fontSize=7.5,
+                    leading=10,
+                    textColor=colors.HexColor("#9ca3af")
+                )
+            )
+        )
+
+        # =====================================================
         # BUILD PDF
-        # ====================================================
+        # =====================================================
 
         doc.build(
             content
         )
 
-
-        # ====================================================
+        # =====================================================
         # SEND PDF
-        # ====================================================
+        # =====================================================
 
-        return send_file(
-
-            pdf_path,
-
-            as_attachment=True,
-
-            download_name=(
-
-                f"Payslip-"
-
-                f"{payroll['application_number']}-"
-
-                f"{payroll['payroll_month']}.pdf"
-
-            ),
-
-            mimetype="application/pdf"
-
+        safe_application_number = str(
+            payroll["application_number"]
+            or payroll["id"]
+        ).replace(
+            "/",
+            "-"
         )
 
+        safe_month = str(
+            payroll["payroll_month"]
+            or "Payroll"
+        ).replace(
+            "/",
+            "-"
+        ).replace(
+            " ",
+            "-"
+        )
+
+        return send_file(
+            pdf_path,
+            as_attachment=True,
+            download_name=(
+                f"Payslip-"
+                f"{safe_application_number}-"
+                f"{safe_month}.pdf"
+            ),
+            mimetype="application/pdf"
+        )
 
     except Exception:
 
@@ -20321,40 +20661,37 @@ def applicant_payslip(payroll_id):
             "Error generating applicant payslip PDF."
         )
 
-
         flash(
             "Unable to generate payslip.",
             "error"
         )
 
-
         return redirect(
             url_for("applicant_payroll")
         )
 
-
     finally:
 
-        # ====================================================
-        # DELETE TEMPORARY PDF
-        # ====================================================
+        # =====================================================
+        # CLEAN TEMPORARY FILES
+        # =====================================================
 
-        try:
+        for file_path in [
+            pdf_path,
+            logo_path,
+            passport_path
+        ]:
 
-            if os.path.exists(
-                pdf_path
-            ):
+            if file_path:
 
-                os.remove(
-                    pdf_path
-                )
+                try:
 
-        except Exception:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
 
-            pass
+                except Exception:
 
-
-
+                    pass
 
 @app.route(
     "/admin/payroll/delete/<int:payroll_id>",
