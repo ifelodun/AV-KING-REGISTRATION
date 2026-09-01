@@ -14,53 +14,50 @@ Applications | {{ company_name if company_name else "AV KING" }}
 
 <header class="applications-header">
 
-    <div class="applications-header-content">
 
-        <div class="header-breadcrumb">
-            <a href="{{ url_for('admin_dashboard') }}">
-                Dashboard
-            </a>
+<div class="applications-header-content">
 
-            <span>/</span>
+    <div class="header-breadcrumb">
+        <a href="{{ url_for('admin_dashboard') }}">
+            Dashboard
+        </a>
 
-            <span>
-                Applications
+        <span>/</span>
+
+        <span>Applications</span>
+    </div>
+
+    <div class="header-title-row">
+
+        <div>
+
+            <span class="page-eyebrow">
+                RECRUITMENT MANAGEMENT
             </span>
-        </div>
 
-        <div class="header-title-row">
+            <h1>Applications</h1>
 
-            <div>
-
-                <span class="page-eyebrow">
-                    RECRUITMENT MANAGEMENT
-                </span>
-
-                <h1>
-                    Applications
-                </h1>
-
-                <p>
-                    Review, evaluate and manage candidate applications
-                    from one central workspace.
-                </p>
-
-            </div>
-
-            <a
-                href="{{ url_for('admin_dashboard') }}"
-                class="header-back-button"
-            >
-                <span class="button-icon">←</span>
-                Dashboard
-            </a>
+            <p>
+                Review, evaluate and manage candidate applications
+                from one central workspace.
+            </p>
 
         </div>
+
+        <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="header-back-button"
+        >
+            <span class="button-icon">←</span>
+            Dashboard
+        </a>
 
     </div>
 
-</header>
+</div>
 
+
+</header>
 
 <!-- =========================================================
      MAIN CONTENT
@@ -69,496 +66,378 @@ Applications | {{ company_name if company_name else "AV KING" }}
 <main class="applications-container">
 
 
-    <!-- =====================================================
-         STATISTICS
-    ====================================================== -->
+<!-- =====================================================
+     STATISTICS
+====================================================== -->
 
-    <section class="application-statistics">
+<section class="application-statistics">
 
-        <!-- TOTAL -->
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-total">
+            <span>01</span>
+        </div>
 
-        <div class="application-stat-card">
+        <div class="stat-content">
+            <span class="stat-label">
+                Total Applications
+            </span>
 
-            <div class="stat-icon stat-icon-total">
-                <span>01</span>
-            </div>
+            <strong class="stat-number">
+                {{ total if total is defined else applications|length }}
+            </strong>
+        </div>
+    </div>
 
-            <div class="stat-content">
 
-                <span class="stat-label">
-                    Total Applications
-                </span>
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-pending">
+            <span>02</span>
+        </div>
 
-                <strong class="stat-number">
-                    {{ total if total is defined else applications|length }}
-                </strong>
+        <div class="stat-content">
+            <span class="stat-label">
+                Pending
+            </span>
 
-            </div>
+            <strong class="stat-number">
+                {{ pending if pending is defined else 0 }}
+            </strong>
+        </div>
+    </div>
+
+
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-review">
+            <span>03</span>
+        </div>
+
+        <div class="stat-content">
+            <span class="stat-label">
+                Under Review
+            </span>
+
+            <strong class="stat-number">
+                {{ under_review if under_review is defined else 0 }}
+            </strong>
+        </div>
+    </div>
+
+
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-shortlisted">
+            <span>04</span>
+        </div>
+
+        <div class="stat-content">
+            <span class="stat-label">
+                Shortlisted
+            </span>
+
+            <strong class="stat-number">
+                {{ shortlisted if shortlisted is defined else 0 }}
+            </strong>
+        </div>
+    </div>
+
+
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-approved">
+            <span>05</span>
+        </div>
+
+        <div class="stat-content">
+            <span class="stat-label">
+                Approved
+            </span>
+
+            <strong class="stat-number">
+                {{ approved if approved is defined else 0 }}
+            </strong>
+        </div>
+    </div>
+
+
+    <div class="application-stat-card">
+        <div class="stat-icon stat-icon-rejected">
+            <span>06</span>
+        </div>
+
+        <div class="stat-content">
+            <span class="stat-label">
+                Rejected
+            </span>
+
+            <strong class="stat-number">
+                {{ rejected if rejected is defined else 0 }}
+            </strong>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     SEARCH / FILTER
+====================================================== -->
+
+<section class="applications-panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <span class="panel-eyebrow">
+                APPLICATION SEARCH
+            </span>
+
+            <h2>Find an Applicant</h2>
+
+            <p>
+                Search by applicant information or filter by
+                recruitment status and position.
+            </p>
 
         </div>
 
+    </div>
 
-        <!-- PENDING -->
 
-        <div class="application-stat-card">
+    <form
+        method="GET"
+        action="{{ url_for('admin_applications') }}"
+        class="applications-filter-form"
+    >
 
-            <div class="stat-icon stat-icon-pending">
-                <span>02</span>
-            </div>
+        <div class="filter-field filter-search">
 
-            <div class="stat-content">
+            <label for="search">
+                Search Applicant
+            </label>
 
-                <span class="stat-label">
-                    Pending
-                </span>
+            <div class="input-with-icon">
 
-                <strong class="stat-number">
-                    {{ pending if pending is defined else 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- REVIEW -->
-
-        <div class="application-stat-card">
-
-            <div class="stat-icon stat-icon-review">
-                <span>03</span>
-            </div>
-
-            <div class="stat-content">
-
-                <span class="stat-label">
-                    Under Review
-                </span>
-
-                <strong class="stat-number">
-                    {{ under_review if under_review is defined else 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- SHORTLISTED -->
-
-        <div class="application-stat-card">
-
-            <div class="stat-icon stat-icon-shortlisted">
-                <span>04</span>
-            </div>
-
-            <div class="stat-content">
-
-                <span class="stat-label">
-                    Shortlisted
-                </span>
-
-                <strong class="stat-number">
-                    {{ shortlisted if shortlisted is defined else 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- APPROVED -->
-
-        <div class="application-stat-card">
-
-            <div class="stat-icon stat-icon-approved">
-                <span>05</span>
-            </div>
-
-            <div class="stat-content">
-
-                <span class="stat-label">
-                    Approved
-                </span>
-
-                <strong class="stat-number">
-                    {{ approved if approved is defined else 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- REJECTED -->
-
-        <div class="application-stat-card">
-
-            <div class="stat-icon stat-icon-rejected">
-                <span>06</span>
-            </div>
-
-            <div class="stat-content">
-
-                <span class="stat-label">
-                    Rejected
-                </span>
-
-                <strong class="stat-number">
-                    {{ rejected if rejected is defined else 0 }}
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         SEARCH / FILTER
-    ====================================================== -->
-
-    <section class="applications-panel">
-
-        <div class="panel-header">
-
-            <div>
-
-                <span class="panel-eyebrow">
-                    APPLICATION SEARCH
-                </span>
-
-                <h2>
-                    Find an Applicant
-                </h2>
-
-                <p>
-                    Search by applicant information or filter by
-                    recruitment status and position.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <form
-            method="GET"
-            action="{{ url_for('admin_applications') }}"
-            class="applications-filter-form"
-        >
-
-            <div class="filter-field filter-search">
-
-                <label for="search">
-                    Search Applicant
-                </label>
-
-                <div class="input-with-icon">
-
-                    <span class="field-icon">
-                        ⌕
-                    </span>
-
-                    <input
-                        type="text"
-                        id="search"
-                        name="search"
-                        value="{{ request.args.get('search', '') }}"
-                        placeholder="Name, email, phone or application number"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <div class="filter-field">
-
-                <label for="status">
-                    Application Status
-                </label>
-
-                <select
-                    id="status"
-                    name="status"
-                >
-
-                    <option value="">
-                        All Statuses
-                    </option>
-
-                    <option
-                        value="Pending"
-                        {% if request.args.get('status') == 'Pending' %}
-                            selected
-                        {% endif %}
-                    >
-                        Pending
-                    </option>
-
-                    <option
-                        value="Under Review"
-                        {% if request.args.get('status') == 'Under Review' %}
-                            selected
-                        {% endif %}
-                    >
-                        Under Review
-                    </option>
-
-                    <option
-                        value="Shortlisted"
-                        {% if request.args.get('status') == 'Shortlisted' %}
-                            selected
-                        {% endif %}
-                    >
-                        Shortlisted
-                    </option>
-
-                    <option
-                        value="Approved"
-                        {% if request.args.get('status') == 'Approved' %}
-                            selected
-                        {% endif %}
-                    >
-                        Approved
-                    </option>
-
-                    <option
-                        value="Rejected"
-                        {% if request.args.get('status') == 'Rejected' %}
-                            selected
-                        {% endif %}
-                    >
-                        Rejected
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="filter-field">
-
-                <label for="position">
-                    Position
-                </label>
+                <span class="field-icon">⌕</span>
 
                 <input
                     type="text"
-                    id="position"
-                    name="position"
-                    value="{{ request.args.get('position', '') }}"
-                    placeholder="Position applied for"
+                    id="search"
+                    name="search"
+                    value="{{ request.args.get('search', '') }}"
+                    placeholder="Name, email, phone or application number"
                 >
-
-            </div>
-
-
-            <div class="filter-actions">
-
-                <button
-                    type="submit"
-                    class="search-button"
-                >
-                    <span>Search Applications</span>
-                </button>
-
-                <a
-                    href="{{ url_for('admin_applications') }}"
-                    class="clear-button"
-                >
-                    Clear
-                </a>
-
-            </div>
-
-        </form>
-
-    </section>
-
-
-    <!-- =====================================================
-         APPLICATION RECORDS
-    ====================================================== -->
-
-    <section class="applications-panel records-panel">
-
-        <div class="records-header">
-
-            <div>
-
-                <span class="panel-eyebrow">
-                    APPLICANT RECORDS
-                </span>
-
-                <h2>
-                    All Applications
-                </h2>
-
-            </div>
-
-            <div class="record-count">
-
-                <strong>
-                    {{ applications|length if applications else 0 }}
-                </strong>
-
-                <span>
-                    record{% if not applications or applications|length != 1 %}s{% endif %}
-                </span>
 
             </div>
 
         </div>
 
 
-        {% if applications %}
+        <div class="filter-field">
+
+            <label for="status">
+                Application Status
+            </label>
+
+            <select id="status" name="status">
+
+                <option value="">
+                    All Statuses
+                </option>
+
+                {% for status_option in [
+                    "Pending",
+                    "Under Review",
+                    "Shortlisted",
+                    "Approved",
+                    "Rejected"
+                ] %}
+
+                    <option
+                        value="{{ status_option }}"
+                        {% if request.args.get('status') == status_option %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ status_option }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
 
 
-        <!-- =================================================
-             DESKTOP TABLE
-        ================================================== -->
+        <div class="filter-field">
 
-        <div class="applications-table-container">
+            <label for="position">
+                Position
+            </label>
 
-            <table class="applications-table">
+            <input
+                type="text"
+                id="position"
+                name="position"
+                value="{{ request.args.get('position', '') }}"
+                placeholder="Position applied for"
+            >
 
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Application
-                        </th>
-
-                        <th>
-                            Applicant
-                        </th>
-
-                        <th>
-                            Contact
-                        </th>
-
-                        <th>
-                            Position
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th>
-                            Submitted
-                        </th>
-
-                        <th>
-                            Documents
-                        </th>
-
-                        <th>
-                            Action
-                        </th>
-
-                    </tr>
-
-                </thead>
+        </div>
 
 
-                <tbody>
+        <div class="filter-actions">
 
-                {% for application in applications %}
+            <button
+                type="submit"
+                class="search-button"
+            >
+                Search Applications
+            </button>
 
-                    {% set status_class = "pending" %}
+            <a
+                href="{{ url_for('admin_applications') }}"
+                class="clear-button"
+            >
+                Clear
+            </a>
 
-                    {% if application.status == "Under Review" %}
-                        {% set status_class = "review" %}
-                    {% elif application.status == "Shortlisted" %}
-                        {% set status_class = "shortlisted" %}
-                    {% elif application.status == "Approved" %}
-                        {% set status_class = "approved" %}
-                    {% elif application.status == "Rejected" %}
-                        {% set status_class = "rejected" %}
-                    {% endif %}
+        </div>
+
+    </form>
+
+</section>
 
 
-                    <tr>
+<!-- =====================================================
+     APPLICATION RECORDS
+====================================================== -->
 
-                        <!-- APPLICATION -->
+<section class="applications-panel records-panel">
 
-                        <td>
+    <div class="records-header">
 
-                            <div class="application-id">
+        <div>
 
-                                <strong>
-                                    {{ application.application_number }}
-                                </strong>
+            <span class="panel-eyebrow">
+                APPLICANT RECORDS
+            </span>
 
-                                <span>
-                                    Record #{{ application.id }}
-                                </span>
+            <h2>All Applications</h2>
+
+        </div>
+
+        <div class="record-count">
+
+            <strong>
+                {{ applications|length if applications else 0 }}
+            </strong>
+
+            <span>
+                record{% if not applications or applications|length != 1 %}s{% endif %}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    {% if applications %}
+
+
+    <!-- =================================================
+         DESKTOP TABLE
+    ================================================== -->
+
+    <div class="applications-table-container">
+
+        <table class="applications-table">
+
+            <thead>
+
+                <tr>
+                    <th>Application</th>
+                    <th>Applicant</th>
+                    <th>Contact</th>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Documents</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for application in applications %}
+
+                {% set current_status = application.status or "Pending" %}
+                {% set status_class = "pending" %}
+
+                {% if current_status == "Under Review" %}
+                    {% set status_class = "review" %}
+                {% elif current_status == "Shortlisted" %}
+                    {% set status_class = "shortlisted" %}
+                {% elif current_status == "Approved" %}
+                    {% set status_class = "approved" %}
+                {% elif current_status == "Rejected" %}
+                    {% set status_class = "rejected" %}
+                {% endif %}
+
+
+                <tr>
+
+
+                    <!-- APPLICATION -->
+
+                    <td>
+
+                        <div class="application-id">
+
+                            <strong>
+                                {{ application.application_number or "—" }}
+                            </strong>
+
+                            <span>
+                                Record #{{ application.id }}
+                            </span>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- APPLICANT -->
+
+                    <td>
+
+                        <div class="applicant-profile">
+
+                            <div class="applicant-avatar">
+
+                                {{
+                                    (
+                                        (application.first_name or "A")[:1]
+                                        ~
+                                        (application.last_name or "P")[:1]
+                                    )|upper
+                                }}
 
                             </div>
 
-                        </td>
 
+                            <div class="applicant-name">
 
-                        <!-- APPLICANT -->
+                                <strong>
 
-                        <td>
+                                    {{ application.first_name or "" }}
 
-                            <div class="applicant-profile">
-
-                                <div class="applicant-avatar">
-
-                                    {{
-                                        (
-                                            application.first_name[:1]
-                                            ~
-                                            application.last_name[:1]
-                                        )|upper
-                                    }}
-
-                                </div>
-
-                                <div class="applicant-name">
-
-                                    <strong>
-
-                                        {{ application.first_name }}
-
-                                        {% if application.middle_name %}
-                                            {{ application.middle_name }}
-                                        {% endif %}
-
-                                        {{ application.last_name }}
-
-                                    </strong>
-
-                                    {% if application.email %}
-
-                                        <span>
-                                            {{ application.email }}
-                                        </span>
-
+                                    {% if application.middle_name %}
+                                        {{ application.middle_name }}
                                     {% endif %}
 
-                                </div>
+                                    {{ application.last_name or "" }}
 
-                            </div>
-
-                        </td>
-
-
-                        <!-- CONTACT -->
-
-                        <td>
-
-                            <div class="contact-details">
-
-                                <strong>
-                                    {{ application.phone or "—" }}
                                 </strong>
 
                                 {% if application.email %}
@@ -571,465 +450,508 @@ Applications | {{ company_name if company_name else "AV KING" }}
 
                             </div>
 
-                        </td>
+                        </div>
+
+                    </td>
 
 
-                        <!-- POSITION -->
+                    <!-- CONTACT -->
 
-                        <td>
+                    <td>
 
-                            <div class="position-name">
+                        <div class="contact-details">
 
-                                {{ application.position_applied or "Not specified" }}
+                            <strong>
+                                {{ application.phone or "—" }}
+                            </strong>
 
-                            </div>
+                            {% if application.email %}
 
-                        </td>
-
-
-                        <!-- STATUS -->
-
-                        <td>
-
-                            <span
-                                class="application-status status-{{ status_class }}"
-                            >
-
-                                <span class="status-dot"></span>
-
-                                {{ application.status or "Pending" }}
-
-                            </span>
-
-                        </td>
-
-
-                        <!-- SUBMITTED -->
-
-                        <td>
-
-                            {% if application.submitted_at %}
-
-                                <div class="submission-date">
-
-                                    <strong>
-                                        {{ application.submitted_at.strftime("%d %b %Y") }}
-                                    </strong>
-
-                                    <span>
-                                        {{ application.submitted_at.strftime("%I:%M %p") }}
-                                    </span>
-
-                                </div>
-
-                            {% else %}
-
-                                <span class="not-available">
-                                    —
+                                <span>
+                                    {{ application.email }}
                                 </span>
 
                             {% endif %}
 
-                        </td>
+                        </div>
+
+                    </td>
 
 
-                        <!-- DOCUMENTS -->
+                    <!-- POSITION -->
 
-                        <td>
+                    <td>
 
-                            <div class="document-list">
+                        <div class="position-name">
+                            {{ application.position_applied or "Not specified" }}
+                        </div>
 
-                                {% if application.cv_filename %}
-
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_download_file',
-                                            filename=application.cv_filename
-                                        ) }}"
-                                        class="document-item"
-                                    >
-                                        <span class="document-icon">
-                                            CV
-                                        </span>
-
-                                        <span>
-                                            CV
-                                        </span>
-                                    </a>
-
-                                {% endif %}
+                    </td>
 
 
-                                {% if application.passport_filename %}
+                    <!-- STATUS -->
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_download_file',
-                                            filename=application.passport_filename
-                                        ) }}"
-                                        class="document-item"
-                                    >
-                                        <span class="document-icon">
-                                            ID
-                                        </span>
+                    <td>
 
-                                        <span>
-                                            Passport
-                                        </span>
-                                    </a>
+                        <span
+                            class="application-status status-{{ status_class }}"
+                        >
 
-                                {% endif %}
+                            <span class="status-dot"></span>
+
+                            {{ current_status }}
+
+                        </span>
+
+                    </td>
 
 
-                                {% if application.qualification_filename %}
+                    <!-- SUBMITTED -->
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_download_file',
-                                            filename=application.qualification_filename
-                                        ) }}"
-                                        class="document-item"
-                                    >
-                                        <span class="document-icon">
-                                            Q
-                                        </span>
+                    <td>
 
-                                        <span>
-                                            Qualification
-                                        </span>
-                                    </a>
+                        {% if application.submitted_at %}
 
-                                {% endif %}
+                            <div class="submission-date">
 
+                                <strong>
+                                    {{ application.submitted_at.strftime("%d %b %Y") }}
+                                </strong>
 
-                                {% if not application.cv_filename
-                                      and not application.passport_filename
-                                      and not application.qualification_filename %}
-
-                                    <span class="no-documents">
-                                        No documents
-                                    </span>
-
-                                {% endif %}
+                                <span>
+                                    {{ application.submitted_at.strftime("%I:%M %p") }}
+                                </span>
 
                             </div>
 
-                        </td>
+                        {% else %}
 
+                            <span class="not-available">—</span>
 
-                        <!-- ACTION -->
+                        {% endif %}
 
-                        <td>
+                    </td>
 
-                            <a
-                                href="{{ url_for(
-                                    'admin_application_details',
-                                    application_id=application.id
-                                ) }}"
-                                class="view-button"
-                            >
-                                View
-                                <span>→</span>
-                            </a>
 
-                        </td>
+                    <!-- DOCUMENTS -->
 
-                    </tr>
+                    <td>
 
-                {% endfor %}
+                        <div class="document-list">
 
-                </tbody>
 
-            </table>
+                            {% if application.cv_filename %}
 
-        </div>
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.cv_filename
+                                    ) }}"
+                                    class="document-item"
+                                >
 
+                                    <span class="document-icon">
+                                        CV
+                                    </span>
 
-        <!-- =================================================
-             MOBILE APPLICATION CARDS
-        ================================================== -->
+                                    <span>
+                                        CV
+                                    </span>
 
-        <div class="mobile-applications">
+                                </a>
 
-        {% for application in applications %}
-
-            {% set status_class = "pending" %}
-
-            {% if application.status == "Under Review" %}
-                {% set status_class = "review" %}
-            {% elif application.status == "Shortlisted" %}
-                {% set status_class = "shortlisted" %}
-            {% elif application.status == "Approved" %}
-                {% set status_class = "approved" %}
-            {% elif application.status == "Rejected" %}
-                {% set status_class = "rejected" %}
-            {% endif %}
-
-
-            <article class="mobile-application-card">
-
-
-                <!-- CARD HEADER -->
-
-                <div class="mobile-card-header">
-
-                    <div class="mobile-applicant-profile">
-
-                        <div class="applicant-avatar">
-
-                            {{
-                                (
-                                    application.first_name[:1]
-                                    ~
-                                    application.last_name[:1]
-                                )|upper
-                            }}
-
-                        </div>
-
-
-                        <div>
-
-                            <strong>
-
-                                {{ application.first_name }}
-
-                                {% if application.middle_name %}
-                                    {{ application.middle_name }}
-                                {% endif %}
-
-                                {{ application.last_name }}
-
-                            </strong>
-
-                            <span>
-                                {{ application.application_number }}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <span
-                        class="application-status status-{{ status_class }}"
-                    >
-                        <span class="status-dot"></span>
-                        {{ application.status or "Pending" }}
-                    </span>
-
-                </div>
-
-
-                <!-- DETAILS -->
-
-                <div class="mobile-details-grid">
-
-                    <div class="mobile-detail">
-
-                        <span>
-                            Position
-                        </span>
-
-                        <strong>
-                            {{ application.position_applied or "—" }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mobile-detail">
-
-                        <span>
-                            Phone
-                        </span>
-
-                        <strong>
-                            {{ application.phone or "—" }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mobile-detail">
-
-                        <span>
-                            Email
-                        </span>
-
-                        <strong>
-                            {{ application.email or "—" }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mobile-detail">
-
-                        <span>
-                            Location
-                        </span>
-
-                        <strong>
-                            {{ application.state or "—" }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="mobile-detail">
-
-                        <span>
-                            Submitted
-                        </span>
-
-                        <strong>
-
-                            {% if application.submitted_at %}
-                                {{ application.submitted_at.strftime("%d %b %Y") }}
-                            {% else %}
-                                —
                             {% endif %}
 
-                        </strong>
 
-                    </div>
+                            {% if application.passport_filename %}
 
-                </div>
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.passport_filename
+                                    ) }}"
+                                    class="document-item"
+                                >
 
+                                    <span class="document-icon">
+                                        ID
+                                    </span>
 
-                <!-- DOCUMENTS -->
+                                    <span>
+                                        Passport
+                                    </span>
 
-                <div class="mobile-document-section">
+                                </a>
 
-                    <span class="mobile-section-title">
-                        DOCUMENTS
-                    </span>
-
-
-                    <div class="mobile-document-list">
-
-                        {% if application.cv_filename %}
-
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.cv_filename
-                                ) }}"
-                                class="mobile-document-button"
-                            >
-                                CV
-                            </a>
-
-                        {% endif %}
+                            {% endif %}
 
 
-                        {% if application.passport_filename %}
+                            {% if application.qualification_filename %}
 
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.passport_filename
-                                ) }}"
-                                class="mobile-document-button"
-                            >
-                                Passport
-                            </a>
+                                <a
+                                    href="{{ url_for(
+                                        'admin_download_file',
+                                        filename=application.qualification_filename
+                                    ) }}"
+                                    class="document-item"
+                                >
 
-                        {% endif %}
+                                    <span class="document-icon">
+                                        Q
+                                    </span>
 
+                                    <span>
+                                        Qualification
+                                    </span>
 
-                        {% if application.qualification_filename %}
+                                </a>
 
-                            <a
-                                href="{{ url_for(
-                                    'admin_download_file',
-                                    filename=application.qualification_filename
-                                ) }}"
-                                class="mobile-document-button"
-                            >
-                                Qualification
-                            </a>
-
-                        {% endif %}
+                            {% endif %}
 
 
-                        {% if not application.cv_filename
-                              and not application.passport_filename
-                              and not application.qualification_filename %}
+                            {% if not application.cv_filename
+                                  and not application.passport_filename
+                                  and not application.qualification_filename %}
 
-                            <span class="no-documents">
-                                No documents uploaded
-                            </span>
+                                <span class="no-documents">
+                                    No documents
+                                </span>
 
-                        {% endif %}
+                            {% endif %}
 
-                    </div>
+                        </div>
 
-                </div>
-
-
-                <!-- ACTION -->
-
-                <div class="mobile-card-footer">
-
-                    <a
-                        href="{{ url_for(
-                            'admin_application_details',
-                            application_id=application.id
-                        ) }}"
-                        class="mobile-view-button"
-                    >
-                        View Applicant Details
-                        <span>→</span>
-                    </a>
-
-                </div>
-
-            </article>
-
-        {% endfor %}
-
-        </div>
+                    </td>
 
 
-        {% else %}
+                    <!-- ACTION -->
+
+                    <td>
+
+                        <a
+                            href="{{ url_for(
+                                'admin_application_details',
+                                application_id=application.id
+                            ) }}"
+                            class="view-button"
+                        >
+
+                            View
+
+                            <span>→</span>
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 
-        <!-- =================================================
-             EMPTY STATE
-        ================================================== -->
+    <!-- =================================================
+         MOBILE APPLICATION CARDS
+    ================================================== -->
 
-        <div class="applications-empty">
+    <div class="mobile-applications">
 
-            <div class="empty-icon">
-                <span>01</span>
-            </div>
+    {% for application in applications %}
 
-            <h3>
-                No Applications Found
-            </h3>
+        {% set current_status = application.status or "Pending" %}
+        {% set status_class = "pending" %}
 
-            <p>
-                There are no applicant records matching your
-                current search or filter criteria.
-            </p>
-
-            <a
-                href="{{ url_for('admin_applications') }}"
-                class="empty-button"
-            >
-                View All Applications
-            </a>
-
-        </div>
-
+        {% if current_status == "Under Review" %}
+            {% set status_class = "review" %}
+        {% elif current_status == "Shortlisted" %}
+            {% set status_class = "shortlisted" %}
+        {% elif current_status == "Approved" %}
+            {% set status_class = "approved" %}
+        {% elif current_status == "Rejected" %}
+            {% set status_class = "rejected" %}
         {% endif %}
 
-    </section>
+
+        <article class="mobile-application-card">
+
+
+            <!-- CARD HEADER -->
+
+            <div class="mobile-card-header">
+
+                <div class="mobile-applicant-profile">
+
+                    <div class="applicant-avatar">
+
+                        {{
+                            (
+                                (application.first_name or "A")[:1]
+                                ~
+                                (application.last_name or "P")[:1]
+                            )|upper
+                        }}
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+
+                            {{ application.first_name or "" }}
+
+                            {% if application.middle_name %}
+                                {{ application.middle_name }}
+                            {% endif %}
+
+                            {{ application.last_name or "" }}
+
+                        </strong>
+
+                        <span>
+                            {{ application.application_number or "No application number" }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <span
+                    class="application-status status-{{ status_class }}"
+                >
+
+                    <span class="status-dot"></span>
+
+                    {{ current_status }}
+
+                </span>
+
+            </div>
+
+
+            <!-- DETAILS -->
+
+            <div class="mobile-details-grid">
+
+
+                <div class="mobile-detail">
+
+                    <span>Position</span>
+
+                    <strong>
+                        {{ application.position_applied or "—" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="mobile-detail">
+
+                    <span>Phone</span>
+
+                    <strong>
+                        {{ application.phone or "—" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="mobile-detail">
+
+                    <span>Email</span>
+
+                    <strong>
+                        {{ application.email or "—" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="mobile-detail">
+
+                    <span>Location</span>
+
+                    <strong>
+                        {{ application.state or "—" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="mobile-detail">
+
+                    <span>Submitted</span>
+
+                    <strong>
+
+                        {% if application.submitted_at %}
+                            {{ application.submitted_at.strftime("%d %b %Y") }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="mobile-detail">
+
+                    <span>Application No.</span>
+
+                    <strong>
+                        {{ application.application_number or "—" }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- DOCUMENTS -->
+
+            <div class="mobile-document-section">
+
+                <span class="mobile-section-title">
+                    DOCUMENTS
+                </span>
+
+
+                <div class="mobile-document-list">
+
+
+                    {% if application.cv_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                filename=application.cv_filename
+                            ) }}"
+                            class="mobile-document-button"
+                        >
+                            CV
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if application.passport_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                filename=application.passport_filename
+                            ) }}"
+                            class="mobile-document-button"
+                        >
+                            Passport
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if application.qualification_filename %}
+
+                        <a
+                            href="{{ url_for(
+                                'admin_download_file',
+                                filename=application.qualification_filename
+                            ) }}"
+                            class="mobile-document-button"
+                        >
+                            Qualification
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if not application.cv_filename
+                          and not application.passport_filename
+                          and not application.qualification_filename %}
+
+                        <span class="no-documents">
+                            No documents uploaded
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="mobile-card-footer">
+
+                <a
+                    href="{{ url_for(
+                        'admin_application_details',
+                        application_id=application.id
+                    ) }}"
+                    class="mobile-view-button"
+                >
+
+                    <span>
+                        View Applicant Details
+                    </span>
+
+                    <span>→</span>
+
+                </a>
+
+            </div>
+
+        </article>
+
+    {% endfor %}
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =================================================
+         EMPTY STATE
+    ================================================== -->
+
+    <div class="applications-empty">
+
+        <div class="empty-icon">
+            <span>01</span>
+        </div>
+
+        <h3>
+            No Applications Found
+        </h3>
+
+        <p>
+            There are no applicant records matching your
+            current search or filter criteria.
+        </p>
+
+        <a
+            href="{{ url_for('admin_applications') }}"
+            class="empty-button"
+        >
+            View All Applications
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</section>
+
 
 </main>
-
 
 </div>
 
@@ -1040,20 +962,15 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-page {
-
     min-height: 100vh;
-
     background: #f5f7fa;
-
     color: #172033;
-
     font-family:
         Inter,
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-
 }
 
 
@@ -1062,170 +979,93 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-header {
-
     background: #ffffff;
-
     border-bottom: 1px solid #e6e9ee;
-
 }
-
 
 .applications-header-content {
-
     max-width: 1500px;
-
     margin: 0 auto;
-
     padding: 30px 34px 32px;
-
 }
-
 
 .header-breadcrumb {
-
     display: flex;
-
     align-items: center;
-
     gap: 9px;
-
     margin-bottom: 24px;
-
     color: #8a94a6;
-
     font-size: 12px;
-
     font-weight: 600;
-
 }
-
 
 .header-breadcrumb a {
-
     color: #667085;
-
     text-decoration: none;
-
 }
-
 
 .header-breadcrumb a:hover {
-
     color: #172033;
-
 }
-
 
 .header-title-row {
-
     display: flex;
-
     align-items: flex-end;
-
     justify-content: space-between;
-
     gap: 25px;
-
 }
-
 
 .page-eyebrow {
-
     display: block;
-
     margin-bottom: 7px;
-
     color: #6b7280;
-
     font-size: 10px;
-
     font-weight: 800;
-
     letter-spacing: 1.5px;
-
 }
-
 
 .header-title-row h1 {
-
     margin: 0;
-
     color: #111827;
-
     font-size: 32px;
-
     line-height: 1.2;
-
     font-weight: 800;
-
     letter-spacing: -0.7px;
-
 }
-
 
 .header-title-row p {
-
     max-width: 650px;
-
     margin: 8px 0 0;
-
     color: #697386;
-
     font-size: 14px;
-
     line-height: 1.6;
-
 }
-
 
 .header-back-button {
-
     min-height: 42px;
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 8px;
-
     padding: 0 16px;
-
     border: 1px solid #dce1e8;
-
     border-radius: 9px;
-
     background: #ffffff;
-
     color: #344054;
-
     text-decoration: none;
-
     font-size: 13px;
-
     font-weight: 700;
-
     white-space: nowrap;
-
     transition: .2s ease;
-
 }
-
 
 .header-back-button:hover {
-
     border-color: #c5ccd6;
-
     background: #f8fafc;
-
 }
 
-
 .button-icon {
-
     font-size: 16px;
-
 }
 
 
@@ -1234,13 +1074,9 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-container {
-
     max-width: 1500px;
-
     margin: 0 auto;
-
     padding: 28px 34px 60px;
-
 }
 
 
@@ -1249,160 +1085,87 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .application-statistics {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(6, minmax(0, 1fr));
-
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 14px;
-
     margin-bottom: 24px;
-
 }
-
 
 .application-stat-card {
-
     min-height: 105px;
-
     display: flex;
-
     align-items: center;
-
     gap: 14px;
-
     padding: 18px;
-
     box-sizing: border-box;
-
     border: 1px solid #e3e7ed;
-
     border-radius: 13px;
-
     background: #ffffff;
-
-    box-shadow:
-        0 2px 7px rgba(16, 24, 40, .025);
-
+    box-shadow: 0 2px 7px rgba(16, 24, 40, .025);
 }
-
 
 .stat-icon {
-
     width: 42px;
-
     height: 42px;
-
     flex-shrink: 0;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border-radius: 10px;
-
     font-size: 10px;
-
     font-weight: 800;
-
     letter-spacing: .5px;
-
 }
-
 
 .stat-icon-total {
-
     background: #f1f5f9;
-
     color: #334155;
-
 }
-
 
 .stat-icon-pending {
-
     background: #fff7ed;
-
     color: #c2410c;
-
 }
-
 
 .stat-icon-review {
-
     background: #eff6ff;
-
     color: #1d4ed8;
-
 }
-
 
 .stat-icon-shortlisted {
-
     background: #f5f3ff;
-
     color: #6d28d9;
-
 }
-
 
 .stat-icon-approved {
-
     background: #ecfdf3;
-
     color: #047857;
-
 }
-
 
 .stat-icon-rejected {
-
     background: #fef2f2;
-
     color: #b91c1c;
-
 }
-
 
 .stat-content {
-
     min-width: 0;
-
 }
-
 
 .stat-label {
-
     display: block;
-
     margin-bottom: 5px;
-
     color: #667085;
-
     font-size: 11px;
-
     font-weight: 600;
-
     line-height: 1.3;
-
 }
 
-
 .stat-number {
-
     display: block;
-
     color: #111827;
-
     font-size: 24px;
-
     line-height: 1;
-
     font-weight: 800;
-
 }
 
 
@@ -1411,75 +1174,42 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-panel {
-
     overflow: hidden;
-
     margin-bottom: 24px;
-
     border: 1px solid #e1e5eb;
-
     border-radius: 14px;
-
     background: #ffffff;
-
-    box-shadow:
-        0 3px 10px rgba(16, 24, 40, .025);
-
+    box-shadow: 0 3px 10px rgba(16, 24, 40, .025);
 }
-
 
 .panel-header {
-
     padding: 24px 26px 20px;
-
     border-bottom: 1px solid #edf0f3;
-
 }
-
 
 .panel-eyebrow {
-
     display: block;
-
     margin-bottom: 6px;
-
     color: #8a94a6;
-
     font-size: 9px;
-
     font-weight: 800;
-
     letter-spacing: 1.4px;
-
 }
-
 
 .panel-header h2,
 .records-header h2 {
-
     margin: 0;
-
     color: #172033;
-
     font-size: 18px;
-
     font-weight: 800;
-
     letter-spacing: -.2px;
-
 }
 
-
 .panel-header p {
-
     margin: 6px 0 0;
-
     color: #7a8495;
-
     font-size: 12px;
-
     line-height: 1.5;
-
 }
 
 
@@ -1488,213 +1218,118 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-filter-form {
-
     display: grid;
-
     grid-template-columns:
         minmax(250px, 2fr)
         minmax(170px, 1fr)
         minmax(170px, 1fr)
         auto;
-
     align-items: end;
-
     gap: 14px;
-
     padding: 22px 26px 25px;
-
 }
-
 
 .filter-field {
-
     min-width: 0;
-
 }
-
 
 .filter-field label {
-
     display: block;
-
     margin-bottom: 7px;
-
     color: #344054;
-
     font-size: 11px;
-
     font-weight: 700;
-
 }
-
 
 .filter-field input,
 .filter-field select {
-
     width: 100%;
-
     height: 44px;
-
     box-sizing: border-box;
-
     padding: 0 12px;
-
     border: 1px solid #d7dce3;
-
     border-radius: 9px;
-
     outline: none;
-
     background: #ffffff;
-
     color: #172033;
-
     font-family: inherit;
-
     font-size: 13px;
-
     transition: .2s ease;
-
 }
-
 
 .filter-field input::placeholder {
-
     color: #a0a8b5;
-
 }
-
 
 .filter-field input:focus,
 .filter-field select:focus {
-
     border-color: #172033;
-
-    box-shadow:
-        0 0 0 3px rgba(23, 32, 51, .06);
-
+    box-shadow: 0 0 0 3px rgba(23, 32, 51, .06);
 }
-
 
 .input-with-icon {
-
     position: relative;
-
 }
-
 
 .input-with-icon input {
-
     padding-left: 37px;
-
 }
-
 
 .field-icon {
-
     position: absolute;
-
     top: 50%;
-
     left: 13px;
-
     transform: translateY(-50%);
-
     color: #8b95a5;
-
     font-size: 18px;
-
     pointer-events: none;
-
 }
-
 
 .filter-actions {
-
     display: flex;
-
     align-items: center;
-
     gap: 8px;
-
 }
-
 
 .search-button {
-
     height: 44px;
-
     padding: 0 17px;
-
     border: 0;
-
     border-radius: 9px;
-
     background: #172033;
-
     color: #ffffff;
-
     cursor: pointer;
-
     font-family: inherit;
-
     font-size: 12px;
-
     font-weight: 700;
-
     white-space: nowrap;
-
     transition: .2s ease;
-
 }
-
 
 .search-button:hover {
-
     background: #273247;
-
     transform: translateY(-1px);
-
 }
-
 
 .clear-button {
-
     height: 44px;
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     padding: 0 14px;
-
     box-sizing: border-box;
-
     border: 1px solid #d7dce3;
-
     border-radius: 9px;
-
     background: #ffffff;
-
     color: #475467;
-
     text-decoration: none;
-
     font-size: 12px;
-
     font-weight: 700;
-
     transition: .2s ease;
-
 }
 
-
 .clear-button:hover {
-
     background: #f8fafc;
-
 }
 
 
@@ -1703,53 +1338,30 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .records-header {
-
     min-height: 78px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 18px 26px;
-
     box-sizing: border-box;
-
     border-bottom: 1px solid #edf0f3;
-
 }
-
 
 .record-count {
-
     display: flex;
-
     align-items: baseline;
-
     gap: 5px;
-
     padding: 7px 11px;
-
     border: 1px solid #e2e6eb;
-
     border-radius: 8px;
-
     background: #f8fafc;
-
     color: #667085;
-
     font-size: 11px;
-
 }
 
-
 .record-count strong {
-
     color: #172033;
-
     font-size: 13px;
-
 }
 
 
@@ -1758,79 +1370,45 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-table-container {
-
     width: 100%;
-
     overflow-x: auto;
-
 }
-
 
 .applications-table {
-
     width: 100%;
-
     min-width: 1150px;
-
     border-collapse: collapse;
-
 }
-
 
 .applications-table th {
-
     padding: 13px 16px;
-
     border-bottom: 1px solid #e8ebef;
-
     background: #fafbfc;
-
     color: #7b8494;
-
     text-align: left;
-
     font-size: 9px;
-
     font-weight: 800;
-
     letter-spacing: .8px;
-
     text-transform: uppercase;
-
     white-space: nowrap;
-
 }
-
 
 .applications-table td {
-
     padding: 17px 16px;
-
     border-bottom: 1px solid #eef1f4;
-
     vertical-align: middle;
-
 }
-
 
 .applications-table tbody tr {
-
     transition: .15s ease;
-
 }
-
 
 .applications-table tbody tr:hover {
-
     background: #fafbfd;
-
 }
 
-
 .applications-table tbody tr:last-child td {
-
     border-bottom: 0;
-
 }
 
 
@@ -1839,28 +1417,17 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .application-id strong {
-
     display: block;
-
     color: #172033;
-
     font-size: 12px;
-
     font-weight: 800;
-
 }
 
-
 .application-id span {
-
     display: block;
-
     margin-top: 4px;
-
     color: #98a2b3;
-
     font-size: 10px;
-
 }
 
 
@@ -1869,91 +1436,50 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applicant-profile {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     min-width: 190px;
-
 }
-
 
 .applicant-avatar {
-
     width: 39px;
-
     height: 39px;
-
     flex-shrink: 0;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border-radius: 10px;
-
     background: #eef2f6;
-
     color: #344054;
-
     font-size: 11px;
-
     font-weight: 800;
-
 }
-
 
 .applicant-name {
-
     min-width: 0;
-
 }
-
 
 .applicant-name strong {
-
     display: block;
-
     overflow: hidden;
-
     color: #172033;
-
     font-size: 12px;
-
     font-weight: 750;
-
     line-height: 1.4;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
-
 }
 
-
 .applicant-name span {
-
     display: block;
-
     max-width: 180px;
-
     margin-top: 3px;
-
     overflow: hidden;
-
     color: #8a94a6;
-
     font-size: 10px;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
-
 }
 
 
@@ -1962,36 +1488,21 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .contact-details strong {
-
     display: block;
-
     color: #344054;
-
     font-size: 11px;
-
     font-weight: 700;
-
 }
 
-
 .contact-details span {
-
     display: block;
-
     max-width: 160px;
-
     margin-top: 4px;
-
     overflow: hidden;
-
     color: #98a2b3;
-
     font-size: 10px;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
-
 }
 
 
@@ -2000,17 +1511,11 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .position-name {
-
     max-width: 150px;
-
     color: #475467;
-
     font-size: 11px;
-
     font-weight: 600;
-
     line-height: 1.4;
-
 }
 
 
@@ -2019,81 +1524,46 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .application-status {
-
     display: inline-flex;
-
     align-items: center;
-
     gap: 6px;
-
     padding: 6px 9px;
-
     border-radius: 20px;
-
     font-size: 9px;
-
     font-weight: 800;
-
     white-space: nowrap;
-
 }
-
 
 .status-dot {
-
     width: 6px;
-
     height: 6px;
-
     border-radius: 50%;
-
     background: currentColor;
-
 }
-
 
 .status-pending {
-
     background: #fff7ed;
-
     color: #c2410c;
-
 }
-
 
 .status-review {
-
     background: #eff6ff;
-
     color: #1d4ed8;
-
 }
-
 
 .status-shortlisted {
-
     background: #f5f3ff;
-
     color: #6d28d9;
-
 }
-
 
 .status-approved {
-
     background: #ecfdf3;
-
     color: #047857;
-
 }
 
-
 .status-rejected {
-
     background: #fef2f2;
-
     color: #b91c1c;
-
 }
 
 
@@ -2102,35 +1572,21 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .submission-date strong {
-
     display: block;
-
     color: #475467;
-
     font-size: 10px;
-
     font-weight: 700;
-
 }
-
 
 .submission-date span {
-
     display: block;
-
     margin-top: 3px;
-
     color: #98a2b3;
-
     font-size: 9px;
-
 }
 
-
 .not-available {
-
     color: #98a2b3;
-
 }
 
 
@@ -2139,77 +1595,43 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .document-list {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 5px;
-
 }
-
 
 .document-item {
-
     display: inline-flex;
-
     align-items: center;
-
     gap: 6px;
-
     color: #475467;
-
     text-decoration: none;
-
     font-size: 9px;
-
     font-weight: 700;
-
 }
-
 
 .document-item:hover {
-
     color: #172033;
-
 }
-
 
 .document-icon {
-
     width: 22px;
-
     height: 22px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     border: 1px solid #e1e5eb;
-
     border-radius: 5px;
-
     background: #f8fafc;
-
     color: #667085;
-
     font-size: 7px;
-
     font-weight: 800;
-
 }
 
-
 .no-documents {
-
     color: #a0a8b5;
-
     font-size: 9px;
-
 }
 
 
@@ -2218,68 +1640,41 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .view-button {
-
     min-width: 67px;
-
     height: 34px;
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 6px;
-
     padding: 0 10px;
-
     box-sizing: border-box;
-
     border: 1px solid #d9dee6;
-
     border-radius: 7px;
-
     background: #ffffff;
-
     color: #344054;
-
     text-decoration: none;
-
     font-size: 10px;
-
     font-weight: 800;
-
     transition: .2s ease;
-
 }
-
 
 .view-button:hover {
-
     border-color: #172033;
-
     background: #172033;
-
     color: #ffffff;
-
 }
 
-
 .view-button span {
-
     font-size: 14px;
-
 }
 
 
 /* =============================================================
-   MOBILE APPLICATIONS
+   MOBILE
 ============================================================= */
 
 .mobile-applications {
-
     display: none;
-
 }
 
 
@@ -2288,110 +1683,60 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .applications-empty {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
     min-height: 330px;
-
     padding: 45px 25px;
-
     text-align: center;
-
 }
-
 
 .empty-icon {
-
     width: 58px;
-
     height: 58px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     margin-bottom: 18px;
-
     border: 1px solid #e1e5eb;
-
     border-radius: 14px;
-
     background: #f8fafc;
-
 }
-
 
 .empty-icon span {
-
     color: #667085;
-
     font-size: 11px;
-
     font-weight: 800;
-
 }
-
 
 .applications-empty h3 {
-
     margin: 0;
-
     color: #172033;
-
     font-size: 17px;
-
     font-weight: 800;
-
 }
-
 
 .applications-empty p {
-
     max-width: 420px;
-
     margin: 8px 0 20px;
-
     color: #8a94a6;
-
     font-size: 12px;
-
     line-height: 1.6;
-
 }
 
-
 .empty-button {
-
     min-height: 40px;
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     padding: 0 15px;
-
     border-radius: 8px;
-
     background: #172033;
-
     color: #ffffff;
-
     text-decoration: none;
-
     font-size: 11px;
-
     font-weight: 700;
-
 }
 
 
@@ -2400,254 +1745,137 @@ Applications | {{ company_name if company_name else "AV KING" }}
 ============================================================= */
 
 .mobile-application-card {
-
     margin: 14px;
-
     padding: 18px;
-
     border: 1px solid #e3e7ed;
-
     border-radius: 12px;
-
     background: #ffffff;
-
 }
-
 
 .mobile-card-header {
-
     display: flex;
-
     align-items: flex-start;
-
     justify-content: space-between;
-
     gap: 12px;
-
     padding-bottom: 16px;
-
     border-bottom: 1px solid #edf0f3;
-
 }
-
 
 .mobile-applicant-profile {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     min-width: 0;
-
 }
-
 
 .mobile-applicant-profile > div:last-child {
-
     min-width: 0;
-
 }
-
 
 .mobile-applicant-profile strong {
-
     display: block;
-
     color: #172033;
-
     font-size: 13px;
-
     font-weight: 800;
-
 }
-
 
 .mobile-applicant-profile span {
-
     display: block;
-
     margin-top: 4px;
-
     color: #98a2b3;
-
     font-size: 10px;
-
 }
-
 
 .mobile-details-grid {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 15px;
-
     padding: 17px 0;
-
 }
-
 
 .mobile-detail span {
-
     display: block;
-
     margin-bottom: 4px;
-
     color: #98a2b3;
-
     font-size: 9px;
-
     font-weight: 700;
-
     text-transform: uppercase;
-
     letter-spacing: .4px;
-
 }
-
 
 .mobile-detail strong {
-
     display: block;
-
     overflow: hidden;
-
     color: #475467;
-
     font-size: 11px;
-
     font-weight: 700;
-
     line-height: 1.4;
-
     text-overflow: ellipsis;
-
 }
-
 
 .mobile-document-section {
-
     padding-top: 15px;
-
     border-top: 1px solid #edf0f3;
-
 }
-
 
 .mobile-section-title {
-
     display: block;
-
     margin-bottom: 9px;
-
     color: #98a2b3;
-
     font-size: 9px;
-
     font-weight: 800;
-
     letter-spacing: .8px;
-
 }
-
 
 .mobile-document-list {
-
     display: flex;
-
     flex-wrap: wrap;
-
     gap: 7px;
-
 }
-
 
 .mobile-document-button {
-
     min-height: 32px;
-
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     padding: 0 10px;
-
     border: 1px solid #dfe3e8;
-
     border-radius: 7px;
-
     background: #f8fafc;
-
     color: #475467;
-
     text-decoration: none;
-
     font-size: 9px;
-
     font-weight: 800;
-
 }
-
 
 .mobile-document-button:hover {
-
     background: #eef2f6;
-
 }
-
 
 .mobile-card-footer {
-
     margin-top: 17px;
-
     padding-top: 15px;
-
     border-top: 1px solid #edf0f3;
-
 }
-
 
 .mobile-view-button {
-
     width: 100%;
-
     height: 42px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 0 13px;
-
     box-sizing: border-box;
-
     border-radius: 8px;
-
     background: #172033;
-
     color: #ffffff;
-
     text-decoration: none;
-
     font-size: 11px;
-
     font-weight: 800;
-
 }
 
-
-.mobile-view-button span {
-
+.mobile-view-button span:last-child {
     font-size: 17px;
-
 }
 
 
@@ -2658,32 +1886,19 @@ Applications | {{ company_name if company_name else "AV KING" }}
 @media (max-width: 1200px) {
 
     .application-statistics {
-
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-
 
     .applications-filter-form {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-
 
     .filter-search {
-
         grid-column: span 2;
-
     }
 
-
     .filter-actions {
-
         grid-column: span 2;
-
     }
 
 }
@@ -2697,39 +1912,24 @@ Applications | {{ company_name if company_name else "AV KING" }}
 
     .applications-header-content,
     .applications-container {
-
         padding-left: 20px;
-
         padding-right: 20px;
-
     }
-
 
     .header-title-row {
-
         align-items: flex-start;
-
     }
-
 
     .header-title-row h1 {
-
         font-size: 27px;
-
     }
-
 
     .applications-table-container {
-
         display: none;
-
     }
 
-
     .mobile-applications {
-
         display: block;
-
     }
 
 }
@@ -2742,202 +1942,111 @@ Applications | {{ company_name if company_name else "AV KING" }}
 @media (max-width: 600px) {
 
     .applications-header-content {
-
-        padding:
-            20px
-            16px
-            22px;
-
+        padding: 20px 16px 22px;
     }
-
 
     .applications-container {
-
-        padding:
-            18px
-            14px
-            40px;
-
+        padding: 18px 14px 40px;
     }
-
 
     .header-breadcrumb {
-
         margin-bottom: 17px;
-
     }
-
 
     .header-title-row {
-
         display: block;
-
     }
-
 
     .header-title-row h1 {
-
         font-size: 25px;
-
     }
-
 
     .header-title-row p {
-
         font-size: 12px;
-
     }
-
 
     .header-back-button {
-
         margin-top: 17px;
-
     }
-
 
     .application-statistics {
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 9px;
-
         margin-bottom: 17px;
-
     }
-
 
     .application-stat-card {
-
         min-height: 87px;
-
         padding: 13px;
-
         gap: 10px;
-
     }
-
 
     .stat-icon {
-
         width: 34px;
-
         height: 34px;
-
         border-radius: 8px;
-
         font-size: 8px;
-
     }
-
 
     .stat-label {
-
         font-size: 9px;
-
     }
-
 
     .stat-number {
-
         font-size: 20px;
-
     }
-
 
     .applications-panel {
-
         border-radius: 11px;
-
     }
-
 
     .panel-header {
-
         padding: 19px 17px 16px;
-
     }
-
 
     .applications-filter-form {
-
         display: flex;
-
         flex-direction: column;
-
         padding: 17px;
-
     }
-
 
     .filter-search {
-
         width: 100%;
-
     }
-
 
     .filter-actions {
-
         width: 100%;
-
         display: grid;
-
-        grid-template-columns:
-            1fr auto;
-
+        grid-template-columns: 1fr auto;
     }
-
 
     .search-button {
-
         width: 100%;
-
     }
-
 
     .records-header {
-
         padding: 15px 17px;
-
     }
-
 
     .records-header h2 {
-
         font-size: 16px;
-
     }
-
 
     .record-count {
-
         font-size: 9px;
-
     }
-
 
     .mobile-card-header {
-
         align-items: flex-start;
-
     }
-
 
     .mobile-card-header .application-status {
-
         font-size: 8px;
-
         padding: 5px 7px;
-
     }
 
-
     .mobile-details-grid {
-
         gap: 13px 10px;
-
     }
 
 }
@@ -2950,39 +2059,24 @@ Applications | {{ company_name if company_name else "AV KING" }}
 @media (max-width: 400px) {
 
     .application-stat-card {
-
         padding: 11px;
-
     }
-
 
     .stat-icon {
-
         display: none;
-
     }
-
 
     .mobile-application-card {
-
         margin: 10px;
-
         padding: 14px;
-
     }
-
 
     .mobile-card-header {
-
         display: block;
-
     }
 
-
     .mobile-card-header .application-status {
-
         margin-top: 10px;
-
     }
 
 }
