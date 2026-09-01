@@ -18164,59 +18164,41 @@ def require_admin(view_function):
 # ============================================================
 # ADMIN PAYROLL
 # ============================================================
-
 @app.route("/admin/payroll")
 @require_admin
 def admin_payroll():
 
-    conn = get_db()
+    conn = None
 
     try:
+        conn = get_db()
 
         with conn.cursor() as cur:
 
-            # =================================================
+            # =====================================================
             # PAYROLL RECORDS
-            # =================================================
-
+            # =====================================================
             cur.execute(
                 """
                 SELECT
-
                     p.id,
-
                     p.application_id,
-
                     p.payroll_month,
-
                     p.basic_salary,
-
                     p.allowance,
-
                     p.bonus,
-
                     p.deduction,
-
                     p.net_salary,
-
                     p.payment_status,
-
                     p.paid_at,
-
                     p.created_at,
-
                     p.updated_at,
 
                     a.application_number,
-
                     a.first_name,
-
                     a.middle_name,
-
                     a.last_name,
-
                     a.position_applied,
-
                     a.status AS application_status
 
                 FROM payroll p
@@ -18232,11 +18214,9 @@ def admin_payroll():
 
             payrolls = cur.fetchall()
 
-
-            # =================================================
+            # =====================================================
             # TOTAL PAYROLL RECORDS
-            # =================================================
-
+            # =====================================================
             cur.execute(
                 """
                 SELECT COUNT(*) AS total
@@ -18244,35 +18224,11 @@ def admin_payroll():
                 """
             )
 
-            row = cur.fetchone()
+            total_payroll = cur.fetchone()["total"]
 
-            total_payroll = int(
-                row["total"] or 0
-            )
-            # ============================================================
-            # TOTAL PAID AMOUNT
-            # ============================================================
-            
-            cur.execute(
-                """
-                SELECT
-                    COALESCE(
-                        SUM(net_salary),
-                        0
-                    ) AS total
-                FROM payroll
-                WHERE payment_status = 'Paid'
-                """
-            )
-            
-            row = cur.fetchone()
-            
-            total_paid = row["total"] or 0
-
-            # =================================================
-            # PAID PAYROLL
-            # =================================================
-
+            # =====================================================
+            # PAID PAYROLL COUNT
+            # =====================================================
             cur.execute(
                 """
                 SELECT COUNT(*) AS total
@@ -18281,17 +18237,11 @@ def admin_payroll():
                 """
             )
 
-            row = cur.fetchone()
+            paid_payroll = cur.fetchone()["total"]
 
-            paid_payroll = int(
-                row["total"] or 0
-            )
-
-
-            # =================================================
-            # PENDING PAYROLL
-            # =================================================
-
+            # =====================================================
+            # PENDING PAYROLL COUNT
+            # =====================================================
             cur.execute(
                 """
                 SELECT COUNT(*) AS total
@@ -18300,72 +18250,106 @@ def admin_payroll():
                 """
             )
 
-            row = cur.fetchone()
+            pending_payroll = cur.fetchone()["total"]
 
-            pending_payroll = int(
-                row["total"] or 0
-            )
-
-
-            # =================================================
-            # TOTAL NET SALARY
-            # =================================================
-
+            # =====================================================
+            # TOTAL SALARY
+            # =====================================================
             cur.execute(
                 """
                 SELECT
                     COALESCE(
                         SUM(net_salary),
                         0
-                    ) AS total
+                    ) AS total_salary
+
                 FROM payroll
                 """
             )
 
-            row = cur.fetchone()
+            total_salary = cur.fetchone()["total_salary"]
 
-            total_salary = (
-                row["total"] or 0
+            # =====================================================
+            # TOTAL AMOUNT PAID
+            # =====================================================
+            cur.execute(
+                """
+                SELECT
+                    COALESCE(
+                        SUM(net_salary),
+                        0
+                    ) AS total_paid
+
+                FROM payroll
+
+                WHERE payment_status = 'Paid'
+                """
             )
 
+            total_paid = cur.fetchone()["total_paid"]
 
-    except Exception:
+            # =====================================================
+            # TOTAL AMOUNT PENDING
+            # =====================================================
+            cur.execute(
+                """
+                SELECT
+                    COALESCE(
+                        SUM(net_salary),
+                        0
+                    ) AS total_pending
 
-        conn.rollback()
+                FROM payroll
+
+                WHERE payment_status = 'Pending'
+                """
+            )
+
+            total_pending = cur.fetchone()["total_pending"]
+
+        # =========================================================
+        # RENDER ADMIN PAYROLL
+        # =========================================================
+        return render_template(
+            "admin_payroll.html",
+
+            payrolls=payrolls,
+
+            total_payroll=total_payroll,
+
+            paid_payroll=paid_payroll,
+
+            pending_payroll=pending_payroll,
+
+            total_salary=total_salary,
+
+            total_paid=total_paid,
+
+            total_pending=total_pending
+        )
+
+    except Exception as e:
+
+        if conn:
+            conn.rollback()
 
         app.logger.exception(
             "Error loading admin payroll."
         )
 
         flash(
-            "Unable to load payroll records.",
-            "error"
+            "Unable to load payroll information at the moment.",
+            "danger"
         )
 
         return redirect(
             url_for("admin_dashboard")
         )
 
-
     finally:
 
-        conn.close()
-
-
-    return render_template(
-        "admin_payroll.html",
-
-        payrolls=payrolls,
-
-        total_payroll=total_payroll,
-
-        paid_payroll=paid_payroll,
-
-        pending_payroll=pending_payroll,
-
-        total_salary=total_salary,
-        total_paid=total_paid
-    )
+        if conn:
+            conn.close()
 # ============================================================
 # CREATE PAYROLL
 # ============================================================
@@ -19186,151 +19170,143 @@ def pay_payroll(id):
 # ============================================================
 # APPLICANT PAYROLL
 # ============================================================
-
 @app.route("/applicant/payroll")
 def applicant_payroll():
+    """
+    Display payroll records for the currently logged-in applicant.
+    Only approved applicants can access payroll information.
+    """
 
-    # --------------------------------------------------------
-    # APPLICANT LOGIN
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # CHECK APPLICANT LOGIN
+    # ---------------------------------------------------------
+    application_id = session.get("application_id")
 
-    applicant_id = session.get(
-        "applicant_id"
-    )
+    if not application_id:
+        flash("Please log in to your applicant portal first.", "warning")
+        return redirect(url_for("applicant_login"))
 
-
-    if not applicant_id:
-
-        return redirect(
-            url_for("applicant_login")
-        )
-
-
-    conn = get_db()
-
+    conn = None
 
     try:
+        conn = get_db()
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # VERIFY APPLICANT AND APPROVAL
-            # ------------------------------------------------
-
+            # -------------------------------------------------
+            # GET APPLICANT INFORMATION
+            # -------------------------------------------------
             cur.execute(
                 """
                 SELECT
-
                     id,
-
                     application_number,
-
                     first_name,
-
                     middle_name,
-
                     last_name,
-
                     position_applied,
-
-                    status
-
+                    status,
+                    passport
                 FROM applications
-
                 WHERE id = %s
-
                 LIMIT 1
                 """,
-                (
-                    applicant_id,
-                )
+                (application_id,)
             )
 
-            applicant = cur.fetchone()
+            application = cur.fetchone()
 
+            if not application:
+                flash("Applicant record could not be found.", "danger")
+                return redirect(url_for("applicant_login"))
 
-            if not applicant:
-
-                session.pop(
-                    "applicant_id",
-                    None
-                )
-
+            # -------------------------------------------------
+            # ONLY APPROVED APPLICANTS CAN VIEW PAYROLL
+            # -------------------------------------------------
+            if application["status"] != "Approved":
                 flash(
-                    "Applicant account not found.",
-                    "error"
+                    "Payroll information is available only to approved applicants.",
+                    "warning"
                 )
+                return redirect(url_for("applicant_portal"))
 
-                return redirect(
-                    url_for("applicant_login")
-                )
-
-
-            # ------------------------------------------------
-            # ONLY APPROVED APPLICANTS
-            # ------------------------------------------------
-
-            if applicant["status"] != "Approved":
-
-                flash(
-                    "Payroll access is available only "
-                    "to approved applicants.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("applicant_portal")
-                )
-
-
-            # ------------------------------------------------
-            # GET ONLY THIS APPLICANT'S PAYROLL
-            # ------------------------------------------------
-
+            # -------------------------------------------------
+            # GET PAYROLL RECORDS
+            #
+            # IMPORTANT:
+            # payroll_month is the correct PostgreSQL column.
+            # There is NO column called "month".
+            # -------------------------------------------------
             cur.execute(
                 """
                 SELECT
-
-                    id,
-
-                    month,
-
-                    basic_salary,
-
-                    allowance,
-
-                    bonus,
-
-                    deduction,
-
-                    net_salary,
-
-                    payment_status,
-
-                    payment_date,
-
-                    created_at
-
-                FROM payroll
-
-                WHERE application_id = %s
-
+                    p.id,
+                    p.application_id,
+                    p.payroll_month,
+                    p.basic_salary,
+                    p.allowance,
+                    p.bonus,
+                    p.deduction,
+                    p.net_salary,
+                    p.payment_status,
+                    p.paid_at,
+                    p.created_at,
+                    p.updated_at
+                FROM payroll p
+                WHERE p.application_id = %s
                 ORDER BY
-                    created_at DESC,
-                    id DESC
+                    p.created_at DESC,
+                    p.id DESC
                 """,
-                (
-                    applicant_id,
-                )
+                (application_id,)
             )
 
             payrolls = cur.fetchall()
 
+            # -------------------------------------------------
+            # PAYROLL SUMMARY
+            # -------------------------------------------------
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total_records,
 
-            # ------------------------------------------------
+                    COALESCE(
+                        SUM(basic_salary),
+                        0
+                    ) AS total_basic_salary,
+
+                    COALESCE(
+                        SUM(allowance),
+                        0
+                    ) AS total_allowance,
+
+                    COALESCE(
+                        SUM(bonus),
+                        0
+                    ) AS total_bonus,
+
+                    COALESCE(
+                        SUM(deduction),
+                        0
+                    ) AS total_deduction,
+
+                    COALESCE(
+                        SUM(net_salary),
+                        0
+                    ) AS total_net_salary
+
+                FROM payroll
+                WHERE application_id = %s
+                """,
+                (application_id,)
+            )
+
+            payroll_summary = cur.fetchone()
+
+            # -------------------------------------------------
             # TOTAL PAID
-            # ------------------------------------------------
-
+            # -------------------------------------------------
             cur.execute(
                 """
                 SELECT
@@ -19338,85 +19314,70 @@ def applicant_payroll():
                         SUM(net_salary),
                         0
                     ) AS total_paid
-
                 FROM payroll
-
                 WHERE application_id = %s
-
-                AND payment_status = 'Paid'
+                  AND payment_status = 'Paid'
                 """,
-                (
-                    applicant_id,
-                )
+                (application_id,)
             )
 
-            paid_row = cur.fetchone()
+            total_paid = cur.fetchone()["total_paid"]
 
-
-            total_paid = (
-                paid_row["total_paid"]
-                or Decimal("0.00")
-            )
-
-
-            # ------------------------------------------------
-            # TOTAL PAYROLL
-            # ------------------------------------------------
-
+            # -------------------------------------------------
+            # TOTAL PENDING
+            # -------------------------------------------------
             cur.execute(
                 """
-                SELECT COUNT(*) AS total
+                SELECT
+                    COALESCE(
+                        SUM(net_salary),
+                        0
+                    ) AS total_pending
                 FROM payroll
                 WHERE application_id = %s
+                  AND payment_status = 'Pending'
                 """,
-                (
-                    applicant_id,
-                )
+                (application_id,)
             )
 
-            count_row = cur.fetchone()
+            total_pending = cur.fetchone()["total_pending"]
 
+        return render_template(
+            "applicant_payroll.html",
 
-            payroll_count = int(
-                count_row["total"] or 0
-            )
+            application=application,
 
+            payrolls=payrolls,
 
-    except Exception:
+            payroll_summary=payroll_summary,
 
-        conn.rollback()
+            total_paid=total_paid,
+
+            total_pending=total_pending
+        )
+
+    except Exception as e:
+
+        if conn:
+            conn.rollback()
 
         app.logger.exception(
             "Error loading applicant payroll."
         )
 
         flash(
-            "Unable to load your payroll.",
-            "error"
+            "Unable to load your payroll information at the moment.",
+            "danger"
         )
 
         return redirect(
             url_for("applicant_portal")
         )
 
-
     finally:
 
-        conn.close()
-
-
-    return render_template(
-        "applicant_payroll.html",
-
-        applicant=applicant,
-
-        payrolls=payrolls,
-
-        total_paid=total_paid,
-
-        payroll_count=payroll_count
-    )
-
+        if conn:
+            conn.close()
 
 # ============================================================
 # APPLICANT PAYSLIP
