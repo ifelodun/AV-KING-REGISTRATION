@@ -578,7 +578,99 @@
     font-size: 14px;
 }
 
+/* =========================================================
+   PAYROLL CONTENT
+   ========================================================= */
 
+.portal-payroll-card > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.portal-payroll-card > div:nth-child(2) > span {
+    display: block;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.3px;
+}
+
+.portal-payroll-card h3 {
+    margin: 3px 0;
+
+    color: #ffffff;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.portal-payroll-card p {
+    margin: 0;
+
+    color: #d1d5db;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   ARROW
+   ========================================================= */
+
+.portal-payroll-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    font-size: 23px;
+    color: #d1d5db;
+
+    transition:
+        transform 0.2s ease;
+}
+
+.portal-payroll-card:hover .portal-payroll-arrow {
+    transform: translateX(4px);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .portal-payroll-card {
+        padding: 18px;
+        gap: 14px;
+    }
+
+    .portal-payroll-icon {
+        width: 45px;
+        height: 45px;
+        flex-basis: 45px;
+        border-radius: 12px;
+        font-size: 20px;
+    }
+
+    .portal-payroll-card h3 {
+        font-size: 15px;
+    }
+
+    .portal-payroll-card p {
+        font-size: 12px;
+    }
+
+    .portal-payroll-arrow {
+        font-size: 20px;
+    }
+}
 /* =========================================================
    RESPONSIVE
    ========================================================= */
