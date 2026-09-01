@@ -18249,7 +18249,25 @@ def admin_payroll():
             total_payroll = int(
                 row["total"] or 0
             )
-
+            # ============================================================
+            # TOTAL PAID AMOUNT
+            # ============================================================
+            
+            cur.execute(
+                """
+                SELECT
+                    COALESCE(
+                        SUM(net_salary),
+                        0
+                    ) AS total
+                FROM payroll
+                WHERE payment_status = 'Paid'
+                """
+            )
+            
+            row = cur.fetchone()
+            
+            total_paid = row["total"] or 0
 
             # =================================================
             # PAID PAYROLL
@@ -18345,7 +18363,8 @@ def admin_payroll():
 
         pending_payroll=pending_payroll,
 
-        total_salary=total_salary
+        total_salary=total_salary,
+        total_paid=total_paid
     )
 # ============================================================
 # CREATE PAYROLL
