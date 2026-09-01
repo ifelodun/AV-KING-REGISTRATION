@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}
+Payslip | {{ applicant.first_name }} {{ applicant.last_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="payslip-page">
+
+    <div class="payslip-header">
+
+        <div>
+            <h1>Employee Payslip</h1>
+            <p>Official salary statement</p>
+        </div>
+
+        <div>
+            <a
+                href="{{ url_for('applicant_payroll') }}"
+                class="back-button"
+            >
+                ← Back to Payroll
+            </a>
+        </div>
+
+    </div>
+
+
+    <div class="payslip-card">
+
+        <div class="company-section">
+
+            <div>
+                <h2>{{ COMPANY_NAME }}</h2>
+
+                {% if COMPANY_ADDRESS %}
+                    <p>{{ COMPANY_ADDRESS }}</p>
+                {% endif %}
+
+                {% if COMPANY_PHONE %}
+                    <p>{{ COMPANY_PHONE }}</p>
+                {% endif %}
+
+                {% if COMPANY_EMAIL %}
+                    <p>{{ COMPANY_EMAIL }}</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <div class="payslip-title">
+            <h2>PAYSLIP</h2>
+            <p>
+                Salary Month:
+                <strong>
+                    {{ payroll.payroll_month }}
+                </strong>
+            </p>
+        </div>
+
+
+        <div class="employee-details">
+
+            <div class="detail-box">
+
+                <span>Employee Name</span>
+
+                <strong>
+                    {{ applicant.first_name }}
+
+                    {% if applicant.middle_name %}
+                        {{ applicant.middle_name }}
+                    {% endif %}
+
+                    {{ applicant.last_name }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span>Application Number</span>
+
+                <strong>
+                    {{ applicant.application_number }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span>Position</span>
+
+                <strong>
+                    {{ applicant.position_applied or "—" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-box">
+
+                <span>Payment Status</span>
+
+                {% if payroll.payment_status
+                      and payroll.payment_status|string|lower|trim == "paid" %}
+
+                    <strong class="status-paid">
+                        PAID
+                    </strong>
+
+                {% else %}
+
+                    <strong class="status-pending">
+                        {{ payroll.payment_status or "Pending" }}
+                    </strong>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="salary-section">
+
+            <h3>Salary Breakdown</h3>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Basic Salary</td>
+                        <td>
+                            ₦{{ "{:,.2f}".format(
+                                payroll.basic_salary|float
+                            ) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Allowance</td>
+                        <td>
+                            ₦{{ "{:,.2f}".format(
+                                payroll.allowance|float
+                            ) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Bonus</td>
+                        <td>
+                            ₦{{ "{:,.2f}".format(
+                                payroll.bonus|float
+                            ) }}
+                        </td>
+                    </tr>
+
+                    <tr class="deduction-row">
+
+                        <td>Deduction</td>
+
+                        <td>
+                            -₦{{ "{:,.2f}".format(
+                                payroll.deduction|float
+                            ) }}
+                        </td>
+
+                    </tr>
+
+                    <tr class="net-row">
+
+                        <td>
+                            NET SALARY
+                        </td>
+
+                        <td>
+                            ₦{{ "{:,.2f}".format(
+                                payroll.net_salary|float
+                            ) }}
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="payment-information">
+
+            <h3>Payment Information</h3>
+
+            <p>
+                <strong>Status:</strong>
+                {{ payroll.payment_status or "Pending" }}
+            </p>
+
+            {% if payroll.paid_at %}
+
+                <p>
+                    <strong>Paid On:</strong>
+                    {{ payroll.paid_at.strftime("%d %B %Y, %I:%M %p") }}
+                </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="payslip-footer">
+
+            <p>
+                This is an electronically generated payslip.
+                No signature is required.
+            </p>
+
+            <button
+                type="button"
+                onclick="window.print()"
+                class="print-button"
+            >
+                🖨 Print Payslip
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.payslip-page {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.payslip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.payslip-header h1 {
+    margin: 0;
+}
+
+.payslip-header p {
+    margin-top: 5px;
+    color: #666;
+}
+
+.back-button,
+.print-button {
+    display: inline-block;
+    padding: 11px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.payslip-card {
+    background: white;
+    border-radius: 14px;
+    padding: 35px;
+    box-shadow: 0 5px 25px rgba(0,0,0,.08);
+}
+
+.company-section {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 20px;
+}
+
+.company-section h2 {
+    margin-bottom: 8px;
+}
+
+.company-section p {
+    margin: 4px 0;
+    color: #666;
+}
+
+.payslip-title {
+    text-align: center;
+    margin: 25px 0;
+}
+
+.payslip-title h2 {
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+}
+
+.employee-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.detail-box {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.detail-box span {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 6px;
+}
+
+.salary-section h3,
+.payment-information h3 {
+    margin-bottom: 15px;
+}
+
+.salary-section table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.salary-section th,
+.salary-section td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.salary-section th:last-child,
+.salary-section td:last-child {
+    text-align: right;
+}
+
+.deduction-row td {
+    color: #b00020;
+}
+
+.net-row {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.net-row td {
+    padding-top: 20px;
+}
+
+.status-paid {
+    color: #16803c;
+}
+
+.status-pending {
+    color: #b26a00;
+}
+
+.payment-information {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.payslip-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.payslip-footer p {
+    color: #777;
+    font-size: 13px;
+}
+
+@media (max-width: 700px) {
+
+    .payslip-page {
+        padding: 10px;
+    }
+
+    .payslip-card {
+        padding: 20px;
+    }
+
+    .payslip-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .employee-details {
+        grid-template-columns: 1fr;
+    }
+
+    .payslip-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+}
+
+@media print {
+
+    .payslip-header,
+    .back-button,
+    .print-button {
+        display: none !important;
+    }
+
+    .payslip-page {
+        margin: 0;
+        max-width: none;
+    }
+
+    .payslip-card {
+        box-shadow: none;
+        border: none;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
