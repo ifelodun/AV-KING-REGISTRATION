@@ -20261,7 +20261,135 @@ def delete_payroll(payroll_id):
         conn.close()
 
 
+@app.route(
+    "/admin/payroll/<int:payroll_id>/payslip",
+    methods=["GET"]
+)
+@require_admin
+def admin_print_payslip(payroll_id):
 
+    conn = None
+
+    try:
+
+        conn = get_db()
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # GET PAYROLL + APPLICANT INFORMATION
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    p.id,
+                    p.application_id,
+                    p.payroll_month,
+                    p.basic_salary,
+                    p.allowance,
+                    p.bonus,
+                    p.deduction,
+                    p.net_salary,
+                    p.payment_status,
+                    p.paid_at,
+                    p.created_at,
+
+                    a.application_number,
+                    a.first_name,
+                    a.middle_name,
+                    a.last_name,
+                    a.position_applied,
+                    a.phone,
+                    a.email,
+                    a.address,
+                    a.status AS application_status
+
+                FROM payroll p
+
+                INNER JOIN applications a
+                    ON a.id = p.application_id
+
+                WHERE p.id = %s
+
+                LIMIT 1
+                """,
+                (payroll_id,)
+            )
+
+            payroll = cur.fetchone()
+
+
+            # =================================================
+            # PAYROLL NOT FOUND
+            # =================================================
+
+            if not payroll:
+
+                flash(
+                    "Payroll record not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # ONLY APPROVED APPLICANTS
+            # =================================================
+
+            if (
+                not payroll["application_status"]
+                or payroll["application_status"].strip().lower()
+                != "approved"
+            ):
+
+                flash(
+                    "Payslip is only available for approved applicants.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+        # =====================================================
+        # RENDER ADMIN PAYSLIP
+        # =====================================================
+
+        return render_template(
+            "admin_payslip.html",
+            payroll=payroll
+        )
+
+
+    except Exception:
+
+        if conn:
+            conn.rollback()
+
+        app.logger.exception(
+            "Error loading admin payslip %s.",
+            payroll_id
+        )
+
+        flash(
+            "Unable to load the payslip.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    finally:
+
+        if conn:
+            conn.close()
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
