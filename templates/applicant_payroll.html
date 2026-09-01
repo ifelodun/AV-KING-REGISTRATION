@@ -14,7 +14,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         padding: 30px 20px 60px;
     }
 
-
     /* =====================================================
        HEADER
        ===================================================== */
@@ -35,7 +34,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         color: #6b7280;
         font-size: 14px;
     }
-
 
     /* =====================================================
        PROFILE CARD
@@ -72,7 +70,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         opacity: 0.75;
     }
 
-
     .approved-badge {
         padding: 8px 13px;
         border-radius: 999px;
@@ -80,7 +77,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         font-size: 11px;
         font-weight: 800;
     }
-
 
     /* =====================================================
        PAYROLL HISTORY
@@ -110,7 +106,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         font-size: 12px;
     }
 
-
     /* =====================================================
        RECORD
        ===================================================== */
@@ -123,7 +118,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
     .payroll-record:last-child {
         border-bottom: none;
     }
-
 
     .record-top {
         display: flex;
@@ -138,7 +132,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         font-size: 17px;
         font-weight: 800;
     }
-
 
     .status {
         display: inline-flex;
@@ -160,13 +153,15 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         background: #fffbeb;
     }
 
+    /* =====================================================
+       SALARY BREAKDOWN
+       ===================================================== */
 
     .salary-breakdown {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 12px;
     }
-
 
     .salary-item {
         padding: 14px;
@@ -186,6 +181,9 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         font-weight: 750;
     }
 
+    /* =====================================================
+       NET SALARY
+       ===================================================== */
 
     .net-row {
         margin-top: 15px;
@@ -212,6 +210,9 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         font-weight: 800;
     }
 
+    /* =====================================================
+       FOOTER
+       ===================================================== */
 
     .record-footer {
         margin-top: 15px;
@@ -221,12 +222,10 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         gap: 15px;
     }
 
-
     .paid-date {
         color: #9ca3af;
         font-size: 11px;
     }
-
 
     .payslip-button {
         display: inline-flex;
@@ -241,15 +240,16 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         text-decoration: none;
         font-size: 12px;
         font-weight: 750;
+        transition: 0.2s ease;
     }
 
     .payslip-button:hover {
-        background: #f9fafb;
+        background: #f3f4f6;
+        border-color: #9ca3af;
     }
 
-
     /* =====================================================
-       EMPTY
+       EMPTY STATE
        ===================================================== */
 
     .empty-payroll {
@@ -285,7 +285,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         line-height: 1.6;
     }
 
-
     /* =====================================================
        RESPONSIVE
        ===================================================== */
@@ -297,7 +296,6 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
         }
 
     }
-
 
     @media (max-width: 550px) {
 
@@ -328,93 +326,92 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
 </style>
 
-
 <div class="my-payroll-page">
 
 
-    <!-- =================================================
-         HEADER
-         ================================================= -->
+<!-- =================================================
+     HEADER
+     ================================================= -->
 
-    <div class="my-payroll-header">
+<div class="my-payroll-header">
 
-        <h1>
-            My Payroll
-        </h1>
+    <h1>
+        My Payroll
+    </h1>
+
+    <p>
+        View your salary information and payment history.
+    </p>
+
+</div>
+
+
+<!-- =================================================
+     STAFF SUMMARY
+     ================================================= -->
+
+<div class="staff-summary">
+
+    <div>
+
+        <div class="staff-label">
+            Approved Staff Member
+        </div>
+
+        <div class="staff-name">
+
+            {{ application.first_name }}
+
+            {% if application.middle_name %}
+                {{ application.middle_name }}
+            {% endif %}
+
+            {{ application.last_name }}
+
+        </div>
+
+        <div class="staff-position">
+            {{ application.position_applied }}
+        </div>
+
+    </div>
+
+
+    <div class="approved-badge">
+        ✓ Approved
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     PAYROLL
+     ================================================= -->
+
+<div class="payroll-card">
+
+    <div class="payroll-card-header">
+
+        <h2>
+            Salary History
+        </h2>
 
         <p>
-            View your salary information and payment history.
+            Your payroll records are private and visible only to you.
         </p>
 
     </div>
 
 
-    <!-- =================================================
-         STAFF SUMMARY
-         ================================================= -->
+    {% if payrolls %}
 
-    <div class="staff-summary">
-
-        <div>
-
-            <div class="staff-label">
-                Approved Staff Member
-            </div>
-
-            <div class="staff-name">
-
-                {{ applicant.first_name }}
-
-                {% if applicant.middle_name %}
-                    {{ applicant.middle_name }}
-                {% endif %}
-
-                {{ applicant.last_name }}
-
-            </div>
-
-            <div class="staff-position">
-                {{ applicant.position_applied }}
-            </div>
-
-        </div>
-
-
-        <div class="approved-badge">
-            ✓ Approved
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         PAYROLL
-         ================================================= -->
-
-    <div class="payroll-card">
-
-
-        <div class="payroll-card-header">
-
-            <h2>
-                Salary History
-            </h2>
-
-            <p>
-                Your payroll records are private and visible only to you.
-            </p>
-
-        </div>
-
-
-        {% if payrolls %}
-
-
-            {% for payroll in payrolls %}
-
+        {% for payroll in payrolls %}
 
             <div class="payroll-record">
 
+                <!-- =====================================
+                     MONTH + STATUS
+                     ===================================== -->
 
                 <div class="record-top">
 
@@ -423,7 +420,8 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
                     </div>
 
 
-                    {% if payroll.payment_status == "Paid" %}
+                    {% if payroll.payment_status
+                          and payroll.payment_status|string|lower|trim == "paid" %}
 
                         <span class="status status-paid">
                             ✓ Paid
@@ -440,12 +438,11 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
                 </div>
 
 
-                <!-- =========================================
-                     BREAKDOWN
-                     ========================================= -->
+                <!-- =====================================
+                     SALARY BREAKDOWN
+                     ===================================== -->
 
                 <div class="salary-breakdown">
-
 
                     <div class="salary-item">
 
@@ -455,7 +452,7 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
                         <div class="salary-item-value">
                             ₦{{ "{:,.2f}".format(
-                                payroll.basic_salary
+                                payroll.basic_salary|float
                             ) }}
                         </div>
 
@@ -470,7 +467,7 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
                         <div class="salary-item-value">
                             ₦{{ "{:,.2f}".format(
-                                payroll.allowance
+                                payroll.allowance|float
                             ) }}
                         </div>
 
@@ -485,7 +482,7 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
                         <div class="salary-item-value">
                             ₦{{ "{:,.2f}".format(
-                                payroll.bonus
+                                payroll.bonus|float
                             ) }}
                         </div>
 
@@ -500,19 +497,18 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
                         <div class="salary-item-value">
                             ₦{{ "{:,.2f}".format(
-                                payroll.deduction
+                                payroll.deduction|float
                             ) }}
                         </div>
 
                     </div>
 
-
                 </div>
 
 
-                <!-- =========================================
+                <!-- =====================================
                      NET SALARY
-                     ========================================= -->
+                     ===================================== -->
 
                 <div class="net-row">
 
@@ -524,7 +520,7 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
                         <div class="net-value">
                             ₦{{ "{:,.2f}".format(
-                                payroll.net_salary
+                                payroll.net_salary|float
                             ) }}
                         </div>
 
@@ -533,16 +529,16 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
                 </div>
 
 
-                <!-- =========================================
+                <!-- =====================================
                      FOOTER
-                     ========================================= -->
+                     ===================================== -->
 
                 <div class="record-footer">
 
-
                     <div class="paid-date">
 
-                        {% if payroll.payment_status == "Paid"
+                        {% if payroll.payment_status
+                              and payroll.payment_status|string|lower|trim == "paid"
                               and payroll.paid_at %}
 
                             Paid on
@@ -564,22 +560,23 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
                         ) }}"
                         class="payslip-button"
                         target="_blank"
+                        rel="noopener"
                     >
                         View Payslip
                     </a>
 
-
                 </div>
-
 
             </div>
 
+        {% endfor %}
 
-            {% endfor %}
 
+    {% else %}
 
-        {% else %}
-
+        <!-- =========================================
+             EMPTY STATE
+             ========================================= -->
 
         <div class="empty-payroll">
 
@@ -598,11 +595,10 @@ My Payroll | {{ company_name|default("AV KING VET DRUG VENTURE") }}
 
         </div>
 
+    {% endif %}
 
-        {% endif %}
+</div>
 
-
-    </div>
 
 </div>
 
