@@ -95,6 +95,8 @@ def init_db():
 
                     passport_filename VARCHAR(255),
 
+                    passport_url TEXT,
+
                     cv_filename VARCHAR(255),
 
                     qualification_filename VARCHAR(255),
@@ -160,7 +162,10 @@ def init_db():
                 )
                 """
             )
-
+            cur.execute("""
+                ALTER TABLE applications
+                ADD COLUMN IF NOT EXISTS passport_url TEXT
+            """)
 
             # =================================================
             # MIGRATION FOR EXISTING DATABASES
