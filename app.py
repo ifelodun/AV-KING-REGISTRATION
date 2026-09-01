@@ -3325,28 +3325,7 @@ def admin_positions():
         positions=positions
     )
 
-from functools import wraps
 
-
-def admin_required(view_function):
-
-    @wraps(view_function)
-    def decorated_view(*args, **kwargs):
-
-        if not session.get("admin_id"):
-
-            flash(
-                "You must be logged in as an administrator to access this page.",
-                "error"
-            )
-
-            return redirect(
-                url_for("admin_login")
-            )
-
-        return view_function(*args, **kwargs)
-
-    return decorated_view
 @app.route(
     "/admin/positions/<int:position_id>/edit",
     methods=["POST"]
@@ -18157,13 +18136,34 @@ def calculate_net_salary(
         Decimal("0.01")
     )
 
+from functools import wraps
 
+
+def require_admin(view_function):
+
+    @wraps(view_function)
+    def decorated_view(*args, **kwargs):
+
+        if not session.get("admin_id"):
+
+            flash(
+                "You must be logged in as an administrator to access this page.",
+                "error"
+            )
+
+            return redirect(
+                url_for("admin_login")
+            )
+
+        return view_function(*args, **kwargs)
+
+    return decorated_view
 # ============================================================
 # ADMIN PAYROLL DASHBOARD
 # ============================================================
 
 @app.route("/admin/payroll")
-@login_required
+@require_admin
 def admin_payroll():
 
     # --------------------------------------------------------
