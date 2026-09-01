@@ -19361,173 +19361,50 @@ def applicant_payroll():
     finally:
         if conn:
             conn.close()
-@app.route(
-    "/applicant/payroll/<int:payroll_id>/payslip",
-    methods=["GET"]
-)
-def applicant_payslip(payroll_id):
-    """
-    Display a payslip for the logged-in applicant.
-    """
-
-    application_id = session.get("applicant_id")
-
-    if not application_id:
-        flash(
-            "Please log in to your applicant portal first.",
-            "warning"
-        )
-        return redirect(
-            url_for("applicant_login")
-        )
-
-    conn = None
-
-    try:
-        conn = get_db()
-
-        with conn.cursor() as cur:
-
-            # =========================================================
-            # LOAD PAYROLL
-            # =========================================================
-            cur.execute("""
-                SELECT
-                    p.id,
-                    p.application_id,
-                    p.payroll_month,
-                    p.basic_salary,
-                    p.allowance,
-                    p.bonus,
-                    p.deduction,
-                    p.net_salary,
-                    p.payment_status,
-                    p.paid_at,
-                    p.created_at,
-                    p.updated_at,
-
-                    a.application_number,
-                    a.first_name,
-                    a.middle_name,
-                    a.last_name,
-                    a.position_applied,
-                    a.phone,
-                    a.email,
-                    a.address,
-                    a.status AS application_status
-
-                FROM payroll p
-
-                INNER JOIN applications a
-                    ON a.id = p.application_id
-
-                WHERE p.id = %s
-                  AND p.application_id = %s
-
-                LIMIT 1
-            """, (
-                payroll_id,
-                application_id
-            ))
-
-            payroll = cur.fetchone()
-
-            if not payroll:
-                flash(
-                    "Payslip not found.",
-                    "danger"
-                )
-                return redirect(
-                    url_for("applicant_payroll")
-                )
-
-            # =========================================================
-            # CHECK APPROVAL
-            # =========================================================
-            application_status = str(
-                payroll["application_status"] or ""
-            ).strip().lower()
-
-            if application_status != "approved":
-                flash(
-                    "Payslip is only available to approved applicants.",
-                    "warning"
-                )
-                return redirect(
-                    url_for("applicant_portal")
-                )
-
-        # =============================================================
-        # RENDER PAYSLIP
-        # =============================================================
-        return render_template(
-            "applicant_payslip.html",
-            payroll=payroll,
-            applicant=payroll
-        )
-
-    except Exception:
-
-        if conn:
-            conn.rollback()
-
-        app.logger.exception(
-            "Error loading applicant payslip %s.",
-            payroll_id
-        )
-
-        flash(
-            "Unable to load your payslip at the moment.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("applicant_payroll")
-        )
-
-    finally:
-
-        if conn:
-            conn.close()
 
 # ============================================================
 # APPLICANT PAYSLIP
 # ============================================================
-
 @app.route(
-    "/applicant/payslip/<int:id>"
+    "/applicant/payslip/<int:payroll_id>"
 )
-def applicant_payslip(id):
+def applicant_payslip(payroll_id):
 
-    # --------------------------------------------------------
+    # ========================================================
     # APPLICANT LOGIN
-    # --------------------------------------------------------
+    # ========================================================
 
     applicant_id = session.get(
         "applicant_id"
     )
 
-
     if not applicant_id:
+        flash(
+            "Please log in to your applicant portal first.",
+            "warning"
+        )
 
         return redirect(
             url_for("applicant_login")
         )
 
 
-    conn = get_db()
+    conn = None
 
 
     try:
 
+        conn = get_db()
+
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # IMPORTANT SECURITY CHECK
+            # ====================================================
+            # LOAD PAYROLL
             #
-            # The payroll must belong to the logged-in
+            # SECURITY:
+            # The payroll record MUST belong to the logged-in
             # applicant.
-            # ------------------------------------------------
+            # ====================================================
 
             cur.execute(
                 """
@@ -19535,7 +19412,7 @@ def applicant_payslip(id):
 
                     p.id,
 
-                    p.month,
+                    p.payroll_month,
 
                     p.basic_salary,
 
@@ -19549,7 +19426,7 @@ def applicant_payslip(id):
 
                     p.payment_status,
 
-                    p.payment_date,
+                    p.paid_at,
 
                     p.created_at,
 
@@ -19578,20 +19455,25 @@ def applicant_payslip(id):
 
                 WHERE p.id = %s
 
-                AND p.application_id = %s
+                  AND p.application_id = %s
 
-                AND a.status = 'Approved'
+                  AND LOWER(TRIM(a.status)) = 'approved'
 
                 LIMIT 1
                 """,
                 (
-                    id,
+                    payroll_id,
                     applicant_id
                 )
             )
 
+
             payroll = cur.fetchone()
 
+
+            # ====================================================
+            # PAYROLL NOT FOUND
+            # ====================================================
 
             if not payroll:
 
@@ -19607,16 +19489,22 @@ def applicant_payslip(id):
 
     except Exception:
 
-        conn.rollback()
+        if conn:
+
+            conn.rollback()
+
 
         app.logger.exception(
-            "Error loading applicant payslip."
+            "Error loading applicant payslip %s.",
+            payroll_id
         )
 
+
         flash(
-            "Unable to generate payslip.",
+            "Unable to load your payslip.",
             "error"
         )
+
 
         return redirect(
             url_for("applicant_payroll")
@@ -19625,7 +19513,9 @@ def applicant_payslip(id):
 
     finally:
 
-        conn.close()
+        if conn:
+
+            conn.close()
 
 
     # ========================================================
@@ -19644,9 +19534,9 @@ def applicant_payslip(id):
 
     try:
 
-        # ----------------------------------------------------
+        # ====================================================
         # PDF DOCUMENT
-        # ----------------------------------------------------
+        # ====================================================
 
         doc = SimpleDocTemplate(
 
@@ -19667,9 +19557,13 @@ def applicant_payslip(id):
         styles = getSampleStyleSheet()
 
 
+        # ====================================================
+        # STYLES
+        # ====================================================
+
         company_style = ParagraphStyle(
 
-            "Company",
+            "ApplicantPayslipCompany",
 
             parent=styles["Title"],
 
@@ -19685,7 +19579,7 @@ def applicant_payslip(id):
 
         subtitle_style = ParagraphStyle(
 
-            "Subtitle",
+            "ApplicantPayslipSubtitle",
 
             parent=styles["Normal"],
 
@@ -19701,7 +19595,7 @@ def applicant_payslip(id):
 
         heading_style = ParagraphStyle(
 
-            "Heading",
+            "ApplicantPayslipHeading",
 
             parent=styles["Heading2"],
 
@@ -19717,7 +19611,7 @@ def applicant_payslip(id):
 
         right_style = ParagraphStyle(
 
-            "Right",
+            "ApplicantPayslipRight",
 
             parent=styles["Normal"],
 
@@ -19730,9 +19624,9 @@ def applicant_payslip(id):
         content = []
 
 
-        # ----------------------------------------------------
-        # HEADER
-        # ----------------------------------------------------
+        # ====================================================
+        # COMPANY HEADER
+        # ====================================================
 
         content.append(
             Paragraph(
@@ -19750,69 +19644,97 @@ def applicant_payslip(id):
         )
 
 
-        # ----------------------------------------------------
-        # APPLICANT DETAILS
-        # ----------------------------------------------------
+        # ====================================================
+        # APPLICANT NAME
+        # ====================================================
 
         fullname = " ".join(
-            part
+
+            str(part).strip()
+
             for part in [
+
                 payroll["first_name"],
+
                 payroll["middle_name"],
+
                 payroll["last_name"]
+
             ]
+
             if part
         )
 
 
+        # ====================================================
+        # APPLICANT INFORMATION
+        # ====================================================
+
         applicant_data = [
 
             [
+
                 Paragraph(
-                    "<b>Applicant Name</b>",
+                    "<b>Employee Name</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    fullname,
+                    fullname or "—",
                     styles["Normal"]
                 )
+
             ],
 
             [
+
                 Paragraph(
                     "<b>Application Number</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    payroll["application_number"],
+                    str(
+                        payroll["application_number"]
+                        or "—"
+                    ),
                     styles["Normal"]
                 )
+
             ],
 
             [
+
                 Paragraph(
                     "<b>Position</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    payroll["position_applied"] or "—",
+                    str(
+                        payroll["position_applied"]
+                        or "—"
+                    ),
                     styles["Normal"]
                 )
+
             ],
 
             [
+
                 Paragraph(
                     "<b>Payroll Month</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    str(payroll["month"]),
+                    str(
+                        payroll["payroll_month"]
+                        or "—"
+                    ),
                     styles["Normal"]
                 )
+
             ]
 
         ]
@@ -19823,60 +19745,103 @@ def applicant_payslip(id):
             applicant_data,
 
             colWidths=[
+
                 48 * mm,
+
                 120 * mm
+
             ]
         )
 
 
         applicant_table.setStyle(
+
             TableStyle([
 
                 (
+
                     "BACKGROUND",
+
                     (0, 0),
+
                     (0, -1),
-                    colors.HexColor("#f3f4f6")
+
+                    colors.HexColor(
+                        "#f3f4f6"
+                    )
+
                 ),
 
                 (
+
                     "BOX",
+
                     (0, 0),
+
                     (-1, -1),
+
                     0.5,
-                    colors.HexColor("#d1d5db")
+
+                    colors.HexColor(
+                        "#d1d5db"
+                    )
+
                 ),
 
                 (
+
                     "INNERGRID",
+
                     (0, 0),
+
                     (-1, -1),
+
                     0.25,
-                    colors.HexColor("#e5e7eb")
+
+                    colors.HexColor(
+                        "#e5e7eb"
+                    )
+
                 ),
 
                 (
+
                     "VALIGN",
+
                     (0, 0),
+
                     (-1, -1),
+
                     "MIDDLE"
+
                 ),
 
                 (
+
                     "TOPPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     7
+
                 ),
 
                 (
+
                     "BOTTOMPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     7
+
                 )
 
             ])
+
         )
 
 
@@ -19893,9 +19858,9 @@ def applicant_payslip(id):
         )
 
 
-        # ----------------------------------------------------
-        # EARNINGS
-        # ----------------------------------------------------
+        # ====================================================
+        # SALARY BREAKDOWN
+        # ====================================================
 
         content.append(
             Paragraph(
@@ -19905,9 +19870,31 @@ def applicant_payslip(id):
         )
 
 
+        basic_salary = float(
+            payroll["basic_salary"] or 0
+        )
+
+        allowance = float(
+            payroll["allowance"] or 0
+        )
+
+        bonus = float(
+            payroll["bonus"] or 0
+        )
+
+        deduction = float(
+            payroll["deduction"] or 0
+        )
+
+        net_salary = float(
+            payroll["net_salary"] or 0
+        )
+
+
         salary_data = [
 
             [
+
                 Paragraph(
                     "<b>Description</b>",
                     styles["Normal"]
@@ -19917,50 +19904,65 @@ def applicant_payslip(id):
                     "<b>Amount</b>",
                     right_style
                 )
+
             ],
 
             [
+
                 "Basic Salary",
+
                 Paragraph(
-                    f"₦{payroll['basic_salary']:,.2f}",
+                    f"₦{basic_salary:,.2f}",
                     right_style
                 )
+
             ],
 
             [
+
                 "Allowance",
+
                 Paragraph(
-                    f"₦{payroll['allowance']:,.2f}",
+                    f"₦{allowance:,.2f}",
                     right_style
                 )
+
             ],
 
             [
+
                 "Bonus",
+
                 Paragraph(
-                    f"₦{payroll['bonus']:,.2f}",
+                    f"₦{bonus:,.2f}",
                     right_style
                 )
+
             ],
 
             [
+
                 "Deduction",
+
                 Paragraph(
-                    f"₦{payroll['deduction']:,.2f}",
+                    f"-₦{deduction:,.2f}",
                     right_style
                 )
+
             ],
 
             [
+
                 Paragraph(
                     "<b>NET SALARY</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    f"<b>₦{payroll['net_salary']:,.2f}</b>",
+                    f"<b>₦{net_salary:,.2f}</b>",
                     right_style
                 )
+
             ]
 
         ]
@@ -19971,66 +19973,113 @@ def applicant_payslip(id):
             salary_data,
 
             colWidths=[
+
                 105 * mm,
+
                 63 * mm
+
             ]
         )
 
 
         salary_table.setStyle(
+
             TableStyle([
 
                 (
+
                     "BACKGROUND",
+
                     (0, 0),
+
                     (-1, 0),
-                    colors.HexColor("#111827")
+
+                    colors.HexColor(
+                        "#111827"
+                    )
+
                 ),
 
                 (
+
                     "TEXTCOLOR",
+
                     (0, 0),
+
                     (-1, 0),
+
                     colors.white
+
                 ),
 
                 (
+
                     "GRID",
+
                     (0, 0),
+
                     (-1, -1),
+
                     0.5,
-                    colors.HexColor("#d1d5db")
+
+                    colors.HexColor(
+                        "#d1d5db"
+                    )
+
                 ),
 
                 (
+
                     "ALIGN",
+
                     (1, 1),
+
                     (1, -1),
+
                     "RIGHT"
+
                 ),
 
                 (
+
                     "BACKGROUND",
+
                     (0, -1),
+
                     (-1, -1),
-                    colors.HexColor("#ecfdf5")
+
+                    colors.HexColor(
+                        "#ecfdf5"
+                    )
+
                 ),
 
                 (
+
                     "TOPPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     8
+
                 ),
 
                 (
+
                     "BOTTOMPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     8
+
                 )
 
             ])
+
         )
 
 
@@ -20047,47 +20096,61 @@ def applicant_payslip(id):
         )
 
 
-        # ----------------------------------------------------
-        # PAYMENT STATUS
-        # ----------------------------------------------------
-
-        payment_date = (
-            payroll["payment_date"]
-            if payroll["payment_date"]
-            else "Not yet paid"
-        )
-
+        # ====================================================
+        # PAYMENT INFORMATION
+        # ====================================================
 
         status_text = (
-            payroll["payment_status"]
-            or "Pending"
+
+            str(
+                payroll["payment_status"]
+                or "Pending"
+            ).strip()
+
         )
+
+
+        if payroll["paid_at"]:
+
+            payment_date = payroll[
+                "paid_at"
+            ].strftime(
+                "%d %B %Y, %I:%M %p"
+            )
+
+        else:
+
+            payment_date = "Not yet paid"
 
 
         payment_data = [
 
             [
+
                 Paragraph(
                     "<b>Payment Status</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    str(status_text),
+                    status_text,
                     styles["Normal"]
                 )
+
             ],
 
             [
+
                 Paragraph(
                     "<b>Payment Date</b>",
                     styles["Normal"]
                 ),
 
                 Paragraph(
-                    str(payment_date),
+                    payment_date,
                     styles["Normal"]
                 )
+
             ]
 
         ]
@@ -20098,53 +20161,91 @@ def applicant_payslip(id):
             payment_data,
 
             colWidths=[
+
                 48 * mm,
+
                 120 * mm
+
             ]
         )
 
 
         payment_table.setStyle(
+
             TableStyle([
 
                 (
+
                     "BOX",
+
                     (0, 0),
+
                     (-1, -1),
+
                     0.5,
-                    colors.HexColor("#d1d5db")
+
+                    colors.HexColor(
+                        "#d1d5db"
+                    )
+
                 ),
 
                 (
+
                     "INNERGRID",
+
                     (0, 0),
+
                     (-1, -1),
+
                     0.25,
-                    colors.HexColor("#e5e7eb")
+
+                    colors.HexColor(
+                        "#e5e7eb"
+                    )
+
                 ),
 
                 (
+
                     "BACKGROUND",
+
                     (0, 0),
+
                     (0, -1),
-                    colors.HexColor("#f3f4f6")
+
+                    colors.HexColor(
+                        "#f3f4f6"
+                    )
+
                 ),
 
                 (
+
                     "TOPPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     7
+
                 ),
 
                 (
+
                     "BOTTOMPADDING",
+
                     (0, 0),
+
                     (-1, -1),
+
                     7
+
                 )
 
             ])
+
         )
 
 
@@ -20161,24 +20262,37 @@ def applicant_payslip(id):
         )
 
 
-        # ----------------------------------------------------
+        # ====================================================
         # FOOTER
-        # ----------------------------------------------------
+        # ====================================================
 
         content.append(
+
             Paragraph(
+
                 "This payslip is an official payroll document "
                 "generated from the AV KING VET DRUG VENTURE "
                 "staff management system.",
+
                 subtitle_style
+
             )
+
         )
 
+
+        # ====================================================
+        # BUILD PDF
+        # ====================================================
 
         doc.build(
             content
         )
 
+
+        # ====================================================
+        # SEND PDF
+        # ====================================================
 
         return send_file(
 
@@ -20187,9 +20301,13 @@ def applicant_payslip(id):
             as_attachment=True,
 
             download_name=(
+
                 f"Payslip-"
+
                 f"{payroll['application_number']}-"
-                f"{payroll['month']}.pdf"
+
+                f"{payroll['payroll_month']}.pdf"
+
             ),
 
             mimetype="application/pdf"
@@ -20200,13 +20318,15 @@ def applicant_payslip(id):
     except Exception:
 
         app.logger.exception(
-            "Error generating payslip PDF."
+            "Error generating applicant payslip PDF."
         )
+
 
         flash(
             "Unable to generate payslip.",
             "error"
         )
+
 
         return redirect(
             url_for("applicant_payroll")
@@ -20215,9 +20335,9 @@ def applicant_payslip(id):
 
     finally:
 
-        # ----------------------------------------------------
-        # REMOVE TEMPORARY FILE
-        # ----------------------------------------------------
+        # ====================================================
+        # DELETE TEMPORARY PDF
+        # ====================================================
 
         try:
 
@@ -20232,6 +20352,9 @@ def applicant_payslip(id):
         except Exception:
 
             pass
+
+
+
 
 @app.route(
     "/admin/payroll/delete/<int:payroll_id>",
