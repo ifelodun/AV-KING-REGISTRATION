@@ -94,9 +94,11 @@
             sans-serif;
 
         background: var(--page-bg);
+
         color: var(--text);
 
         -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
 
 
@@ -188,6 +190,9 @@
         font-weight: 900;
 
         letter-spacing: -.5px;
+
+        box-shadow:
+            0 4px 12px rgba(0,0,0,.12);
     }
 
 
@@ -264,7 +269,8 @@
 
         transition:
             background .18s ease,
-            color .18s ease;
+            color .18s ease,
+            transform .18s ease;
     }
 
 
@@ -279,6 +285,8 @@
         color: #8290a5;
 
         font-size: 14px;
+
+        flex-shrink: 0;
     }
 
 
@@ -286,6 +294,8 @@
 
         background: var(--sidebar-hover);
         color: #ffffff;
+
+        transform: translateX(2px);
     }
 
 
@@ -447,6 +457,7 @@
     .details-container {
 
         width: 100%;
+
         max-width: 1500px;
 
         margin: 0 auto;
@@ -532,6 +543,11 @@
 
         font-size: 12px;
         font-weight: 600;
+    }
+
+
+    .application-id strong {
+        color: var(--primary);
     }
 
 
@@ -1151,7 +1167,8 @@
 
         transition:
             border .18s ease,
-            box-shadow .18s ease;
+            box-shadow .18s ease,
+            transform .18s ease;
     }
 
 
@@ -1161,6 +1178,8 @@
 
         box-shadow:
             0 4px 12px rgba(15,23,42,.05);
+
+        transform: translateY(-1px);
     }
 
 
@@ -1194,7 +1213,7 @@
 
         color: var(--accent);
 
-        font-size: 15px;
+        font-size: 10px;
         font-weight: 900;
     }
 
@@ -1262,10 +1281,13 @@
         font-size: 10px;
         font-weight: 800;
 
+        cursor: pointer;
+
         transition:
             transform .18s ease,
             background .18s ease,
-            border .18s ease;
+            border .18s ease,
+            box-shadow .18s ease;
     }
 
 
@@ -1289,6 +1311,9 @@
     .document-view:hover {
 
         background: #dbeafe;
+
+        box-shadow:
+            0 3px 8px rgba(37,99,235,.08);
     }
 
 
@@ -1306,6 +1331,9 @@
     .document-download:hover {
 
         background: #dcfce7;
+
+        box-shadow:
+            0 3px 8px rgba(22,163,74,.08);
     }
 
 
@@ -1325,6 +1353,14 @@
         font-size: 10px;
 
         text-align: center;
+    }
+
+
+    .biodata-download {
+
+        width: 100%;
+
+        margin-top: 2px;
     }
 
 
@@ -1467,6 +1503,9 @@
         background: #15803d;
 
         transform: translateY(-1px);
+
+        box-shadow:
+            0 4px 10px rgba(22,163,74,.15);
     }
 
 
@@ -1539,6 +1578,15 @@
         font-weight: 700;
 
         word-break: break-word;
+    }
+
+
+    /* =========================================================
+       MOBILE MENU
+    ========================================================= */
+
+    .mobile-sidebar-toggle {
+        display: none;
     }
 
 
@@ -1769,6 +1817,11 @@
 
         .document-actions {
             grid-template-columns: 1fr;
+        }
+
+
+        .document-action {
+            min-height: 40px;
         }
 
     }
@@ -2060,7 +2113,9 @@
             <div class="details-main">
 
 
-                <!-- PERSONAL INFORMATION -->
+                <!-- =================================================
+                     PERSONAL INFORMATION
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2197,7 +2252,9 @@
 
 
 
-                <!-- POSITION -->
+                <!-- =================================================
+                     POSITION
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2226,7 +2283,9 @@
 
 
 
-                <!-- EDUCATION -->
+                <!-- =================================================
+                     EDUCATION
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2303,7 +2362,9 @@
 
 
 
-                <!-- EXPERIENCE -->
+                <!-- =================================================
+                     EXPERIENCE
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2370,7 +2431,9 @@
 
 
 
-                <!-- RESPONSES -->
+                <!-- =================================================
+                     RESPONSES
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2418,7 +2481,9 @@
 
 
 
-                <!-- INTERVIEW -->
+                <!-- =================================================
+                     INTERVIEW
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2594,7 +2659,7 @@
 
                 <!-- =================================================
                      PASSPORT PREVIEW
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -2684,7 +2749,7 @@
 
                         <!-- =================================================
                              CV
-                        ================================================== -->
+                        ================================================= -->
 
                         {% if application.cv_filename %}
 
@@ -2702,7 +2767,9 @@
                                             Curriculum Vitae
                                         </strong>
 
-                                        <small>
+                                        <small
+                                            title="{{ application.cv_filename }}"
+                                        >
                                             {{ application.cv_filename }}
                                         </small>
 
@@ -2713,6 +2780,8 @@
 
                                 <div class="document-actions">
 
+
+                                    <!-- VIEW -->
 
                                     <a
                                         href="{{ url_for(
@@ -2726,6 +2795,8 @@
                                         👁 View
                                     </a>
 
+
+                                    <!-- DOWNLOAD -->
 
                                     <a
                                         href="{{ url_for(
@@ -2752,8 +2823,8 @@
 
 
                         <!-- =================================================
-                             RESULT / QUALIFICATION
-                        ================================================== -->
+                             QUALIFICATION / RESULT
+                        ================================================= -->
 
                         {% if application.qualification_filename %}
 
@@ -2771,7 +2842,9 @@
                                             Qualification / Result
                                         </strong>
 
-                                        <small>
+                                        <small
+                                            title="{{ application.qualification_filename }}"
+                                        >
                                             {{ application.qualification_filename }}
                                         </small>
 
@@ -2782,6 +2855,8 @@
 
                                 <div class="document-actions">
 
+
+                                    <!-- VIEW -->
 
                                     <a
                                         href="{{ url_for(
@@ -2795,6 +2870,8 @@
                                         👁 View
                                     </a>
 
+
+                                    <!-- DOWNLOAD -->
 
                                     <a
                                         href="{{ url_for(
@@ -2823,7 +2900,7 @@
 
                         <!-- =================================================
                              PASSPORT
-                        ================================================== -->
+                        ================================================= -->
 
                         {% if application.passport_filename %}
 
@@ -2841,7 +2918,9 @@
                                             Passport Photograph
                                         </strong>
 
-                                        <small>
+                                        <small
+                                            title="{{ application.passport_filename }}"
+                                        >
                                             {{ application.passport_filename }}
                                         </small>
 
@@ -2852,6 +2931,8 @@
 
                                 <div class="document-actions">
 
+
+                                    <!-- VIEW -->
 
                                     <a
                                         href="{{ url_for(
@@ -2865,6 +2946,8 @@
                                         👁 View
                                     </a>
 
+
+                                    <!-- DOWNLOAD -->
 
                                     <a
                                         href="{{ url_for(
@@ -2892,20 +2975,24 @@
 
                         <!-- =================================================
                              BIODATA
-                        ================================================== -->
+                        ================================================= -->
 
                         <a
                             href="{{ url_for(
                                 'download_applicant_biodata',
                                 application_id=application.id
                             ) }}"
-                            class="document-action document-download"
+                            class="document-action document-download biodata-download"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             ↓ Download Applicant Biodata
                         </a>
 
+
+                        <!-- =================================================
+                             STORAGE NOTICE
+                        ================================================= -->
 
                         <div class="cloudinary-note">
 
@@ -2923,7 +3010,7 @@
 
                 <!-- =================================================
                      APPLICATION STATUS
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -3064,7 +3151,7 @@
 
                 <!-- =================================================
                      INTERNAL NOTES
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -3118,7 +3205,7 @@
 
                 <!-- =================================================
                      APPLICANT MESSAGE
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -3237,7 +3324,7 @@
 
                 <!-- =================================================
                      PORTAL INFORMATION
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -3308,7 +3395,7 @@
 
                 <!-- =================================================
                      SUBMISSION INFORMATION
-                ================================================== -->
+                ================================================= -->
 
                 <section class="details-card">
 
@@ -3402,6 +3489,7 @@
     </div>
 
 </main>
+
 
 </div>
 
