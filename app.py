@@ -18979,6 +18979,10 @@ def edit_payroll(id):
 # MARK PAYROLL AS PAID
 # ============================================================
 
+# ============================================================
+# MARK PAYROLL AS PAID
+# ============================================================
+
 @app.route(
     "/admin/payroll/<int:id>/pay",
     methods=["POST"]
@@ -18986,51 +18990,27 @@ def edit_payroll(id):
 @require_admin
 def pay_payroll(id):
 
-    # --------------------------------------------------------
-    # ADMIN ONLY
-    # --------------------------------------------------------
-
-    if session.get("role") != "admin":
-
-        flash(
-            "You are not authorized to process payroll.",
-            "error"
-        )
-
-        return redirect(
-            url_for("dashboard")
-        )
-
-
     conn = get_db()
-
 
     try:
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # GET PAYROLL
-            # ------------------------------------------------
+            # =================================================
+            # GET PAYROLL + APPLICANT
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
-
                     p.id,
-
                     p.application_id,
-
                     p.month,
-
                     p.net_salary,
-
                     p.payment_status,
 
                     a.first_name,
-
                     a.last_name,
-
                     a.status AS application_status
 
                 FROM payroll p
@@ -19042,13 +19022,10 @@ def pay_payroll(id):
 
                 LIMIT 1
                 """,
-                (
-                    id,
-                )
+                (id,)
             )
 
             payroll = cur.fetchone()
-
 
             if not payroll:
 
@@ -19062,14 +19039,14 @@ def pay_payroll(id):
                 )
 
 
-            # ------------------------------------------------
-            # CHECK APPROVAL
-            # ------------------------------------------------
+            # =================================================
+            # ONLY APPROVED APPLICANTS
+            # =================================================
 
             if payroll["application_status"] != "Approved":
 
                 flash(
-                    "Only approved applicants can receive payroll.",
+                    "Payroll can only be paid for approved applicants.",
                     "error"
                 )
 
@@ -19078,15 +19055,15 @@ def pay_payroll(id):
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
             # PREVENT DOUBLE PAYMENT
-            # ------------------------------------------------
+            # =================================================
 
             if payroll["payment_status"] == "Paid":
 
                 flash(
-                    "This payroll has already been marked as paid.",
-                    "info"
+                    "This payroll has already been paid.",
+                    "warning"
                 )
 
                 return redirect(
@@ -19094,72 +19071,39 @@ def pay_payroll(id):
                 )
 
 
-            # ------------------------------------------------
-            # MARK AS PAID
-            # ------------------------------------------------
+            # =================================================
+            # MARK PAYROLL AS PAID
+            # =================================================
 
             cur.execute(
                 """
                 UPDATE payroll
 
                 SET
-
                     payment_status = 'Paid',
-
-                    payment_date =
-                        CURRENT_TIMESTAMP,
-
-                    updated_at =
-                        CURRENT_TIMESTAMP
+                    payment_date = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
 
                 WHERE id = %s
                 """,
-                (
-                    id,
-                )
+                (id,)
             )
 
 
-            # ------------------------------------------------
-            # OPTIONAL NOTIFICATION
-            #
-            # This only runs if your notifications table
-            # already exists.
-            # ------------------------------------------------
+            # =================================================
+            # APPLICANT NOTIFICATION
+            # =================================================
 
             try:
 
-                cur.execute(
-                    """
-                    SELECT
-                        first_name,
-                        last_name,
-                        email
-
-                    FROM applications
-
-                    WHERE id = %s
-
-                    LIMIT 1
-                    """,
-                    (
-                        payroll["application_id"],
-                    )
-                )
-
-                applicant = cur.fetchone()
-
-
-                # ------------------------------------------------
-                # CREATE NOTIFICATION ONLY IF TABLE EXISTS
-                # ------------------------------------------------
-
+                # Check whether notifications table exists
                 cur.execute(
                     """
                     SELECT EXISTS (
                         SELECT 1
                         FROM information_schema.tables
-                        WHERE table_name = 'notifications'
+                        WHERE table_schema = 'public'
+                        AND table_name = 'notifications'
                     ) AS exists
                     """
                 )
@@ -19175,24 +19119,17 @@ def pay_payroll(id):
                     cur.execute(
                         """
                         INSERT INTO notifications (
-
                             application_id,
-
                             title,
-
                             message,
-
                             created_at
-
                         )
 
                         VALUES (
-
                             %s,
                             %s,
                             %s,
                             CURRENT_TIMESTAMP
-
                         )
                         """,
                         (
@@ -19204,21 +19141,25 @@ def pay_payroll(id):
                                 f"Your salary for "
                                 f"{payroll['month']} "
                                 f"has been marked as paid. "
-                                f"Net salary: ₦"
-                                f"{payroll['net_salary']}"
+                                f"Net salary: "
+                                f"₦{payroll['net_salary']}"
                             )
                         )
                     )
 
             except Exception:
 
-                # Notification failure should not cancel
-                # the actual salary payment.
+                # Notification failure should not
+                # cancel the salary payment.
 
                 app.logger.exception(
-                    "Payroll notification could not be created."
+                    "Unable to create payroll notification."
                 )
 
+
+        # =====================================================
+        # COMMIT PAYMENT
+        # =====================================================
 
         conn.commit()
 
@@ -19234,7 +19175,7 @@ def pay_payroll(id):
         conn.rollback()
 
         app.logger.exception(
-            "Error processing payroll payment."
+            "Error paying payroll."
         )
 
         flash(
@@ -19249,9 +19190,7 @@ def pay_payroll(id):
 
 
     return redirect(
-        url_for(
-            "admin_payroll"
-        )
+        url_for("admin_payroll")
     )
 
 
@@ -20362,234 +20301,7 @@ def delete_payroll(payroll_id):
 
         conn.close()
 
-@app.route(
-    "/admin/payroll/pay/<int:payroll_id>",
-    methods=["POST"]
-)
-@require_admin
-def pay_payroll(payroll_id):
 
-    if current_user.role != "admin":
-
-        flash(
-            "Access Denied.",
-            "error"
-        )
-
-        return redirect(
-            url_for("dashboard")
-        )
-
-
-    conn = get_db()
-
-    try:
-
-        with conn.cursor() as cur:
-
-            # =================================================
-            # GET PAYROLL + APPLICANT
-            # =================================================
-
-            cur.execute(
-                """
-                SELECT
-
-                    p.id,
-
-                    p.application_id,
-
-                    p.month,
-
-                    p.net_salary,
-
-                    p.payment_status,
-
-                    a.first_name,
-
-                    a.last_name,
-
-                    a.status
-
-                FROM payroll p
-
-                INNER JOIN applications a
-                    ON a.id = p.application_id
-
-                WHERE p.id = %s
-
-                LIMIT 1
-                """,
-                (
-                    payroll_id,
-                )
-            )
-
-            payroll = cur.fetchone()
-
-
-            if not payroll:
-
-                flash(
-                    "Payroll record not found.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("admin_payroll")
-                )
-
-
-            # =================================================
-            # APPROVAL CHECK
-            # =================================================
-
-            if payroll["status"] != "Approved":
-
-                flash(
-                    "Payroll can only be paid for approved applicants.",
-                    "error"
-                )
-
-                return redirect(
-                    url_for("admin_payroll")
-                )
-
-
-            # =================================================
-            # ALREADY PAID
-            # =================================================
-
-            if payroll["payment_status"] == "Paid":
-
-                flash(
-                    "This payroll has already been paid.",
-                    "warning"
-                )
-
-                return redirect(
-                    url_for("admin_payroll")
-                )
-
-
-            # =================================================
-            # MARK AS PAID
-            # =================================================
-
-            cur.execute(
-                """
-                UPDATE payroll
-
-                SET
-
-                    payment_status = 'Paid',
-
-                    paid_at = CURRENT_TIMESTAMP,
-
-                    updated_at = CURRENT_TIMESTAMP
-
-                WHERE id = %s
-                """,
-                (
-                    payroll_id,
-                )
-            )
-
-
-            # =================================================
-            # OPTIONAL APPLICANT NOTIFICATION
-            #
-            # Only execute this if your notifications table
-            # already exists.
-            # =================================================
-
-            try:
-
-                cur.execute(
-                    """
-                    INSERT INTO notifications (
-
-                        application_id,
-
-                        title,
-
-                        message,
-
-                        created_at
-
-                    )
-
-                    VALUES (
-
-                        %s,
-
-                        %s,
-
-                        %s,
-
-                        CURRENT_TIMESTAMP
-
-                    )
-                    """,
-                    (
-                        payroll["application_id"],
-
-                        "Salary Payment",
-
-                        (
-                            f"Your salary for "
-                            f"{payroll['month']} "
-                            f"has been marked as paid. "
-                            f"Net salary: "
-                            f"₦{payroll['net_salary']}"
-                        )
-                    )
-                )
-
-            except Exception:
-
-                # Don't allow a notification problem
-                # to prevent payroll payment.
-
-                app.logger.exception(
-                    "Unable to create payroll notification."
-                )
-
-
-            conn.commit()
-
-
-        flash(
-            "Payroll marked as paid successfully.",
-            "success"
-        )
-
-        return redirect(
-            url_for("admin_payroll")
-        )
-
-
-    except Exception:
-
-        conn.rollback()
-
-        app.logger.exception(
-            "Error paying payroll."
-        )
-
-        flash(
-            "Unable to process payroll payment.",
-            "error"
-        )
-
-        return redirect(
-            url_for("admin_payroll")
-        )
-
-
-    finally:
-
-        conn.close()
 
 # ============================================================
 # INITIALIZE DATABASE
