@@ -11104,7 +11104,7 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # DATABASE
+    # DATABASE LOOKUP
     # =========================================================
 
     applicant = None
@@ -11117,25 +11117,13 @@ def admin_download_file(filename):
 
             with conn.cursor() as cur:
 
-                # -------------------------------------------------
-                # Find the application containing this document.
-                #
-                # We check the complete stored values because
-                # Cloudinary may store:
-                #
-                #   https://res.cloudinary.com/...
-                #
-                # rather than only:
-                #
-                #   filename.pdf
-                # -------------------------------------------------
-
                 cur.execute(
                     """
                     SELECT
                         id,
                         application_number,
                         first_name,
+                        middle_name,
                         last_name,
                         passport_filename,
                         cv_filename,
@@ -11205,11 +11193,8 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # DETERMINE WHICH DOCUMENT WAS REQUESTED
+    # DETERMINE REQUESTED DOCUMENT
     # =========================================================
-
-    stored_document = None
-    document_type = None
 
     possible_documents = [
 
@@ -11227,12 +11212,14 @@ def admin_download_file(filename):
             "Qualification / Result",
             applicant["qualification_filename"]
         )
-
     ]
 
-    # ---------------------------------------------------------
-    # First: exact match
-    # ---------------------------------------------------------
+    stored_document = None
+    document_type = None
+
+    # =========================================================
+    # EXACT MATCH
+    # =========================================================
 
     for doc_type, value in possible_documents:
 
@@ -11248,13 +11235,17 @@ def admin_download_file(filename):
 
             break
 
-    # ---------------------------------------------------------
-    # Second: filename contained inside Cloudinary URL
-    # ---------------------------------------------------------
+    # =========================================================
+    # CLOUDINARY URL / FILENAME MATCH
+    # =========================================================
 
     if not stored_document:
 
-        requested_clean = requested_filename.lower()
+        requested_clean = (
+            requested_filename
+            .strip()
+            .lower()
+        )
 
         for doc_type, value in possible_documents:
 
@@ -11263,10 +11254,17 @@ def admin_download_file(filename):
 
             value = str(value).strip()
 
-            value_without_query = value.split("?", 1)[0]
+            value_without_query = value.split(
+                "?",
+                1
+            )[0]
 
             basename = os.path.basename(
                 value_without_query
+            )
+
+            basename = unquote(
+                basename
             )
 
             if (
@@ -11287,8 +11285,8 @@ def admin_download_file(filename):
     if not stored_document:
 
         app.logger.warning(
-            "Document matched application %s but URL/value "
-            "could not be determined. Requested=%s",
+            "Document matched application but could not "
+            "be determined. Application=%s Requested=%s",
             applicant["id"],
             requested_filename
         )
@@ -11306,7 +11304,7 @@ def admin_download_file(filename):
         )
 
     # =========================================================
-    # CLOUDINARY URL
+    # VALIDATE CLOUDINARY URL
     # =========================================================
 
     cloudinary_url = stored_document.strip()
@@ -11337,38 +11335,257 @@ def admin_download_file(filename):
         )
 
     # =========================================================
+    # SECURITY: VALIDATE CLOUDINARY HOST
+    # =========================================================
+
+    try:
+
+        parsed_url = urlparse(
+            cloudinary_url
+        )
+
+        hostname = (
+            parsed_url.hostname
+            or ""
+        ).lower()
+
+    except Exception:
+
+        hostname = ""
+
+    valid_cloudinary_host = (
+        hostname == "cloudinary.com"
+        or
+        hostname.endswith(".cloudinary.com")
+    )
+
+    if not valid_cloudinary_host:
+
+        app.logger.warning(
+            "Blocked non-Cloudinary document URL. "
+            "Application=%s Host=%s URL=%s",
+            applicant["id"],
+            hostname,
+            cloudinary_url
+        )
+
+        flash(
+            "The document storage URL is invalid.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=applicant["id"]
+            )
+        )
+
+    # =========================================================
     # LOG ACCESS
     # =========================================================
 
+    applicant_name = " ".join(
+        part
+        for part in [
+            applicant.get("first_name"),
+            applicant.get("middle_name"),
+            applicant.get("last_name")
+        ]
+        if part
+    )
+
     app.logger.info(
-        "ADMIN DOCUMENT ACCESS | Application=%s | Applicant=%s %s "
-        "| Type=%s | URL=%s",
+        "ADMIN DOCUMENT DOWNLOAD | "
+        "Application=%s | Applicant=%s | Type=%s",
         applicant["application_number"],
-        applicant["first_name"],
-        applicant["last_name"],
-        document_type,
-        cloudinary_url
+        applicant_name,
+        document_type
     )
 
     # =========================================================
-    # RETURN CLOUDINARY FILE
-    # =========================================================
-    #
-    # Cloudinary normally allows the browser to display PDFs and
-    # images directly.
-    #
-    # The safest approach here is to redirect to the actual
-    # Cloudinary resource.
-    #
-    # For the passport, opening the image directly is useful.
-    # For CV/result PDFs, the browser can display them and the
-    # applicant/admin can use the browser download button.
-    #
+    # DOWNLOAD FROM CLOUDINARY
     # =========================================================
 
-    return redirect(
-        cloudinary_url
+    try:
+
+        response = requests.get(
+            cloudinary_url,
+            timeout=30,
+            allow_redirects=True
+        )
+
+        response.raise_for_status()
+
+    except requests.RequestException:
+
+        app.logger.exception(
+            "Cloudinary download failed. "
+            "Application=%s URL=%s",
+            applicant["id"],
+            cloudinary_url
+        )
+
+        flash(
+            "Unable to download this document from Cloudinary.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=applicant["id"]
+            )
+        )
+
+    # =========================================================
+    # CHECK THAT FILE WAS ACTUALLY RETURNED
+    # =========================================================
+
+    file_content = response.content
+
+    if not file_content:
+
+        app.logger.warning(
+            "Cloudinary returned an empty document. "
+            "Application=%s",
+            applicant["id"]
+        )
+
+        flash(
+            "The requested document is empty or unavailable.",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "admin_application_details",
+                application_id=applicant["id"]
+            )
+        )
+
+    # =========================================================
+    # DETERMINE FILE EXTENSION
+    # =========================================================
+
+    url_path = parsed_url.path
+
+    original_name = os.path.basename(
+        url_path
     )
+
+    original_name = unquote(
+        original_name
+    )
+
+    # Remove Cloudinary transformation-related oddities
+    original_name = original_name.split(
+        "?",
+        1
+    )[0]
+
+    # =========================================================
+    # FALLBACK FILENAMES
+    # =========================================================
+
+    if document_type == "Passport Photograph":
+
+        default_filename = (
+            f"passport_"
+            f"{applicant['application_number']}"
+        )
+
+    elif document_type == "Curriculum Vitae":
+
+        default_filename = (
+            f"CV_"
+            f"{applicant['application_number']}"
+        )
+
+    else:
+
+        default_filename = (
+            f"Qualification_"
+            f"{applicant['application_number']}"
+        )
+
+    # =========================================================
+    # DETERMINE MIME TYPE
+    # =========================================================
+
+    content_type = (
+        response.headers.get(
+            "Content-Type",
+            ""
+        ).split(
+            ";",
+            1
+        )[0].strip().lower()
+    )
+
+    if not content_type:
+
+        guessed_type, _ = mimetypes.guess_type(
+            original_name
+        )
+
+        content_type = (
+            guessed_type
+            or
+            "application/octet-stream"
+        )
+
+    # =========================================================
+    # DETERMINE EXTENSION
+    # =========================================================
+
+    extension = os.path.splitext(
+        original_name
+    )[1]
+
+    if not extension:
+
+        extension_map = {
+
+            "application/pdf": ".pdf",
+
+            "image/jpeg": ".jpg",
+            "image/jpg": ".jpg",
+            "image/png": ".png",
+            "image/webp": ".webp",
+
+            "application/msword": ".doc",
+
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                ".docx"
+        }
+
+        extension = extension_map.get(
+            content_type,
+            ""
+        )
+
+    # =========================================================
+    # FINAL DOWNLOAD FILENAME
+    # =========================================================
+
+    download_filename = (
+        default_filename
+        + extension
+    )
+
+    # =========================================================
+    # RETURN REAL DOWNLOAD
+    # =========================================================
+
+    return send_file(
+        io.BytesIO(file_content),
+        mimetype=content_type,
+        as_attachment=True,
+        download_name=download_filename,
+        max_age=0
+    )
+
 # ============================================================
 # ADMIN APPLICATION DOCUMENT VIEW / DOWNLOAD
 # CLOUDINARY + POSTGRESQL + RENDER
