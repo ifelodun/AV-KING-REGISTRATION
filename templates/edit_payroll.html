@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit Payroll | AV KING VETERINARY BUSINESS SUITE
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .edit-payroll-page {
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 35px 20px 70px;
+    }
+
+    .edit-header {
+        margin-bottom: 25px;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-bottom: 15px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .edit-header h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .edit-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .edit-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 6px 25px rgba(15,23,42,.04);
+    }
+
+    .staff-summary {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 17px;
+        margin-bottom: 28px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .staff-avatar {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #111827;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+    }
+
+    .staff-name {
+        color: #111827;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    .staff-details {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .section-title {
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group label {
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 12px 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #111827;
+    }
+
+    .net-preview {
+        padding: 18px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+    }
+
+    .net-preview-label {
+        color: #047857;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+    }
+
+    .net-preview-value {
+        margin-top: 4px;
+        color: #065f46;
+        font-size: 25px;
+        font-weight: 850;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 20px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 9px;
+        padding: 11px 18px;
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-save {
+        background: #111827;
+        color: #ffffff;
+    }
+
+    @media(max-width:600px) {
+
+        .edit-payroll-page {
+            padding: 20px 12px 50px;
+        }
+
+        .edit-card {
+            padding: 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+</style>
+
+
+<div class="edit-payroll-page">
+
+    <div class="edit-header">
+
+        <a
+            href="{{ url_for('payrolls') }}"
+            class="back-link"
+        >
+            ← Back to Payroll
+        </a>
+
+        <h1>
+            Edit Payroll
+        </h1>
+
+        <p>
+            Update this salary record carefully before saving.
+        </p>
+
+    </div>
+
+
+    <form
+        method="POST"
+        class="edit-card"
+    >
+
+        <!-- STAFF SUMMARY -->
+
+        <div class="staff-summary">
+
+            <div class="staff-avatar">
+
+                {{ payroll.fullname[:1]|upper }}
+
+            </div>
+
+            <div>
+
+                <div class="staff-name">
+                    {{ payroll.fullname }}
+                </div>
+
+                <div class="staff-details">
+
+                    {{ payroll.application_number }}
+
+                    {% if payroll.position %}
+                        · {{ payroll.position }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYROLL PERIOD -->
+
+        <div class="section-title">
+
+            <h2>
+                Payroll Period
+            </h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label for="month">
+                    Payroll Month
+                </label>
+
+                <input
+                    type="month"
+                    name="month"
+                    id="month"
+                    value="{{ payroll.month }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="payment_status">
+                    Payment Status
+                </label>
+
+                <select
+                    name="payment_status"
+                    id="payment_status"
+                >
+
+                    <option
+                        value="Pending"
+                        {% if payroll.payment_status == "Pending" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pending
+                    </option>
+
+                    <option
+                        value="Paid"
+                        {% if payroll.payment_status == "Paid" %}
+                            selected
+                        {% endif %}
+                    >
+                        Paid
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- SALARY -->
+
+        <div class="section-title">
+
+            <h2>
+                Salary Breakdown
+            </h2>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label for="basic_salary">
+                    Basic Salary (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="basic_salary"
+                    id="basic_salary"
+                    min="0"
+                    step="0.01"
+                    value="{{ payroll.basic_salary or 0 }}"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="allowance">
+                    Allowance (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="allowance"
+                    id="allowance"
+                    min="0"
+                    step="0.01"
+                    value="{{ payroll.allowance or 0 }}"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="bonus">
+                    Bonus (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="bonus"
+                    id="bonus"
+                    min="0"
+                    step="0.01"
+                    value="{{ payroll.bonus or 0 }}"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="deduction">
+                    Deduction (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="deduction"
+                    id="deduction"
+                    min="0"
+                    step="0.01"
+                    value="{{ payroll.deduction or 0 }}"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="net-preview">
+
+            <div class="net-preview-label">
+                Net Salary
+            </div>
+
+            <div
+                class="net-preview-value"
+                id="netSalary"
+            >
+                ₦{{ "{:,.2f}".format(payroll.net_salary or 0) }}
+            </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a
+                href="{{ url_for('payrolls') }}"
+                class="btn btn-cancel"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-save"
+            >
+                Save Changes
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+
+    const fields = [
+        document.getElementById("basic_salary"),
+        document.getElementById("allowance"),
+        document.getElementById("bonus"),
+        document.getElementById("deduction")
+    ];
+
+    const output =
+        document.getElementById("netSalary");
+
+
+    function calculateNet() {
+
+        const basic =
+            parseFloat(fields[0].value) || 0;
+
+        const allowance =
+            parseFloat(fields[1].value) || 0;
+
+        const bonus =
+            parseFloat(fields[2].value) || 0;
+
+        const deduction =
+            parseFloat(fields[3].value) || 0;
+
+
+        const net =
+            basic +
+            allowance +
+            bonus -
+            deduction;
+
+
+        output.textContent =
+            "₦" +
+            net.toLocaleString(
+                "en-NG",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+
+
+    fields.forEach(
+        field =>
+            field.addEventListener(
+                "input",
+                calculateNet
+            )
+    );
+
+</script>
+
+{% endblock %}
