@@ -18041,6 +18041,608 @@ def calculate_early_clockout_minutes(
         )
 
         return 0
+
+@app.route(
+    "/admin/payroll/create",
+    methods=["GET", "POST"]
+)
+def create_payroll():
+
+    if session.get("role") != "admin":
+
+        flash(
+            "You are not authorized to access payroll management.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_dashboard")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # CREATE PAYROLL
+            # =================================================
+
+            if request.method == "POST":
+
+                application_id = request.form.get(
+                    "application_id",
+                    type=int
+                )
+
+                payroll_month = request.form.get(
+                    "payroll_month",
+                    ""
+                ).strip()
+
+
+                # ---------------------------------------------
+                # VALIDATE APPLICANT
+                # ---------------------------------------------
+
+                if not application_id:
+
+                    flash(
+                        "Please select an approved applicant.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("create_payroll")
+                    )
+
+
+                # ---------------------------------------------
+                # ONLY APPROVED APPLICANTS
+                # ---------------------------------------------
+
+                cur.execute(
+                    """
+                    SELECT
+                        id,
+                        first_name,
+                        middle_name,
+                        last_name,
+                        position_applied,
+                        status
+
+                    FROM applications
+
+                    WHERE id = %s
+
+                    AND status = 'Approved'
+
+                    LIMIT 1
+                    """,
+                    (
+                        application_id,
+                    )
+                )
+
+                applicant = cur.fetchone()
+
+
+                if not applicant:
+
+                    flash(
+                        "Payroll can only be created for approved applicants.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("create_payroll")
+                    )
+
+
+                # ---------------------------------------------
+                # VALIDATE MONTH
+                # ---------------------------------------------
+
+                if not payroll_month:
+
+                    flash(
+                        "Payroll month is required.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("create_payroll")
+                    )
+
+
+                # ---------------------------------------------
+                # GET AMOUNTS
+                # ---------------------------------------------
+
+                def get_amount(field):
+
+                    value = request.form.get(
+                        field,
+                        "0"
+                    ).strip()
+
+                    if not value:
+
+                        return Decimal("0.00")
+
+                    try:
+
+                        amount = Decimal(value)
+
+                    except Exception:
+
+                        raise ValueError(
+                            f"Invalid {field.replace('_', ' ')}."
+                        )
+
+                    if amount < 0:
+
+                        raise ValueError(
+                            f"{field.replace('_', ' ').title()} "
+                            f"cannot be negative."
+                        )
+
+                    return amount.quantize(
+                        Decimal("0.01")
+                    )
+
+
+                try:
+
+                    basic_salary = get_amount(
+                        "basic_salary"
+                    )
+
+                    allowance = get_amount(
+                        "allowance"
+                    )
+
+                    bonus = get_amount(
+                        "bonus"
+                    )
+
+                    deduction = get_amount(
+                        "deduction"
+                    )
+
+                except ValueError as error:
+
+                    flash(
+                        str(error),
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("create_payroll")
+                    )
+
+
+                # ---------------------------------------------
+                # CALCULATE NET SALARY
+                # ---------------------------------------------
+
+                net_salary = (
+                    basic_salary
+                    + allowance
+                    + bonus
+                    - deduction
+                )
+
+
+                # ---------------------------------------------
+                # CHECK DUPLICATE PAYROLL
+                # ---------------------------------------------
+
+                cur.execute(
+                    """
+                    SELECT id
+
+                    FROM payroll
+
+                    WHERE application_id = %s
+
+                    AND payroll_month = %s
+
+                    LIMIT 1
+                    """,
+                    (
+                        application_id,
+                        payroll_month
+                    )
+                )
+
+                existing = cur.fetchone()
+
+
+                if existing:
+
+                    flash(
+                        "Payroll for this applicant and month "
+                        "already exists.",
+                        "error"
+                    )
+
+                    return redirect(
+                        url_for("create_payroll")
+                    )
+
+
+                # ---------------------------------------------
+                # INSERT PAYROLL
+                # ---------------------------------------------
+
+                cur.execute(
+                    """
+                    INSERT INTO payroll (
+
+                        application_id,
+                        payroll_month,
+                        basic_salary,
+                        allowance,
+                        bonus,
+                        deduction,
+                        net_salary,
+                        payment_status
+
+                    )
+
+                    VALUES (
+
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        'Pending'
+
+                    )
+                    """,
+                    (
+                        application_id,
+                        payroll_month,
+                        basic_salary,
+                        allowance,
+                        bonus,
+                        deduction,
+                        net_salary
+                    )
+                )
+
+
+                conn.commit()
+
+
+                flash(
+                    "Payroll created successfully.",
+                    "success"
+                )
+
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # APPROVED APPLICANTS
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied
+
+                FROM applications
+
+                WHERE status = 'Approved'
+
+                ORDER BY
+                    first_name ASC,
+                    last_name ASC
+                """
+            )
+
+            approved_applicants = cur.fetchall()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error creating payroll."
+        )
+
+        flash(
+            "Unable to create payroll. Please try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_create_payroll.html",
+        applicants=approved_applicants
+    )
+
+@app.route("/admin/payroll")
+def admin_payroll():
+
+    if session.get("role") != "admin":
+
+        flash(
+            "You are not authorized to access payroll management.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_dashboard")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+
+                    p.id,
+
+                    p.application_id,
+
+                    p.payroll_month,
+
+                    p.basic_salary,
+
+                    p.allowance,
+
+                    p.bonus,
+
+                    p.deduction,
+
+                    p.net_salary,
+
+                    p.payment_status,
+
+                    p.paid_at,
+
+                    p.created_at,
+
+                    a.application_number,
+
+                    a.first_name,
+
+                    a.middle_name,
+
+                    a.last_name,
+
+                    a.position_applied
+
+                FROM payroll p
+
+                INNER JOIN applications a
+                    ON a.id = p.application_id
+
+                ORDER BY
+                    p.created_at DESC,
+                    p.id DESC
+                """
+            )
+
+            payroll_records = cur.fetchall()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error loading payroll dashboard."
+        )
+
+        flash(
+            "Unable to load payroll records.",
+            "error"
+        )
+
+        payroll_records = []
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "admin_payroll.html",
+        payrolls=payroll_records
+    )
+
+@app.route("/applicant/payroll")
+def applicant_payroll():
+
+    applicant_id = session.get(
+        "applicant_id"
+    )
+
+
+    if not applicant_id:
+
+        return redirect(
+            url_for("applicant_login")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # ===============================================
+            # GET APPLICANT
+            # ===============================================
+
+            cur.execute(
+                """
+                SELECT
+
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied,
+                    status
+
+                FROM applications
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (
+                    applicant_id,
+                )
+            )
+
+            applicant = cur.fetchone()
+
+
+            if not applicant:
+
+                session.pop(
+                    "applicant_id",
+                    None
+                )
+
+                flash(
+                    "Applicant account not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_login")
+                )
+
+
+            # ===============================================
+            # APPROVED APPLICANTS ONLY
+            # ===============================================
+
+            if applicant["status"] != "Approved":
+
+                flash(
+                    "Payroll access is available only "
+                    "to approved applicants.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("applicant_portal")
+                )
+
+
+            # ===============================================
+            # GET OWN PAYROLL
+            # ===============================================
+
+            cur.execute(
+                """
+                SELECT
+
+                    id,
+
+                    payroll_month,
+
+                    basic_salary,
+
+                    allowance,
+
+                    bonus,
+
+                    deduction,
+
+                    net_salary,
+
+                    payment_status,
+
+                    paid_at,
+
+                    created_at
+
+                FROM payroll
+
+                WHERE application_id = %s
+
+                ORDER BY
+                    created_at DESC,
+                    id DESC
+                """,
+                (
+                    applicant_id,
+                )
+            )
+
+            payrolls = cur.fetchall()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error loading applicant payroll."
+        )
+
+        flash(
+            "Unable to load your payroll.",
+            "error"
+        )
+
+        return redirect(
+            url_for("applicant_portal")
+        )
+
+
+    finally:
+
+        conn.close()
+
+
+    return render_template(
+        "applicant_payroll.html",
+        applicant=applicant,
+        payrolls=payrolls
+    )
+
+
 # ============================================================
 # INITIALIZE DATABASE
 # ============================================================
