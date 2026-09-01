@@ -18369,7 +18369,7 @@ def admin_payroll():
     "/admin/payroll/create",
     methods=["GET", "POST"]
 )
-@login_required
+@require_admin
 def create_payroll():
 
     # --------------------------------------------------------
@@ -18712,7 +18712,7 @@ def create_payroll():
     "/admin/payroll/<int:id>/edit",
     methods=["GET", "POST"]
 )
-@login_required
+@require_admin
 def edit_payroll(id):
 
     # --------------------------------------------------------
@@ -18983,7 +18983,7 @@ def edit_payroll(id):
     "/admin/payroll/<int:id>/pay",
     methods=["POST"]
 )
-@login_required
+@require_admin
 def pay_payroll(id):
 
     # --------------------------------------------------------
@@ -20237,7 +20237,7 @@ def applicant_payslip(id):
     "/admin/payroll/delete/<int:payroll_id>",
     methods=["POST"]
 )
-@login_required
+@require_admin
 def delete_payroll(payroll_id):
 
     if current_user.role != "admin":
@@ -20366,7 +20366,7 @@ def delete_payroll(payroll_id):
     "/admin/payroll/pay/<int:payroll_id>",
     methods=["POST"]
 )
-@login_required
+@require_admin
 def pay_payroll(payroll_id):
 
     if current_user.role != "admin":
