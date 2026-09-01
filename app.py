@@ -11077,6 +11077,68 @@ def admin_settings():
 # ADMIN APPLICATION DOCUMENT ROUTES
 # CLOUDINARY
 # ============================================================
+@app.route("/admin/download-file/<path:filename>")
+def admin_download_file(filename):
+    # ---------------------------------------------------------
+    # ADMIN ACCESS CHECK
+    # ---------------------------------------------------------
+    if session.get("role") != "admin":
+        return redirect(url_for("admin_login"))
+
+    try:
+        # -----------------------------------------------------
+        # SECURITY: ONLY ALLOW ADMIN TO DOWNLOAD FILES
+        # -----------------------------------------------------
+        upload_folder = app.config.get(
+            "UPLOAD_FOLDER",
+            os.path.join(app.root_path, "uploads")
+        )
+
+        # Prevent path traversal
+        safe_filename = os.path.basename(filename)
+
+        file_path = os.path.join(
+            upload_folder,
+            safe_filename
+        )
+
+        # -----------------------------------------------------
+        # CHECK FILE EXISTS
+        # -----------------------------------------------------
+        if not os.path.isfile(file_path):
+            flash(
+                "The requested document could not be found.",
+                "error"
+            )
+
+            return redirect(
+                url_for("admin_applications")
+            )
+
+        # -----------------------------------------------------
+        # SEND FILE
+        # -----------------------------------------------------
+        return send_from_directory(
+            upload_folder,
+            safe_filename,
+            as_attachment=True
+        )
+
+    except Exception as e:
+
+        app.logger.exception(
+            "Error downloading admin application file: %s",
+            e
+        )
+
+        flash(
+            "Unable to download the document. Please try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
 # ============================================================
 # ADMIN APPLICATION DOCUMENT VIEW / DOWNLOAD
 # CLOUDINARY + POSTGRESQL + RENDER
