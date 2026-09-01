@@ -1,818 +1,1180 @@
 {% extends "base.html" %}
 
 {% block title %}
-Payroll Management | {{ company_name|default("AV KING VET DRUG VENTURE") }}
+Payroll Management | AV KING VET DRUG VENTURE
 {% endblock %}
 
 {% block content %}
 
 <style>
 
-    /* =====================================================
-       PAYROLL PAGE
-       ===================================================== */
+/* =========================================================
+   PAYROLL ADMIN PAGE
+   ========================================================= */
 
-    .payroll-page {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 30px 20px 60px;
-    }
-
-
-    /* =====================================================
-       HEADER
-       ===================================================== */
-
-    .payroll-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 28px;
-    }
-
-    .payroll-header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 750;
-        color: #111827;
-    }
-
-    .payroll-header p {
-        margin: 7px 0 0;
-        color: #6b7280;
-        font-size: 14px;
-    }
+.payroll-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 22px 70px;
+}
 
 
-    /* =====================================================
-       BUTTONS
-       ===================================================== */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
-    .payroll-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        min-height: 42px;
-        padding: 0 17px;
-        border-radius: 10px;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 700;
-        border: 1px solid transparent;
-        cursor: pointer;
-        transition: 0.2s ease;
-    }
+.payroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 28px;
+}
 
-    .payroll-btn-primary {
-        background: #111827;
-        color: #ffffff;
-    }
+.payroll-header-left h1 {
+    margin: 0;
+    color: #111827;
+    font-size: 29px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
 
-    .payroll-btn-primary:hover {
-        background: #1f2937;
-    }
+.payroll-header-left p {
+    margin: 7px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
 
-    .payroll-btn-light {
-        background: #ffffff;
-        color: #374151;
-        border-color: #d1d5db;
-    }
+.create-payroll-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
-    .payroll-btn-light:hover {
-        background: #f9fafb;
-    }
+    padding: 11px 18px;
+
+    border-radius: 10px;
+
+    background: #111827;
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 750;
+
+    transition: 0.2s ease;
+}
+
+.create-payroll-button:hover {
+    background: #1f2937;
+    transform: translateY(-1px);
+}
 
 
-    /* =====================================================
-       SUMMARY CARDS
-       ===================================================== */
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.payroll-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.payroll-summary-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+}
+
+.summary-icon {
+    width: 48px;
+    height: 48px;
+
+    flex: 0 0 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #f3f4f6;
+
+    color: #111827;
+
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.summary-label {
+    display: block;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.summary-value {
+    display: block;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.payroll-toolbar {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.payroll-search {
+    flex: 1;
+    max-width: 450px;
+
+    position: relative;
+}
+
+.payroll-search input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 14px 11px 40px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    outline: none;
+
+    font-size: 13px;
+
+    color: #111827;
+
+    background: #ffffff;
+}
+
+.payroll-search input:focus {
+    border-color: #6b7280;
+    box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.10);
+}
+
+.search-icon {
+    position: absolute;
+
+    left: 14px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #9ca3af;
+
+    font-size: 14px;
+}
+
+.payroll-count {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
+
+.payroll-table-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 5px 20px rgba(15, 23, 42, 0.04);
+}
+
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.payroll-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    min-width: 1050px;
+}
+
+.payroll-table thead {
+    background: #f8fafc;
+}
+
+.payroll-table th {
+    padding: 14px 16px;
+
+    text-align: left;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.7px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    white-space: nowrap;
+}
+
+.payroll-table td {
+    padding: 16px;
+
+    color: #374151;
+
+    font-size: 13px;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    vertical-align: middle;
+}
+
+.payroll-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.payroll-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   APPLICANT
+   ========================================================= */
+
+.applicant-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.applicant-name {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.application-number {
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   POSITION
+   ========================================================= */
+
+.position-text {
+    color: #374151;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   MONTH
+   ========================================================= */
+
+.month-text {
+    color: #374151;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   SALARY
+   ========================================================= */
+
+.amount {
+    color: #111827;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.net-amount {
+    color: #047857;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   PAYMENT STATUS
+   ========================================================= */
+
+.payment-badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.payment-paid {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.payment-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.payment-other {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.action-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 7px 10px;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    border: 1px solid #d1d5db;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.action-button:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.action-pay {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+.action-pay:hover {
+    background: #d1fae5;
+}
+
+.action-edit {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.action-edit:hover {
+    background: #dbeafe;
+}
+
+.action-payslip {
+    background: #f8fafc;
+    color: #334155;
+}
+
+.action-delete {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.action-delete:hover {
+    background: #fee2e2;
+}
+
+.action-form {
+    display: inline;
+    margin: 0;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.payroll-empty {
+    text-align: center;
+
+    padding: 65px 25px;
+}
+
+.payroll-empty-icon {
+    width: 58px;
+    height: 58px;
+
+    margin: 0 auto 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    background: #f1f5f9;
+
+    color: #64748b;
+
+    font-size: 24px;
+}
+
+.payroll-empty h3 {
+    margin: 0 0 7px;
+
+    color: #111827;
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+.payroll-empty p {
+    margin: 0;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
 
     .payroll-summary {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        margin-bottom: 25px;
+        grid-template-columns: 1fr;
     }
 
-    .summary-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 21px;
+    .payroll-header {
+        flex-direction: column;
     }
 
-    .summary-label {
-        color: #6b7280;
-        font-size: 12px;
-        font-weight: 650;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .create-payroll-button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .payroll-page {
+        padding: 20px 12px 50px;
     }
 
-    .summary-value {
-        margin-top: 8px;
-        color: #111827;
+    .payroll-header-left h1 {
         font-size: 24px;
-        font-weight: 800;
     }
 
-    .summary-description {
-        margin-top: 5px;
-        color: #9ca3af;
-        font-size: 12px;
+    .payroll-toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
-
-    /* =====================================================
-       TABLE CARD
-       ===================================================== */
-
-    .payroll-table-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        overflow: hidden;
+    .payroll-search {
+        max-width: none;
     }
 
-    .table-heading {
-        padding: 21px 23px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
+    .payroll-summary-card {
+        padding: 17px;
     }
 
-    .table-heading h2 {
-        margin: 0;
-        font-size: 18px;
-        color: #111827;
-    }
-
-    .table-heading span {
-        color: #6b7280;
-        font-size: 13px;
-    }
-
-
-    /* =====================================================
-       TABLE
-       ===================================================== */
-
-    .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .payroll-table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 950px;
-    }
-
-    .payroll-table th {
-        padding: 14px 18px;
-        background: #f9fafb;
-        color: #6b7280;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    .payroll-table td {
-        padding: 16px 18px;
-        border-top: 1px solid #f3f4f6;
-        color: #374151;
-        font-size: 13px;
-        vertical-align: middle;
-    }
-
-    .payroll-table tr:hover td {
-        background: #fafafa;
-    }
-
-
-    /* =====================================================
-       APPLICANT
-       ===================================================== */
-
-    .worker-name {
-        color: #111827;
-        font-weight: 750;
-    }
-
-    .worker-position {
-        margin-top: 3px;
-        color: #9ca3af;
-        font-size: 12px;
-    }
-
-    .application-number {
-        color: #6b7280;
-        font-size: 12px;
-    }
-
-
-    /* =====================================================
-       MONEY
-       ===================================================== */
-
-    .money {
-        color: #111827;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-
-    .net-money {
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-
-    /* =====================================================
-       STATUS
-       ===================================================== */
-
-    .payment-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 800;
-    }
-
-    .payment-status::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    .status-paid {
-        color: #047857;
-        background: #ecfdf5;
-    }
-
-    .status-pending {
-        color: #b45309;
-        background: #fffbeb;
-    }
-
-
-    /* =====================================================
-       ACTIONS
-       ===================================================== */
-
-    .action-group {
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        flex-wrap: wrap;
-    }
-
-    .action-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 7px 10px;
-        border-radius: 8px;
-        border: 1px solid #d1d5db;
-        background: #ffffff;
-        color: #374151;
-        text-decoration: none;
-        font-size: 11px;
-        font-weight: 700;
-        cursor: pointer;
-    }
-
-    .action-button:hover {
-        background: #f9fafb;
-    }
-
-    .action-pay {
-        border-color: #a7f3d0;
-        color: #047857;
-        background: #ecfdf5;
-    }
-
-    .action-pay:hover {
-        background: #d1fae5;
-    }
-
-
-    /* =====================================================
-       EMPTY
-       ===================================================== */
-
-    .empty-payroll {
-        padding: 60px 25px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 55px;
-        height: 55px;
-        margin: 0 auto 15px;
-        border-radius: 14px;
-        background: #f3f4f6;
-        color: #6b7280;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 23px;
-        font-weight: 800;
-    }
-
-    .empty-payroll h3 {
-        margin: 0;
-        color: #111827;
-        font-size: 17px;
-    }
-
-    .empty-payroll p {
-        margin: 7px 0 20px;
-        color: #9ca3af;
-        font-size: 13px;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE
-       ===================================================== */
-
-    @media (max-width: 1000px) {
-
-        .payroll-summary {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-    }
-
-
-    @media (max-width: 650px) {
-
-        .payroll-page {
-            padding: 20px 12px 40px;
-        }
-
-        .payroll-header {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .payroll-summary {
-            grid-template-columns: 1fr;
-        }
-
-        .summary-value {
-            font-size: 22px;
-        }
-
-    }
+}
 
 </style>
-
 
 <div class="payroll-page">
 
 
-    <!-- =================================================
-         HEADER
-         ================================================= -->
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-    <div class="payroll-header">
+<div class="payroll-header">
+
+    <div class="payroll-header-left">
+
+        <h1>
+            Payroll Management
+        </h1>
+
+        <p>
+            Manage staff salaries, payroll records,
+            payments and payslips from one place.
+        </p>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('create_payroll') }}"
+        class="create-payroll-button"
+    >
+        <span>＋</span>
+        Create Payroll
+    </a>
+
+</div>
+
+
+<!-- =====================================================
+     SUMMARY
+     ===================================================== -->
+
+<div class="payroll-summary">
+
+
+    <!-- TOTAL PAYROLL -->
+
+    <div class="payroll-summary-card">
+
+        <div class="summary-icon">
+            ₦
+        </div>
 
         <div>
 
-            <h1>
-                Payroll Management
-            </h1>
+            <span class="summary-label">
+                TOTAL PAYROLL
+            </span>
 
-            <p>
-                Manage staff salaries, payments and payroll records.
-            </p>
+            <span class="summary-value">
+                ₦{{ "{:,.2f}".format(total_payroll|float) }}
+            </span>
 
         </div>
 
+    </div>
+
+
+    <!-- TOTAL PAID -->
+
+    <div class="payroll-summary-card">
+
+        <div class="summary-icon">
+            ✓
+        </div>
+
+        <div>
+
+            <span class="summary-label">
+                TOTAL PAID
+            </span>
+
+            <span class="summary-value">
+                ₦{{ "{:,.2f}".format(total_paid|float) }}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- TOTAL PENDING -->
+
+    <div class="payroll-summary-card">
+
+        <div class="summary-icon">
+            ◷
+        </div>
+
+        <div>
+
+            <span class="summary-label">
+                PENDING PAYMENTS
+            </span>
+
+            <span class="summary-value">
+                ₦{{ "{:,.2f}".format(total_pending|float) }}
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TOOLBAR
+     ===================================================== -->
+
+<div class="payroll-toolbar">
+
+    <div class="payroll-search">
+
+        <span class="search-icon">
+            🔎
+        </span>
+
+        <input
+            type="text"
+            id="payrollSearch"
+            placeholder="Search applicant, application number or position..."
+            autocomplete="off"
+        >
+
+    </div>
+
+
+    <div class="payroll-count">
+
+        <span id="visiblePayrollCount">
+            {{ payrolls|length }}
+        </span>
+
+        payroll record{% if payrolls|length != 1 %}s{% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     PAYROLL TABLE
+     ===================================================== -->
+
+<div class="payroll-table-card">
+
+
+    {% if payrolls %}
+
+    <div class="table-scroll">
+
+        <table
+            class="payroll-table"
+            id="payrollTable"
+        >
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Applicant
+                    </th>
+
+                    <th>
+                        Position
+                    </th>
+
+                    <th>
+                        Month
+                    </th>
+
+                    <th>
+                        Basic Salary
+                    </th>
+
+                    <th>
+                        Allowance
+                    </th>
+
+                    <th>
+                        Bonus
+                    </th>
+
+                    <th>
+                        Deduction
+                    </th>
+
+                    <th>
+                        Net Salary
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+
+            {% for payroll in payrolls %}
+
+            <tr
+                class="payroll-row"
+                data-search="
+                    {{ payroll.first_name or '' }}
+                    {{ payroll.middle_name or '' }}
+                    {{ payroll.last_name or '' }}
+                    {{ payroll.application_number or '' }}
+                    {{ payroll.position_applied or '' }}
+                    {{ payroll.month or '' }}
+                "
+            >
+
+
+                <!-- APPLICANT -->
+
+                <td>
+
+                    <div class="applicant-cell">
+
+                        <span class="applicant-name">
+
+                            {{ payroll.first_name }}
+
+                            {% if payroll.middle_name %}
+                                {{ payroll.middle_name }}
+                            {% endif %}
+
+                            {{ payroll.last_name }}
+
+                        </span>
+
+
+                        <span class="application-number">
+
+                            {{ payroll.application_number }}
+
+                        </span>
+
+                    </div>
+
+                </td>
+
+
+                <!-- POSITION -->
+
+                <td>
+
+                    <span class="position-text">
+
+                        {{ payroll.position_applied or "—" }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- MONTH -->
+
+                <td>
+
+                    <span class="month-text">
+
+                        {{ payroll.month }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- BASIC -->
+
+                <td>
+
+                    <span class="amount">
+
+                        ₦{{ "{:,.2f}".format(
+                            payroll.basic_salary|float
+                        ) }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- ALLOWANCE -->
+
+                <td>
+
+                    <span class="amount">
+
+                        ₦{{ "{:,.2f}".format(
+                            payroll.allowance|float
+                        ) }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- BONUS -->
+
+                <td>
+
+                    <span class="amount">
+
+                        ₦{{ "{:,.2f}".format(
+                            payroll.bonus|float
+                        ) }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- DEDUCTION -->
+
+                <td>
+
+                    <span class="amount">
+
+                        ₦{{ "{:,.2f}".format(
+                            payroll.deduction|float
+                        ) }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- NET -->
+
+                <td>
+
+                    <span class="net-amount">
+
+                        ₦{{ "{:,.2f}".format(
+                            payroll.net_salary|float
+                        ) }}
+
+                    </span>
+
+                </td>
+
+
+                <!-- PAYMENT STATUS -->
+
+                <td>
+
+                    {% if payroll.payment_status == "Paid" %}
+
+                        <span
+                            class="payment-badge payment-paid"
+                        >
+                            Paid
+                        </span>
+
+                    {% elif payroll.payment_status == "Pending" %}
+
+                        <span
+                            class="payment-badge payment-pending"
+                        >
+                            Pending
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            class="payment-badge payment-other"
+                        >
+                            {{ payroll.payment_status }}
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <!-- ACTIONS -->
+
+                <td>
+
+                    <div class="action-buttons">
+
+
+                        <!-- PAY -->
+
+                        {% if payroll.payment_status != "Paid" %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'pay_payroll',
+                                payroll_id=payroll.id
+                            ) }}"
+                            class="action-form"
+                            onsubmit="
+                                return confirm(
+                                    'Confirm salary payment for this payroll record?'
+                                );
+                            "
+                        >
+
+                            <button
+                                type="submit"
+                                class="action-button action-pay"
+                            >
+                                Pay
+                            </button>
+
+                        </form>
+
+                        {% endif %}
+
+
+                        <!-- EDIT -->
+
+                        <a
+                            href="{{ url_for(
+                                'edit_payroll',
+                                payroll_id=payroll.id
+                            ) }}"
+                            class="action-button action-edit"
+                        >
+                            Edit
+                        </a>
+
+
+                        <!-- PAYSLIP -->
+
+                        <a
+                            href="{{ url_for(
+                                'admin_print_payslip',
+                                payroll_id=payroll.id
+                            ) }}"
+                            class="action-button action-payslip"
+                            target="_blank"
+                        >
+                            Payslip
+                        </a>
+
+
+                        <!-- DELETE -->
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'delete_payroll',
+                                payroll_id=payroll.id
+                            ) }}"
+                            class="action-form"
+                            onsubmit="
+                                return confirm(
+                                    'Are you sure you want to permanently delete this payroll record?'
+                                );
+                            "
+                        >
+
+                            <button
+                                type="submit"
+                                class="action-button action-delete"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- =================================================
+         EMPTY STATE
+         ================================================= -->
+
+    <div class="payroll-empty">
+
+        <div class="payroll-empty-icon">
+            ₦
+        </div>
+
+        <h3>
+            No Payroll Records
+        </h3>
+
+        <p>
+            No payroll records have been created yet.
+        </p>
+
+        <br>
 
         <a
             href="{{ url_for('create_payroll') }}"
-            class="payroll-btn payroll-btn-primary"
+            class="create-payroll-button"
         >
-            + Create Payroll
+            Create First Payroll
         </a>
 
     </div>
 
 
-    <!-- =================================================
-         SUMMARY
-         ================================================= -->
-
-    {% set total_payroll = namespace(value=0) %}
-    {% set paid_payroll = namespace(value=0) %}
-    {% set pending_payroll = namespace(value=0) %}
-    {% set paid_count = namespace(value=0) %}
-
-
-    {% for payroll in payrolls %}
-
-        {% set total_payroll.value =
-            total_payroll.value
-            + payroll.net_salary
-        %}
-
-
-        {% if payroll.payment_status == "Paid" %}
-
-            {% set paid_payroll.value =
-                paid_payroll.value
-                + payroll.net_salary
-            %}
-
-            {% set paid_count.value =
-                paid_count.value + 1
-            %}
-
-        {% else %}
-
-            {% set pending_payroll.value =
-                pending_payroll.value
-                + payroll.net_salary
-            %}
-
-        {% endif %}
-
-    {% endfor %}
-
-
-    <div class="payroll-summary">
-
-
-        <div class="summary-card">
-
-            <div class="summary-label">
-                Total Payroll
-            </div>
-
-            <div class="summary-value">
-                ₦{{ "{:,.2f}".format(total_payroll.value) }}
-            </div>
-
-            <div class="summary-description">
-                All payroll records
-            </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-label">
-                Paid
-            </div>
-
-            <div class="summary-value">
-                ₦{{ "{:,.2f}".format(paid_payroll.value) }}
-            </div>
-
-            <div class="summary-description">
-                {{ paid_count.value }} paid record(s)
-            </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-label">
-                Pending
-            </div>
-
-            <div class="summary-value">
-                ₦{{ "{:,.2f}".format(pending_payroll.value) }}
-            </div>
-
-            <div class="summary-description">
-                Awaiting payment
-            </div>
-
-        </div>
-
-
-        <div class="summary-card">
-
-            <div class="summary-label">
-                Payroll Records
-            </div>
-
-            <div class="summary-value">
-                {{ payrolls|length }}
-            </div>
-
-            <div class="summary-description">
-                Total records
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =================================================
-         TABLE
-         ================================================= -->
-
-    <div class="payroll-table-card">
-
-
-        <div class="table-heading">
-
-            <div>
-
-                <h2>
-                    Payroll Records
-                </h2>
-
-            </div>
-
-            <span>
-                {{ payrolls|length }} record(s)
-            </span>
-
-        </div>
-
-
-        {% if payrolls %}
-
-        <div class="table-wrapper">
-
-            <table class="payroll-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Staff Member
-                        </th>
-
-                        <th>
-                            Month
-                        </th>
-
-                        <th>
-                            Basic Salary
-                        </th>
-
-                        <th>
-                            Allowance
-                        </th>
-
-                        <th>
-                            Deduction
-                        </th>
-
-                        <th>
-                            Net Salary
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th>
-                            Actions
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for payroll in payrolls %}
-
-                    <tr>
-
-
-                        <td>
-
-                            <div class="worker-name">
-
-                                {{ payroll.first_name }}
-
-                                {% if payroll.middle_name %}
-                                    {{ payroll.middle_name }}
-                                {% endif %}
-
-                                {{ payroll.last_name }}
-
-                            </div>
-
-                            <div class="worker-position">
-
-                                {{ payroll.position_applied }}
-
-                            </div>
-
-                            <div class="application-number">
-
-                                {{ payroll.application_number }}
-
-                            </div>
-
-                        </td>
-
-
-                        <td>
-
-                            <strong>
-                                {{ payroll.payroll_month }}
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="money">
-
-                                ₦{{ "{:,.2f}".format(
-                                    payroll.basic_salary
-                                ) }}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="money">
-
-                                ₦{{ "{:,.2f}".format(
-                                    payroll.allowance
-                                ) }}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="money">
-
-                                ₦{{ "{:,.2f}".format(
-                                    payroll.deduction
-                                ) }}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span class="money net-money">
-
-                                ₦{{ "{:,.2f}".format(
-                                    payroll.net_salary
-                                ) }}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            {% if payroll.payment_status == "Paid" %}
-
-                                <span class="payment-status status-paid">
-                                    Paid
-                                </span>
-
-                            {% else %}
-
-                                <span class="payment-status status-pending">
-                                    Pending
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-
-                            <div class="action-group">
-
-
-                                <a
-                                    href="{{ url_for(
-                                        'admin_payroll_details',
-                                        payroll_id=payroll.id
-                                    ) }}"
-                                    class="action-button"
-                                >
-                                    View
-                                </a>
-
-
-                                {% if payroll.payment_status != "Paid" %}
-
-                                <form
-                                    method="POST"
-                                    action="{{ url_for(
-                                        'mark_payroll_paid',
-                                        payroll_id=payroll.id
-                                    ) }}"
-                                    style="display:inline;"
-                                >
-
-                                    <button
-                                        type="submit"
-                                        class="action-button action-pay"
-                                        onclick="return confirm(
-                                            'Mark this payroll as paid?'
-                                        );"
-                                    >
-                                        Mark Paid
-                                    </button>
-
-                                </form>
-
-                                {% endif %}
-
-
-                                <a
-                                    href="{{ url_for(
-                                        'payslip',
-                                        payroll_id=payroll.id
-                                    ) }}"
-                                    class="action-button"
-                                    target="_blank"
-                                >
-                                    Payslip
-                                </a>
-
-
-                            </div>
-
-                        </td>
-
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        {% else %}
-
-        <div class="empty-payroll">
-
-            <div class="empty-icon">
-                ₦
-            </div>
-
-            <h3>
-                No Payroll Records
-            </h3>
-
-            <p>
-                No payroll has been created yet.
-            </p>
-
-            <a
-                href="{{ url_for('create_payroll') }}"
-                class="payroll-btn payroll-btn-primary"
-            >
-                Create First Payroll
-            </a>
-
-        </div>
-
-        {% endif %}
-
-    </div>
+    {% endif %}
 
 </div>
+
+
+</div>
+
+<script>
+
+/* =========================================================
+   PAYROLL SEARCH
+   ========================================================= */
+
+(function () {
+
+    const searchInput =
+        document.getElementById(
+            "payrollSearch"
+        );
+
+    const rows =
+        document.querySelectorAll(
+            ".payroll-row"
+        );
+
+    const counter =
+        document.getElementById(
+            "visiblePayrollCount"
+        );
+
+
+    if (!searchInput) {
+        return;
+    }
+
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            const searchTerm =
+                this.value
+                    .toLowerCase()
+                    .trim();
+
+
+            let visibleCount = 0;
+
+
+            rows.forEach(
+                function (row) {
+
+                    const searchableText =
+                        (
+                            row.dataset.search || ""
+                        ).toLowerCase();
+
+
+                    if (
+                        searchableText.includes(
+                            searchTerm
+                        )
+                    ) {
+
+                        row.style.display = "";
+
+                        visibleCount++;
+
+                    } else {
+
+                        row.style.display = "none";
+
+                    }
+
+                }
+            );
+
+
+            if (counter) {
+
+                counter.textContent =
+                    visibleCount;
+
+            }
+
+        }
+    );
+
+})();
+
+</script>
 
 {% endblock %}
