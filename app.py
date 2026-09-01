@@ -18161,37 +18161,23 @@ def require_admin(view_function):
 # ============================================================
 # ADMIN PAYROLL DASHBOARD
 # ============================================================
+# ============================================================
+# ADMIN PAYROLL
+# ============================================================
 
 @app.route("/admin/payroll")
 @require_admin
 def admin_payroll():
 
-    # --------------------------------------------------------
-    # ADMIN ONLY
-    # --------------------------------------------------------
-
-    if session.get("role") != "admin":
-
-        flash(
-            "You are not authorized to access payroll.",
-            "error"
-        )
-
-        return redirect(
-            url_for("dashboard")
-        )
-
-
     conn = get_db()
-
 
     try:
 
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # GET PAYROLL RECORDS
-            # ------------------------------------------------
+            # =================================================
+            # PAYROLL RECORDS
+            # =================================================
 
             cur.execute(
                 """
@@ -18201,7 +18187,7 @@ def admin_payroll():
 
                     p.application_id,
 
-                    p.month,
+                    p.payroll_month,
 
                     p.basic_salary,
 
@@ -18215,9 +18201,11 @@ def admin_payroll():
 
                     p.payment_status,
 
-                    p.payment_date,
+                    p.paid_at,
 
                     p.created_at,
+
+                    p.updated_at,
 
                     a.application_number,
 
@@ -18245,9 +18233,9 @@ def admin_payroll():
             payrolls = cur.fetchall()
 
 
-            # ------------------------------------------------
+            # =================================================
             # TOTAL PAYROLL RECORDS
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -18256,16 +18244,16 @@ def admin_payroll():
                 """
             )
 
-            total_row = cur.fetchone()
+            row = cur.fetchone()
 
             total_payroll = int(
-                total_row["total"] or 0
+                row["total"] or 0
             )
 
 
-            # ------------------------------------------------
+            # =================================================
             # PAID PAYROLL
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -18275,16 +18263,16 @@ def admin_payroll():
                 """
             )
 
-            paid_row = cur.fetchone()
+            row = cur.fetchone()
 
             paid_payroll = int(
-                paid_row["total"] or 0
+                row["total"] or 0
             )
 
 
-            # ------------------------------------------------
+            # =================================================
             # PENDING PAYROLL
-            # ------------------------------------------------
+            # =================================================
 
             cur.execute(
                 """
@@ -18294,16 +18282,16 @@ def admin_payroll():
                 """
             )
 
-            pending_row = cur.fetchone()
+            row = cur.fetchone()
 
             pending_payroll = int(
-                pending_row["total"] or 0
+                row["total"] or 0
             )
 
 
-            # ------------------------------------------------
-            # TOTAL NET PAYROLL
-            # ------------------------------------------------
+            # =================================================
+            # TOTAL NET SALARY
+            # =================================================
 
             cur.execute(
                 """
@@ -18316,11 +18304,10 @@ def admin_payroll():
                 """
             )
 
-            total_salary_row = cur.fetchone()
+            row = cur.fetchone()
 
             total_salary = (
-                total_salary_row["total"]
-                or Decimal("0.00")
+                row["total"] or 0
             )
 
 
@@ -18338,8 +18325,9 @@ def admin_payroll():
         )
 
         return redirect(
-            url_for("dashboard")
+            url_for("admin_dashboard")
         )
+
 
     finally:
 
@@ -18359,8 +18347,9 @@ def admin_payroll():
 
         total_salary=total_salary
     )
-
-
+# ============================================================
+# CREATE PAYROLL
+# ============================================================
 # ============================================================
 # CREATE PAYROLL
 # ============================================================
@@ -18372,24 +18361,7 @@ def admin_payroll():
 @require_admin
 def create_payroll():
 
-    # --------------------------------------------------------
-    # ADMIN ONLY
-    # --------------------------------------------------------
-
-    if session.get("role") != "admin":
-
-        flash(
-            "You are not authorized to create payroll.",
-            "error"
-        )
-
-        return redirect(
-            url_for("dashboard")
-        )
-
-
     conn = get_db()
-
 
     if request.method == "POST":
 
@@ -18402,23 +18374,17 @@ def create_payroll():
                 )
             )
 
-
-            month = request.form.get(
-                "month",
+            payroll_month = request.form.get(
+                "payroll_month",
                 ""
             ).strip()
 
-
-            if not month:
+            if not payroll_month:
 
                 raise ValueError(
                     "Please select a payroll month."
                 )
 
-
-            # ------------------------------------------------
-            # SALARY VALUES
-            # ------------------------------------------------
 
             basic_salary = payroll_decimal(
                 request.form.get(
@@ -18462,19 +18428,26 @@ def create_payroll():
 
             with conn.cursor() as cur:
 
-                # ------------------------------------------------
-                # VERIFY APPROVED APPLICANT
-                # ------------------------------------------------
+                # =============================================
+                # GET APPLICANT
+                # =============================================
 
                 cur.execute(
                     """
                     SELECT
+
                         id,
-                        first_name,
-                        middle_name,
-                        last_name,
+
                         application_number,
+
+                        first_name,
+
+                        middle_name,
+
+                        last_name,
+
                         position_applied,
+
                         status
 
                     FROM applications
@@ -18498,21 +18471,20 @@ def create_payroll():
                     )
 
 
-                # ------------------------------------------------
-                # ONLY APPROVED APPLICANTS
-                # ------------------------------------------------
+                # =============================================
+                # APPROVED ONLY
+                # =============================================
 
                 if applicant["status"] != "Approved":
 
                     raise ValueError(
-                        "Payroll can only be created "
-                        "for an approved applicant."
+                        "Payroll can only be created for an approved applicant."
                     )
 
 
-                # ------------------------------------------------
-                # PREVENT DUPLICATE MONTHLY PAYROLL
-                # ------------------------------------------------
+                # =============================================
+                # DUPLICATE CHECK
+                # =============================================
 
                 cur.execute(
                     """
@@ -18522,30 +18494,29 @@ def create_payroll():
 
                     WHERE application_id = %s
 
-                    AND month = %s
+                    AND payroll_month = %s
 
                     LIMIT 1
                     """,
                     (
                         application_id,
-                        month
+                        payroll_month
                     )
                 )
 
-                existing_payroll = cur.fetchone()
+                existing = cur.fetchone()
 
 
-                if existing_payroll:
+                if existing:
 
                     raise ValueError(
-                        "Payroll for this applicant "
-                        "and month already exists."
+                        "Payroll for this applicant and month already exists."
                     )
 
 
-                # ------------------------------------------------
-                # CREATE PAYROLL
-                # ------------------------------------------------
+                # =============================================
+                # INSERT PAYROLL
+                # =============================================
 
                 cur.execute(
                     """
@@ -18553,7 +18524,7 @@ def create_payroll():
 
                         application_id,
 
-                        month,
+                        payroll_month,
 
                         basic_salary,
 
@@ -18586,17 +18557,20 @@ def create_payroll():
                     """,
                     (
                         application_id,
-                        month,
+
+                        payroll_month,
+
                         basic_salary,
+
                         allowance,
+
                         bonus,
+
                         deduction,
+
                         net_salary
                     )
                 )
-
-                payroll = cur.fetchone()
-
 
             conn.commit()
 
@@ -18606,11 +18580,8 @@ def create_payroll():
                 "success"
             )
 
-
             return redirect(
-                url_for(
-                    "admin_payroll"
-                )
+                url_for("admin_payroll")
             )
 
 
@@ -18639,7 +18610,7 @@ def create_payroll():
 
 
     # ========================================================
-    # GET APPROVED APPLICANTS
+    # APPROVED APPLICANTS
     # ========================================================
 
     try:
@@ -18685,12 +18656,12 @@ def create_payroll():
             "Error loading approved applicants."
         )
 
+        applicants = []
+
         flash(
             "Unable to load approved applicants.",
             "error"
         )
-
-        applicants = []
 
 
     finally:
@@ -18702,7 +18673,6 @@ def create_payroll():
         "create_payroll.html",
         applicants=applicants
     )
-
 
 # ============================================================
 # EDIT PAYROLL
@@ -18727,7 +18697,7 @@ def edit_payroll(id):
         )
 
         return redirect(
-            url_for("dashboard")
+            url_for("admin_dashboard")
         )
 
 
