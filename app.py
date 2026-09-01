@@ -19181,167 +19181,177 @@ def pay_payroll(payroll_id):
 # ============================================================
 @app.route("/applicant/payroll")
 def applicant_payroll():
-    """
-    Display payroll records for the currently logged-in applicant.
+"""
+Display payroll records for the currently logged-in applicant.
 
-    Only approved applicants can access payroll information.
-    """
+Only approved applicants can access payroll information.
+"""
 
-    application_id = session.get("applicant_id")
+application_id = session.get("applicant_id")
 
-    if not application_id:
-        flash(
-            "Please log in to your applicant portal first.",
-            "warning"
-        )
-        return redirect(url_for("applicant_login"))
+if not application_id:
+    flash(
+        "Please log in to your applicant portal first.",
+        "warning"
+    )
+    return redirect(url_for("applicant_login"))
 
-    conn = None
+conn = None
 
-    try:
-        conn = get_db()
+try:
+    conn = get_db()
 
-        with conn.cursor() as cur:
+    with conn.cursor() as cur:
 
-            # ---------------------------------------------------------
-            # LOAD APPLICANT
-            # ---------------------------------------------------------
-            cur.execute("""
-                SELECT
-                    id,
-                    application_number,
-                    first_name,
-                    middle_name,
-                    last_name,
-                    position_applied,
-                    status
-                FROM applications
-                WHERE id = %s
-                LIMIT 1
-            """, (application_id,))
+        # =========================================================
+        # LOAD APPLICANT
+        # =========================================================
+        cur.execute("""
+            SELECT
+                id,
+                application_number,
+                first_name,
+                middle_name,
+                last_name,
+                position_applied,
+                status
+            FROM applications
+            WHERE id = %s
+            LIMIT 1
+        """, (application_id,))
 
-            application = cur.fetchone()
+        application = cur.fetchone()
 
-            if not application:
-                flash(
-                    "Applicant record could not be found.",
-                    "danger"
-                )
-                return redirect(url_for("applicant_login"))
+        if not application:
+            flash(
+                "Applicant record could not be found.",
+                "danger"
+            )
+            return redirect(url_for("applicant_login"))
 
-            # ---------------------------------------------------------
-            # CHECK APPROVAL STATUS
-            # ---------------------------------------------------------
-            application_status = str(
-                application["status"] or ""
-            ).strip().lower()
+        # =========================================================
+        # CHECK APPROVAL STATUS
+        # =========================================================
+        application_status = str(
+            application["status"] or ""
+        ).strip().lower()
 
-            if application_status != "approved":
-                flash(
-                    "Payroll information is available only to approved applicants.",
-                    "warning"
-                )
-                return redirect(url_for("applicant_portal"))
+        if application_status != "approved":
+            flash(
+                "Payroll information is available only to approved applicants.",
+                "warning"
+            )
+            return redirect(url_for("applicant_portal"))
 
-            # ---------------------------------------------------------
-            # LOAD PAYROLL RECORDS
-            # ---------------------------------------------------------
-            cur.execute("""
-                SELECT
-                    id,
-                    application_id,
-                    payroll_month,
-                    basic_salary,
-                    allowance,
-                    bonus,
-                    deduction,
-                    net_salary,
-                    payment_status,
-                    paid_at,
-                    created_at,
-                    updated_at
-                FROM payroll
-                WHERE application_id = %s
-                ORDER BY
-                    created_at DESC,
-                    id DESC
-            """, (application_id,))
+        # =========================================================
+        # LOAD PAYROLL RECORDS
+        # =========================================================
+        cur.execute("""
+            SELECT
+                id,
+                application_id,
+                payroll_month,
+                basic_salary,
+                allowance,
+                bonus,
+                deduction,
+                net_salary,
+                payment_status,
+                paid_at,
+                created_at,
+                updated_at
+            FROM payroll
+            WHERE application_id = %s
+            ORDER BY
+                created_at DESC,
+                id DESC
+        """, (application_id,))
 
-            payrolls = cur.fetchall()
+        payrolls = cur.fetchall()
 
-            # ---------------------------------------------------------
-            # PAYROLL SUMMARY
-            # ---------------------------------------------------------
-            cur.execute("""
-                SELECT
-                    COUNT(*) AS total_records,
-                    COALESCE(SUM(basic_salary), 0) AS total_basic_salary,
-                    COALESCE(SUM(allowance), 0) AS total_allowance,
-                    COALESCE(SUM(bonus), 0) AS total_bonus,
-                    COALESCE(SUM(deduction), 0) AS total_deduction,
-                    COALESCE(SUM(net_salary), 0) AS total_net_salary
-                FROM payroll
-                WHERE application_id = %s
-            """, (application_id,))
+        # =========================================================
+        # PAYROLL SUMMARY
+        # =========================================================
+        cur.execute("""
+            SELECT
+                COUNT(*) AS total_records,
+                COALESCE(SUM(basic_salary), 0) AS total_basic_salary,
+                COALESCE(SUM(allowance), 0) AS total_allowance,
+                COALESCE(SUM(bonus), 0) AS total_bonus,
+                COALESCE(SUM(deduction), 0) AS total_deduction,
+                COALESCE(SUM(net_salary), 0) AS total_net_salary
+            FROM payroll
+            WHERE application_id = %s
+        """, (application_id,))
 
-            payroll_summary = cur.fetchone()
+        payroll_summary = cur.fetchone()
 
-            # ---------------------------------------------------------
-            # TOTAL PAID
-            # ---------------------------------------------------------
-            cur.execute("""
-                SELECT
-                    COALESCE(SUM(net_salary), 0) AS total_paid
-                FROM payroll
-                WHERE application_id = %s
-                  AND LOWER(TRIM(payment_status)) = 'paid'
-            """, (application_id,))
+        # =========================================================
+        # TOTAL PAID
+        # =========================================================
+        cur.execute("""
+            SELECT
+                COALESCE(SUM(net_salary), 0) AS total_paid
+            FROM payroll
+            WHERE application_id = %s
+              AND LOWER(TRIM(payment_status)) = 'paid'
+        """, (application_id,))
 
-            total_paid = cur.fetchone()["total_paid"]
+        total_paid = cur.fetchone()["total_paid"]
 
-            # ---------------------------------------------------------
-            # TOTAL PENDING
-            # ---------------------------------------------------------
-            cur.execute("""
-                SELECT
-                    COALESCE(SUM(net_salary), 0) AS total_pending
-                FROM payroll
-                WHERE application_id = %s
-                  AND LOWER(TRIM(payment_status)) = 'pending'
-            """, (application_id,))
+        # =========================================================
+        # TOTAL PENDING
+        # =========================================================
+        cur.execute("""
+            SELECT
+                COALESCE(SUM(net_salary), 0) AS total_pending
+            FROM payroll
+            WHERE application_id = %s
+              AND LOWER(TRIM(payment_status)) = 'pending'
+        """, (application_id,))
 
-            total_pending = cur.fetchone()["total_pending"]
+        total_pending = cur.fetchone()["total_pending"]
 
-        # -------------------------------------------------------------
-        # RENDER PAYROLL PAGE
-        # -------------------------------------------------------------
-        return render_template(
-            "applicant_payroll.html",
-            application=application,
-            payrolls=payrolls,
-            payroll_summary=payroll_summary,
-            total_paid=total_paid,
-            total_pending=total_pending
-        )
+    # =============================================================
+    # RENDER PAYROLL PAGE
+    # =============================================================
+    return render_template(
+        "applicant_payroll.html",
 
-    except Exception:
-        if conn:
-            conn.rollback()
+        # Main application object
+        application=application,
 
-        app.logger.exception(
-            "Error loading applicant payroll."
-        )
+        # Compatibility with your existing template
+        applicant=application,
 
-        flash(
-            "Unable to load your payroll information at the moment.",
-            "danger"
-        )
+        # Payroll records
+        payrolls=payrolls,
 
-        return redirect(url_for("applicant_portal"))
+        # Summary
+        payroll_summary=payroll_summary,
+        total_paid=total_paid,
+        total_pending=total_pending
+    )
 
-    finally:
-        if conn:
-            conn.close()
+except Exception:
+    if conn:
+        conn.rollback()
+
+    app.logger.exception(
+        "Error loading applicant payroll."
+    )
+
+    flash(
+        "Unable to load your payroll information at the moment.",
+        "danger"
+    )
+
+    return redirect(url_for("applicant_portal"))
+
+finally:
+    if conn:
+        conn.close()
+
 # ============================================================
 # APPLICANT PAYSLIP
 # ============================================================
