@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Payslip - {{ payroll.first_name }}
+        {{ payroll.last_name }}
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #f4f6f8;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222;
+        }
+
+        .payslip {
+            max-width: 850px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,.08);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #222;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 6px 0;
+            color: #666;
+        }
+
+        .employee-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .label {
+            font-size: 12px;
+            color: #777;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .value {
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        .amount {
+            text-align: right;
+        }
+
+        .net-salary {
+            margin-top: 20px;
+            padding: 18px;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .actions {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .print {
+            background: #222;
+            color: white;
+        }
+
+        .back {
+            background: #ddd;
+            color: #222;
+        }
+
+        @media print {
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .payslip {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .actions {
+                display: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="payslip">
+
+    <div class="header">
+
+        <h1>
+            {{ company_name or "AV KING VET DRUG VENTURE" }}
+        </h1>
+
+        <p>Employee Payslip</p>
+
+        <p>
+            Payroll Month:
+            <strong>
+                {{ payroll.payroll_month }}
+            </strong>
+        </p>
+
+    </div>
+
+
+    <div class="employee-info">
+
+        <div class="info-item">
+
+            <span class="label">
+                Employee Name
+            </span>
+
+            <span class="value">
+
+                {{ payroll.first_name }}
+
+                {% if payroll.middle_name %}
+                    {{ payroll.middle_name }}
+                {% endif %}
+
+                {{ payroll.last_name }}
+
+            </span>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <span class="label">
+                Application Number
+            </span>
+
+            <span class="value">
+                {{ payroll.application_number }}
+            </span>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <span class="label">
+                Position
+            </span>
+
+            <span class="value">
+                {{ payroll.position_applied }}
+            </span>
+
+        </div>
+
+
+        <div class="info-item">
+
+            <span class="label">
+                Phone
+            </span>
+
+            <span class="value">
+                {{ payroll.phone or "N/A" }}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Description</th>
+                <th class="amount">Amount</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>Basic Salary</td>
+                <td class="amount">
+                    ₦{{ "{:,.2f}".format(payroll.basic_salary or 0) }}
+                </td>
+            </tr>
+
+            <tr>
+                <td>Allowance</td>
+                <td class="amount">
+                    ₦{{ "{:,.2f}".format(payroll.allowance or 0) }}
+                </td>
+            </tr>
+
+            <tr>
+                <td>Bonus</td>
+                <td class="amount">
+                    ₦{{ "{:,.2f}".format(payroll.bonus or 0) }}
+                </td>
+            </tr>
+
+            <tr>
+                <td>Deduction</td>
+                <td class="amount">
+                    ₦{{ "{:,.2f}".format(payroll.deduction or 0) }}
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <div class="net-salary">
+
+        <span>
+            NET SALARY
+        </span>
+
+        <span>
+            ₦{{ "{:,.2f}".format(payroll.net_salary or 0) }}
+        </span>
+
+    </div>
+
+
+    <div class="status">
+
+        Payment Status:
+        {{ payroll.payment_status }}
+
+        {% if payroll.paid_at %}
+            <br>
+            <small>
+                Paid:
+                {{ payroll.paid_at }}
+            </small>
+        {% endif %}
+
+    </div>
+
+
+    <div class="actions">
+
+        <button
+            class="btn print"
+            onclick="window.print()"
+        >
+            Print Payslip
+        </button>
+
+        <a
+            href="{{ url_for('admin_payroll') }}"
+            class="btn back"
+        >
+            Back to Payroll
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
