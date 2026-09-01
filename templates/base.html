@@ -1042,17 +1042,10 @@ or session.get('application_id') %}
 
         {% endif %}
 
-{% if current_user.is_authenticated and current_user.role == "admin" %}
+{% if session.get("admin_id") %}
 
-<a
-    href="{{ url_for('admin_payroll') }}"
-    class="sidebar-link"
->
-    <span class="sidebar-icon">💰</span>
-
-    <span class="sidebar-text">
-        Payroll
-    </span>
+<a href="{{ url_for('admin_payroll') }}">
+    Payroll
 </a>
 
 {% endif %}
