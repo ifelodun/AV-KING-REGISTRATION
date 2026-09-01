@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block title %}
+Create Payroll | AV KING VETERINARY BUSINESS SUITE
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .payroll-form-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 35px 20px 70px;
+    }
+
+    .form-header {
+        margin-bottom: 25px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        margin-bottom: 15px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .back-link:hover {
+        color: #111827;
+    }
+
+    .form-header h1 {
+        margin: 0;
+        color: #111827;
+        font-size: 28px;
+        font-weight: 800;
+    }
+
+    .form-header p {
+        margin: 7px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 6px 25px rgba(15,23,42,.04);
+    }
+
+    .section-title {
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .section-title h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .section-title p {
+        margin: 4px 0 0;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 13px;
+        border: 1px solid #d1d5db;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+        transition: .2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17,24,39,.06);
+    }
+
+    .help-text {
+        color: #94a3b8;
+        font-size: 11px;
+    }
+
+    .salary-preview {
+        margin-top: -10px;
+        margin-bottom: 25px;
+        padding: 18px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+
+    .salary-preview-label {
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+    }
+
+    .salary-preview-value {
+        margin-top: 5px;
+        color: #047857;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 20px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .btn {
+        padding: 11px 18px;
+        border-radius: 9px;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-submit {
+        background: #111827;
+        color: #ffffff;
+    }
+
+    .btn-submit:hover {
+        background: #1f2937;
+    }
+
+    @media(max-width:650px) {
+
+        .payroll-form-page {
+            padding: 20px 12px 50px;
+        }
+
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: auto;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+</style>
+
+
+<div class="payroll-form-page">
+
+    <div class="form-header">
+
+        <a
+            href="{{ url_for('payrolls') }}"
+            class="back-link"
+        >
+            ← Back to Payroll
+        </a>
+
+        <h1>
+            Create Payroll
+        </h1>
+
+        <p>
+            Create a salary record for an approved staff member.
+        </p>
+
+    </div>
+
+
+    <form
+        method="POST"
+        class="form-card"
+        id="payrollForm"
+    >
+
+        <!-- STAFF -->
+
+        <div class="section-title">
+
+            <h2>
+                Staff Information
+            </h2>
+
+            <p>
+                Select an approved applicant.
+            </p>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group full">
+
+                <label for="application_id">
+                    Approved Applicant
+                </label>
+
+                <select
+                    name="application_id"
+                    id="application_id"
+                    required
+                >
+
+                    <option value="">
+                        Select approved applicant
+                    </option>
+
+                    {% for applicant in approved_applicants %}
+
+                    <option
+                        value="{{ applicant.id }}"
+                        data-name="{{ applicant.first_name }} {{ applicant.middle_name or '' }} {{ applicant.last_name }}"
+                        data-position="{{ applicant.position_applied }}"
+                    >
+
+                        {{ applicant.first_name }}
+                        {% if applicant.middle_name %}
+                            {{ applicant.middle_name }}
+                        {% endif %}
+                        {{ applicant.last_name }}
+
+                        — {{ applicant.application_number }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <span class="help-text">
+                    Only approved applicants should be available for payroll.
+                </span>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Position
+                </label>
+
+                <input
+                    type="text"
+                    id="position_display"
+                    readonly
+                    placeholder="Automatically displayed"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name_display"
+                    readonly
+                    placeholder="Automatically displayed"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYROLL PERIOD -->
+
+        <div class="section-title">
+
+            <h2>
+                Payroll Period
+            </h2>
+
+            <p>
+                Select the month this salary belongs to.
+            </p>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label for="month">
+                    Payroll Month
+                </label>
+
+                <input
+                    type="month"
+                    name="month"
+                    id="month"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- SALARY -->
+
+        <div class="section-title">
+
+            <h2>
+                Salary Breakdown
+            </h2>
+
+            <p>
+                Enter the salary components. Net salary is calculated automatically.
+            </p>
+
+        </div>
+
+
+        <div class="form-grid">
+
+            <div class="form-group">
+
+                <label for="basic_salary">
+                    Basic Salary (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="basic_salary"
+                    id="basic_salary"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="allowance">
+                    Allowance (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="allowance"
+                    id="allowance"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="bonus">
+                    Bonus (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="bonus"
+                    id="bonus"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="deduction">
+                    Deduction (₦)
+                </label>
+
+                <input
+                    type="number"
+                    name="deduction"
+                    id="deduction"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="salary-preview">
+
+            <div class="salary-preview-label">
+                Estimated Net Salary
+            </div>
+
+            <div
+                class="salary-preview-value"
+                id="netSalaryPreview"
+            >
+                ₦0.00
+            </div>
+
+        </div>
+
+
+        <!-- ACTIONS -->
+
+        <div class="form-actions">
+
+            <a
+                href="{{ url_for('payrolls') }}"
+                class="btn btn-cancel"
+            >
+                Cancel
+            </a>
+
+            <button
+                type="submit"
+                class="btn btn-submit"
+            >
+                Create Payroll
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+
+    const applicantSelect =
+        document.getElementById("application_id");
+
+    const nameDisplay =
+        document.getElementById("name_display");
+
+    const positionDisplay =
+        document.getElementById("position_display");
+
+
+    applicantSelect.addEventListener(
+        "change",
+        function () {
+
+            const option =
+                this.options[this.selectedIndex];
+
+            nameDisplay.value =
+                option.dataset.name || "";
+
+            positionDisplay.value =
+                option.dataset.position || "";
+
+        }
+    );
+
+
+    const basic =
+        document.getElementById("basic_salary");
+
+    const allowance =
+        document.getElementById("allowance");
+
+    const bonus =
+        document.getElementById("bonus");
+
+    const deduction =
+        document.getElementById("deduction");
+
+    const preview =
+        document.getElementById("netSalaryPreview");
+
+
+    function calculateNetSalary() {
+
+        const basicValue =
+            parseFloat(basic.value) || 0;
+
+        const allowanceValue =
+            parseFloat(allowance.value) || 0;
+
+        const bonusValue =
+            parseFloat(bonus.value) || 0;
+
+        const deductionValue =
+            parseFloat(deduction.value) || 0;
+
+
+        const net =
+            basicValue
+            + allowanceValue
+            + bonusValue
+            - deductionValue;
+
+
+        preview.textContent =
+            "₦" +
+            net.toLocaleString(
+                "en-NG",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+    }
+
+
+    [
+        basic,
+        allowance,
+        bonus,
+        deduction
+    ].forEach(
+        field => field.addEventListener(
+            "input",
+            calculateNetSalary
+        )
+    );
+
+</script>
+
+{% endblock %}
