@@ -958,7 +958,101 @@ def init_db():
                 """
             )
 
-
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS payroll (
+            
+                    id BIGSERIAL PRIMARY KEY,
+            
+                    application_id INTEGER NOT NULL,
+            
+                    payroll_month VARCHAR(30)
+                        NOT NULL,
+            
+                    basic_salary NUMERIC(14, 2)
+                        NOT NULL DEFAULT 0,
+            
+                    allowance NUMERIC(14, 2)
+                        NOT NULL DEFAULT 0,
+            
+                    bonus NUMERIC(14, 2)
+                        NOT NULL DEFAULT 0,
+            
+                    deduction NUMERIC(14, 2)
+                        NOT NULL DEFAULT 0,
+            
+                    net_salary NUMERIC(14, 2)
+                        NOT NULL DEFAULT 0,
+            
+                    payment_status VARCHAR(30)
+                        NOT NULL DEFAULT 'Pending',
+            
+                    paid_at TIMESTAMP,
+            
+                    created_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            
+                    updated_at TIMESTAMP
+                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            
+                    CONSTRAINT fk_payroll_application
+            
+                        FOREIGN KEY (application_id)
+            
+                        REFERENCES applications(id)
+            
+                        ON DELETE CASCADE,
+            
+                    CONSTRAINT unique_payroll_month
+            
+                        UNIQUE (
+                            application_id,
+                            payroll_month
+                        )
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_payroll_application
+            
+                ON payroll(application_id)
+                """
+            )
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    application_number,
+                    first_name,
+                    middle_name,
+                    last_name,
+                    position_applied
+                FROM applications
+                WHERE status = 'Approved'
+                ORDER BY first_name ASC, last_name ASC
+                """
+            )
+            
+            approved_applicants = cur.fetchall()
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_payroll_status
+            
+                ON payroll(payment_status)
+                """
+            )
+            
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_payroll_month
+            
+                ON payroll(payroll_month)
+                """
+            )
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS applicant_messages (
