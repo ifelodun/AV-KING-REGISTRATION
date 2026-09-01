@@ -19297,7 +19297,8 @@ try:
               AND LOWER(TRIM(payment_status)) = 'paid'
         """, (application_id,))
 
-        total_paid = cur.fetchone()["total_paid"]
+        paid_row = cur.fetchone()
+        total_paid = paid_row["total_paid"] if paid_row else 0
 
         # =========================================================
         # TOTAL PENDING
@@ -19310,24 +19311,21 @@ try:
               AND LOWER(TRIM(payment_status)) = 'pending'
         """, (application_id,))
 
-        total_pending = cur.fetchone()["total_pending"]
+        pending_row = cur.fetchone()
+        total_pending = (
+            pending_row["total_pending"]
+            if pending_row
+            else 0
+        )
 
     # =============================================================
     # RENDER PAYROLL PAGE
     # =============================================================
     return render_template(
         "applicant_payroll.html",
-
-        # Main application object
         application=application,
-
-        # Compatibility with your existing template
         applicant=application,
-
-        # Payroll records
         payrolls=payrolls,
-
-        # Summary
         payroll_summary=payroll_summary,
         total_paid=total_paid,
         total_pending=total_pending
