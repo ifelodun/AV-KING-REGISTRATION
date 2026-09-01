@@ -9185,11 +9185,9 @@ def applicant_portal():
     applicant_id = session.get("applicant_id")
 
     if not applicant_id:
-
         return redirect(
             url_for("applicant_login")
         )
-
 
     conn = get_db()
 
@@ -9238,12 +9236,7 @@ def applicant_portal():
 
 
             # =================================================
-            # IMPORTANT DATABASE MIGRATION
-            #
-            # This updates an EXISTING applicant_messages table.
-            #
-            # CREATE TABLE IF NOT EXISTS does not add columns
-            # to a table that already exists.
+            # DATABASE MIGRATIONS
             # =================================================
 
             cur.execute(
@@ -9253,14 +9246,12 @@ def applicant_portal():
                 """
             )
 
-
             cur.execute(
                 """
                 ALTER TABLE applicant_messages
                 ADD COLUMN IF NOT EXISTS interview_time TIME
                 """
             )
-
 
             cur.execute(
                 """
@@ -9269,11 +9260,6 @@ def applicant_portal():
                 VARCHAR(500)
                 """
             )
-
-
-            # =================================================
-            # ENSURE MESSAGE TYPE EXISTS
-            # =================================================
 
             cur.execute(
                 """
@@ -9284,11 +9270,6 @@ def applicant_portal():
                 """
             )
 
-
-            # =================================================
-            # ENSURE SUBJECT EXISTS
-            # =================================================
-
             cur.execute(
                 """
                 ALTER TABLE applicant_messages
@@ -9296,11 +9277,6 @@ def applicant_portal():
                 VARCHAR(255)
                 """
             )
-
-
-            # =================================================
-            # ENSURE MESSAGE EXISTS
-            # =================================================
 
             cur.execute(
                 """
@@ -9310,11 +9286,6 @@ def applicant_portal():
                 """
             )
 
-
-            # =================================================
-            # ENSURE READ STATUS EXISTS
-            # =================================================
-
             cur.execute(
                 """
                 ALTER TABLE applicant_messages
@@ -9323,11 +9294,6 @@ def applicant_portal():
                 NOT NULL DEFAULT FALSE
                 """
             )
-
-
-            # =================================================
-            # ENSURE CREATED AT EXISTS
-            # =================================================
 
             cur.execute(
                 """
@@ -9352,7 +9318,6 @@ def applicant_portal():
                 """
             )
 
-
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -9367,14 +9332,14 @@ def applicant_portal():
 
 
             # =================================================
-            # COMMIT DATABASE MIGRATION
+            # COMMIT MIGRATIONS
             # =================================================
 
             conn.commit()
 
 
             # =================================================
-            # GET APPLICATION
+            # GET APPLICANT APPLICATION
             # =================================================
 
             cur.execute(
@@ -9425,11 +9390,110 @@ def applicant_portal():
 
 
             # =================================================
-            # GET APPLICANT COMMUNICATIONS
+            # PASSPORT IMAGE
             #
-            # NORMAL MESSAGE
-            # INTERVIEW INVITATION
-            # INTERVIEW DETAILS
+            # NEW SYSTEM:
+            #     passport_url = Cloudinary URL
+            #
+            # OLD SYSTEM:
+            #     passport_filename = local filename
+            #
+            # Cloudinary is always preferred.
+            # =================================================
+
+            passport_url = None
+
+            try:
+
+                # -------------------------------------------------
+                # NEW CLOUDINARY PASSPORT
+                # -------------------------------------------------
+
+                if "passport_url" in application:
+
+                    passport_url = (
+                        application["passport_url"]
+                        or ""
+                    ).strip()
+
+
+                # -------------------------------------------------
+                # FALLBACK TO OLD LOCAL PASSPORT
+                # -------------------------------------------------
+
+                if not passport_url:
+
+                    passport_filename = (
+                        application["passport_filename"]
+                        if "passport_filename" in application
+                        else None
+                    )
+
+                    if passport_filename:
+
+                        passport_filename = str(
+                            passport_filename
+                        ).strip()
+
+
+                        # -----------------------------------------
+                        # Already a URL
+                        # -----------------------------------------
+
+                        if (
+                            passport_filename.startswith(
+                                "http://"
+                            )
+                            or
+                            passport_filename.startswith(
+                                "https://"
+                            )
+                        ):
+
+                            passport_url = passport_filename
+
+
+                        # -----------------------------------------
+                        # Existing static file
+                        # -----------------------------------------
+
+                        else:
+
+                            clean_filename = os.path.basename(
+                                passport_filename
+                            )
+
+                            local_passport_path = os.path.join(
+                                app.root_path,
+                                "static",
+                                "uploads",
+                                clean_filename
+                            )
+
+                            if os.path.isfile(
+                                local_passport_path
+                            ):
+
+                                passport_url = url_for(
+                                    "static",
+                                    filename=(
+                                        "uploads/"
+                                        + clean_filename
+                                    )
+                                )
+
+
+            except Exception:
+
+                app.logger.exception(
+                    "Error resolving applicant passport."
+                )
+
+                passport_url = None
+
+
+            # =================================================
+            # GET APPLICANT COMMUNICATIONS
             # =================================================
 
             cur.execute(
@@ -9492,7 +9556,6 @@ def applicant_portal():
 
             unread_row = cur.fetchone()
 
-
             if unread_row:
 
                 unread_count = int(
@@ -9524,7 +9587,6 @@ def applicant_portal():
             )
 
             total_row = cur.fetchone()
-
 
             if total_row:
 
@@ -9559,7 +9621,6 @@ def applicant_portal():
             )
 
             interview_row = cur.fetchone()
-
 
             if interview_row:
 
@@ -9598,7 +9659,7 @@ def applicant_portal():
 
 
         # =====================================================
-        # LOG COMPLETE ERROR
+        # LOG ERROR
         # =====================================================
 
         app.logger.exception(
@@ -9607,7 +9668,7 @@ def applicant_portal():
 
 
         # =====================================================
-        # CLEAR POSSIBLE BAD SESSION DATA
+        # CLEAR BAD SESSION DATA
         # =====================================================
 
         session.pop(
@@ -9631,7 +9692,7 @@ def applicant_portal():
     finally:
 
         # =====================================================
-        # CLOSE CONNECTION
+        # CLOSE DATABASE CONNECTION
         # =====================================================
 
         conn.close()
@@ -9646,6 +9707,11 @@ def applicant_portal():
 
         application=application,
 
+        # -----------------------------------------------
+        # PROFESSIONAL PASSPORT URL
+        # -----------------------------------------------
+        passport_url=passport_url,
+
         messages=messages,
 
         unread_count=unread_count,
@@ -9654,7 +9720,6 @@ def applicant_portal():
 
         interview_count=interview_count
     )
-
 # ============================================================
 # APPLICANT MESSAGES
 # ============================================================
