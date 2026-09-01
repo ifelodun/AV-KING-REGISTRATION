@@ -18356,7 +18356,6 @@ def admin_payroll():
 # ============================================================
 # CREATE PAYROLL
 # ============================================================
-
 @app.route(
     "/admin/payroll/create",
     methods=["GET", "POST"]
@@ -18364,284 +18363,248 @@ def admin_payroll():
 @require_admin
 def create_payroll():
 
-    conn = get_db()
-
-    if request.method == "POST":
-
-        try:
-
-            application_id = int(
-                request.form.get(
-                    "application_id",
-                    ""
-                )
-            )
-
-            payroll_month = request.form.get(
-                "payroll_month",
-                ""
-            ).strip()
-
-            if not payroll_month:
-
-                raise ValueError(
-                    "Please select a payroll month."
-                )
-
-
-            basic_salary = payroll_decimal(
-                request.form.get(
-                    "basic_salary"
-                )
-            )
-
-            allowance = payroll_decimal(
-                request.form.get(
-                    "allowance"
-                )
-            )
-
-            bonus = payroll_decimal(
-                request.form.get(
-                    "bonus"
-                )
-            )
-
-            deduction = payroll_decimal(
-                request.form.get(
-                    "deduction"
-                )
-            )
-
-
-            net_salary = calculate_net_salary(
-                basic_salary,
-                allowance,
-                bonus,
-                deduction
-            )
-
-
-            if net_salary < 0:
-
-                raise ValueError(
-                    "Deduction cannot be greater than total earnings."
-                )
-
-
-            with conn.cursor() as cur:
-
-                # =============================================
-                # GET APPLICANT
-                # =============================================
-
-                cur.execute(
-                    """
-                    SELECT
-
-                        id,
-
-                        application_number,
-
-                        first_name,
-
-                        middle_name,
-
-                        last_name,
-
-                        position_applied,
-
-                        status
-
-                    FROM applications
-
-                    WHERE id = %s
-
-                    LIMIT 1
-                    """,
-                    (
-                        application_id,
-                    )
-                )
-
-                applicant = cur.fetchone()
-
-
-                if not applicant:
-
-                    raise ValueError(
-                        "Applicant was not found."
-                    )
-
-
-                # =============================================
-                # APPROVED ONLY
-                # =============================================
-
-                if applicant["status"] != "Approved":
-
-                    raise ValueError(
-                        "Payroll can only be created for an approved applicant."
-                    )
-
-
-                # =============================================
-                # DUPLICATE CHECK
-                # =============================================
-
-                cur.execute(
-                    """
-                    SELECT id
-
-                    FROM payroll
-
-                    WHERE application_id = %s
-
-                    AND payroll_month = %s
-
-                    LIMIT 1
-                    """,
-                    (
-                        application_id,
-                        payroll_month
-                    )
-                )
-
-                existing = cur.fetchone()
-
-
-                if existing:
-
-                    raise ValueError(
-                        "Payroll for this applicant and month already exists."
-                    )
-
-
-                # =============================================
-                # INSERT PAYROLL
-                # =============================================
-
-                cur.execute(
-                    """
-                    INSERT INTO payroll (
-
-                        application_id,
-
-                        payroll_month,
-
-                        basic_salary,
-
-                        allowance,
-
-                        bonus,
-
-                        deduction,
-
-                        net_salary,
-
-                        payment_status
-
-                    )
-
-                    VALUES (
-
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        'Pending'
-
-                    )
-
-                    RETURNING id
-                    """,
-                    (
-                        application_id,
-
-                        payroll_month,
-
-                        basic_salary,
-
-                        allowance,
-
-                        bonus,
-
-                        deduction,
-
-                        net_salary
-                    )
-                )
-
-            conn.commit()
-
-
-            flash(
-                "Payroll created successfully.",
-                "success"
-            )
-
-            return redirect(
-                url_for("admin_payroll")
-            )
-
-
-        except ValueError as e:
-
-            conn.rollback()
-
-            flash(
-                str(e),
-                "error"
-            )
-
-
-        except Exception:
-
-            conn.rollback()
-
-            app.logger.exception(
-                "Error creating payroll."
-            )
-
-            flash(
-                "An error occurred while creating payroll.",
-                "error"
-            )
-
-
-    # ========================================================
-    # APPROVED APPLICANTS
-    # ========================================================
+    conn = None
 
     try:
+        conn = get_db()
+
+        # =====================================================
+        # CREATE PAYROLL
+        # =====================================================
+
+        if request.method == "POST":
+
+            try:
+
+                application_id_raw = request.form.get(
+                    "application_id",
+                    ""
+                ).strip()
+
+                if not application_id_raw:
+                    raise ValueError(
+                        "Please select an approved applicant."
+                    )
+
+                try:
+                    application_id = int(
+                        application_id_raw
+                    )
+                except ValueError:
+                    raise ValueError(
+                        "Invalid applicant selected."
+                    )
+
+                payroll_month = request.form.get(
+                    "payroll_month",
+                    ""
+                ).strip()
+
+                if not payroll_month:
+                    raise ValueError(
+                        "Please select a payroll month."
+                    )
+
+                # -------------------------------------------------
+                # SALARY VALUES
+                # -------------------------------------------------
+
+                basic_salary = payroll_decimal(
+                    request.form.get(
+                        "basic_salary",
+                        "0"
+                    )
+                )
+
+                allowance = payroll_decimal(
+                    request.form.get(
+                        "allowance",
+                        "0"
+                    )
+                )
+
+                bonus = payroll_decimal(
+                    request.form.get(
+                        "bonus",
+                        "0"
+                    )
+                )
+
+                deduction = payroll_decimal(
+                    request.form.get(
+                        "deduction",
+                        "0"
+                    )
+                )
+
+                # -------------------------------------------------
+                # CALCULATE NET SALARY
+                # -------------------------------------------------
+
+                net_salary = calculate_net_salary(
+                    basic_salary,
+                    allowance,
+                    bonus,
+                    deduction
+                )
+
+                if net_salary < 0:
+                    raise ValueError(
+                        "Deduction cannot be greater than total earnings."
+                    )
+
+                with conn.cursor() as cur:
+
+                    # =============================================
+                    # GET SELECTED APPLICANT
+                    # =============================================
+
+                    cur.execute(
+                        """
+                        SELECT
+                            id,
+                            application_number,
+                            first_name,
+                            middle_name,
+                            last_name,
+                            position_applied,
+                            status
+                        FROM applications
+                        WHERE id = %s
+                        LIMIT 1
+                        """,
+                        (
+                            application_id,
+                        )
+                    )
+
+                    applicant = cur.fetchone()
+
+                    if not applicant:
+                        raise ValueError(
+                            "Applicant was not found."
+                        )
+
+                    # =============================================
+                    # APPROVED APPLICANTS ONLY
+                    # =============================================
+
+                    applicant_status = (
+                        applicant["status"] or ""
+                    ).strip().lower()
+
+                    if applicant_status != "approved":
+                        raise ValueError(
+                            "Payroll can only be created for an approved applicant."
+                        )
+
+                    # =============================================
+                    # CHECK DUPLICATE PAYROLL
+                    # =============================================
+
+                    cur.execute(
+                        """
+                        SELECT
+                            id
+                        FROM payroll
+                        WHERE application_id = %s
+                          AND payroll_month = %s
+                        LIMIT 1
+                        """,
+                        (
+                            application_id,
+                            payroll_month
+                        )
+                    )
+
+                    existing = cur.fetchone()
+
+                    if existing:
+                        raise ValueError(
+                            "Payroll for this applicant and month already exists."
+                        )
+
+                    # =============================================
+                    # INSERT PAYROLL
+                    # =============================================
+
+                    cur.execute(
+                        """
+                        INSERT INTO payroll (
+                            application_id,
+                            payroll_month,
+                            basic_salary,
+                            allowance,
+                            bonus,
+                            deduction,
+                            net_salary,
+                            payment_status,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES (
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            %s,
+                            'Pending',
+                            CURRENT_TIMESTAMP,
+                            CURRENT_TIMESTAMP
+                        )
+                        RETURNING id
+                        """,
+                        (
+                            application_id,
+                            payroll_month,
+                            basic_salary,
+                            allowance,
+                            bonus,
+                            deduction,
+                            net_salary
+                        )
+                    )
+
+                conn.commit()
+
+                flash(
+                    "Payroll created successfully.",
+                    "success"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+            except ValueError as e:
+
+                conn.rollback()
+
+                flash(
+                    str(e),
+                    "error"
+                )
+
+        # =====================================================
+        # LOAD APPROVED APPLICANTS
+        # =====================================================
 
         with conn.cursor() as cur:
 
             cur.execute(
                 """
                 SELECT
-
                     id,
-
                     application_number,
-
                     first_name,
-
                     middle_name,
-
                     last_name,
-
                     position_applied,
-
                     status
-
                 FROM applications
-
-                WHERE status = 'Approved'
-
+                WHERE TRIM(LOWER(status)) = 'approved'
                 ORDER BY
                     first_name ASC,
                     last_name ASC
@@ -18650,32 +18613,37 @@ def create_payroll():
 
             applicants = cur.fetchall()
 
+        # =====================================================
+        # DISPLAY CREATE PAYROLL PAGE
+        # =====================================================
+
+        return render_template(
+            "create_payroll.html",
+            applicants=applicants
+        )
 
     except Exception:
 
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         app.logger.exception(
-            "Error loading approved applicants."
+            "Error creating/loading payroll."
         )
 
-        applicants = []
-
         flash(
-            "Unable to load approved applicants.",
+            "An error occurred while loading the payroll page.",
             "error"
         )
 
+        return redirect(
+            url_for("admin_payroll")
+        )
 
     finally:
 
-        conn.close()
-
-
-    return render_template(
-        "create_payroll.html",
-        applicants=applicants
-    )
+        if conn:
+            conn.close()
 
 # ============================================================
 # EDIT PAYROLL
