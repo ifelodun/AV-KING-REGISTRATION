@@ -18645,57 +18645,47 @@ def create_payroll():
 # ============================================================
 # EDIT PAYROLL
 # ============================================================
-
 @app.route(
-    "/admin/payroll/<int:id>/edit",
+    "/admin/payroll/<int:payroll_id>/edit",
     methods=["GET", "POST"]
 )
 @require_admin
-def edit_payroll(id):
+def edit_payroll(payroll_id):
 
-    # --------------------------------------------------------
-    # ADMIN ONLY
-    # --------------------------------------------------------
-
-    if session.get("role") != "admin":
-
-        flash(
-            "You are not authorized to edit payroll.",
-            "error"
-        )
-
-        return redirect(
-            url_for("admin_dashboard")
-        )
-
-
-    conn = get_db()
-
+    conn = None
+    payroll = None
 
     try:
 
+        conn = get_db()
+
         with conn.cursor() as cur:
 
-            # ------------------------------------------------
-            # GET PAYROLL
-            # ------------------------------------------------
+            # =================================================
+            # GET PAYROLL + APPLICANT
+            # =================================================
 
             cur.execute(
                 """
                 SELECT
-
-                    p.*,
+                    p.id,
+                    p.application_id,
+                    p.payroll_month,
+                    p.basic_salary,
+                    p.allowance,
+                    p.bonus,
+                    p.deduction,
+                    p.net_salary,
+                    p.payment_status,
+                    p.paid_at,
+                    p.created_at,
+                    p.updated_at,
 
                     a.first_name,
-
                     a.middle_name,
-
                     a.last_name,
-
                     a.application_number,
-
                     a.position_applied,
-
                     a.status AS application_status
 
                 FROM payroll p
@@ -18707,13 +18697,15 @@ def edit_payroll(id):
 
                 LIMIT 1
                 """,
-                (
-                    id,
-                )
+                (payroll_id,)
             )
 
             payroll = cur.fetchone()
 
+
+            # =================================================
+            # PAYROLL NOT FOUND
+            # =================================================
 
             if not payroll:
 
@@ -18727,24 +18719,48 @@ def edit_payroll(id):
                 )
 
 
-            # ------------------------------------------------
+            # =================================================
+            # ONLY APPROVED APPLICANTS
+            # =================================================
+
+            if (
+                not payroll["application_status"]
+                or payroll["application_status"].strip().lower()
+                != "approved"
+            ):
+
+                flash(
+                    "Payroll can only be edited for approved applicants.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
             # PROCESS UPDATE
-            # ------------------------------------------------
+            # =================================================
 
             if request.method == "POST":
 
-                month = request.form.get(
-                    "month",
+                payroll_month = request.form.get(
+                    "payroll_month",
                     ""
                 ).strip()
 
 
-                if not month:
+                if not payroll_month:
 
                     raise ValueError(
                         "Please select a payroll month."
                     )
 
+
+                # -------------------------------------------------
+                # SALARY VALUES
+                # -------------------------------------------------
 
                 basic_salary = payroll_decimal(
                     request.form.get(
@@ -18771,6 +18787,10 @@ def edit_payroll(id):
                 )
 
 
+                # -------------------------------------------------
+                # CALCULATE NET SALARY
+                # -------------------------------------------------
+
                 net_salary = calculate_net_salary(
                     basic_salary,
                     allowance,
@@ -18787,9 +18807,9 @@ def edit_payroll(id):
                     )
 
 
-                # ------------------------------------------------
-                # DUPLICATE CHECK
-                # ------------------------------------------------
+                # =================================================
+                # CHECK FOR DUPLICATE PAYROLL
+                # =================================================
 
                 cur.execute(
                     """
@@ -18799,7 +18819,7 @@ def edit_payroll(id):
 
                     WHERE application_id = %s
 
-                    AND month = %s
+                    AND payroll_month = %s
 
                     AND id != %s
 
@@ -18807,8 +18827,8 @@ def edit_payroll(id):
                     """,
                     (
                         payroll["application_id"],
-                        month,
-                        id
+                        payroll_month,
+                        payroll_id
                     )
                 )
 
@@ -18823,44 +18843,40 @@ def edit_payroll(id):
                     )
 
 
-                # ------------------------------------------------
-                # UPDATE
-                # ------------------------------------------------
+                # =================================================
+                # UPDATE PAYROLL
+                # =================================================
 
                 cur.execute(
                     """
                     UPDATE payroll
 
                     SET
-
-                        month = %s,
-
+                        payroll_month = %s,
                         basic_salary = %s,
-
                         allowance = %s,
-
                         bonus = %s,
-
                         deduction = %s,
-
                         net_salary = %s,
-
-                        updated_at =
-                            CURRENT_TIMESTAMP
+                        updated_at = CURRENT_TIMESTAMP
 
                     WHERE id = %s
                     """,
                     (
-                        month,
+                        payroll_month,
                         basic_salary,
                         allowance,
                         bonus,
                         deduction,
                         net_salary,
-                        id
+                        payroll_id
                     )
                 )
 
+
+                # =================================================
+                # COMMIT
+                # =================================================
 
                 conn.commit()
 
@@ -18872,15 +18888,14 @@ def edit_payroll(id):
 
 
                 return redirect(
-                    url_for(
-                        "admin_payroll"
-                    )
+                    url_for("admin_payroll")
                 )
 
 
     except ValueError as e:
 
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         flash(
             str(e),
@@ -18890,10 +18905,12 @@ def edit_payroll(id):
 
     except Exception:
 
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         app.logger.exception(
-            "Error editing payroll."
+            "Error editing payroll %s.",
+            payroll_id
         )
 
         flash(
@@ -18904,15 +18921,19 @@ def edit_payroll(id):
 
     finally:
 
-        conn.close()
+        if conn:
+            conn.close()
 
+
+    # =========================================================
+    # SHOW EDIT PAGE
+    # =========================================================
 
     return render_template(
         "edit_payroll.html",
         payroll=payroll
     )
 
-
 # ============================================================
 # MARK PAYROLL AS PAID
 # ============================================================
@@ -18920,17 +18941,18 @@ def edit_payroll(id):
 # ============================================================
 # MARK PAYROLL AS PAID
 # ============================================================
-
 @app.route(
-    "/admin/payroll/<int:id>/pay",
+    "/admin/payroll/<int:payroll_id>/pay",
     methods=["POST"]
 )
 @require_admin
-def pay_payroll(id):
+def pay_payroll(payroll_id):
 
-    conn = get_db()
+    conn = None
 
     try:
+
+        conn = get_db()
 
         with conn.cursor() as cur:
 
@@ -18943,11 +18965,12 @@ def pay_payroll(id):
                 SELECT
                     p.id,
                     p.application_id,
-                    p.month,
+                    p.payroll_month,
                     p.net_salary,
                     p.payment_status,
 
                     a.first_name,
+                    a.middle_name,
                     a.last_name,
                     a.status AS application_status
 
@@ -18960,7 +18983,7 @@ def pay_payroll(id):
 
                 LIMIT 1
                 """,
-                (id,)
+                (payroll_id,)
             )
 
             payroll = cur.fetchone()
@@ -18981,7 +19004,11 @@ def pay_payroll(id):
             # ONLY APPROVED APPLICANTS
             # =================================================
 
-            if payroll["application_status"] != "Approved":
+            if (
+                not payroll["application_status"]
+                or payroll["application_status"].strip().lower()
+                != "approved"
+            ):
 
                 flash(
                     "Payroll can only be paid for approved applicants.",
@@ -18997,7 +19024,11 @@ def pay_payroll(id):
             # PREVENT DOUBLE PAYMENT
             # =================================================
 
-            if payroll["payment_status"] == "Paid":
+            if (
+                payroll["payment_status"]
+                and payroll["payment_status"].strip().lower()
+                == "paid"
+            ):
 
                 flash(
                     "This payroll has already been paid.",
@@ -19019,12 +19050,12 @@ def pay_payroll(id):
 
                 SET
                     payment_status = 'Paid',
-                    payment_date = CURRENT_TIMESTAMP,
+                    paid_at = CURRENT_TIMESTAMP,
                     updated_at = CURRENT_TIMESTAMP
 
                 WHERE id = %s
                 """,
-                (id,)
+                (payroll_id,)
             )
 
 
@@ -19054,6 +19085,17 @@ def pay_payroll(id):
                     and notification_table["exists"]
                 ):
 
+                    employee_name = " ".join(
+                        part
+                        for part in [
+                            payroll["first_name"],
+                            payroll["middle_name"],
+                            payroll["last_name"]
+                        ]
+                        if part
+                    )
+
+
                     cur.execute(
                         """
                         INSERT INTO notifications (
@@ -19076,19 +19118,20 @@ def pay_payroll(id):
                             "Salary Payment",
 
                             (
-                                f"Your salary for "
-                                f"{payroll['month']} "
+                                f"Dear {employee_name}, "
+                                f"your salary for "
+                                f"{payroll['payroll_month']} "
                                 f"has been marked as paid. "
                                 f"Net salary: "
-                                f"₦{payroll['net_salary']}"
+                                f"₦{float(payroll['net_salary'] or 0):,.2f}"
                             )
                         )
                     )
 
             except Exception:
 
-                # Notification failure should not
-                # cancel the salary payment.
+                # Notification failure should NOT
+                # prevent the salary payment.
 
                 app.logger.exception(
                     "Unable to create payroll notification."
@@ -19110,7 +19153,8 @@ def pay_payroll(id):
 
     except Exception:
 
-        conn.rollback()
+        if conn:
+            conn.rollback()
 
         app.logger.exception(
             "Error paying payroll."
@@ -19124,13 +19168,13 @@ def pay_payroll(id):
 
     finally:
 
-        conn.close()
+        if conn:
+            conn.close()
 
 
     return redirect(
         url_for("admin_payroll")
     )
-
 
 # ============================================================
 # APPLICANT PAYROLL
