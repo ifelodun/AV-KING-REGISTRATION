@@ -958,6 +958,10 @@ def init_db():
                 """
             )
 
+            # ============================================================
+            # PAYROLL TABLE
+            # ============================================================
+            
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS payroll (
@@ -966,8 +970,7 @@ def init_db():
             
                     application_id INTEGER NOT NULL,
             
-                    payroll_month VARCHAR(30)
-                        NOT NULL,
+                    payroll_month VARCHAR(30) NOT NULL,
             
                     basic_salary NUMERIC(14, 2)
                         NOT NULL DEFAULT 0,
@@ -1012,6 +1015,12 @@ def init_db():
                 )
                 """
             )
+            
+            
+            # ============================================================
+            # PAYROLL INDEXES
+            # ============================================================
+            
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -1020,22 +1029,8 @@ def init_db():
                 ON payroll(application_id)
                 """
             )
-            cur.execute(
-                """
-                SELECT
-                    id,
-                    application_number,
-                    first_name,
-                    middle_name,
-                    last_name,
-                    position_applied
-                FROM applications
-                WHERE status = 'Approved'
-                ORDER BY first_name ASC, last_name ASC
-                """
-            )
             
-            approved_applicants = cur.fetchall()
+            
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -1045,6 +1040,7 @@ def init_db():
                 """
             )
             
+            
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS
@@ -1052,22 +1048,6 @@ def init_db():
             
                 ON payroll(payroll_month)
                 """
-            )
-            cur.execute(
-                """
-                UPDATE payroll
-            
-                SET
-            
-                    payment_status = 'Paid',
-            
-                    paid_at = CURRENT_TIMESTAMP,
-            
-                    updated_at = CURRENT_TIMESTAMP
-            
-                WHERE id = %s
-                """,
-                (payroll_id,)
             )
             cur.execute(
                 """
