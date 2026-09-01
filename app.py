@@ -20211,7 +20211,363 @@ def applicant_payslip(id):
 
             pass
 
+@app.route(
+    "/admin/payroll/delete/<int:payroll_id>",
+    methods=["POST"]
+)
+@login_required
+def delete_payroll(payroll_id):
 
+    if current_user.role != "admin":
+
+        flash(
+            "Access Denied.",
+            "error"
+        )
+
+        return redirect(
+            url_for("dashboard")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # GET PAYROLL
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+
+                    id,
+
+                    payment_status
+
+                FROM payroll
+
+                WHERE id = %s
+
+                LIMIT 1
+                """,
+                (
+                    payroll_id,
+                )
+            )
+
+            payroll = cur.fetchone()
+
+
+            if not payroll:
+
+                flash(
+                    "Payroll record not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # BLOCK PAID PAYROLL DELETION
+            # =================================================
+
+            if payroll["payment_status"] == "Paid":
+
+                flash(
+                    "Paid payroll cannot be deleted.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # DELETE
+            # =================================================
+
+            cur.execute(
+                """
+                DELETE FROM payroll
+
+                WHERE id = %s
+                """,
+                (
+                    payroll_id,
+                )
+            )
+
+            conn.commit()
+
+
+        flash(
+            "Payroll record deleted successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error deleting payroll."
+        )
+
+        flash(
+            "Unable to delete payroll.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    finally:
+
+        conn.close()
+
+@app.route(
+    "/admin/payroll/pay/<int:payroll_id>",
+    methods=["POST"]
+)
+@login_required
+def pay_payroll(payroll_id):
+
+    if current_user.role != "admin":
+
+        flash(
+            "Access Denied.",
+            "error"
+        )
+
+        return redirect(
+            url_for("dashboard")
+        )
+
+
+    conn = get_db()
+
+    try:
+
+        with conn.cursor() as cur:
+
+            # =================================================
+            # GET PAYROLL + APPLICANT
+            # =================================================
+
+            cur.execute(
+                """
+                SELECT
+
+                    p.id,
+
+                    p.application_id,
+
+                    p.month,
+
+                    p.net_salary,
+
+                    p.payment_status,
+
+                    a.first_name,
+
+                    a.last_name,
+
+                    a.status
+
+                FROM payroll p
+
+                INNER JOIN applications a
+                    ON a.id = p.application_id
+
+                WHERE p.id = %s
+
+                LIMIT 1
+                """,
+                (
+                    payroll_id,
+                )
+            )
+
+            payroll = cur.fetchone()
+
+
+            if not payroll:
+
+                flash(
+                    "Payroll record not found.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # APPROVAL CHECK
+            # =================================================
+
+            if payroll["status"] != "Approved":
+
+                flash(
+                    "Payroll can only be paid for approved applicants.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # ALREADY PAID
+            # =================================================
+
+            if payroll["payment_status"] == "Paid":
+
+                flash(
+                    "This payroll has already been paid.",
+                    "warning"
+                )
+
+                return redirect(
+                    url_for("admin_payroll")
+                )
+
+
+            # =================================================
+            # MARK AS PAID
+            # =================================================
+
+            cur.execute(
+                """
+                UPDATE payroll
+
+                SET
+
+                    payment_status = 'Paid',
+
+                    paid_at = CURRENT_TIMESTAMP,
+
+                    updated_at = CURRENT_TIMESTAMP
+
+                WHERE id = %s
+                """,
+                (
+                    payroll_id,
+                )
+            )
+
+
+            # =================================================
+            # OPTIONAL APPLICANT NOTIFICATION
+            #
+            # Only execute this if your notifications table
+            # already exists.
+            # =================================================
+
+            try:
+
+                cur.execute(
+                    """
+                    INSERT INTO notifications (
+
+                        application_id,
+
+                        title,
+
+                        message,
+
+                        created_at
+
+                    )
+
+                    VALUES (
+
+                        %s,
+
+                        %s,
+
+                        %s,
+
+                        CURRENT_TIMESTAMP
+
+                    )
+                    """,
+                    (
+                        payroll["application_id"],
+
+                        "Salary Payment",
+
+                        (
+                            f"Your salary for "
+                            f"{payroll['month']} "
+                            f"has been marked as paid. "
+                            f"Net salary: "
+                            f"₦{payroll['net_salary']}"
+                        )
+                    )
+                )
+
+            except Exception:
+
+                # Don't allow a notification problem
+                # to prevent payroll payment.
+
+                app.logger.exception(
+                    "Unable to create payroll notification."
+                )
+
+
+            conn.commit()
+
+
+        flash(
+            "Payroll marked as paid successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    except Exception:
+
+        conn.rollback()
+
+        app.logger.exception(
+            "Error paying payroll."
+        )
+
+        flash(
+            "Unable to process payroll payment.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    finally:
+
+        conn.close()
 
 # ============================================================
 # INITIALIZE DATABASE
