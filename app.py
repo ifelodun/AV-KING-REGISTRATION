@@ -19361,7 +19361,134 @@ def applicant_payroll():
     finally:
         if conn:
             conn.close()
+@app.route(
+    "/applicant/payroll/<int:payroll_id>/payslip",
+    methods=["GET"]
+)
+def applicant_payslip(payroll_id):
+    """
+    Display a payslip for the logged-in applicant.
+    """
 
+    application_id = session.get("applicant_id")
+
+    if not application_id:
+        flash(
+            "Please log in to your applicant portal first.",
+            "warning"
+        )
+        return redirect(
+            url_for("applicant_login")
+        )
+
+    conn = None
+
+    try:
+        conn = get_db()
+
+        with conn.cursor() as cur:
+
+            # =========================================================
+            # LOAD PAYROLL
+            # =========================================================
+            cur.execute("""
+                SELECT
+                    p.id,
+                    p.application_id,
+                    p.payroll_month,
+                    p.basic_salary,
+                    p.allowance,
+                    p.bonus,
+                    p.deduction,
+                    p.net_salary,
+                    p.payment_status,
+                    p.paid_at,
+                    p.created_at,
+                    p.updated_at,
+
+                    a.application_number,
+                    a.first_name,
+                    a.middle_name,
+                    a.last_name,
+                    a.position_applied,
+                    a.phone,
+                    a.email,
+                    a.address,
+                    a.status AS application_status
+
+                FROM payroll p
+
+                INNER JOIN applications a
+                    ON a.id = p.application_id
+
+                WHERE p.id = %s
+                  AND p.application_id = %s
+
+                LIMIT 1
+            """, (
+                payroll_id,
+                application_id
+            ))
+
+            payroll = cur.fetchone()
+
+            if not payroll:
+                flash(
+                    "Payslip not found.",
+                    "danger"
+                )
+                return redirect(
+                    url_for("applicant_payroll")
+                )
+
+            # =========================================================
+            # CHECK APPROVAL
+            # =========================================================
+            application_status = str(
+                payroll["application_status"] or ""
+            ).strip().lower()
+
+            if application_status != "approved":
+                flash(
+                    "Payslip is only available to approved applicants.",
+                    "warning"
+                )
+                return redirect(
+                    url_for("applicant_portal")
+                )
+
+        # =============================================================
+        # RENDER PAYSLIP
+        # =============================================================
+        return render_template(
+            "applicant_payslip.html",
+            payroll=payroll,
+            applicant=payroll
+        )
+
+    except Exception:
+
+        if conn:
+            conn.rollback()
+
+        app.logger.exception(
+            "Error loading applicant payslip %s.",
+            payroll_id
+        )
+
+        flash(
+            "Unable to load your payslip at the moment.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant_payroll")
+        )
+
+    finally:
+
+        if conn:
+            conn.close()
 
 # ============================================================
 # APPLICANT PAYSLIP
