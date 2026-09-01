@@ -2658,170 +2658,270 @@
                 <!-- =================================================
                      DOCUMENTS
                 ================================================== -->
+<!-- =========================================================
+     APPLICANT DOCUMENTS
+========================================================= -->
 
-                <section class="details-card">
+<section class="details-card">
 
-                    <div class="details-card-heading">
+    <div class="details-card-heading">
 
-                        <span>
-                            DOCUMENTS
-                        </span>
+        <span>
+            DOCUMENTS
+        </span>
 
-                        <h2>
-                            Applicant Attachments
-                        </h2>
+        <h2>
+            Applicant Documents
+        </h2>
 
-                        <p>
-                            View or download each applicant document
-                            directly from secure Cloudinary storage.
-                        </p>
+        <p>
+            View or download the applicant's uploaded documents.
+            Files are securely stored in Cloudinary.
+        </p>
+
+    </div>
+
+
+    <div class="documents-list">
+
+
+        <!-- =================================================
+             CV
+        ================================================== -->
+
+        {% if application.cv_filename %}
+
+            <div class="document-item">
+
+                <div class="document-info">
+
+                    <div class="document-icon">
+                        CV
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Curriculum Vitae
+                        </strong>
+
+                        <small>
+                            Applicant CV
+                        </small>
 
                     </div>
 
-
-                    <div class="documents-list">
-
-
-                        <!-- =================================================
-                             CV
-                        ================================================== -->
-
-                        {% if application.cv_filename %}
-
-                            <div class="document-item">
-
-                                <div class="document-info">
-
-                                    <div class="document-icon">
-                                        CV
-                                    </div>
-
-                                    <div class="document-name">
-
-                                        <strong>
-                                            Curriculum Vitae
-                                        </strong>
-
-                                        <small>
-                                            {{ application.cv_filename }}
-                                        </small>
-
-                                    </div>
-
-                                </div>
+                </div>
 
 
-                                <div class="document-actions">
+                <div class="document-actions">
+
+                    <!-- VIEW -->
+
+                    <a
+                        href="{{ url_for(
+                            'admin_view_application_document',
+                            application_id=application.id,
+                            document_type='cv'
+                        ) }}"
+                        class="document-btn document-view"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View
+                    </a>
 
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_view_file',
-                                            filename=application.cv_filename
-                                        ) }}"
-                                        class="document-action document-view"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        👁 View
-                                    </a>
+                    <!-- DOWNLOAD -->
 
+                    <a
+                        href="{{ url_for(
+                            'admin_download_application_document',
+                            application_id=application.id,
+                            document_type='cv'
+                        ) }}"
+                        class="document-btn document-download"
+                    >
+                        Download
+                    </a>
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_download_file',
-                                            filename=application.cv_filename
-                                        ) }}"
-                                        class="document-action document-download"
-                                    >
-                                        ↓ Download
-                                    </a>
+                </div>
 
-                                </div>
+            </div>
 
-                            </div>
+        {% else %}
 
-                        {% else %}
+            <div class="document-missing">
+                No CV was uploaded by this applicant.
+            </div>
 
-                            <div class="document-missing">
-                                No CV uploaded.
-                            </div>
-
-                        {% endif %}
+        {% endif %}
 
 
 
-                        <!-- =================================================
-                             RESULT / QUALIFICATION
-                        ================================================== -->
+        <!-- =================================================
+             RESULT / QUALIFICATION
+        ================================================== -->
 
-                        {% if application.qualification_filename %}
+        {% if application.qualification_filename %}
 
-                            <div class="document-item">
+            <div class="document-item">
 
-                                <div class="document-info">
+                <div class="document-info">
 
-                                    <div class="document-icon">
-                                        PDF
-                                    </div>
+                    <div class="document-icon">
+                        RES
+                    </div>
 
-                                    <div class="document-name">
+                    <div>
 
-                                        <strong>
-                                            Qualification / Result
-                                        </strong>
+                        <strong>
+                            Result / Qualification
+                        </strong>
 
-                                        <small>
-                                            {{ application.qualification_filename }}
-                                        </small>
+                        <small>
+                            Academic result or qualification
+                        </small>
 
-                                    </div>
+                    </div>
 
-                                </div>
-
-
-                                <div class="document-actions">
+                </div>
 
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_view_file',
-                                            filename=application.qualification_filename
-                                        ) }}"
-                                        class="document-action document-view"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        👁 View
-                                    </a>
+                <div class="document-actions">
+
+                    <!-- VIEW -->
+
+                    <a
+                        href="{{ url_for(
+                            'admin_view_application_document',
+                            application_id=application.id,
+                            document_type='result'
+                        ) }}"
+                        class="document-btn document-view"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View
+                    </a>
 
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_download_file',
-                                            filename=application.qualification_filename
-                                        ) }}"
-                                        class="document-action document-download"
-                                    >
-                                        ↓ Download
-                                    </a>
+                    <!-- DOWNLOAD -->
 
-                                </div>
+                    <a
+                        href="{{ url_for(
+                            'admin_download_application_document',
+                            application_id=application.id,
+                            document_type='result'
+                        ) }}"
+                        class="document-btn document-download"
+                    >
+                        Download
+                    </a>
 
-                            </div>
+                </div>
 
-                        {% else %}
+            </div>
 
-                            <div class="document-missing">
-                                No qualification/result document
-                                uploaded.
-                            </div>
+        {% else %}
 
-                        {% endif %}
+            <div class="document-missing">
+                No result or qualification document was uploaded.
+            </div>
+
+        {% endif %}
 
 
 
-                        <!-- =================================================
+        <!-- =================================================
+             PASSPORT
+        ================================================== -->
+
+        {% if application.passport_filename %}
+
+            <div class="document-item">
+
+                <div class="document-info">
+
+                    <div class="document-icon">
+                        IMG
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Passport Photograph
+                        </strong>
+
+                        <small>
+                            Applicant passport photograph
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="document-actions">
+
+                    <!-- VIEW -->
+
+                    <a
+                        href="{{ url_for(
+                            'admin_view_application_document',
+                            application_id=application.id,
+                            document_type='passport'
+                        ) }}"
+                        class="document-btn document-view"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        View
+                    </a>
+
+
+                    <!-- DOWNLOAD -->
+
+                    <a
+                        href="{{ url_for(
+                            'admin_download_application_document',
+                            application_id=application.id,
+                            document_type='passport'
+                        ) }}"
+                        class="document-btn document-download"
+                    >
+                        Download
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="document-missing">
+                No passport photograph was uploaded.
+            </div>
+
+        {% endif %}
+
+
+        <div class="cloudinary-note">
+
+            <strong>Cloudinary Storage</strong>
+
+            <br>
+
+            Applicant documents are stored remotely in Cloudinary.
+            They do not depend on Render's temporary filesystem.
+
+        </div>
+
+    </div>
+
+</section>
+                
+                <!-- =================================================
                              PASSPORT
                         ================================================== -->
 
