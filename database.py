@@ -1055,6 +1055,22 @@ def init_db():
             )
             cur.execute(
                 """
+                UPDATE payroll
+            
+                SET
+            
+                    payment_status = 'Paid',
+            
+                    paid_at = CURRENT_TIMESTAMP,
+            
+                    updated_at = CURRENT_TIMESTAMP
+            
+                WHERE id = %s
+                """,
+                (payroll_id,)
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS applicant_messages (
             
                     id BIGSERIAL PRIMARY KEY,
