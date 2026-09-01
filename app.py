@@ -11073,26 +11073,48 @@ def admin_settings():
         "admin_settings.html",
         settings=settings
     )
+# ============================================================
+# ADMIN APPLICATION DOCUMENT ROUTES
+# CLOUDINARY
+# ============================================================
 
-@app.route("/admin/download-file/<path:filename>")
-def admin_download_file(filename):
+@app.route(
+    "/admin/application/<int:application_id>/document/<string:document_type>/<string:action>"
+)
+def admin_application_document(
+    application_id,
+    document_type,
+    action
+):
 
-    # =========================================================
+    # ========================================================
     # ADMIN AUTHENTICATION
-    # =========================================================
+    # ========================================================
 
     if not admin_required():
-        return redirect(url_for("admin_login"))
 
-    # =========================================================
-    # BASIC VALIDATION
-    # =========================================================
+        return redirect(
+            url_for("admin_login")
+        )
 
-    requested_filename = str(filename or "").strip()
+    # ========================================================
+    # VALIDATE DOCUMENT TYPE
+    # ========================================================
 
-    if not requested_filename:
+    document_map = {
+
+        "cv": "cv_filename",
+
+        "passport": "passport_filename",
+
+        "result": "qualification_filename"
+
+    }
+
+    if document_type not in document_map:
+
         flash(
-            "Invalid document requested.",
+            "Invalid document type.",
             "error"
         )
 
@@ -11100,11 +11122,29 @@ def admin_download_file(filename):
             url_for("admin_applications")
         )
 
-    # =========================================================
-    # DATABASE
-    # =========================================================
+    # ========================================================
+    # VALIDATE ACTION
+    # ========================================================
 
-    applicant = None
+    if action not in (
+        "view",
+        "download"
+    ):
+
+        flash(
+            "Invalid document action.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_applications")
+        )
+
+    # ========================================================
+    # GET APPLICATION
+    # ========================================================
+
+    application = None
 
     try:
 
@@ -11114,52 +11154,27 @@ def admin_download_file(filename):
 
             with conn.cursor() as cur:
 
-                # -------------------------------------------------
-                # Find the application containing this document.
-                #
-                # We check the complete stored values because
-                # Cloudinary may store:
-                #
-                #   https://res.cloudinary.com/...
-                #
-                # rather than only:
-                #
-                #   filename.pdf
-                # -------------------------------------------------
-
                 cur.execute(
                     """
                     SELECT
                         id,
                         application_number,
                         first_name,
+                        middle_name,
                         last_name,
                         passport_filename,
                         cv_filename,
                         qualification_filename
                     FROM applications
-                    WHERE
-                        passport_filename = %s
-                        OR cv_filename = %s
-                        OR qualification_filename = %s
-                        OR passport_filename LIKE %s
-                        OR cv_filename LIKE %s
-                        OR qualification_filename LIKE %s
-                    ORDER BY id DESC
+                    WHERE id = %s
                     LIMIT 1
                     """,
                     (
-                        requested_filename,
-                        requested_filename,
-                        requested_filename,
-
-                        "%" + requested_filename + "%",
-                        "%" + requested_filename + "%",
-                        "%" + requested_filename + "%"
+                        application_id,
                     )
                 )
 
-                applicant = cur.fetchone()
+                application = cur.fetchone()
 
         finally:
 
@@ -11168,12 +11183,11 @@ def admin_download_file(filename):
     except Exception:
 
         app.logger.exception(
-            "Error locating applicant document: %s",
-            requested_filename
+            "Error loading application document."
         )
 
         flash(
-            "Unable to locate the requested document.",
+            "Unable to access the application document.",
             "error"
         )
 
@@ -11181,19 +11195,14 @@ def admin_download_file(filename):
             url_for("admin_applications")
         )
 
-    # =========================================================
+    # ========================================================
     # APPLICATION NOT FOUND
-    # =========================================================
+    # ========================================================
 
-    if not applicant:
-
-        app.logger.warning(
-            "No application found for document: %s",
-            requested_filename
-        )
+    if not application:
 
         flash(
-            "The requested document could not be found.",
+            "Application not found.",
             "error"
         )
 
@@ -11201,173 +11210,194 @@ def admin_download_file(filename):
             url_for("admin_applications")
         )
 
-    # =========================================================
-    # DETERMINE WHICH DOCUMENT WAS REQUESTED
-    # =========================================================
+    # ========================================================
+    # GET STORED CLOUDINARY VALUE
+    # ========================================================
 
-    stored_document = None
-    document_type = None
-
-    possible_documents = [
-
-        (
-            "Passport Photograph",
-            applicant["passport_filename"]
-        ),
-
-        (
-            "Curriculum Vitae",
-            applicant["cv_filename"]
-        ),
-
-        (
-            "Qualification / Result",
-            applicant["qualification_filename"]
-        )
-
+    column_name = document_map[
+        document_type
     ]
 
-    # ---------------------------------------------------------
-    # First: exact match
-    # ---------------------------------------------------------
+    cloudinary_url = application[
+        column_name
+    ]
 
-    for doc_type, value in possible_documents:
+    # ========================================================
+    # DOCUMENT DOES NOT EXIST
+    # ========================================================
 
-        if not value:
-            continue
+    if not cloudinary_url:
 
-        value = str(value).strip()
+        document_names = {
 
-        if value == requested_filename:
+            "cv": "CV",
 
-            stored_document = value
-            document_type = doc_type
+            "passport": "passport photograph",
 
-            break
+            "result": "qualification/result"
 
-    # ---------------------------------------------------------
-    # Second: filename contained inside Cloudinary URL
-    # ---------------------------------------------------------
-
-    if not stored_document:
-
-        requested_clean = requested_filename.lower()
-
-        for doc_type, value in possible_documents:
-
-            if not value:
-                continue
-
-            value = str(value).strip()
-
-            value_without_query = value.split("?", 1)[0]
-
-            basename = os.path.basename(
-                value_without_query
-            )
-
-            if (
-                basename.lower() == requested_clean
-                or
-                requested_clean in value_without_query.lower()
-            ):
-
-                stored_document = value
-                document_type = doc_type
-
-                break
-
-    # =========================================================
-    # DOCUMENT NOT FOUND
-    # =========================================================
-
-    if not stored_document:
-
-        app.logger.warning(
-            "Document matched application %s but URL/value "
-            "could not be determined. Requested=%s",
-            applicant["id"],
-            requested_filename
-        )
+        }
 
         flash(
-            "The requested document is unavailable.",
+            f"No {document_names[document_type]} "
+            f"was uploaded for this applicant.",
             "error"
         )
 
         return redirect(
             url_for(
                 "admin_application_details",
-                application_id=applicant["id"]
+                application_id=application_id
             )
         )
 
-    # =========================================================
-    # CLOUDINARY URL
-    # =========================================================
+    cloudinary_url = str(
+        cloudinary_url
+    ).strip()
 
-    cloudinary_url = stored_document.strip()
+    # ========================================================
+    # VALIDATE CLOUDINARY URL
+    # ========================================================
 
     if not (
-        cloudinary_url.startswith("https://")
+        cloudinary_url.startswith(
+            "https://"
+        )
         or
-        cloudinary_url.startswith("http://")
+        cloudinary_url.startswith(
+            "http://"
+        )
     ):
 
         app.logger.warning(
-            "Applicant document is not a valid remote URL. "
-            "Application=%s Document=%s",
-            applicant["id"],
+            "Invalid Cloudinary URL for application %s: %s",
+            application_id,
             cloudinary_url
         )
 
         flash(
-            "This document does not contain a valid Cloudinary URL.",
+            "The stored document URL is invalid.",
             "error"
         )
 
         return redirect(
             url_for(
                 "admin_application_details",
-                application_id=applicant["id"]
+                application_id=application_id
             )
         )
 
-    # =========================================================
-    # LOG ACCESS
-    # =========================================================
+    # ========================================================
+    # VIEW DOCUMENT
+    # ========================================================
 
-    app.logger.info(
-        "ADMIN DOCUMENT ACCESS | Application=%s | Applicant=%s %s "
-        "| Type=%s | URL=%s",
-        applicant["application_number"],
-        applicant["first_name"],
-        applicant["last_name"],
-        document_type,
-        cloudinary_url
-    )
+    if action == "view":
 
-    # =========================================================
-    # RETURN CLOUDINARY FILE
-    # =========================================================
-    #
-    # Cloudinary normally allows the browser to display PDFs and
-    # images directly.
-    #
-    # The safest approach here is to redirect to the actual
-    # Cloudinary resource.
-    #
-    # For the passport, opening the image directly is useful.
-    # For CV/result PDFs, the browser can display them and the
-    # applicant/admin can use the browser download button.
-    #
-    # =========================================================
+        app.logger.info(
+            "ADMIN VIEW DOCUMENT | application=%s | type=%s",
+            application_id,
+            document_type
+        )
 
-    return redirect(
-        cloudinary_url
-    )
+        return redirect(
+            cloudinary_url
+        )
 
+    # ========================================================
+    # DOWNLOAD DOCUMENT
+    # ========================================================
 
+    if action == "download":
+
+        try:
+
+            parsed = urlsplit(
+                cloudinary_url
+            )
+
+            path = parsed.path
+
+            # ------------------------------------------------
+            # Cloudinary delivery URL normally contains:
+            #
+            # /image/upload/
+            # /raw/upload/
+            #
+            # We insert:
+            #
+            # fl_attachment
+            #
+            # immediately after /upload/
+            # ------------------------------------------------
+
+            upload_marker = "/upload/"
+
+            if upload_marker in path:
+
+                path = path.replace(
+                    upload_marker,
+                    "/upload/fl_attachment/",
+                    1
+                )
+
+            else:
+
+                app.logger.warning(
+                    "Cloudinary upload marker not found: %s",
+                    cloudinary_url
+                )
+
+                flash(
+                    "Unable to prepare the document for download.",
+                    "error"
+                )
+
+                return redirect(
+                    url_for(
+                        "admin_application_details",
+                        application_id=application_id
+                    )
+                )
+
+            download_url = urlunsplit(
+                (
+                    parsed.scheme,
+                    parsed.netloc,
+                    path,
+                    parsed.query,
+                    parsed.fragment
+                )
+            )
+
+            app.logger.info(
+                "ADMIN DOWNLOAD DOCUMENT | application=%s "
+                "| type=%s | url=%s",
+                application_id,
+                document_type,
+                download_url
+            )
+
+            return redirect(
+                download_url
+            )
+
+        except Exception:
+
+            app.logger.exception(
+                "Error preparing Cloudinary document download."
+            )
+
+            flash(
+                "Unable to download the requested document.",
+                "error"
+            )
+
+            return redirect(
+                url_for(
+                    "admin_application_details",
+                    application_id=application_id
+                )
+            )
 
 @app.route("/admin/reports/export/pdf")
 def export_admin_reports_pdf():
