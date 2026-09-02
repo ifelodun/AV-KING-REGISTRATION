@@ -9,7 +9,7 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 <style>
 
     .edit-payroll-page {
-        max-width: 850px;
+        max-width: 900px;
         margin: 0 auto;
         padding: 35px 20px 70px;
     }
@@ -25,6 +25,10 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         text-decoration: none;
         font-size: 13px;
         font-weight: 700;
+    }
+
+    .back-link:hover {
+        color: #111827;
     }
 
     .edit-header h1 {
@@ -45,23 +49,24 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         border: 1px solid #e5e7eb;
         border-radius: 18px;
         padding: 30px;
-        box-shadow: 0 6px 25px rgba(15,23,42,.04);
+        box-shadow: 0 6px 25px rgba(15, 23, 42, .04);
     }
 
     .staff-summary {
         display: flex;
         align-items: center;
         gap: 15px;
-        padding: 17px;
-        margin-bottom: 28px;
+        padding: 18px;
+        margin-bottom: 30px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        border-radius: 13px;
     }
 
     .staff-avatar {
-        width: 46px;
-        height: 46px;
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
         border-radius: 50%;
         background: #111827;
         color: #ffffff;
@@ -69,18 +74,31 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         align-items: center;
         justify-content: center;
         font-weight: 800;
+        font-size: 18px;
     }
 
     .staff-name {
         color: #111827;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 800;
     }
 
     .staff-details {
-        margin-top: 3px;
+        margin-top: 5px;
         color: #64748b;
         font-size: 12px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        margin-top: 7px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #dcfce7;
+        color: #166534;
+        font-size: 11px;
+        font-weight: 800;
     }
 
     .section-title {
@@ -126,15 +144,28 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         color: #111827;
         font-size: 14px;
         outline: none;
+        transition: .2s ease;
     }
 
     .form-group input:focus,
     .form-group select:focus {
         border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, .06);
+    }
+
+    .form-group input:disabled,
+    .form-group select:disabled {
+        background: #f8fafc;
+        cursor: not-allowed;
+    }
+
+    .field-help {
+        color: #94a3b8;
+        font-size: 11px;
     }
 
     .net-preview {
-        padding: 18px;
+        padding: 20px;
         margin-bottom: 25px;
         border-radius: 12px;
         background: #ecfdf5;
@@ -152,8 +183,30 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
     .net-preview-value {
         margin-top: 4px;
         color: #065f46;
-        font-size: 25px;
+        font-size: 26px;
         font-weight: 850;
+    }
+
+    .payment-info {
+        padding: 16px 18px;
+        margin-bottom: 25px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .payment-info-title {
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .payment-info-text {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
     }
 
     .form-actions {
@@ -172,6 +225,10 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         font-weight: 750;
         cursor: pointer;
         text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: .2s ease;
     }
 
     .btn-cancel {
@@ -179,12 +236,27 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         color: #475569;
     }
 
+    .btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
     .btn-save {
         background: #111827;
         color: #ffffff;
     }
 
-    @media(max-width:600px) {
+    .btn-save:hover {
+        background: #1f2937;
+        transform: translateY(-1px);
+    }
+
+    .btn-save:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    @media(max-width: 600px) {
 
         .edit-payroll-page {
             padding: 20px 12px 50px;
@@ -204,8 +276,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
         .btn {
             width: 100%;
-            text-align: center;
         }
+
     }
 
 </style>
@@ -213,10 +285,12 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
 <div class="edit-payroll-page">
 
+    <!-- HEADER -->
+
     <div class="edit-header">
 
         <a
-            href="{{ url_for('payrolls') }}"
+            href="{{ url_for('admin_payroll') }}"
             class="back-link"
         >
             ← Back to Payroll
@@ -227,41 +301,66 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         </h1>
 
         <p>
-            Update this salary record carefully before saving.
+            Update this employee salary record carefully before saving.
         </p>
 
     </div>
 
 
+    <!-- EDIT CARD -->
+
     <form
         method="POST"
+        action="{{ url_for('edit_payroll', payroll_id=payroll.id) }}"
         class="edit-card"
+        id="payrollForm"
     >
 
-        <!-- STAFF SUMMARY -->
+        <!-- EMPLOYEE SUMMARY -->
 
         <div class="staff-summary">
 
             <div class="staff-avatar">
 
-                {{ payroll.fullname[:1]|upper }}
+                {{
+                    (
+                        payroll.first_name[:1]
+                        if payroll.first_name
+                        else "E"
+                    ) | upper
+                }}
 
             </div>
 
             <div>
 
                 <div class="staff-name">
-                    {{ payroll.fullname }}
+
+                    {{ payroll.first_name }}
+
+                    {% if payroll.middle_name %}
+                        {{ payroll.middle_name }}
+                    {% endif %}
+
+                    {{ payroll.last_name }}
+
                 </div>
 
                 <div class="staff-details">
 
-                    {{ payroll.application_number }}
+                    Application No:
+                    <strong>
+                        {{ payroll.application_number }}
+                    </strong>
 
-                    {% if payroll.position %}
-                        · {{ payroll.position }}
+                    {% if payroll.position_applied %}
+                        · {{ payroll.position_applied }}
                     {% endif %}
 
+                </div>
+
+                <div class="status-badge">
+                    Approved Applicant
                 </div>
 
             </div>
@@ -284,51 +383,40 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
             <div class="form-group">
 
-                <label for="month">
+                <label for="payroll_month">
                     Payroll Month
                 </label>
 
                 <input
                     type="month"
-                    name="month"
-                    id="month"
-                    value="{{ payroll.month }}"
+                    name="payroll_month"
+                    id="payroll_month"
+                    value="{{ payroll.payroll_month }}"
                     required
                 >
+
+                <span class="field-help">
+                    Select the month this salary belongs to.
+                </span>
 
             </div>
 
 
             <div class="form-group">
 
-                <label for="payment_status">
+                <label>
                     Payment Status
                 </label>
 
-                <select
-                    name="payment_status"
-                    id="payment_status"
+                <input
+                    type="text"
+                    value="{{ payroll.payment_status or 'Pending' }}"
+                    disabled
                 >
 
-                    <option
-                        value="Pending"
-                        {% if payroll.payment_status == "Pending" %}
-                            selected
-                        {% endif %}
-                    >
-                        Pending
-                    </option>
-
-                    <option
-                        value="Paid"
-                        {% if payroll.payment_status == "Paid" %}
-                            selected
-                        {% endif %}
-                    >
-                        Paid
-                    </option>
-
-                </select>
+                <span class="field-help">
+                    Payment status is managed from the payment action.
+                </span>
 
             </div>
 
@@ -347,6 +435,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
 
         <div class="form-grid">
+
+            <!-- BASIC -->
 
             <div class="form-group">
 
@@ -367,6 +457,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
             </div>
 
 
+            <!-- ALLOWANCE -->
+
             <div class="form-group">
 
                 <label for="allowance">
@@ -385,6 +477,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
             </div>
 
 
+            <!-- BONUS -->
+
             <div class="form-group">
 
                 <label for="bonus">
@@ -402,6 +496,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
             </div>
 
+
+            <!-- DEDUCTION -->
 
             <div class="form-group">
 
@@ -423,6 +519,8 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
         </div>
 
 
+        <!-- NET SALARY -->
+
         <div class="net-preview">
 
             <div class="net-preview-label">
@@ -433,24 +531,64 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
                 class="net-preview-value"
                 id="netSalary"
             >
-                ₦{{ "{:,.2f}".format(payroll.net_salary or 0) }}
+                ₦{{
+                    "{:,.2f}".format(
+                        payroll.net_salary or 0
+                    )
+                }}
             </div>
 
         </div>
 
 
+        <!-- PAYMENT INFORMATION -->
+
+        {% if payroll.payment_status|lower == "paid" %}
+
+            <div class="payment-info">
+
+                <div class="payment-info-title">
+                    Payment Information
+                </div>
+
+                <div class="payment-info-text">
+
+                    This payroll has already been marked as
+                    <strong>Paid</strong>.
+
+                    {% if payroll.paid_at %}
+                        Payment date:
+                        <strong>
+                            {{ payroll.paid_at }}
+                        </strong>
+                    {% endif %}
+
+                    Editing the salary details will not change the
+                    existing payment status.
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- ACTIONS -->
+
         <div class="form-actions">
 
             <a
-                href="{{ url_for('payrolls') }}"
+                href="{{ url_for('admin_payroll') }}"
                 class="btn btn-cancel"
             >
                 Cancel
             </a>
 
+
             <button
                 type="submit"
                 class="btn btn-save"
+                id="saveButton"
             >
                 Save Changes
             </button>
@@ -464,58 +602,98 @@ Edit Payroll | AV KING VETERINARY BUSINESS SUITE
 
 <script>
 
-    const fields = [
-        document.getElementById("basic_salary"),
-        document.getElementById("allowance"),
-        document.getElementById("bonus"),
-        document.getElementById("deduction")
-    ];
+    const basicSalary =
+        document.getElementById("basic_salary");
 
-    const output =
+    const allowance =
+        document.getElementById("allowance");
+
+    const bonus =
+        document.getElementById("bonus");
+
+    const deduction =
+        document.getElementById("deduction");
+
+    const netSalary =
         document.getElementById("netSalary");
+
+    const payrollForm =
+        document.getElementById("payrollForm");
+
+    const saveButton =
+        document.getElementById("saveButton");
+
+
+    function money(value) {
+
+        return Number(value || 0).toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+    }
 
 
     function calculateNet() {
 
         const basic =
-            parseFloat(fields[0].value) || 0;
+            parseFloat(basicSalary.value) || 0;
 
-        const allowance =
-            parseFloat(fields[1].value) || 0;
+        const allowanceValue =
+            parseFloat(allowance.value) || 0;
 
-        const bonus =
-            parseFloat(fields[2].value) || 0;
+        const bonusValue =
+            parseFloat(bonus.value) || 0;
 
-        const deduction =
-            parseFloat(fields[3].value) || 0;
+        const deductionValue =
+            parseFloat(deduction.value) || 0;
 
 
         const net =
             basic +
-            allowance +
-            bonus -
-            deduction;
+            allowanceValue +
+            bonusValue -
+            deductionValue;
 
 
-        output.textContent =
-            "₦" +
-            net.toLocaleString(
-                "en-NG",
-                {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                }
-            );
+        netSalary.textContent =
+            "₦" + money(net);
+
     }
 
 
-    fields.forEach(
-        field =>
-            field.addEventListener(
-                "input",
-                calculateNet
-            )
+    [
+        basicSalary,
+        allowance,
+        bonus,
+        deduction
+    ].forEach(function(field) {
+
+        field.addEventListener(
+            "input",
+            calculateNet
+        );
+
+    });
+
+
+    payrollForm.addEventListener(
+        "submit",
+        function() {
+
+            saveButton.disabled = true;
+
+            saveButton.textContent =
+                "Saving...";
+
+        }
     );
+
+
+    calculateNet();
 
 </script>
 
