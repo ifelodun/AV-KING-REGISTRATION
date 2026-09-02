@@ -18656,13 +18656,12 @@ def edit_payroll(payroll_id):
     payroll = None
 
     try:
-
         conn = get_db()
 
         with conn.cursor() as cur:
 
             # =================================================
-            # GET PAYROLL + APPLICANT
+            # GET EXISTING PAYROLL
             # =================================================
 
             cur.execute(
@@ -18702,7 +18701,6 @@ def edit_payroll(payroll_id):
 
             payroll = cur.fetchone()
 
-
             # =================================================
             # PAYROLL NOT FOUND
             # =================================================
@@ -18718,16 +18716,15 @@ def edit_payroll(payroll_id):
                     url_for("admin_payroll")
                 )
 
-
             # =================================================
             # ONLY APPROVED APPLICANTS
             # =================================================
 
-            if (
-                not payroll["application_status"]
-                or payroll["application_status"].strip().lower()
-                != "approved"
-            ):
+            application_status = str(
+                payroll["application_status"] or ""
+            ).strip().lower()
+
+            if application_status != "approved":
 
                 flash(
                     "Payroll can only be edited for approved applicants.",
@@ -18738,170 +18735,290 @@ def edit_payroll(payroll_id):
                     url_for("admin_payroll")
                 )
 
-
             # =================================================
-            # PROCESS UPDATE
+            # PROCESS FORM
             # =================================================
 
             if request.method == "POST":
 
-                payroll_month = request.form.get(
-                    "payroll_month",
-                    ""
-                ).strip()
+                try:
 
+                    # =========================================
+                    # PAYROLL MONTH
+                    # =========================================
 
-                if not payroll_month:
+                    payroll_month = request.form.get(
+                        "payroll_month",
+                        ""
+                    ).strip()
 
-                    raise ValueError(
-                        "Please select a payroll month."
+                    if not payroll_month:
+
+                        raise ValueError(
+                            "Please select a payroll month."
+                        )
+
+                    # =========================================
+                    # SALARY VALUES
+                    # =========================================
+
+                    basic_salary = payroll_decimal(
+                        request.form.get(
+                            "basic_salary",
+                            "0"
+                        )
                     )
 
-
-                # -------------------------------------------------
-                # SALARY VALUES
-                # -------------------------------------------------
-
-                basic_salary = payroll_decimal(
-                    request.form.get(
-                        "basic_salary"
-                    )
-                )
-
-                allowance = payroll_decimal(
-                    request.form.get(
-                        "allowance"
-                    )
-                )
-
-                bonus = payroll_decimal(
-                    request.form.get(
-                        "bonus"
-                    )
-                )
-
-                deduction = payroll_decimal(
-                    request.form.get(
-                        "deduction"
-                    )
-                )
-
-
-                # -------------------------------------------------
-                # CALCULATE NET SALARY
-                # -------------------------------------------------
-
-                net_salary = calculate_net_salary(
-                    basic_salary,
-                    allowance,
-                    bonus,
-                    deduction
-                )
-
-
-                if net_salary < 0:
-
-                    raise ValueError(
-                        "Deduction cannot be greater "
-                        "than total earnings."
+                    allowance = payroll_decimal(
+                        request.form.get(
+                            "allowance",
+                            "0"
+                        )
                     )
 
-
-                # =================================================
-                # CHECK FOR DUPLICATE PAYROLL
-                # =================================================
-
-                cur.execute(
-                    """
-                    SELECT id
-
-                    FROM payroll
-
-                    WHERE application_id = %s
-
-                    AND payroll_month = %s
-
-                    AND id != %s
-
-                    LIMIT 1
-                    """,
-                    (
-                        payroll["application_id"],
-                        payroll_month,
-                        payroll_id
-                    )
-                )
-
-                duplicate = cur.fetchone()
-
-
-                if duplicate:
-
-                    raise ValueError(
-                        "Another payroll record already "
-                        "exists for this applicant and month."
+                    bonus = payroll_decimal(
+                        request.form.get(
+                            "bonus",
+                            "0"
+                        )
                     )
 
+                    deduction = payroll_decimal(
+                        request.form.get(
+                            "deduction",
+                            "0"
+                        )
+                    )
 
-                # =================================================
-                # UPDATE PAYROLL
-                # =================================================
+                    # =========================================
+                    # PREVENT NEGATIVE VALUES
+                    # =========================================
 
-                cur.execute(
-                    """
-                    UPDATE payroll
+                    if basic_salary < 0:
+                        raise ValueError(
+                            "Basic salary cannot be negative."
+                        )
 
-                    SET
-                        payroll_month = %s,
-                        basic_salary = %s,
-                        allowance = %s,
-                        bonus = %s,
-                        deduction = %s,
-                        net_salary = %s,
-                        updated_at = CURRENT_TIMESTAMP
+                    if allowance < 0:
+                        raise ValueError(
+                            "Allowance cannot be negative."
+                        )
 
-                    WHERE id = %s
-                    """,
-                    (
-                        payroll_month,
+                    if bonus < 0:
+                        raise ValueError(
+                            "Bonus cannot be negative."
+                        )
+
+                    if deduction < 0:
+                        raise ValueError(
+                            "Deduction cannot be negative."
+                        )
+
+                    # =========================================
+                    # CALCULATE NET SALARY
+                    # =========================================
+
+                    net_salary = calculate_net_salary(
                         basic_salary,
                         allowance,
                         bonus,
-                        deduction,
-                        net_salary,
+                        deduction
+                    )
+
+                    if net_salary < 0:
+
+                        raise ValueError(
+                            "Deduction cannot be greater than "
+                            "total earnings."
+                        )
+
+                    # =========================================
+                    # CHECK DUPLICATE MONTH
+                    # =========================================
+
+                    cur.execute(
+                        """
+                        SELECT id
+                        FROM payroll
+
+                        WHERE application_id = %s
+                          AND payroll_month = %s
+                          AND id != %s
+
+                        LIMIT 1
+                        """,
+                        (
+                            payroll["application_id"],
+                            payroll_month,
+                            payroll_id
+                        )
+                    )
+
+                    duplicate = cur.fetchone()
+
+                    if duplicate:
+
+                        raise ValueError(
+                            "Another payroll record already exists "
+                            "for this applicant and month."
+                        )
+
+                    # =========================================
+                    # UPDATE PAYROLL
+                    # =========================================
+
+                    cur.execute(
+                        """
+                        UPDATE payroll
+
+                        SET
+                            payroll_month = %s,
+                            basic_salary = %s,
+                            allowance = %s,
+                            bonus = %s,
+                            deduction = %s,
+                            net_salary = %s,
+                            updated_at = CURRENT_TIMESTAMP
+
+                        WHERE id = %s
+                        """,
+                        (
+                            payroll_month,
+                            basic_salary,
+                            allowance,
+                            bonus,
+                            deduction,
+                            net_salary,
+                            payroll_id
+                        )
+                    )
+
+                    # =========================================
+                    # VERIFY UPDATE
+                    # =========================================
+
+                    if cur.rowcount != 1:
+
+                        raise ValueError(
+                            "Payroll record could not be updated."
+                        )
+
+                    # =========================================
+                    # COMMIT
+                    # =========================================
+
+                    conn.commit()
+
+                    flash(
+                        "Payroll updated successfully.",
+                        "success"
+                    )
+
+                    return redirect(
+                        url_for("admin_payroll")
+                    )
+
+                except ValueError as e:
+
+                    conn.rollback()
+
+                    flash(
+                        str(e),
+                        "error"
+                    )
+
+                    # -----------------------------------------
+                    # KEEP USER'S SUBMITTED VALUES
+                    # -----------------------------------------
+
+                    payroll = dict(payroll)
+
+                    payroll["payroll_month"] = (
+                        request.form.get(
+                            "payroll_month",
+                            payroll["payroll_month"]
+                        )
+                    )
+
+                    payroll["basic_salary"] = (
+                        request.form.get(
+                            "basic_salary",
+                            payroll["basic_salary"]
+                        )
+                    )
+
+                    payroll["allowance"] = (
+                        request.form.get(
+                            "allowance",
+                            payroll["allowance"]
+                        )
+                    )
+
+                    payroll["bonus"] = (
+                        request.form.get(
+                            "bonus",
+                            payroll["bonus"]
+                        )
+                    )
+
+                    payroll["deduction"] = (
+                        request.form.get(
+                            "deduction",
+                            payroll["deduction"]
+                        )
+                    )
+
+                except Exception:
+
+                    conn.rollback()
+
+                    app.logger.exception(
+                        "Error updating payroll %s.",
                         payroll_id
                     )
-                )
 
+                    flash(
+                        "Unable to update payroll. "
+                        "Please check the information and try again.",
+                        "error"
+                    )
 
-                # =================================================
-                # COMMIT
-                # =================================================
+                    payroll = dict(payroll)
 
-                conn.commit()
+                    payroll["payroll_month"] = (
+                        request.form.get(
+                            "payroll_month",
+                            payroll["payroll_month"]
+                        )
+                    )
 
+                    payroll["basic_salary"] = (
+                        request.form.get(
+                            "basic_salary",
+                            payroll["basic_salary"]
+                        )
+                    )
 
-                flash(
-                    "Payroll updated successfully.",
-                    "success"
-                )
+                    payroll["allowance"] = (
+                        request.form.get(
+                            "allowance",
+                            payroll["allowance"]
+                        )
+                    )
 
+                    payroll["bonus"] = (
+                        request.form.get(
+                            "bonus",
+                            payroll["bonus"]
+                        )
+                    )
 
-                return redirect(
-                    url_for("admin_payroll")
-                )
-
-
-    except ValueError as e:
-
-        if conn:
-            conn.rollback()
-
-        flash(
-            str(e),
-            "error"
-        )
-
+                    payroll["deduction"] = (
+                        request.form.get(
+                            "deduction",
+                            payroll["deduction"]
+                        )
+                    )
 
     except Exception:
 
@@ -18909,21 +19026,23 @@ def edit_payroll(payroll_id):
             conn.rollback()
 
         app.logger.exception(
-            "Error editing payroll %s.",
+            "Error loading edit payroll page %s.",
             payroll_id
         )
 
         flash(
-            "Unable to update payroll.",
+            "Unable to load the payroll record.",
             "error"
         )
 
+        return redirect(
+            url_for("admin_payroll")
+        )
 
     finally:
 
         if conn:
             conn.close()
-
 
     # =========================================================
     # SHOW EDIT PAGE
