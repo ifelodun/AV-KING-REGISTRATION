@@ -20811,7 +20811,6 @@ def applicant_payslip(payroll_id):
                 except Exception:
 
                     pass
-
 @app.route(
     "/admin/payroll/delete/<int:payroll_id>",
     methods=["POST"]
@@ -20819,49 +20818,33 @@ def applicant_payslip(payroll_id):
 @require_admin
 def delete_payroll(payroll_id):
 
-    if current_user.role != "admin":
-
-        flash(
-            "Access Denied.",
-            "error"
-        )
-
-        return redirect(
-            url_for("dashboard")
-        )
-
-
-    conn = get_db()
+    conn = None
 
     try:
 
+        conn = get_db()
+
         with conn.cursor() as cur:
 
-            # =================================================
-            # GET PAYROLL
-            # =================================================
+            # =====================================================
+            # GET PAYROLL RECORD
+            # =====================================================
 
             cur.execute(
                 """
                 SELECT
-
                     id,
-
+                    application_id,
+                    payroll_month,
                     payment_status
-
                 FROM payroll
-
                 WHERE id = %s
-
                 LIMIT 1
                 """,
-                (
-                    payroll_id,
-                )
+                (payroll_id,)
             )
 
             payroll = cur.fetchone()
-
 
             if not payroll:
 
@@ -20875,11 +20858,15 @@ def delete_payroll(payroll_id):
                 )
 
 
-            # =================================================
-            # BLOCK PAID PAYROLL DELETION
-            # =================================================
+            # =====================================================
+            # PREVENT DELETION OF PAID PAYROLL
+            # =====================================================
 
-            if payroll["payment_status"] == "Paid":
+            payment_status = str(
+                payroll["payment_status"] or ""
+            ).strip().lower()
+
+            if payment_status == "paid":
 
                 flash(
                     "Paid payroll cannot be deleted.",
@@ -20891,20 +20878,33 @@ def delete_payroll(payroll_id):
                 )
 
 
-            # =================================================
-            # DELETE
-            # =================================================
+            # =====================================================
+            # DELETE PAYROLL
+            # =====================================================
 
             cur.execute(
                 """
                 DELETE FROM payroll
-
                 WHERE id = %s
                 """,
-                (
-                    payroll_id,
-                )
+                (payroll_id,)
             )
+
+
+            # =====================================================
+            # VERIFY DELETE
+            # =====================================================
+
+            if cur.rowcount != 1:
+
+                raise ValueError(
+                    "Payroll record could not be deleted."
+                )
+
+
+            # =====================================================
+            # COMMIT
+            # =====================================================
 
             conn.commit()
 
@@ -20919,16 +20919,17 @@ def delete_payroll(payroll_id):
         )
 
 
-    except Exception:
+    # =============================================================
+    # EXPECTED ERRORS
+    # =============================================================
 
-        conn.rollback()
+    except ValueError as e:
 
-        app.logger.exception(
-            "Error deleting payroll."
-        )
+        if conn:
+            conn.rollback()
 
         flash(
-            "Unable to delete payroll.",
+            str(e),
             "error"
         )
 
@@ -20937,9 +20938,38 @@ def delete_payroll(payroll_id):
         )
 
 
+    # =============================================================
+    # DATABASE / UNEXPECTED ERRORS
+    # =============================================================
+
+    except Exception:
+
+        if conn:
+            conn.rollback()
+
+        app.logger.exception(
+            "Error deleting payroll record %s.",
+            payroll_id
+        )
+
+        flash(
+            "Unable to delete payroll record. Please try again.",
+            "error"
+        )
+
+        return redirect(
+            url_for("admin_payroll")
+        )
+
+
+    # =============================================================
+    # CLOSE DATABASE
+    # =============================================================
+
     finally:
 
-        conn.close()
+        if conn:
+            conn.close()
 
 
 @app.route(
