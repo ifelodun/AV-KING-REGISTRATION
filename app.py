@@ -1767,52 +1767,8 @@ def get_company_settings():
 # ============================================================
 # =========================================================
 # ADMIN LOGIN
-@app.route(
-    "/admin/login",
-    methods=["GET", "POST"]
-)
+@app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
-
-    # =========================================================
-    # LOAD COMPANY SETTINGS
-    # =========================================================
-
-    def get_company_settings():
-
-        conn = get_db()
-
-        try:
-
-            with conn.cursor() as cur:
-
-                cur.execute(
-                    """
-                    SELECT
-                        id,
-                        company_name,
-                        logo,
-                        admin_username,
-                        admin_password_hash
-                    FROM company_settings
-                    ORDER BY id ASC
-                    LIMIT 1
-                    """
-                )
-
-                return cur.fetchone()
-
-        except Exception:
-
-            app.logger.exception(
-                "Unable to load company settings for admin login."
-            )
-
-            return None
-
-        finally:
-
-            conn.close()
-
 
     # =========================================================
     # ALREADY LOGGED IN
@@ -1820,7 +1776,6 @@ def admin_login():
 
     if session.get("admin_id"):
 
-        # Make sure old admin sessions also have the role
         session["role"] = "admin"
         session["admin_logged_in"] = True
 
@@ -1835,11 +1790,8 @@ def admin_login():
 
     if request.method == "GET":
 
-        settings = get_company_settings()
-
         return render_template(
-            "admin_login.html",
-            settings=settings
+            "admin_login.html"
         )
 
 
@@ -1873,8 +1825,7 @@ def admin_login():
         )
 
         return render_template(
-            "admin_login.html",
-            settings=get_company_settings()
+            "admin_login.html"
         )
 
 
@@ -1882,43 +1833,54 @@ def admin_login():
     # GET ADMIN ACCOUNT
     # =========================================================
 
-    settings = get_company_settings()
+    conn = get_db()
 
-    if not settings:
+    try:
+
+        with conn.cursor() as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    username,
+                    password_hash,
+                    full_name
+                FROM admin_users
+                WHERE username = %s
+                LIMIT 1
+                """,
+                (username,)
+            )
+
+            admin = cur.fetchone()
+
+
+    except Exception:
+
+        app.logger.exception(
+            "Unable to load administrator account."
+        )
 
         flash(
-            "Administrator account has not been configured.",
+            "Unable to connect to the administrator account.",
             "error"
         )
 
         return render_template(
-            "admin_login.html",
-            settings=None
+            "admin_login.html"
         )
 
+    finally:
 
-    # =========================================================
-    # STORED ADMIN DETAILS
-    # =========================================================
-
-    stored_username = (
-        settings.get("admin_username")
-        or ""
-    ).strip()
-
-    stored_password_hash = (
-        settings.get("admin_password_hash")
-    )
+        conn.close()
 
 
     # =========================================================
-    # CHECK USERNAME
+    # ADMIN ACCOUNT DOES NOT EXIST
     # =========================================================
 
-    if (
-        not stored_username
-        or username != stored_username
-    ):
+    if not admin:
 
         flash(
             "Invalid username or password.",
@@ -1926,13 +1888,34 @@ def admin_login():
         )
 
         return render_template(
-            "admin_login.html",
-            settings=settings
+            "admin_login.html"
         )
 
 
     # =========================================================
-    # CHECK PASSWORD CONFIGURATION
+    # STORED ADMIN DETAILS
+    # =========================================================
+
+    stored_password_hash = (
+        admin["password_hash"]
+        or ""
+    )
+
+    admin_id = admin["id"]
+
+    admin_username = (
+        admin["username"]
+        or ""
+    ).strip()
+
+    admin_name = (
+        admin["full_name"]
+        or admin_username
+    ).strip()
+
+
+    # =========================================================
+    # PASSWORD CONFIGURATION CHECK
     # =========================================================
 
     if not stored_password_hash:
@@ -1943,8 +1926,7 @@ def admin_login():
         )
 
         return render_template(
-            "admin_login.html",
-            settings=settings
+            "admin_login.html"
         )
 
 
@@ -1980,8 +1962,7 @@ def admin_login():
         )
 
         return render_template(
-            "admin_login.html",
-            settings=settings
+            "admin_login.html"
         )
 
 
@@ -1996,20 +1977,14 @@ def admin_login():
     # ADMIN SESSION
     # =========================================================
 
-    # Company settings ID
-    session["admin_id"] = settings["id"]
+    session["admin_id"] = admin_id
 
-    # Admin username
-    session["admin_username"] = stored_username
+    session["admin_username"] = admin_username
 
-    # Admin display name
-    session["admin_name"] = stored_username
+    session["admin_name"] = admin_name
 
-    # Admin authentication flag
     session["admin_logged_in"] = True
 
-    # IMPORTANT:
-    # This is what the base.html sidebar uses
     session["role"] = "admin"
 
 
