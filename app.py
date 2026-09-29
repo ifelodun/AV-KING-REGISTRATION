@@ -360,7 +360,7 @@ def utility_processor():
 def setup_admin():
 
     username = "admin"
-    password = "AVKing@2026"
+    password = "AVking@2026"
     full_name = "AV KING Administrator"
 
     password_hash = generate_password_hash(password)
