@@ -1119,7 +1119,26 @@ or session.get('application_id') %}
     {% endif %}
 
 </nav>
+{% if application.status == "Approved" %}
 
+<a
+    href="{{ url_for('applicant_payroll') }}"
+    class="portal-payroll-card"
+>
+
+    <div class="portal-payroll-icon">
+        ₦
+    </div>
+
+    <div>
+
+        <span>
+            MY PAYROLL
+        </span>
+
+</a>
+
+{% endif %}
 
 <!-- =====================================================
      SIDEBAR FOOTER
