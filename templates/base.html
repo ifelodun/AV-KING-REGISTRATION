@@ -1119,7 +1119,7 @@ or session.get('application_id') %}
     {% endif %}
 
 
-{% if application.status == "Approved" %}
+{% if application is defined and application.status == "Approved" %}
 
 <a
     href="{{ url_for('applicant_payroll') }}"
@@ -1130,9 +1130,9 @@ or session.get('application_id') %}
         ₦
     </div>
 
-        <span>
-            MY PAYROLL
-        </span>
+    <span>
+        MY PAYROLL
+    </span>
 
 </a>
 
