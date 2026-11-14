@@ -1092,6 +1092,58 @@ def init_db():
                 ALTER TABLE damage_reports
                 ADD COLUMN IF NOT EXISTS title VARCHAR(255)
             """)
+
+# Ensure damage_reports has all required columns
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS title VARCHAR(255)
+            """)
+
+           cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS description TEXT
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS damage_date DATE
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS category_id INTEGER
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS amount NUMERIC(12, 2) DEFAULT 0
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Pending'
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'Unpaid'
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS admin_notes TEXT
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            """)
+
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            """)
+
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS damage_payments (
                     id SERIAL PRIMARY KEY,
