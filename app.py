@@ -89,6 +89,7 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 
 from database import get_db, init_db
+from damage_portal import damage_bp
 from flask import Flask, request, session, redirect, url_for, jsonify, render_template, flash, send_file
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -116,7 +117,7 @@ cloudinary.config(
 # ============================================================
 
 app = Flask(__name__)
-
+app.register_blueprint(damage_bp)
 
 app.config["SECRET_KEY"] = os.getenv(
     "SECRET_KEY",
