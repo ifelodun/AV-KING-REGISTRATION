@@ -283,4 +283,97 @@ def worker_report_damage():
 
     finally:
         conn.close()
-            
+
+
+from decimal import Decimal, InvalidOperation
+
+
+@damage_bp.route("/categories", methods=["GET", "POST"])
+def damage_categories():
+
+    if not damage_admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            if request.method == "POST":
+
+                category_name = request.form.get(
+                    "category_name", ""
+                ).strip()
+
+                description = request.form.get(
+                    "description", ""
+                ).strip()
+
+                amount_text = request.form.get(
+                    "default_amount", ""
+                ).strip()
+
+                if not category_name or not amount_text:
+                    flash("Enter a category name and amount.", "danger")
+                    return redirect(url_for("damage.damage_categories"))
+
+                try:
+                    amount = Decimal(amount_text)
+
+                    if not amount.is_finite() or amount < 0:
+                        raise InvalidOperation
+
+                except (InvalidOperation, ValueError):
+                    flash("Enter a valid non-negative amount.", "danger")
+                    return redirect(url_for("damage.damage_categories"))
+
+                try:
+                    cur.execute("""
+                        INSERT INTO damage_categories (
+                            category_name,
+                            default_amount,
+                            description,
+                            is_active
+                        )
+                        VALUES (%s, %s, %s, TRUE)
+                    """, (
+                        category_name,
+                        amount,
+                        description
+                    ))
+
+                    conn.commit()
+
+                    flash("Damage category added successfully.", "success")
+
+                except Exception as e:
+                    conn.rollback()
+
+                    if "unique" in str(e).lower():
+                        flash("This category already exists.", "danger")
+                    else:
+                        raise
+
+                return redirect(url_for("damage.damage_categories"))
+
+            cur.execute("""
+                SELECT id, category_name, default_amount,
+                       description, is_active
+                FROM damage_categories
+                ORDER BY category_name ASC
+            """)
+
+            categories = cur.fetchall()
+
+            return render_template(
+                "damage_categories.html",
+                categories=categories
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+        
