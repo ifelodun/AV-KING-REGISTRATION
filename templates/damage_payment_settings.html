@@ -1,0 +1,283 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.damage-settings {
+    max-width: 1000px;
+    margin: 25px auto;
+    padding: 20px;
+}
+
+.settings-header {
+    margin-bottom: 25px;
+}
+
+.settings-header h2 {
+    font-weight: 700;
+    color: #172b4d;
+}
+
+.settings-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+}
+
+.settings-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #172b4d;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-description {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 27px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-switch {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #cbd5e1;
+    border-radius: 30px;
+    transition: .3s;
+}
+
+.slider-switch:before {
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 19px;
+    left: 4px;
+    bottom: 4px;
+    background: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+.switch input:checked + .slider-switch {
+    background: #16a34a;
+}
+
+.switch input:checked + .slider-switch:before {
+    transform: translateX(23px);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 7px;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 11px;
+}
+
+.bank-fields {
+    margin-top: 15px;
+}
+
+.save-settings {
+    background: #14532d;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.save-settings:hover {
+    background: #166534;
+    color: white;
+}
+
+.info-note {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 13px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+</style>
+
+<div class="damage-settings">
+
+    <div class="settings-header">
+        <h2>Damage Payment Settings</h2>
+        <p class="text-muted">
+            Manage how workers pay for damaged company property.
+        </p>
+    </div>
+
+    <form method="POST">
+
+        <!-- GENERAL SETTINGS -->
+        <div class="settings-card">
+            <h4>General Payment Control</h4>
+
+            <div class="setting-row">
+                <div>
+                    <strong>Enable Damage Payments</strong>
+                    <div class="setting-description">
+                        Turn the entire damage payment system on or off.
+                    </div>
+                </div>
+
+                <label class="switch">
+                    <input type="checkbox"
+                           name="payments_enabled"
+                           {% if settings and settings.payments_enabled %}checked{% endif %}>
+                    <span class="slider-switch"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- PAYMENT METHODS -->
+        <div class="settings-card">
+            <h4>Available Payment Methods</h4>
+
+            <div class="setting-row">
+                <div>
+                    <strong>Paystack Online Payment</strong>
+                    <div class="setting-description">
+                        Allow workers to pay directly online.
+                    </div>
+                </div>
+
+                <label class="switch">
+                    <input type="checkbox"
+                           name="paystack_enabled"
+                           {% if settings and settings.paystack_enabled %}checked{% endif %}>
+                    <span class="slider-switch"></span>
+                </label>
+            </div>
+
+            <div class="setting-row">
+                <div>
+                    <strong>Manual Bank Transfer</strong>
+                    <div class="setting-description">
+                        Allow workers to transfer money to your company account.
+                    </div>
+                </div>
+
+                <label class="switch">
+                    <input type="checkbox"
+                           name="bank_transfer_enabled"
+                           {% if settings and settings.bank_transfer_enabled %}checked{% endif %}>
+                    <span class="slider-switch"></span>
+                </label>
+            </div>
+
+            <div class="mt-3">
+                <label class="form-label">Preferred Payment Method</label>
+
+                <select name="preferred_method" class="form-control">
+                    <option value="paystack"
+                        {% if settings and settings.preferred_method == 'paystack' %}selected{% endif %}>
+                        Paystack Online Payment
+                    </option>
+
+                    <option value="bank_transfer"
+                        {% if settings and settings.preferred_method == 'bank_transfer' %}selected{% endif %}>
+                        Manual Bank Transfer
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- BANK DETAILS -->
+        <div class="settings-card">
+            <h4>Company Bank Account Details</h4>
+
+            <div class="info-note mb-3">
+                These details will be displayed to workers when manual bank
+                transfer is enabled.
+            </div>
+
+            <div class="bank-fields">
+
+                <div class="mb-3">
+                    <label class="form-label">Bank Name</label>
+                    <input type="text"
+                           name="bank_name"
+                           class="form-control"
+                           placeholder="e.g. Access Bank"
+                           value="{{ settings.bank_name if settings else '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Account Name</label>
+                    <input type="text"
+                           name="account_name"
+                           class="form-control"
+                           placeholder="Company account name"
+                           value="{{ settings.account_name if settings else '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Account Number</label>
+                    <input type="text"
+                           name="account_number"
+                           class="form-control"
+                           maxlength="20"
+                           placeholder="Enter account number"
+                           value="{{ settings.account_number if settings else '' }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Transfer Instructions</label>
+                    <textarea name="transfer_instructions"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Enter instructions workers should follow">{{ settings.transfer_instructions if settings else '' }}</textarea>
+                </div>
+
+            </div>
+        </div>
+
+        <button type="submit" class="save-settings">
+            Save Payment Settings
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
+  
