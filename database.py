@@ -1088,7 +1088,10 @@ def init_db():
                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-
+            cur.execute("""
+                ALTER TABLE damage_reports
+                ADD COLUMN IF NOT EXISTS title VARCHAR(255)
+            """)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS damage_payments (
                     id SERIAL PRIMARY KEY,
