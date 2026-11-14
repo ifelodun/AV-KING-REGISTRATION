@@ -146,3 +146,141 @@ def payment_settings():
 
     finally:
         conn.close()
+
+
+# =========================================================
+# WORKER DAMAGE REPORT PORTAL
+# =========================================================
+
+damage_worker_bp = Blueprint(
+    "damage_worker",
+    __name__,
+    url_prefix="/damage"
+)
+
+
+@damage_worker_bp.route("/report", methods=["GET", "POST"])
+def worker_report_damage():
+
+    applicant_id = session.get("applicant_id")
+
+    if not session.get("applicant_logged_in") or not applicant_id:
+        return redirect(url_for("applicant_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            # Confirm that this is an approved applicant
+            # whose portal is still active.
+            cur.execute("""
+                SELECT id, first_name, last_name, status, portal_active
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+            """, (applicant_id,))
+
+            applicant = cur.fetchone()
+
+            if (
+                not applicant
+                or applicant["status"] != "Approved"
+                or not applicant["portal_active"]
+            ):
+                flash(
+                    "You are not currently authorised to submit damage reports.",
+                    "danger"
+                )
+                return redirect(url_for("applicant_portal"))
+
+            if request.method == "POST":
+
+                title = request.form.get("title", "").strip()
+                description = request.form.get("description", "").strip()
+                damage_date_text = request.form.get("damage_date", "").strip()
+                category_id = request.form.get("category_id", "").strip()
+
+                if not all([title, description, damage_date_text, category_id]):
+                    flash("Please complete all the required fields.", "danger")
+                    return redirect(url_for("damage_worker.worker_report_damage"))
+
+                try:
+                    damage_date = datetime.strptime(
+                        damage_date_text, "%Y-%m-%d"
+                    ).date()
+                    category_id = int(category_id)
+                except (ValueError, TypeError):
+                    flash("Please enter a valid date and category.", "danger")
+                    return redirect(url_for("damage_worker.worker_report_damage"))
+
+                cur.execute("""
+                    SELECT id, category_name, default_amount
+                    FROM damage_categories
+                    WHERE id = %s
+                    AND is_active = TRUE
+                    LIMIT 1
+                """, (category_id,))
+
+                category = cur.fetchone()
+
+                if not category:
+                    flash("Please select a valid damage category.", "danger")
+                    return redirect(url_for("damage_worker.worker_report_damage"))
+
+                amount = category["default_amount"]
+
+                cur.execute("""
+                    INSERT INTO damage_reports (
+                        application_id,
+                        title,
+                        description,
+                        damage_date,
+                        category_id,
+                        amount,
+                        status,
+                        payment_status
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, 'Pending', 'Unpaid')
+                """, (
+                    applicant_id,
+                    title,
+                    description,
+                    damage_date,
+                    category_id,
+                    amount
+                ))
+
+                conn.commit()
+
+                flash(
+                    "Your damage report has been submitted for admin review.",
+                    "success"
+                )
+
+                return redirect(
+                    url_for("damage_worker.worker_report_damage")
+                )
+
+            cur.execute("""
+                SELECT id, category_name, default_amount, description
+                FROM damage_categories
+                WHERE is_active = TRUE
+                ORDER BY category_name ASC
+            """)
+
+            categories = cur.fetchall()
+
+            return render_template(
+                "damage_worker_report.html",
+                applicant=applicant,
+                categories=categories
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+            
