@@ -1,0 +1,93 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div style="max-width:1000px; margin:25px auto; padding:15px;">
+
+    <h2>Damage Categories & Pricing</h2>
+
+    <p>Add company property categories and their approved damage charges.</p>
+
+    <div style="background:white; padding:25px; border-radius:12px;
+                box-shadow:0 3px 15px rgba(0,0,0,.06); margin-top:20px;">
+
+        <h3>Add New Category</h3>
+
+        <form method="POST">
+
+            <label>Category Name</label>
+            <input type="text"
+                   name="category_name"
+                   placeholder="Example: Office Chair"
+                   required
+                   style="width:100%; padding:12px; margin:8px 0 18px;">
+
+            <label>Damage Charge (₦)</label>
+            <input type="number"
+                   name="default_amount"
+                   min="0"
+                   step="0.01"
+                   placeholder="Enter amount"
+                   required
+                   style="width:100%; padding:12px; margin:8px 0 18px;">
+
+            <label>Description</label>
+            <textarea name="description"
+                      rows="3"
+                      placeholder="Optional description"
+                      style="width:100%; padding:12px; margin:8px 0 18px;"></textarea>
+
+            <button type="submit"
+                    style="background:#17643b; color:white; padding:12px 22px;
+                           border:0; border-radius:7px;">
+                Add Category
+            </button>
+
+        </form>
+    </div>
+
+    <div style="background:white; padding:25px; border-radius:12px;
+                margin-top:25px; overflow-x:auto;">
+
+        <h3>Existing Damage Categories</h3>
+
+        <table style="width:100%; border-collapse:collapse; margin-top:15px;">
+
+            <thead>
+                <tr>
+                    <th style="padding:12px; text-align:left;">Category</th>
+                    <th style="padding:12px; text-align:left;">Charge</th>
+                    <th style="padding:12px; text-align:left;">Description</th>
+                    <th style="padding:12px; text-align:left;">Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in categories %}
+                <tr>
+                    <td style="padding:12px;">{{ item.category_name }}</td>
+                    <td style="padding:12px;">
+                        ₦{{ "{:,.2f}".format(item.default_amount or 0) }}
+                    </td>
+                    <td style="padding:12px;">{{ item.description or "-" }}</td>
+                    <td style="padding:12px;">
+                        {{ "Active" if item.is_active else "Inactive" }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="padding:15px;">
+                        No damage categories have been added yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
