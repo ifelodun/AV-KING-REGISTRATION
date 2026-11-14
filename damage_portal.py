@@ -233,8 +233,8 @@ def worker_report_damage():
                 cur.execute("""
                     INSERT INTO damage_reports (
                         application_id,
-                        title,
-                        description,
+                        damage_title,
+                        damage_description,
                         damage_date,
                         category_id,
                         amount,
