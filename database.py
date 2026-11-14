@@ -1020,8 +1020,122 @@ def init_db():
                 )
                 """
             )
-            
-            
+
+
+            # =====================================================
+            # DAMAGE PAYMENT PORTAL TABLES
+            # =====================================================
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS damage_payment_settings (
+                    id SERIAL PRIMARY KEY,
+                    payments_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+                    paystack_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+                    bank_transfer_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                    preferred_method VARCHAR(30) NOT NULL DEFAULT 'paystack',
+
+                    bank_name VARCHAR(150),
+                    account_name VARCHAR(150),
+                    account_number VARCHAR(30),
+                    transfer_instructions TEXT,
+
+                    currency VARCHAR(10) NOT NULL DEFAULT 'NGN',
+                    receipt_prefix VARCHAR(20) NOT NULL DEFAULT 'DAMAGE',
+
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            cur.execute("""
+                INSERT INTO damage_payment_settings (id)
+                VALUES (1)
+                ON CONFLICT (id) DO NOTHING
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS damage_categories (
+                    id SERIAL PRIMARY KEY,
+                    category_name VARCHAR(150) NOT NULL UNIQUE,
+                    default_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+                    description TEXT,
+                    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS damage_reports (
+                    id SERIAL PRIMARY KEY,
+                    application_id BIGINT NOT NULL
+                        REFERENCES applications(id) ON DELETE CASCADE,
+
+                    damage_title VARCHAR(200) NOT NULL,
+                    damage_description TEXT NOT NULL,
+                    damage_date DATE,
+                    category_id INTEGER
+                        REFERENCES damage_categories(id) ON DELETE SET NULL,
+
+                    amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+                    admin_notes TEXT,
+
+                    status VARCHAR(30) NOT NULL DEFAULT 'Pending',
+                    payment_status VARCHAR(30) NOT NULL DEFAULT 'Unpaid',
+
+                    reviewed_by VARCHAR(150),
+                    reviewed_at TIMESTAMP,
+
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS damage_payments (
+                    id SERIAL PRIMARY KEY,
+                    damage_report_id INTEGER NOT NULL
+                        REFERENCES damage_reports(id) ON DELETE CASCADE,
+
+                    application_id BIGINT NOT NULL
+                        REFERENCES applications(id) ON DELETE CASCADE,
+
+                    payment_method VARCHAR(30) NOT NULL,
+                    amount NUMERIC(12, 2) NOT NULL,
+
+                    payment_reference VARCHAR(150) UNIQUE NOT NULL,
+                    provider_reference VARCHAR(150),
+
+                    status VARCHAR(30) NOT NULL DEFAULT 'Pending',
+
+                    proof_of_payment TEXT,
+                    admin_note TEXT,
+
+                    verified_by VARCHAR(150),
+                    verified_at TIMESTAMP,
+
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_damage_reports_applicant
+                ON damage_reports(application_id)
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_damage_reports_status
+                ON damage_reports(status, payment_status)
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_damage_payments_report
+                ON damage_payments(damage_report_id)
+            """)
+
+            cur.execute("""
+                CREATE INDEX IF NOT EXISTS idx_damage_payments_status
+                ON damage_payments(status)
+            """)
+
             # ============================================================
             # PAYROLL INDEXES
             # ============================================================
