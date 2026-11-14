@@ -1,0 +1,132 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.damage-report-container {
+    max-width: 850px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.damage-report-card {
+    background: white;
+    padding: 28px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+}
+
+.damage-report-card h2 {
+    color: #173b2b;
+    margin-bottom: 8px;
+}
+
+.damage-report-card p {
+    color: #64748b;
+}
+
+.damage-form-group {
+    margin-top: 20px;
+}
+
+.damage-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.damage-form-group input,
+.damage-form-group select,
+.damage-form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.damage-submit {
+    margin-top: 24px;
+    background: #17643b;
+    color: white;
+    border: none;
+    padding: 13px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+}
+</style>
+
+<div class="damage-report-container">
+
+    <div class="damage-report-card">
+
+        <h2>Report Damaged Company Property</h2>
+
+        <p>
+            Please provide accurate information about the damaged
+            company property. Your report will be reviewed by the
+            administration.
+        </p>
+
+        <form method="POST">
+
+            <div class="damage-form-group">
+                <label>Damage Category</label>
+
+                <select name="category_id" required>
+                    <option value="">Select damage category</option>
+
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">
+                        {{ category.category_name }}
+                        — ₦{{ "{:,.2f}".format(category.default_amount or 0) }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="damage-form-group">
+                <label>Item or Property Damaged</label>
+
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="Example: Office chair"
+                    required
+                >
+            </div>
+
+            <div class="damage-form-group">
+                <label>Date of Damage</label>
+
+                <input
+                    type="date"
+                    name="damage_date"
+                    required
+                >
+            </div>
+
+            <div class="damage-form-group">
+                <label>Description of Incident</label>
+
+                <textarea
+                    name="description"
+                    rows="5"
+                    placeholder="Explain what happened..."
+                    required
+                ></textarea>
+            </div>
+
+            <button type="submit" class="damage-submit">
+                Submit Damage Report
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
