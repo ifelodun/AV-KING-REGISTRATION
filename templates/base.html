@@ -1145,6 +1145,12 @@ or session.get('application_id') %}
     {% endif %}
 
 
+<a href="{{ url_for('damage_worker.worker_damage_payments') }}"
+   class="nav-link">
+    <i class="fas fa-money-bill-wave"></i>
+    My Damage Payments
+</a>
+    
 {% if application is defined and application.status == "Approved" %}
 
 <a
