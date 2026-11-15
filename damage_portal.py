@@ -8,6 +8,7 @@ from flask import (
     flash,
     session
 )
+from uuid import uuid4
 from datetime import datetime
 from database import get_db
 from decimal import Decimal, InvalidOperation
@@ -598,3 +599,135 @@ def worker_damage_payments():
     finally:
         conn.close()
         
+@damage_worker_bp.route(
+    "/payments/<int:report_id>/bank-transfer-paid",
+    methods=["POST"]
+)
+def confirm_bank_transfer(report_id):
+
+    applicant_id = session.get("applicant_id")
+
+    if not session.get("applicant_logged_in") or not applicant_id:
+        return redirect(url_for("applicant_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            # Check that bank transfer is enabled
+            cur.execute("""
+                SELECT payments_enabled, bank_transfer_enabled
+                FROM damage_payment_settings
+                WHERE id = 1
+            """)
+
+            settings = cur.fetchone()
+
+            if (
+                not settings
+                or not settings["payments_enabled"]
+                or not settings["bank_transfer_enabled"]
+            ):
+                flash("Bank transfer is currently unavailable.", "danger")
+                return redirect(
+                    url_for("damage_worker.worker_damage_payments")
+                )
+
+            # Confirm that this approved report belongs to this worker
+            cur.execute("""
+                SELECT id, amount
+                FROM damage_reports
+                WHERE id = %s
+                  AND application_id = %s
+                  AND status = 'Approved'
+                  AND payment_status <> 'Paid'
+                LIMIT 1
+            """, (report_id, applicant_id))
+
+            report = cur.fetchone()
+
+            if not report:
+                flash("This damage report is not available for payment.", "danger")
+                return redirect(
+                    url_for("damage_worker.worker_damage_payments")
+                )
+
+            # Prevent duplicate pending payment claims
+            cur.execute("""
+                SELECT id
+                FROM damage_payments
+                WHERE damage_report_id = %s
+                  AND status = 'Pending'
+                LIMIT 1
+            """, (report_id,))
+
+            existing_claim = cur.fetchone()
+
+            if existing_claim:
+                flash(
+                    "Your payment claim has already been submitted and is awaiting admin verification.",
+                    "info"
+                )
+                return redirect(
+                    url_for("damage_worker.worker_damage_payments")
+                )
+
+            # Create a pending bank-transfer claim
+            reference = "BT-" + uuid4().hex[:16].upper()
+
+            cur.execute("""
+                INSERT INTO damage_payments (
+                    damage_report_id,
+                    application_id,
+                    payment_method,
+                    amount,
+                    payment_reference,
+                    status
+                )
+                VALUES (%s, %s, 'bank_transfer', %s, %s, 'Pending')
+            """, (
+                report_id,
+                applicant_id,
+                report["amount"],
+                reference
+            ))
+
+            conn.commit()
+
+            flash(
+                "Your payment claim has been sent to the administrator for verification.",
+                "success"
+            )
+
+            return redirect(
+                url_for("damage_worker.worker_damage_payments")
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+
+@damage_worker_bp.route(
+    "/payments/<int:report_id>/bank-transfer-not-paid",
+    methods=["POST"]
+)
+def bank_transfer_not_paid(report_id):
+
+    applicant_id = session.get("applicant_id")
+
+    if not session.get("applicant_logged_in") or not applicant_id:
+        return redirect(url_for("applicant_login"))
+
+    flash(
+        "No payment claim was submitted. You can pay when you are ready.",
+        "info"
+    )
+
+    return redirect(
+        url_for("damage_worker.worker_damage_payments")
+    )
+    
