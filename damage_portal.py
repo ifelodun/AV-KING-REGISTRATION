@@ -504,3 +504,97 @@ def damage_reports():
 
     finally:
         conn.close()
+
+@damage_worker_bp.route("/payments")
+def worker_damage_payments():
+
+    applicant_id = session.get("applicant_id")
+
+    if not session.get("applicant_logged_in") or not applicant_id:
+        return redirect(url_for("applicant_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            # Confirm worker account
+            cur.execute("""
+                SELECT id, first_name, last_name, status, portal_active
+                FROM applications
+                WHERE id = %s
+                LIMIT 1
+            """, (applicant_id,))
+
+            applicant = cur.fetchone()
+
+            if (
+                not applicant
+                or applicant["status"] != "Approved"
+                or not applicant["portal_active"]
+            ):
+                flash("You are not authorised to access damage payments.", "danger")
+                return redirect(url_for("applicant_portal"))
+
+            # Get payment settings
+            cur.execute("""
+                SELECT *
+                FROM damage_payment_settings
+                WHERE id = 1
+            """)
+
+            settings = cur.fetchone()
+
+            # Get approved reports that have not been paid
+            cur.execute("""
+                SELECT
+                    id,
+                    damage_title,
+                    damage_description,
+                    damage_date,
+                    amount,
+                    status,
+                    payment_status,
+                    admin_notes,
+                    created_at
+                FROM damage_reports
+                WHERE application_id = %s
+                  AND status = 'Approved'
+                  AND payment_status <> 'Paid'
+                ORDER BY created_at DESC
+            """, (applicant_id,))
+
+            reports = cur.fetchall()
+
+            # Get payment history
+            cur.execute("""
+                SELECT
+                    id,
+                    damage_report_id,
+                    payment_method,
+                    amount,
+                    payment_reference,
+                    status,
+                    created_at
+                FROM damage_payments
+                WHERE application_id = %s
+                ORDER BY created_at DESC
+            """, (applicant_id,))
+
+            payments = cur.fetchall()
+
+            return render_template(
+                "damage_worker_payments.html",
+                applicant=applicant,
+                settings=settings,
+                reports=reports,
+                payments=payments
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+        
