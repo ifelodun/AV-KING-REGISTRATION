@@ -549,20 +549,30 @@ def worker_damage_payments():
             # Get approved reports that have not been paid
             cur.execute("""
                 SELECT
-                    id,
-                    damage_title,
-                    damage_description,
-                    damage_date,
-                    amount,
-                    status,
-                    payment_status,
-                    admin_notes,
-                    created_at
-                FROM damage_reports
-                WHERE application_id = %s
-                  AND status = 'Approved'
-                  AND payment_status <> 'Paid'
-                ORDER BY created_at DESC
+                    dr.id,
+                    dr.damage_title,
+                    dr.damage_description,
+                    dr.damage_date,
+                    dr.amount,
+                    dr.status,
+                    dr.payment_status,
+                    dr.admin_notes,
+                    dr.created_at,
+
+                    (
+                        SELECT dp.status
+                        FROM damage_payments dp
+                        WHERE dp.damage_report_id = dr.id
+                          AND dp.application_id = dr.application_id
+                        ORDER BY dp.created_at DESC
+                        LIMIT 1
+                    ) AS latest_payment_status
+
+                FROM damage_reports dr
+                WHERE dr.application_id = %s
+                  AND dr.status = 'Approved'
+                  AND dr.payment_status <> 'Paid'
+                ORDER BY dr.created_at DESC
             """, (applicant_id,))
 
             reports = cur.fetchall()
