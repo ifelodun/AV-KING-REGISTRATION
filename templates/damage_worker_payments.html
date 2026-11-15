@@ -113,6 +113,36 @@
 
             {% endif %}
 
+<div class="mt-3">
+
+    <form method="POST"
+          action="{{ url_for(
+              'damage_worker.confirm_bank_transfer',
+              report_id=report.id
+          ) }}">
+
+        <button type="submit" class="btn btn-success w-100 mb-2">
+            <i class="fas fa-check-circle"></i>
+            I Have Paid
+        </button>
+
+    </form>
+
+    <form method="POST"
+          action="{{ url_for(
+              'damage_worker.bank_transfer_not_paid',
+              report_id=report.id
+          ) }}">
+
+        <button type="submit"
+                class="btn btn-outline-secondary w-100">
+            I Have Not Paid
+        </button>
+
+    </form>
+
+</div>
+            
         </div>
     </div>
 
