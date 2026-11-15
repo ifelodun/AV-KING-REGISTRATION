@@ -71,20 +71,28 @@ def payment_settings():
                     "transfer_instructions", ""
                 ).strip()
 
-                if preferred_method == "paystack" and not paystack_enabled:
-                    flash(
-                        "Enable Paystack or select Bank Transfer.",
-                        "danger"
-                    )
-                    return redirect(url_for("damage.payment_settings"))
-
-                if preferred_method == "bank_transfer" and not bank_transfer_enabled:
-                    flash(
-                        "Enable Bank Transfer or select Paystack.",
-                        "danger"
-                    )
-                    return redirect(url_for("damage.payment_settings"))
-
+                if payments_enabled:
+                    if not paystack_enabled and not bank_transfer_enabled:
+                        flash(
+                            "Enable at least one payment method.",
+                            "danger"
+                        )
+                        return redirect(url_for("damage.payment_settings"))
+                
+                    if preferred_method == "paystack" and not paystack_enabled:
+                        flash(
+                            "Enable Paystack or select Bank Transfer.",
+                            "danger"
+                        )
+                        return redirect(url_for("damage.payment_settings"))
+                
+                    if preferred_method == "bank_transfer" and not bank_transfer_enabled:
+                        flash(
+                            "Enable Bank Transfer or select Paystack.",
+                            "danger"
+                        )
+                        return redirect(url_for("damage.payment_settings"))
+                
                 if bank_transfer_enabled and (
                     not bank_name or not account_name or not account_number
                 ):
