@@ -10,8 +10,7 @@ from flask import (
 )
 from datetime import datetime
 from database import get_db
-
-
+from decimal import Decimal, InvalidOperation
 damage_bp = Blueprint(
     "damage",
     __name__,
@@ -293,7 +292,7 @@ def worker_report_damage():
         conn.close()
 
 
-from decimal import Decimal, InvalidOperation
+
 
 
 @damage_bp.route("/categories", methods=["GET", "POST"])
@@ -385,3 +384,123 @@ def damage_categories():
     finally:
         conn.close()
         
+
+@damage_bp.route("/reports", methods=["GET", "POST"])
+def damage_reports():
+
+    if not damage_admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            # ADMIN APPROVES OR REJECTS A DAMAGE REPORT
+            if request.method == "POST":
+
+                report_id = request.form.get("report_id", "").strip()
+                action = request.form.get("action", "").strip()
+                amount_text = request.form.get("amount", "").strip()
+                admin_notes = request.form.get("admin_notes", "").strip()
+
+                if not report_id.isdigit():
+                    flash("Invalid damage report.", "danger")
+                    return redirect(url_for("damage.damage_reports"))
+
+                if action not in ("approve", "reject"):
+                    flash("Invalid review action.", "danger")
+                    return redirect(url_for("damage.damage_reports"))
+
+                if action == "approve":
+                    try:
+                        amount = Decimal(amount_text)
+
+                        if not amount.is_finite() or amount < 0:
+                            raise InvalidOperation
+
+                    except (InvalidOperation, ValueError):
+                        flash("Enter a valid damage payment amount.", "danger")
+                        return redirect(url_for("damage.damage_reports"))
+
+                    cur.execute("""
+                        UPDATE damage_reports
+                        SET
+                            status = 'Approved',
+                            amount = %s,
+                            admin_notes = %s,
+                            reviewed_by = %s,
+                            reviewed_at = CURRENT_TIMESTAMP,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        amount,
+                        admin_notes,
+                        str(session.get("admin_id")),
+                        int(report_id)
+                    ))
+
+                    flash(
+                        "Damage report approved. It is now ready for payment.",
+                        "success"
+                    )
+
+                else:
+                    cur.execute("""
+                        UPDATE damage_reports
+                        SET
+                            status = 'Rejected',
+                            admin_notes = %s,
+                            reviewed_by = %s,
+                            reviewed_at = CURRENT_TIMESTAMP,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                    """, (
+                        admin_notes,
+                        str(session.get("admin_id")),
+                        int(report_id)
+                    ))
+
+                    flash("Damage report rejected.", "success")
+
+                conn.commit()
+
+                return redirect(url_for("damage.damage_reports"))
+
+            # FETCH ALL DAMAGE REPORTS
+            cur.execute("""
+                SELECT
+                    dr.id,
+                    dr.application_id,
+                    dr.damage_title,
+                    dr.damage_description,
+                    dr.damage_date,
+                    dr.amount,
+                    dr.status,
+                    dr.payment_status,
+                    dr.admin_notes,
+                    dr.created_at,
+                    dc.category_name,
+                    a.first_name,
+                    a.last_name
+                FROM damage_reports dr
+                LEFT JOIN damage_categories dc
+                    ON dc.id = dr.category_id
+                LEFT JOIN applications a
+                    ON a.id = dr.application_id
+                ORDER BY dr.created_at DESC
+            """)
+
+            reports = cur.fetchall()
+
+            return render_template(
+                "damage_reports_admin.html",
+                reports=reports
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
