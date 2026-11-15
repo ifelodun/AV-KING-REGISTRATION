@@ -1,0 +1,211 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold">Payment Verification</h3>
+        <p class="text-muted">
+            Review and verify workers' bank-transfer payment claims.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h6 class="text-muted">Awaiting Verification</h6>
+            <h2 class="fw-bold text-warning">
+                {{ pending_payments|length }}
+            </h2>
+            <span class="text-muted">Pending bank-transfer claims</span>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">Workers' Payment Claims</h5>
+        </div>
+
+        <div class="card-body">
+
+            {% if pending_payments %}
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Worker</th>
+                            <th>Damage Report</th>
+                            <th>Amount</th>
+                            <th>Reference</th>
+                            <th>Date Submitted</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for payment in pending_payments %}
+
+                        <tr>
+                            <td>
+                                <strong>
+                                    {{ payment.first_name }}
+                                    {{ payment.last_name }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ payment.damage_title }}
+                                <br>
+                                <small class="text-muted">
+                                    Report #{{ payment.damage_report_id }}
+                                </small>
+                            </td>
+
+                            <td class="fw-bold">
+                                ₦{{ "{:,.2f}".format(payment.amount or 0) }}
+                            </td>
+
+                            <td>
+                                {{ payment.payment_reference }}
+                            </td>
+
+                            <td>
+                                {{ payment.created_at }}
+                            </td>
+
+                            <td>
+                                <button class="btn btn-sm btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#verify{{ payment.id }}">
+                                    Review
+                                </button>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+                <div class="text-center py-5">
+                    <h5>No Pending Payment Claims</h5>
+                    <p class="text-muted">
+                        New worker bank-transfer claims will appear here.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+
+{% for payment in pending_payments %}
+
+<div class="modal fade"
+     id="verify{{ payment.id }}"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <form method="POST"
+                  action="{{ url_for('damage.damage_payment_verification') }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Verify Bank Transfer
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p>
+                        <strong>Worker:</strong>
+                        {{ payment.first_name }}
+                        {{ payment.last_name }}
+                    </p>
+
+                    <p>
+                        <strong>Damage:</strong>
+                        {{ payment.damage_title }}
+                    </p>
+
+                    <p>
+                        <strong>Amount:</strong>
+                        ₦{{ "{:,.2f}".format(payment.amount or 0) }}
+                    </p>
+
+                    <p>
+                        <strong>Reference:</strong>
+                        {{ payment.payment_reference }}
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Admin Note
+                        </label>
+
+                        <textarea name="admin_note"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Optional verification note"></textarea>
+                    </div>
+
+                    <input type="hidden"
+                           name="payment_id"
+                           value="{{ payment.id }}">
+
+                    <div class="alert alert-warning small">
+                        Confirm that the money has actually entered the
+                        company's bank account before approving.
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="submit"
+                            name="action"
+                            value="reject"
+                            class="btn btn-danger">
+                        Reject Claim
+                    </button>
+
+                    <button type="submit"
+                            name="action"
+                            value="approve"
+                            class="btn btn-success">
+                        Verify & Approve Payment
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endfor %}
+
+{% endblock %}
+  
