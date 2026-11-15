@@ -731,3 +731,153 @@ def bank_transfer_not_paid(report_id):
         url_for("damage_worker.worker_damage_payments")
     )
     
+@damage_bp.route("/payment-verification", methods=["GET", "POST"])
+def damage_payment_verification():
+
+    if not damage_admin_required():
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+
+            if request.method == "POST":
+
+                payment_id = request.form.get("payment_id", "").strip()
+                action = request.form.get("action", "").strip()
+                admin_note = request.form.get("admin_note", "").strip()
+
+                if not payment_id.isdigit() or action not in ("approve", "reject"):
+                    flash("Invalid payment verification request.", "danger")
+                    return redirect(url_for("damage.damage_payment_verification"))
+
+                # Lock the pending payment while it is being reviewed
+                cur.execute("""
+                    SELECT
+                        id,
+                        damage_report_id,
+                        application_id,
+                        payment_method,
+                        status
+                    FROM damage_payments
+                    WHERE id = %s
+                    FOR UPDATE
+                """, (int(payment_id),))
+
+                payment = cur.fetchone()
+
+                if (
+                    not payment
+                    or payment["payment_method"] != "bank_transfer"
+                    or payment["status"] != "Pending"
+                ):
+                    flash(
+                        "This payment is no longer awaiting verification.",
+                        "warning"
+                    )
+                    return redirect(url_for("damage.damage_payment_verification"))
+
+                if action == "approve":
+
+                    cur.execute("""
+                        UPDATE damage_payments
+                        SET
+                            status = 'Paid',
+                            admin_note = %s,
+                            verified_by = %s,
+                            verified_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                          AND status = 'Pending'
+                    """, (
+                        admin_note,
+                        str(session.get("admin_id")),
+                        int(payment_id)
+                    ))
+
+                    cur.execute("""
+                        UPDATE damage_reports
+                        SET
+                            payment_status = 'Paid',
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                          AND application_id = %s
+                          AND status = 'Approved'
+                    """, (
+                        payment["damage_report_id"],
+                        payment["application_id"]
+                    ))
+
+                    if cur.rowcount != 1:
+                        raise ValueError(
+                            "The damage report could not be marked as paid."
+                        )
+
+                    flash(
+                        "Bank transfer verified. Payment marked as Paid.",
+                        "success"
+                    )
+
+                else:
+
+                    cur.execute("""
+                        UPDATE damage_payments
+                        SET
+                            status = 'Rejected',
+                            admin_note = %s,
+                            verified_by = %s,
+                            verified_at = CURRENT_TIMESTAMP
+                        WHERE id = %s
+                          AND status = 'Pending'
+                    """, (
+                        admin_note,
+                        str(session.get("admin_id")),
+                        int(payment_id)
+                    ))
+
+                    flash(
+                        "Payment claim rejected. The worker still has an outstanding payment.",
+                        "warning"
+                    )
+
+                conn.commit()
+
+                return redirect(url_for("damage.damage_payment_verification"))
+
+            # Get bank-transfer claims awaiting verification
+            cur.execute("""
+                SELECT
+                    dp.id,
+                    dp.damage_report_id,
+                    dp.application_id,
+                    dp.amount,
+                    dp.payment_reference,
+                    dp.status,
+                    dp.created_at,
+                    dr.damage_title,
+                    a.first_name,
+                    a.last_name
+                FROM damage_payments dp
+                JOIN damage_reports dr
+                    ON dr.id = dp.damage_report_id
+                JOIN applications a
+                    ON a.id = dp.application_id
+                WHERE dp.payment_method = 'bank_transfer'
+                  AND dp.status = 'Pending'
+                ORDER BY dp.created_at ASC
+            """)
+
+            pending_payments = cur.fetchall()
+
+            return render_template(
+                "damage_payment_verification.html",
+                pending_payments=pending_payments
+            )
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+        
