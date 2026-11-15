@@ -704,8 +704,45 @@
 
     }
 
-</style>
+/* Mobile sidebar overlay */
+@media (max-width: 850px) {
+    body.sidebar-open::before {
+        content: "";
+        position: fixed;
+        inset: 60px 0 0;
+        background: rgba(15, 23, 42, 0.55);
+        z-index: 950;
+    }
 
+    .admin-sidebar {
+        top: 60px;
+        bottom: 0;
+        width: min(285px, 85vw);
+        z-index: 1000;
+    }
+
+    body.sidebar-enabled .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .mobile-topbar {
+        z-index: 1100;
+    }
+
+    .mobile-menu-button {
+        min-width: 42px;
+        min-height: 42px;
+    }
+}
+
+@media (min-width: 851px) {
+    body.sidebar-open::before {
+        display: none;
+    }
+}
+</style>
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/damage_portal.css') }}">
 
 {% block head %}
 {% endblock %}
@@ -1048,41 +1085,33 @@ or session.get('application_id') %}
     Payroll
 </a>
 
-{% endif %}
 
-<li class="nav-item">
-    <a class="nav-link"
-       href="{{ url_for('damage.damage_payment_verification') }}">
-        <i class="fas fa-money-check-alt"></i>
-        <span>Payment Verification</span>
-    </a>
-</li>
-    
-<!-- DAMAGE PAYMENT PORTAL -->
-<li class="nav-item">
-    <a class="nav-link"
-       href="{{ url_for('damage.damage_reports') }}">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span>Damage Reports</span>
-    </a>
-</li>
+<!-- DAMAGE PAYMENT PORTAL: ADMIN LINKS -->
+<a href="{{ url_for('damage.damage_payment_verification') }}"
+   class="sidebar-link {% if request.endpoint == 'damage.damage_payment_verification' %}active{% endif %}">
+    <span class="sidebar-icon">₦</span>
+    <span>Payment Verification</span>
+</a>
 
-<li class="nav-item">
-    <a class="nav-link"
-       href="{{ url_for('damage.damage_categories') }}">
-        <i class="fas fa-list"></i>
-        <span>Damage Categories</span>
-    </a>
-</li>
+<a href="{{ url_for('damage.damage_reports') }}"
+   class="sidebar-link {% if request.endpoint == 'damage.damage_reports' %}active{% endif %}">
+    <span class="sidebar-icon">⚠</span>
+    <span>Damage Reports</span>
+</a>
 
-<li class="nav-item">
-    <a class="nav-link"
-       href="{{ url_for('damage.payment_settings') }}">
-        <i class="fas fa-credit-card"></i>
-        <span>Damage Payment Settings</span>
-    </a>
-</li>
-    
+<a href="{{ url_for('damage.damage_categories') }}"
+   class="sidebar-link {% if request.endpoint == 'damage.damage_categories' %}active{% endif %}">
+    <span class="sidebar-icon">▤</span>
+    <span>Damage Categories</span>
+</a>
+
+<a href="{{ url_for('damage.payment_settings') }}"
+   class="sidebar-link {% if request.endpoint == 'damage.payment_settings' %}active{% endif %}">
+    <span class="sidebar-icon">⚙</span>
+    <span>Damage Payment Settings</span>
+</a>
+
+  {% endif %}  
     
         {% if endpoint_exists('admin_settings') %}
 
@@ -1150,15 +1179,21 @@ or session.get('application_id') %}
         </a>
 
 
-    {% endif %}
 
+<!-- DAMAGE PAYMENT PORTAL: APPLICANT LINKS -->
+<a href="{{ url_for('damage_worker.worker_report_damage') }}"
+   class="sidebar-link {% if request.endpoint == 'damage_worker.worker_report_damage' %}active{% endif %}">
+    <span class="sidebar-icon">⚠</span>
+    <span>Report Damaged Property</span>
+</a>
 
 <a href="{{ url_for('damage_worker.worker_damage_payments') }}"
-   class="nav-link">
-    <i class="fas fa-money-bill-wave"></i>
-    My Damage Payments
+   class="sidebar-link {% if request.endpoint == 'damage_worker.worker_damage_payments' %}active{% endif %}">
+    <span class="sidebar-icon">₦</span>
+    <span>My Damage Payments</span>
 </a>
-    
+
+    {% endif %}
 {% if application is defined and application.status == "Approved" %}
 
 <a
@@ -1368,22 +1403,50 @@ document.addEventListener(
         /*
          * MOBILE SIDEBAR
          */
+if (button && sidebar) {
 
-        if (button && sidebar) {
+    function closeSidebar() {
+        sidebar.classList.remove("open");
+        document.body.classList.remove("sidebar-open");
+        button.setAttribute("aria-label", "Open navigation");
+        button.textContent = "☰";
+    }
 
-            button.addEventListener(
-                "click",
-                function () {
+    function toggleSidebar() {
+        const isOpen = sidebar.classList.toggle("open");
 
-                    sidebar.classList.toggle(
-                        "open"
-                    );
+        document.body.classList.toggle("sidebar-open", isOpen);
 
-                }
-            );
+        button.setAttribute(
+            "aria-label",
+            isOpen ? "Close navigation" : "Open navigation"
+        );
 
+        button.textContent = isOpen ? "✕" : "☰";
+    }
+
+    button.addEventListener("click", toggleSidebar);
+
+    document.addEventListener("click", function(event) {
+        if (
+            document.body.classList.contains("sidebar-open") &&
+            !sidebar.contains(event.target) &&
+            !button.contains(event.target)
+        ) {
+            closeSidebar();
         }
+    });
 
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+            closeSidebar();
+        }
+    });
+
+    sidebar.querySelectorAll("a").forEach(function(link) {
+        link.addEventListener("click", closeSidebar);
+    });
+}
 
         /*
          * CLOSE MOBILE SIDEBAR
